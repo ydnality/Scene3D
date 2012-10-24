@@ -1,0 +1,27 @@
+	# Material 'Material'
+TransformBegin
+	Scale 1.000000 1.000000 1.000000
+	Rotate 0.000000 1 0 0
+	Rotate 0.000000 0 1 0
+	Rotate 0.000000 0 0 1
+	Translate 0.000000 0.000000 0.000000
+TransformEnd
+
+Texture "Material::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   #"string filename" ["usairforce.tga"]
+   "string filename" ["pointTest.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [0.000000]
+Texture "Material::Kd.scale" "color" "scale" "texture tex1" ["material_0::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+MakeNamedMaterial "Material"
+   "string type" ["uber"] "texture Kd" ["Material::Kd"]
+   "color Kd" [1 1 1]
+   "color Ks" [0 0 0]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+   "float bumpmap" [0.000000]

@@ -1,0 +1,1 @@
+function [rootPath]=s3dRootPath%%   rootPath = s3dRootPath;%% This file must reside in the root directory of the scene3D Project% folder.  The file is used to identify the directory it resides in.rootPath=which('s3dRootPath');[rootPath,fName,ext]=fileparts(rootPath);return;
