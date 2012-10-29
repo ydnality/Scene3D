@@ -33,8 +33,10 @@ Camera "realistic"
 
 
 Film "image"
-   "integer xresolution" [200]
-   "integer yresolution" [150]
+   "integer xresolution" [100]
+   "integer yresolution" [75]
+   #"integer xresolution" [200]
+   #"integer yresolution" [150]
    "string filename" ["realisticPointTest_d.dat"]
 
 PixelFilter "mitchell"
@@ -43,9 +45,9 @@ PixelFilter "mitchell"
 
 Sampler "lowdiscrepancy"
 
-    "integer pixelsamples" [131070]
- # "integer pixelsamples" [16384]
- #"integer pixelsamples" [8192]
+  #  "integer pixelsamples" [131070]
+  #"integer pixelsamples" [16384]
+ "integer pixelsamples" [8192]
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [1]
 

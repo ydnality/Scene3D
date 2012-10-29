@@ -4,10 +4,15 @@
 
 %% HURB ray tracing results
 
-s_s3dRenderDiffractionPoint;
+% s_s3dRenderDiffractionPoint;  %use this if no prerendered images to load
+
 %for this example only
 % load 'pointTestOI.mat';
 % oi = opticalimage;
+%load 'generatedDiffractioNoSpectral.mat'
+load 'generatedDiffraction101612.mat'
+oi = opticalimage;
+
 oiIlluminance = oiGet(oi, 'illuminance');
 PSFLine = oiIlluminance(size(oiIlluminance,1)/2, :);
 oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );  %need to correct for "horizontalness"
@@ -27,8 +32,8 @@ ylabel('Illuminance');
 %vcAddAndSelectObject(scene); sceneWindow;
 
 %load scene file
-% scene = sceneFromFile('pointTest.png', 'rgb');
-scene = sceneFromFile('usairforce.png', 'rgb');
+ scene = sceneFromFile('pointTest.png', 'rgb');
+%scene = sceneFromFile('usairforce.png', 'rgb');
 
 scene = sceneSet(scene,'fov',8);
 scene = sceneset(scene, 'distance', 2);

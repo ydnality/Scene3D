@@ -1,6 +1,6 @@
 %% PBRT will run the PBRT script
 chdir(fullfile(s3dRootPath, 'scripts', 'validate'));
-unix('/usr/share/pbrt-v2-spectral/src/bin/pbrt pointTest.pbrt'); 
+unix('../../../pbrt-v2-spectral-diffraction/src/bin/pbrt pointTest.pbrt'); 
 %%IMPORTANT NOTE: please replace '/usr/share/pbrt-v2-spectral/src/bin/pbrt' with the location of your installation of pbrt
 
 %% ISET will read the PBRT output
