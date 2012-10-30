@@ -13,8 +13,8 @@ Camera "perspectiveDiffraction" "float fov" [8]   #this sets FOV for smaller dim
 	"float lensradius" [.05] 
 
 Film "image"
-   "integer xresolution" [200]
-   "integer yresolution" [150]
+   "integer xresolution" [25]
+   "integer yresolution" [25]
    "string filename" ["pointTest_d.dat"]
 
 PixelFilter "mitchell"
@@ -23,7 +23,7 @@ PixelFilter "mitchell"
 
 Sampler "lowdiscrepancy"
   #"integer pixelsamples" [16384]
- "integer pixelsamples" [128]
+ "integer pixelsamples" [4096]
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [1]
 
