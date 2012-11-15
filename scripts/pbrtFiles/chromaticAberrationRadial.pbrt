@@ -22,13 +22,15 @@ LookAt 0 0 8001.0
 
 Camera "realisticDiffraction" 
 	"string specfile"  "dgauss.50mm.dat" #"wide.22mm.dat"
-	"float filmdistance" 50 #86 #42 #15  #36.77
-	"float aperture_diameter" .1 
-	"float filmdiag" 5
+	"float filmdistance" 36.4 # 36.4 is in focus for 50mm and 8000 distance #86 #42 #15  #36.77
+	"float aperture_diameter" 2 
+	"float filmdiag" .625 #.125 #5
 	"float hither" [0.001 ] 
 	"float yon" [1e+30 ] 
 	"float shutteropen" [0 ] 
 	"float shutterclose" [0 ]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [1];
 
 
 Film "image"
@@ -36,7 +38,7 @@ Film "image"
    "integer yresolution" [100]
    #"integer xresolution" [200]
    #"integer yresolution" [150]
-   "string filename" ["realisticPointTest_d.dat"]
+   "string filename" ["chromaticAberration_d.dat"]
 
 PixelFilter "mitchell"
    "float B" [0.750000]
@@ -44,9 +46,12 @@ PixelFilter "mitchell"
 
 Sampler "lowdiscrepancy"
 
-  #  "integer pixelsamples" [131070]
-  "integer pixelsamples" [16384]
- #"integer pixelsamples" [8192]
+#524280
+
+#"integer pixelsamples" [524280]
+   #"integer pixelsamples" [131070]
+  #"integer pixelsamples" [16384]
+ "integer pixelsamples" [8192]
  #"integer pixelsamples" [2048]
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [1]
@@ -61,10 +66,10 @@ WorldBegin
         LightSource "spot" "color I" [100000000000000000000000 100000000000000000000000 100000000000000000000000] "point from" [0 0 100000] "point to" [0 0 0] "float coneangle" [140] "integer nsamples" [32]
     AttributeEnd
 
-    Include "pointTest-mat.pbrt"
+    Include "chromaticAberrationRadial-mat.pbrt"
     # Include "usairforceTest-mat.pbrt"
 
-    Include "pointTest-geom.pbrt"
+    Include "chromaticAberrationRadial-geom.pbrt"
 
 WorldEnd
 
