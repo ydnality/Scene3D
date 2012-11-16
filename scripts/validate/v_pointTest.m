@@ -11,4 +11,4 @@ vcAddAndSelectObject(oi);
 oiWindow;
 
 m = oiGet(oi, 'mean illuminance')
-assert(m < 1.8e-04 && m > 1.0e-04, 'Mean illuminance out of range!');
+assert(m < 2e-04 && m > 1.0e-04, 'Mean illuminance out of range!');

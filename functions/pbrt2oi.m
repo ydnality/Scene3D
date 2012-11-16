@@ -68,9 +68,20 @@ function oi = pbrt2oi(fname)
 
 if ieNotDefined('fname'), error('File name required.'); end
 
-%% Load the stored photons produced by AL's pbrt code
+%open file
 fID = fopen(fname,'r','l');
-[A, cnt] = fscanf(fID,'%d %d %d\n',[3 Inf]);
+
+%load size information
+[A, cnt] = fscanf(fID,'%d %d %d\n',[3 1]);
+
+%load lens and field of view and information
+[FOV, cnt2] = fscanf(fID,'%d %d %d\n',[3 1]);
+focalLength = FOV(1)
+aperture = FOV(2)
+fiedOfView = FOV(3)
+
+
+%Load the stored photons produced by AL's pbrt code
 photons = fread(fID,prod(A),'double');
 
 %A(2) = rows, A(1) = columns
