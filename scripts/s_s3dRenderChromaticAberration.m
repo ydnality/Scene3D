@@ -11,7 +11,7 @@ chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
 % unix([fullfile(pbrtHome, '/src/bin/pbrt') ' chromaticAberration.pbrt']);
 
 % radial lines rendering
-% unix([fullfile(pbrtHome, '/src/bin/pbrt') ' chromaticAberrationRadial.pbrt']); 
+unix([fullfile(pbrtHome, '/src/bin/pbrt') ' chromaticAberrationRadial.pbrt']); 
 
 % checkerboard rendering
 %unix([fullfile(pbrtHome, '/src/bin/pbrt') ' chromaticAberrationCheckerBoard.pbrt']);

@@ -22,7 +22,7 @@ Camera "realisticDiffraction"
 	"float shutteropen" [0 ] 
 	"float shutterclose" [0 ]
     "float diffractionEnabled" [1]
-    "float chromaticAberrationEnabled" [0]
+    "float chromaticAberrationEnabled" [1]
 
 
 
