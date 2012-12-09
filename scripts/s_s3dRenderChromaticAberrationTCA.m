@@ -7,15 +7,8 @@ chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
 % list of all chromatic aberration renderings - uncomment and run the one
 % you wish to run
 
-% slanted bar rendering
-% unix([fullfile(pbrtHome, '/src/bin/pbrt') ' chromaticAberration.pbrt']);
-
 % radial lines rendering
 unix([fullfile(pbrtHome, '/src/bin/pbrt') ' chromaticAberrationRadialTCA.pbrt']); 
-
-% checkerboard rendering
-%unix([fullfile(pbrtHome, '/src/bin/pbrt') ' chromaticAberrationCheckerBoard.pbrt']);
-
 
 %% ISET will read the PBRT output
 % scene = sceneSet(scene,'fov', 8);

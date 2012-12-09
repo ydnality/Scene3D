@@ -16,6 +16,8 @@ oi = opticalimage;
 oiIlluminance = oiGet(oi, 'illuminance');
 PSFLine = oiIlluminance(size(oiIlluminance,1)/2, :);
 oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );  %need to correct for "horizontalness"
+vcAddAndSelectObject(oi);
+
 position = linspace(-359.5, 359.5, length(PSFLine));
 figure;
 plot(position, PSFLine);
@@ -36,7 +38,7 @@ ylabel('Illuminance');
 %scene = sceneFromFile('usairforce.png', 'rgb');
 
 scene = sceneSet(scene,'fov',8);
-scene = sceneset(scene, 'distance', 2);
+scene = sceneSet(scene, 'distance', 2);
 vcAddAndSelectObject(scene); sceneWindow;
 
 %create optical image
