@@ -75,7 +75,7 @@ fID = fopen(fname,'r','l');
 [A, cnt] = fscanf(fID,'%d %d %d\n',[3 1]);
 
 %load lens and field of view and information
-[FOV, cnt2] = fscanf(fID,'%d %d %d\n',[3 1]);
+[FOV, cnt2] = fscanf(fID,'%f %f %f\n',[3 1]);
 focalLength = FOV(1)
 aperture = FOV(2)
 fiedOfView = FOV(3)

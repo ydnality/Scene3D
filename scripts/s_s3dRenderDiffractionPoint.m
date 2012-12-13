@@ -3,7 +3,7 @@
 
 %% PBRT will run the PBRT script
 chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
-unix('/usr/share/pbrt-v2-spectral/src/bin/pbrt pointTest.pbrt'); 
+unix([fullfile(pbrtHome, '/src/bin/pbrt') ' realisticPointTest.pbrt']); 
 
 %% ISET will read the PBRT output
 % scene = sceneSet(scene,'fov', 8);
