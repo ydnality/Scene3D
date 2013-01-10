@@ -76,9 +76,14 @@ fID = fopen(fname,'r','l');
 
 %load lens and field of view and information
 [FOV, cnt2] = fscanf(fID,'%f %f %f\n',[3 1]);
-focalLength = FOV(1)
-aperture = FOV(2)
-fiedOfView = FOV(3)
+
+if (~isempty(FOV))
+    focalLength = FOV(1)
+    aperture = FOV(2)
+    fiedOfView = FOV(3)
+else
+    'no lens information!!'
+end
 
 
 %Load the stored photons produced by AL's pbrt code

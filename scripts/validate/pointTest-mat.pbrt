@@ -18,7 +18,9 @@ Texture "Material::Kd" "color" "imagemap"
    "float vscale" [-1.000000]
    "float udelta" [0.000000]
    "float vdelta" [0.000000]
-Texture "Material::Kd.scale" "color" "scale" "texture tex1" ["material_0::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+#Texture "Material::Kd.scale" "color" "scale" "texture tex1" ["material_0::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+#MakeNamedMaterial "Material"
+Texture "Material::Kd.scale" "color" "scale" "texture tex1" ["Material::Kd"] "color tex2" [0.800000 0.800000 0.800000]
 MakeNamedMaterial "Material"
    "string type" ["uber"] "texture Kd" ["Material::Kd"]
    "color Kd" [1 1 1]
