@@ -1,4 +1,9 @@
-% This script runs a proclus 
+% This function runs one single pbrt job on Proclus.  This is a wrapper function 
+% for the pbrt call.  This funciton also adds a random pause between 0 and
+% 1 seconds to every job, to allow for a proper random seed.
+% inputs: pbrtFile: the name of the pbrt file to execute, 
+% jobIndex: the current index for the job (used for random seed assignment)
+% numpRrocs: the total number of processes used
 function output = s_s3dOneParallelJob(pbrtFile, jobIndex, numProcs)
 % produce a high quality rendering, with chromatic abberation. 
 tic
