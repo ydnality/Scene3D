@@ -6,7 +6,7 @@
 Film "image"
    "integer xresolution" [300] 
    "integer yresolution" [300]
-   "string filename" ["cones_d.exr"]
+   "string filename" ["output_d.exr"]
 
 
 #Scale -1 1 1  # account for fixed lookat bug...
