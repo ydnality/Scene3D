@@ -1,0 +1,228 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+
+
+#original
+#LookAt 359.4034 -341.6905 28 
+#       357.9510 -340.3236 28 
+
+# 1 unit to the right
+#LookAt 360.7703 -340.2381   28.0000
+#359.3179 -338.8712   28.0000
+
+#LookAt 359.4034 -341.6905 36 
+#       357.9510 -340.3236 36 
+
+#(1, 0)
+#LookAt  360.7703 -340.2381  28.0000
+#        359.3179 -338.8712   28.0000
+#(2,0)
+#LookAt  362.1372 -338.7857   28.0000
+ #       360.6848 -337.4188   28.0000
+#(-1,0)
+#LookAt     358.0365 -343.1429   28.0000
+#  356.5841 -341.7760   28.0000
+#(-2,0)
+#LookAt    356.6696 -344.5953   28.0000
+#  355.2172 -343.2284   28.0000
+#(-2,1)
+#LookAt  356.6696 -344.5953   29.0000
+#  355.2172 -343.2284   29.0000
+#(-1,1)
+#LookAt  358.0365 -343.1429   29.0000
+#  356.5841 -341.7760   29.0000
+#(0,1)
+#LookAt  359.4034 -341.6905   29.0000
+#  357.9510 -340.3236   29.0000
+#(1,1)
+#LookAt    360.7703 -340.2381   29.0000
+#  359.3179 -338.8712   29.0000
+#(2,1)
+#LookAt  362.1372 -338.7857   29.0000
+#  360.6848 -337.4188   29.0000
+#(2,2)
+LookAt
+  362.1372 -338.7857   30.0000
+  360.6848 -337.4188   30.0000
+
+#(-2,2)
+#LookAt   
+#  356.6696 -344.5953   30.0000
+#  355.2172 -343.2284   30.0000
+
+#(-1,2)
+#LookAt
+#  358.0365 -343.1429   30.0000
+#  356.5841 -341.7760   30.0000
+
+#(0,2)
+#LookAt
+#  359.4034 -341.6905   30.0000
+#  357.9510 -340.3236   30.0000
+
+#(1,2)
+#LookAt
+#  360.7703 -340.2381   30.0000
+#  359.3179 -338.8712   30.0000
+#LookAt
+#  362.1372 -338.7857   30.0000
+#  360.6848 -337.4188   30.0000
+#(-2, -1)
+#LookAt
+#  356.6696 -344.5953   27.0000
+#  355.2172 -343.2284   27.0000
+
+#(-1,-1)
+#LookAt
+ # 358.0365 -343.1429   27.0000
+  #356.5841 -341.7760   27.0000
+
+#(0,-1)
+#LookAt
+#  359.4034 -341.6905   27.0000
+#  357.9510 -340.3236   27.0000
+
+#(1,-1)
+#LookAt
+#  360.7703 -340.2381   27.0000
+#  359.3179 -338.8712   27.0000
+
+#(2,-1)
+#LookAt
+#  362.1372 -338.7857   27.0000
+#  360.6848 -337.4188   27.0000
+
+#(-2,-2)
+#LookAt
+#  356.6696 -344.5953   26.0000
+#  355.2172 -343.2284   26.0000
+#(-1,-2)
+#LookAt
+#  358.0365 -343.1429   26.0000
+#  356.5841 -341.7760   26.0000
+#(-0,-2)
+#LookAt
+#  359.4034 -341.6905   26.0000
+#  357.9510 -340.3236   26.0000
+#(1,-2)
+#LookAt
+#  360.7703 -340.2381   26.0000
+#  359.3179 -338.8712   26.0000
+
+
+#(2,-2)
+#LookAt
+#  362.1372 -338.7857   26.0000
+#  360.6848 -337.4188   26.0000
+
+#(1,0
+#LookAt
+#  360.7703 -340.2381   28.0000
+#  359.3179 -338.8712   28.0000
+#LookAt   718.8068  -683.3809  36.446182 
+#       715.9020  -680.6473 36.371479 
+      0 0 1
+#LookAt 179.701691 -170.845230 36.446182 
+#       178.975494 -170.161819 36.371479 
+#       -0.046965 0.059093 0.997147
+
+#Camera "perspective"
+#   "float fov" [40]
+#   "float lensradius" 5
+#    "float focaldistance" 300
+
+Camera "realisticDiffraction" 
+	"string specfile" "dgauss.50mmSA2.dat" 
+	#"float filmdistance" 36.77
+    "float filmdistance" 47  #50 #64
+	"float aperture_diameter" 1 #3
+	"float filmdiag" 10 #70 
+	"float hither" [0.001 ] 
+	"float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+    "float diffractionEnabled" [1]
+    "float chromaticAberrationEnabled" [1]
+
+
+
+Film "image"
+   "integer xresolution" [512] 
+   "integer yresolution" [512]
+   "string filename" ["output_d.exr"]
+
+#PixelFilter "mitchell"
+#   "float B" [0.750000]
+#   "float C" [0.125000]
+
+Sampler "lowdiscrepancy"
+   "integer pixelsamples" 256 #[32768]
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]
+
+VolumeIntegrator "single"
+   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+
+
+AttributeBegin
+Rotate 330 0 0 1
+Rotate 4 0 1 0 
+LightSource "infinite" "integer nsamples" [8]
+    "color scale" [5 3 3]
+"string mapname" ["sunset.exr"  ]
+	#"string mapname" ["RenoSuburb01_sm.exr"  ]
+AttributeEnd
+
+
+#AttributeBegin
+#  AreaLightSource "area" "color L" [96000000 56000000 28600000] "integer nsamples" [8]
+  # use camera coordinate system (optional)
+#  CoordSysTransform "camera"
+  # adjust light source position
+#  Translate -110 125 5000
+  #Rotate -90 0 1 0
+  #define the shape of the arealight to be a disk with radius 1.5
+#  Shape "sphere" "float radius" [.15] 
+#AttributeEnd
+
+
+#AttributeBegin
+#  AreaLightSource "area" "color L" [2750 2100 1430] "integer nsamples" [8]
+  # use camera coordinate system (optional)
+#  CoordSysTransform "camera"
+  # adjust light source position
+  #Translate 10.75 17 58.5
+#    Translate 42 65 250
+  #Rotate -90 0 1 0
+  #define the shape of the arealight to be a disk with radius 1.5
+#  Shape "sphere" "float radius" [.1] 
+#AttributeEnd
+
+#AttributeBegin
+#  AreaLightSource "area" "color L" [27500 21000 14300] "integer nsamples" [8]
+  # use camera coordinate system (optional)
+#  CoordSysTransform "camera"
+  # adjust light source position
+ # Translate 10.75 17 59.5
+  #Rotate -90 0 1 0
+  #define the shape of the arealight to be a disk with radius 1.5
+#  Shape "sphere" "float radius" [.1] 
+#AttributeEnd
+
+
+Include "default-mat.pbrt"
+
+Include "default-geom-big.pbrt"
+
+Include "default-vol.pbrt"
+
+WorldEnd
+
+
