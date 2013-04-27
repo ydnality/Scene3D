@@ -1,22 +1,19 @@
-First version of renderToolBox to ISET interface. 
+Scene3D
 
--makeDepthMap.m converts a binary depth map to a matlab format.  
--makeRadianceScene.m is an ISET function that takes in a given scene output from renderToolBox (picMat_orange_rad.mat) 
-as well as a depth map (in matlab format), then converts this to an ISET scene.
+This is the PBRT -> ISET interface. 
 
--binaryRead.m is a helper function that allows makeDepthMap to do it's thing.
--depthmap.zbf is the original depth map (in binary format)
--picMac_orange_rad.mat is the spectral radiance, from renderToolBox.  MakeRadianceScene uses this and converts it into ISET format. 
+We use a modified (forked) form of PBRT that is in 
 
-These functions/scripts are specific to the data provided, for now.  
-Also, the distance right now is very general for now (between 0 and 1, no units provided, 
-where 0 is the minimum valid specified distance and 1 is the maximum valid specified distance). 
-This was put into place so that the depth map would be easier to see as an image, 
-but the absolute distance is important to be precise. 
-In makeDepthMap.m, the minimum and maximum recognized distances can be changed.  
+  https://github.com/ydnality/pbrt-v2-spectral/tree/spectral
+
+which is derived from the master repository
+
+  https://github.com/ydnality/pbrt-v2-spectral
+
+The Scene3D repository contains 
+
+	* Matlab files that call PBRT
+        * Some PBRT data (examples)
+	* Matlab files that read PBRT output and convert them to ISET objects
 
 
-to run, run the following commands:
-
-makeDepthMap
-makeRadianceScene
