@@ -101,5 +101,10 @@ oi = initDefaultSpectrum(oi);
 
 oi = oiSet(oi,'cphotons',photons);
 
+%temporarily disable depth map reading
+% [path,name,ext] = fileparts(fname); 
+% dMapFile = [name '_dm_DM.dat']; 
+% oi.depthMap = s3dReadDepthMapFile(dMapFile);
+%oi.depthMap = imresize(scene.depthMap, [sceneGet(scene, 'rows') sceneGet(scene, 'cols')]);
 
 return

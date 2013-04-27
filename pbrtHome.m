@@ -7,7 +7,13 @@ function [pbrtPath]=pbrtHome
 
 
 %please update this to reflect the proper location of pbrt.
-pbrtPath = '/home/ydna/pbrt-v2-spectral-diffraction/';
-% pbrtPath = '/home/ajwandell/Dropbox/Scene3D/pbrt-v2-spectral-diffraction/';
+%pbrtPath = '/home/andy/Dropbox/Scene3D/pbrt-v2-spectral-diffraction/';
+%pbrtPath = '/home/ydna/pbrt-v2-spectral-diffraction/';
+
+%rootPath=which('pbrtHome');
+%[rootPath,fName,ext]=fileparts(rootPath);
+
+pbrtPath = '/home/ajwandell/Dropbox/Scene3D/pbrt-v2-spectral-diffraction/';
+%pbrtPath = '/home/ajwandell/Dropbox/Scene3D/pbrt-v2-test/pbrt-v2-spectral/';
 return;
 

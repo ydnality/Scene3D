@@ -16,7 +16,7 @@ unix([fullfile(pbrtHome, '/src/bin/pbrt') ' chromaticAberration.pbrt']);
 
 %% ISET will read the PBRT output
 % scene = sceneSet(scene,'fov', 8);
-oi = pbrt2oi('chromaticAberration_d.dat');
+oi = pbrt2oi('output_d.dat');
 % oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );
 vcAddAndSelectObject(oi);
 oiWindow;

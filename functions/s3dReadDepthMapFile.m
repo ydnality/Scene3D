@@ -32,7 +32,8 @@ function A3 = s3dReadDepthMapFile(depthMapFile)
 % fid=fopen('depthmap.zbf', 'r', 'l');
 fid = fopen(depthMapFile, 'r', 'l');
 
-A = fread(fid, 'float32');
+%A = fread(fid, 'float32');
+A = fread(fid, 'double');
 
 % Please fix ...
 % assumes a square image, need to change to proportion of image dimensions
@@ -56,16 +57,16 @@ A3 = reshape(A2, [test test])';
 % Either they should be returned, or we should calculate them quietly.
 % viewImage = abs(A3 - 900)/100;
 % viewImage = abs(A3 - lowerLimit)/(upperLimit-lowerLimit);
-lowerLimit = min(A2);    %will this cause scaling problems later with inconsistent scaling?  No - this is only for viewing purposes!  
-upperLimit = max(A2);
+%lowerLimit = min(A2);    %will this cause scaling problems later with inconsistent scaling?  No - this is only for viewing purposes!  
+%upperLimit = max(A2);
 
 % Scale the data to between 0 and 1
-viewImage = abs((A3 - lowerLimit)/(upperLimit-lowerLimit));
-% figure; imshow(viewImage);
-
-% Write out a tiff file.  This provides a basic debugging output to see if
-% the depthmap was properly read.  
-imwrite(viewImage, 'depthMapView.tif');
+%viewImage = abs((A3 - lowerLimit)/(upperLimit-lowerLimit));
+%figure; imshow(viewImage);
+% 
+% % Write out a tiff file.  This provides a basic debugging output to see if
+% % the depthmap was properly read.  
+% imwrite(viewImage, 'depthMapView.tif');
 
 return
 

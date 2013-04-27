@@ -23,7 +23,7 @@ LookAt 0 0 8001.0
 Camera "realisticDiffraction" 
 	"string specfile"  "dgauss.50mm.dat" #"wide.22mm.dat"
 	"float filmdistance" 36.4 # 36.4 is in focus for 50mm and 8000 distance #86 #42 #15  #36.77
-	"float aperture_diameter" 2 
+	"float aperture_diameter" 2    
 	"float filmdiag" .125 #.125 #5
 	"float hither" [0.001 ] 
 	"float yon" [1e+30 ] 
@@ -36,25 +36,18 @@ Camera "realisticDiffraction"
 Film "image"
    "integer xresolution" [50]
    "integer yresolution" [50]
-   #"integer xresolution" [200]
-   #"integer yresolution" [150]
-   "string filename" ["chromaticAberration_d.dat"]
+   "string filename" ["output_d.dat"]
 
 PixelFilter "mitchell"
-   "float B" [0.750000]
+   "float B" [0.750000] 
    "float C" [0.125000]
 
 Sampler "lowdiscrepancy"
 
 #524280
 
-#"integer pixelsamples" [524280]
-   #"integer pixelsamples" [131070]
-  #"integer pixelsamples" [16384]
-# "integer pixelsamples" [8192]
- "integer pixelsamples" [4096]
-#"integer pixelsamples" [1024]
-#"integer pixelsamples" [32]
+"integer pixelsamples" [256]
+
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [1]
 

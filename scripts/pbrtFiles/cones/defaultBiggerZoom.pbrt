@@ -12,7 +12,7 @@ Film "image"
 #Scale -1 1 1  # account for fixed lookat bug...
 
 # Please render final images at 4 and 512 samples per pixel
-Sampler "lowdiscrepancy" "integer pixelsamples" [128]
+Sampler "lowdiscrepancy" "integer pixelsamples" [64]
 
 
 
@@ -39,8 +39,8 @@ Camera "realisticDiffraction"
 	"float yon" [1e+30 ] 
 	"float shutteropen" [0 ] 
 	"float shutterclose" [0 ]
-    "float diffractionEnabled" [1]
-    "float chromaticAberrationEnabled" [1]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]
 
 
 WorldBegin

@@ -19,16 +19,6 @@ vcAddAndSelectObject(oi);
 oiWindow;
 m = oiGet(oi, 'mean illuminance')
 
-%% flash rendering
-unix([fullfile(pbrtHome, '/src/bin/pbrt') ' ../cones/defaultBiggerZoom_Flash.pbrt']);
-% ISET will read the PBRT output
-% scene = sceneSet(scene,'fov', 8);
-oi = pbrt2oi('output_d.dat');
-% oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );
-vcAddAndSelectObject(oi);
-oiWindow;
-m = oiGet(oi, 'mean illuminance')
-
 %% depth map rendering experiment
 
 %basically, this renders a set number of depth maps, then combines them
@@ -49,6 +39,7 @@ for i = 1:numDM
     
     dMapFile = 'output_d_dm_DM.dat'; 
     depthMap(:,:,i) = s3dReadDepthMapFile(dMapFile);
+    unix('rm *');
 end
 
 depthMapProcessedMin = min(depthMap, [], 3);

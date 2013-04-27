@@ -14,15 +14,15 @@ LookAt 179.701691 -170.845230 36.446182
 Camera "realisticDiffraction" 
 	"string specfile" "dgauss.50mmSA2.dat" 
 	#"float filmdistance" 36.77
-    "float filmdistance" 64
+#   "float filmdistance" 64
 	"float aperture_diameter" 3 #3
-	"float filmdiag" 10 #70 
+	"float filmdiag" 70 #10 70 
 	"float hither" [0.001 ] 
 	"float yon" [1e+30 ] 
 	"float shutteropen" [0 ] 
 	"float shutterclose" [0 ]
-    "float diffractionEnabled" [1]
-    "float chromaticAberrationEnabled" [1]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]
 
 
 
@@ -36,7 +36,7 @@ Film "image"
 #   "float C" [0.125000]
 
 Sampler "lowdiscrepancy"
-   "integer pixelsamples" 8192 #16384 #[32768]
+   "integer pixelsamples" [64]
 
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [1]
