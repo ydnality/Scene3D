@@ -13,9 +13,9 @@ tic
 numProc = 128;  %number of parallel processes
 jobName = 'bench';
 n = n + 1; %this is the job ID - increment it when adding a new job
-%pbrtFile = '/pbrtFiles/chromaticAberration.pbrt'
+pbrtFile = '/pbrtFiles/chromaticAberration.pbrt'
 %pbrtFile = '/pbrtFiles/benchScene/defaultBiggerHQP.pbrt'
-pbrtFile = '/pbrtFiles/benchScene/defaultBiggerCameraArray.pbrt'
+%pbrtFile = '/pbrtFiles/benchScene/defaultBiggerCameraArray.pbrt'
 %pbrtFile = '/pbrtFiles/cones/defaultBiggerZoom.pbrt'
 %pbrtFile = '/pbrtFiles/bunnyScene/bunnies.pbrt'
 
