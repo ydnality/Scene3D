@@ -2,7 +2,8 @@
 
 %% PBRT will run the PBRT script
 chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
-fname = '../indestructibleObject/default.pbrt'
+% fname = '../indestructibleObject/default.pbrt'
+fname = '../indestructibleObject/lambertian.pbrt'
 
 mkdir('tempOutput');
 chdir('tempOutput');
@@ -23,7 +24,7 @@ m = oiGet(oi, 'mean illuminance')
 
 
 %% camera processing - no flash image
-load('indObjNoFlashOi.mat');
+load('indObjNoFlashOi.mat');%load('indObjNoFlashOi.mat');
 oi = opticalimage;
 oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^13);  %some normalization issues
 myOptics = oiGet(oi, 'optics');  %to create proper crop at sensor
@@ -34,7 +35,8 @@ oi = oiSet(oi,'fov', 39.60); %fov of the scene
 vcAddAndSelectObject(oi); oiWindow;
 
 %sensor processing
-sensor = s3dProcessSensor(oi, .0096, [], .03);  
+% sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
+sensor = s3dProcessSensor(oi, 0, [], .03);    %low noise
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 %image processing
@@ -43,7 +45,7 @@ vcAddAndSelectObject(image); vcimageWindow;
 
 
 %% camera processing -  flash image
-load('indObjFlashOiLessStrong.mat');
+load('indObjFlashOiLambertianNoAmbient.mat');
 oi = opticalimage;
 % oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^14);  %some normalization issues
 oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^13);  %some normalization issues
@@ -55,11 +57,16 @@ oi = oiSet(oi,'fov', 39.60); %fov of the scene
 vcAddAndSelectObject(oi); oiWindow;
 
 %sensor processing
-sensor = s3dProcessSensor(oi, 0, [], .03);  
+% sensor = s3dProcessSensor(oi, 0, [], .03, []);      %front auto-exposure time:
+%autoExpTime = .4768
+sensor = s3dProcessSensor(oi, 0, [], [], .4768); 
+% sensor = s3dProcessSensor(oi, 0, [], [], .002); 
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 %image processing
-image = s3dProcessImage(sensor);
+% [image, transformMatrices] = s3dProcessImage(sensor, []);  %first time running
+[image, transformMatrices] = s3dProcessImage(sensor, wantedTransformMatrices);
+
 vcAddAndSelectObject(image); vcimageWindow;
 
 

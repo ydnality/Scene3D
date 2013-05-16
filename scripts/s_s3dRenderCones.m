@@ -40,7 +40,11 @@ m = oiGet(oi, 'mean illuminance')
 %streamlined and elegant in the future.
 
 numDM =  31;  %number of depth map files to render
+<<<<<<< HEAD
+depthMap = zeros(300, 300, 10);
+=======
 depthMap = zeros(300, 300, numDM);
+>>>>>>> 29795e43550c97738d65acef06774b828ab53809
 for i = 1:numDM    
     % depth map rendering
     [path,name,ext] = fileparts(fname); 

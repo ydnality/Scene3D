@@ -1,15 +1,28 @@
 
-%calculates the new lookAt positions for a camera array
+%%calculates the new lookAt positions for a camera array
 
-p1 = [359.4034 -341.6905 28 ];
-p2 = [357.9510 -340.3236 28 ];
+p1 = [-129.027725 -87.079384 80.930077   ];
+p2 = [-82.804611 -61.262680 72.396408  ];
 v = p2 - p1
 vp = [v(2) -v(1) 0]
+vp = vp./sqrt(sum(vp .* vp))
 
 vVertical = [ 0 0 1];
 
-horIncrement = 2
-verIncrement = 2
+horIncrement = 3
+verIncrement = 0
 
 newP1 = p1 + vp * horIncrement + vVertical * verIncrement
 newP2 = newP1 + v
+
+%% calculate new lookAt positions that are further back (for flash experiment)
+
+p1 = [-56.914787 -105.385544 13.014802       ];
+p2 = [ -56.487434 -104.481461 13.014835   ];
+v = p2 - p1
+v = v./sqrt(sum(v .* v))
+
+depthIncrement = -200;
+
+newP1 = p1 + depthIncrement .* v
+newP2 = p2 + depthIncrement .* v

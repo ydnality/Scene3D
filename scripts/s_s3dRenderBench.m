@@ -22,6 +22,27 @@ unix('cd ..');
 
 
 %% no-flash rendering
+<<<<<<< HEAD
+unix([fullfile(pbrtHome, '/src/bin/pbrt') ' benchScene/defaultBiggerZoom_NoFlash.pbrt']);
+% ISET will read the PBRT output
+% scene = sceneSet(scene,'fov', 8);
+oi = pbrt2oi('benchScene_d.dat');
+% oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );
+vcAddAndSelectObject(oi);
+oiWindow;
+m = oiGet(oi, 'mean illuminance')
+
+
+%% flash rendering
+unix([fullfile(pbrtHome, '/src/bin/pbrt') ' benchScene/defaultBiggerZoom_Flash.pbrt']);
+% ISET will read the PBRT output
+% scene = sceneSet(scene,'fov', 8);
+oi = pbrt2oi('benchScene_d.dat');
+% oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );
+vcAddAndSelectObject(oi);
+oiWindow;
+m = oiGet(oi, 'mean illuminance')
+=======
 unix([fullfile(pbrtHome, '/src/bin/pbrt') ' benchScene/defaultBiggerZoom_NoFlash.pbrt --outfile benchScene_d_noflash.dat']);
 
 % ISET will read the PBRT output
@@ -78,3 +99,4 @@ vcAddAndSelectObject(image); vcimageWindow;
 
 
 
+>>>>>>> 29795e43550c97738d65acef06774b828ab53809

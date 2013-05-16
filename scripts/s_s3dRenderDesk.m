@@ -22,7 +22,7 @@ oiWindow;
 m = oiGet(oi, 'mean illuminance')
 
 %% camera processing - no flash image
-load('deskNoFlashOi.mat');
+load('deskNoFlashOiRight.mat');
 oi = opticalimage;
 oi = oiSet(oi, 'photons', oiGet(oi,'photons') * .5 * 10^14);  %some normalization issues
 myOptics = oiGet(oi, 'optics');  %to create proper crop at sensor
@@ -34,7 +34,8 @@ vcAddAndSelectObject(oi); oiWindow;
 
 %sensor processing
 %sensor = s3dProcessSensor(oi, .0096, [600 400]);  
-sensor = s3dProcessSensor(oi, .01, [600 400], .04);    %why does exposure need to be set to this level?  what does this mean?  is pink overexposure realistic?
+% sensor = s3dProcessSensor(oi, .01, [600 400], .04);    %why does exposure need to be set to this level?  what does this mean?  is pink overexposure realistic?
+sensor = s3dProcessSensor(oi, [], [600 400], .04);    %why does exposure need to be set to this level?  what does this mean?  is pink overexposure realistic?
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 %image processing
