@@ -42,8 +42,8 @@ iRatio = (1:.01:5);
 d1 = zeros(size(iRatio));
 % iRatio(1) = 1;
 for ii=1:length(iRatio)
-    radical = sqrt(4*cos(alpha).^2*sin(phi).^2 - 4*f^2.*(1 - iRatio(ii)));
-    d1(ii) = (2*f^2)/(-2*cos(alpha).*sin(phi) + radical);
+    radical = sqrt(4*cos(alpha).^2*sin(phi).^2.*f.^2  - 4*f^2.*(1 - iRatio(ii)));
+    d1(ii) = (2*f^2)/(-2*cos(alpha).*sin(phi).*f + radical);
 end
 
 % We have a problem when phi is negative.  Otherwise, looking pretty good.
@@ -54,6 +54,49 @@ xlabel('iRatio')
 ylabel('Estimated distance')
 grid on
 
+
+
+
+%% testing the equation using known values
+
+% assume flash 1 at the origin
+% flash 2 is at (0,0,-1)
+
+% consider a point at (0,0,1)
+% here, at this point, alpha = 0, phi= pi/2
+
+% according to r^2 fall off, picture 1 should have 4 times the radiance as
+% picture 2.  1/(r^2 = 1) vs. 1/(r^2 = 4)  
+% thus, iRatio for this point should be 4, and d1 = 1
+
+
+
+testIRatio = 4;
+f = 1;
+phi = pi/2;
+alpha = 0;
+radical = sqrt(4*cos(alpha).^2*sin(phi).^2.*f.^2 - 4*f^2.*(1 - testIRatio));
+d1Test = (2*f^2)/(-2*cos(alpha).*sin(phi).*f + radical)
+
+% this checks out, d1Test = 1, as expected!
+
+
+% flash 1 at origin -> intensity ~ 1/2^2
+% flash 2 at (0, 0, -4) -> intensity ~ 1/6^2
+% point at (0, 0, 2)
+% alpha = 0, phi = pi/2
+
+% picture 1 should have 9 times the radiance of picture 2
+% thus, iRatio for this point should be 9, and d1 = 2
+
+testIRatio = 9;
+f = 4;
+phi = pi/2;
+alpha = 0;
+radical = sqrt(4*cos(alpha).^2*sin(phi).^2.*f.^2 - 4*f^2.*(1 - testIRatio));
+d1Test = (2*f^2)/(-2*cos(alpha).*sin(phi).*f + radical)
+
+% this checks out, d1Test = 2, as expected!
 
 
 
