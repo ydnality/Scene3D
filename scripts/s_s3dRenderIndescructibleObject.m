@@ -12,6 +12,7 @@ unix('rm *');
 %% scene rendering
 % unix([fullfile(pbrtHome, '/src/bin/pbrt') fname '--outfile output.dat']);
 outfile = 'indestructibleObject_out.dat';
+dMapFile = 'indestructibleObject_out_DM.dat'; 
 unix([fullfile(pbrtHome, '/src/bin/pbrt ') fname ' --outfile ' outfile]);
 
 % ISET will read the PBRT output
@@ -22,9 +23,28 @@ vcAddAndSelectObject(oi);
 oiWindow;
 m = oiGet(oi, 'mean illuminance')
 
+%% render depth map
+%read and output depth map
+outfile = 'indestructibleObject_out.dat';
+dMapFile = 'indestructibleObject_out_DM.dat'; 
+
+unix([fullfile(pbrtHome, '/src/bin/pbrt ') fname ' --outfile ' outfile]);
+depthMap = s3dReadDepthMapFile(dMapFile, [300 450]);
+numSamples = 4096;
+
+ratio = 450/300;
+for j = 1:size(depthMap,1)
+    for i = round(j*ratio):size(depthMap,2)
+        depthMap(j,i) = depthMap(j,i)/numSamples;
+    end
+end
+figure; imagesc(depthMap);
+
+
 
 %% camera processing - no flash image
-load('indObjNoFlashOi.mat');%load('indObjNoFlashOi.mat');
+load('indObjNoFlashOi.mat'); %load('indObjNoFlashOi.mat');
+
 oi = opticalimage;
 oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^13);  %some normalization issues
 myOptics = oiGet(oi, 'optics');  %to create proper crop at sensor
@@ -36,7 +56,7 @@ vcAddAndSelectObject(oi); oiWindow;
 
 %sensor processing
 % sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
-sensor = s3dProcessSensor(oi, 0, [], .03);    %low noise
+sensor = s3dProcessSensor(oi, 0, [], 0);    %low noise
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 %image processing
@@ -45,7 +65,10 @@ vcAddAndSelectObject(image); vcimageWindow;
 
 
 %% camera processing -  flash image
-load('indObjFlashOiLambertianNoAmbient.mat');
+% load('indObjFlashOiLambertianNoAmbient.mat');
+% load('indObject2FlashDepth/frontFlashOiLambertian.mat');
+load('indObject2FlashDepth/grayBackOi.mat');
+% load('indObject2FlashDepth/backFlashOiLambertianCloser.mat');
 oi = opticalimage;
 % oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^14);  %some normalization issues
 oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^13);  %some normalization issues
@@ -59,13 +82,18 @@ vcAddAndSelectObject(oi); oiWindow;
 %sensor processing
 % sensor = s3dProcessSensor(oi, 0, [], .03, []);      %front auto-exposure time:
 %autoExpTime = .4768
-sensor = s3dProcessSensor(oi, 0, [], [], .4768); 
+%sensor = s3dProcessSensor(oi, 0, [], [], .4768); 
+sensor = s3dProcessSensor(oi, 0, [], [], .05); 
+% sensor = s3dProcessSensor(oi, 0, [], [], .05); 
 % sensor = s3dProcessSensor(oi, 0, [], [], .002); 
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 %image processing
 % [image, transformMatrices] = s3dProcessImage(sensor, []);  %first time running
-[image, transformMatrices] = s3dProcessImage(sensor, wantedTransformMatrices);
+
+
+% wantedTransformMatrix = ;  % need to find this first... 
+[image, transformMatrices] = s3dProcessImage(sensor, []);
 
 vcAddAndSelectObject(image); vcimageWindow;
 

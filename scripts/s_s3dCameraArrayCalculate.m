@@ -22,7 +22,7 @@ p2 = [ -56.487434 -104.481461 13.014835   ];
 v = p2 - p1
 v = v./sqrt(sum(v .* v))
 
-depthIncrement = -200;
+depthIncrement = -50;
 
 newP1 = p1 + depthIncrement .* v
 newP2 = p2 + depthIncrement .* v
