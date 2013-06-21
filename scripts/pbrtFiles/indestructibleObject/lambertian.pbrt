@@ -2,8 +2,14 @@
 # Exported by pbrtBlend Blender Exporter
 
 Scale -1 1 1  # account for fixed lookat bug...
-LookAt -56.914787 -105.385544 13.014802    #original position
-       -56.487434 -104.481461 13.014835 
+
+
+#LookAt -56.914787 -105.385544 13.014802    #original position
+#       -56.487434 -104.481461 13.014835 
+#       -0.000013 -0.000031 1.000000
+
+LookAt -56.914787 -105.385544 13.0148    #straight position
+       -56.487434 -104.481461 13.0148 
        -0.000013 -0.000031 1.000000
 
 
@@ -42,7 +48,7 @@ Film "image"
 #   "float C" [0.125000]
 
 Sampler "lowdiscrepancy"
-   "integer pixelsamples" [32768] 
+   "integer pixelsamples" [512]#[32768] 
 #16384
 
 SurfaceIntegrator "directlighting"
@@ -56,13 +62,13 @@ Renderer "sample"
 WorldBegin
 
 #flash
-#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-56.914787 -105.385544 13.014802] "point to" [-56.487434 -104.481461 13.014835]
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-56.914787 -105.385544 13.0148] "point to" [-56.487434 -104.481461 13.0148]
 
 #flash - this one is placed further back
 #LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [   -142.3855 -286.2024   13.0082] "point to" [ -141.9582 -285.2984   13.0082]
 
 #LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [ -59.0516 -109.9060   13.0146] "point to" [-58.6242 -109.0019   13.0147]
-LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [  -78.2825 -150.5898   13.0132] "point to" [  -77.8551 -149.6857   13.0132]
+LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [  -78.2825 -150.5898   13.0148] "point to" [  -77.8551 -149.6857   13.0148]
 
 
 AttributeBegin

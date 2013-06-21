@@ -1,15 +1,15 @@
 % Runs PBRT and imports it in ISET for the bench scene. 
 
-%% PBRT will run the PBRT script
+%% PBRT will run the PBRT script - initializing
 chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
 % fname = '../indestructibleObject/default.pbrt'
-fname = '../indestructibleObject/lambertian.pbrt'
+fname = '../indestructibleObject/lambertian-down.pbrt'
 
 mkdir('tempOutput');
 chdir('tempOutput');
 unix('rm *');
 
-%% scene rendering
+% scene rendering
 % unix([fullfile(pbrtHome, '/src/bin/pbrt') fname '--outfile output.dat']);
 outfile = 'indestructibleObject_out.dat';
 dMapFile = 'indestructibleObject_out_DM.dat'; 
@@ -23,22 +23,107 @@ vcAddAndSelectObject(oi);
 oiWindow;
 m = oiGet(oi, 'mean illuminance')
 
-%% render depth map
-%read and output depth map
-outfile = 'indestructibleObject_out.dat';
-dMapFile = 'indestructibleObject_out_DM.dat'; 
 
-unix([fullfile(pbrtHome, '/src/bin/pbrt ') fname ' --outfile ' outfile]);
-depthMap = s3dReadDepthMapFile(dMapFile, [300 450]);
-numSamples = 4096;
+% Runs PBRT and imports it in ISET for the bench scene. 
 
-ratio = 450/300;
-for j = 1:size(depthMap,1)
-    for i = round(j*ratio):size(depthMap,2)
-        depthMap(j,i) = depthMap(j,i)/numSamples;
-    end
+
+%%  read and output depth map
+% ** make sure the rendering file has a small initial aperture, and only 1
+% sample per pixel!!!
+
+outfile = 'indObj_out.dat';
+dMapFile = 'indObj_out_DM.dat';
+imageWidth = 450;
+imageHeight = 300;
+numRenders = 31;
+depthMap = zeros(imageHeight, imageWidth, numRenders);
+
+for i = 1:numRenders
+    
+    unix([fullfile(pbrtHome, '/src/bin/pbrt ') fname ' --outfile ' outfile]);
+    depthMap(:,:, i) = s3dReadDepthMapFile(dMapFile, [300 450]);
+    unix('rm *');
 end
-figure; imagesc(depthMap);
+
+depthMapProcessedMedian = median(depthMap, 3);
+figure; imagesc(depthMapProcessedMedian);
+
+% this code is only needed when doing multiple samples... we don't need
+% that for a realistic camera
+% numSamples = 1;
+% ratio = 450/300;
+% for j = 1:size(depthMap,1)
+%     for i = round(j*ratio):size(depthMap,2)
+%         depthMap(j,i) = depthMap(j,i)/numSamples;
+%     end
+% end
+
+
+% figure; imagesc(depthMap);
+
+
+
+%% TEST CASE - Walls straight on ... PBRT will run the PBRT script
+chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
+% fname = '../indestructibleObject/default.pbrt'
+fname = '../floorWallBottomBack/lambertian.pbrt'
+
+mkdir('tempOutput');
+chdir('tempOutput');
+unix('rm *');
+
+%scene rendering
+% unix([fullfile(pbrtHome, '/src/bin/pbrt') fname '--outfile output.dat']);
+outfile = 'floorWallBottomBack_out.dat';
+% dMapFile = 'indestructibleObject_out_DM.dat'; 
+unix([fullfile(pbrtHome, '/src/bin/pbrt ') fname ' --outfile ' outfile]);
+
+% ISET will read the PBRT output
+% scene = sceneSet(scene,'fov', 8);
+oi = pbrt2oi(outfile);
+% oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );
+vcAddAndSelectObject(oi);
+oiWindow;
+m = oiGet(oi, 'mean illuminance')
+
+
+%% render depth map
+% read and output depth map
+% ** make sure the rendering file has a small initial aperture, and only 1
+% sample per pixel!!!
+
+outfile = 'floorWallBottomBack_out.dat';
+dMapFile = 'floorWallBottomBack_out_DM.dat';
+
+outfile = 'indObj_out.dat';
+dMapFile = 'indObj_out_DM.dat';
+imageWidth = 450;
+imageHeight = 300;
+numRenders = 31;
+depthMap = zeros(imageHeight, imageWidth, numRenders);
+
+for i = 1:numRenders
+    
+    unix([fullfile(pbrtHome, '/src/bin/pbrt ') fname ' --outfile ' outfile]);
+    depthMap(:,:, i) = s3dReadDepthMapFile(dMapFile, [300 450]);
+    unix('rm *');
+end
+
+depthMapProcessedMedian = median(depthMap, 3);
+figure; imagesc(depthMapProcessedMedian);
+
+% this code is only needed when doing multiple samples... we don't need
+% that for a realistic camera
+% numSamples = 1;
+% ratio = 450/300;
+% for j = 1:size(depthMap,1)
+%     for i = round(j*ratio):size(depthMap,2)
+%         depthMap(j,i) = depthMap(j,i)/numSamples;
+%     end
+% end
+
+
+% figure; imagesc(depthMap);
 
 
 
@@ -67,7 +152,13 @@ vcAddAndSelectObject(image); vcimageWindow;
 %% camera processing -  flash image
 % load('indObjFlashOiLambertianNoAmbient.mat');
 % load('indObject2FlashDepth/frontFlashOiLambertian.mat');
-load('indObject2FlashDepth/grayBackOi.mat');
+% load('indObject2FlashDepth/grayBackOi.mat');  % currently testing
+load('indObject2FlashDepth/downBackFlashOi.mat');  % currently testing
+
+% load('floorWallBottomBack/backFlashDown100Oi.mat');
+% load('floorWallBottomBack/sideFlashDownOi.mat');
+% load('floorWallBottomBack/sideFlashDown25Oi.mat');
+
 % load('indObject2FlashDepth/backFlashOiLambertianCloser.mat');
 oi = opticalimage;
 % oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^14);  %some normalization issues
@@ -83,7 +174,17 @@ vcAddAndSelectObject(oi); oiWindow;
 % sensor = s3dProcessSensor(oi, 0, [], .03, []);      %front auto-exposure time:
 %autoExpTime = .4768
 %sensor = s3dProcessSensor(oi, 0, [], [], .4768); 
-sensor = s3dProcessSensor(oi, 0, [], [], .05); 
+% sensor = s3dProcessSensor(oi, 0, [], [], .05);   %ind object
+% sensor = s3dProcessSensor(oi, 0, [], [], .04);    %test scene - front
+% flash
+% sensor = s3dProcessSensor(oi, 0, [], [], .08);    %test scene - back flash - multiplication factor - 2
+
+
+% sensor = s3dProcessSensor(oi, 0, [], [], .64);   %test scene - back 100m
+% flash - multiplication factor - 16 
+sensor = s3dProcessSensor(oi, 0, [], [], .32);   %test scene - back 100m flash - multiplication factor - 8
+% sensor = s3dProcessSensor(oi, 0, [], [], .02);    %multiplication factor - .5
+
 % sensor = s3dProcessSensor(oi, 0, [], [], .05); 
 % sensor = s3dProcessSensor(oi, 0, [], [], .002); 
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;

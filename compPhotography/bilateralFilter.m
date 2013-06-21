@@ -1,4 +1,4 @@
-function newImage = bilateralFilter(inputImage, sigmaS, sigmaI, kernelSize)
+function newImage = bilateralFilter(inputImage, sigmaS, sigmaI, kernelSize, padding)
 % performs the bilateral filter, using inputImage, simgaS, sigmaI, and kernelSize
 % inputImage: the input image of interest
 % sigmaS: spatial standard deviation
@@ -9,6 +9,13 @@ function newImage = bilateralFilter(inputImage, sigmaS, sigmaI, kernelSize)
 % We assume that inputImage only has 1 value per pixel.
 
 
+%correct for NaN boundary problems
+
+if (ieNotDefined('padding'))
+    padding = 1;
+end
+
+inputImage(isnan(inputImage)) = 0;
 
 imageWidth = size(inputImage, 2);
 imageHeight = size(inputImage, 1);
@@ -16,8 +23,11 @@ newImage = zeros(imageHeight, imageWidth);
 colNumberImage = repmat(1:imageWidth, [imageHeight 1]);
 rowNumberImage = repmat((1:imageHeight)', [1 imageWidth]);
 
-for j = 1:imageHeight
-    for i = 1:imageWidth
+for j = 1 + padding:imageHeight - padding
+    for i = 1 + padding:imageWidth - padding
+        if (i == 290 && j == 243)
+            disp('at debug position')
+        end
         totalWeight = 0;
         currentValue = inputImage(j,i);
         weightedValue = 0;
