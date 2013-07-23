@@ -4,6 +4,9 @@
 chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
 % fname = '../indestructibleObject/default.pbrt'
 fname = '../indestructibleObject/lambertian-down.pbrt'
+fname = '../indestructibleObject/textured-down.pbrt'
+fname = '../indestructibleObject/graycard-down.pbrt'
+fname = '../indestructibleObject/simpleReflectance-down.pbrt'
 
 mkdir('tempOutput');
 chdir('tempOutput');
