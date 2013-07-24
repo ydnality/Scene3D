@@ -185,7 +185,7 @@ vcAddAndSelectObject(oi); oiWindow;
 
 % sensor = s3dProcessSensor(oi, 0, [], [], .64);   %test scene - back 100m
 % flash - multiplication factor - 16 
-sensor = s3dProcessSensor(oi, 0, [], [], .32);   %test scene - back 100m flash - multiplication factor - 8
+sensor = s3dProcessSensor(oi, 0, [],  .32);   %test scene - back 100m flash - multiplication factor - 8
 % sensor = s3dProcessSensor(oi, 0, [], [], .02);    %multiplication factor - .5
 
 % sensor = s3dProcessSensor(oi, 0, [], [], .05); 

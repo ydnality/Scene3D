@@ -1,3 +1,6 @@
+%% Example of surface reflectance estimation from PBRT rendered image
+% Andy Lin
+
 
 %from Joyce
 % [csBasis,sValues] = lmComputeBases(RefMatrix,0,nBases);
@@ -6,7 +9,6 @@
 
 
 %% first an extremely simple example
-
 samples = [ 1 2 3 4; 2 3 4 5; 3 4 5 6]
 samples = samples';
 [bases,sValues,mn] = lmComputeBases(samples,0,1);
@@ -14,22 +16,22 @@ figure; plot(bases); grid on;
 
 %there is only 1 distinct signal, so the basis should be a straight line 
 
-%% a more complex example
+%% generate the ground truth reflectance
+%load the radiance
+%load('compPhotography/reflectanceRecovery/indObjRadianceOi.mat'); 
+load('compPhotography/reflectanceRecovery/indObjSimpleRadiance2Oi.mat'); 
 
-%%generate the ground truth reflectance
- %load the radiance
-% load('compPhotography/reflectanceRecovery/indObjRadianceOi.mat'); 
-load('compPhotography/reflectanceRecovery/indObjSimpleRadianceOi.mat'); 
-
-radianceOi = opticalimage;
-vcAddAndSelectObject(radianceOi); oiWindow;
+irradianceOi = opticalimage;
+irradianceOi = oiSet(irradianceOi,'name','Irradiance Image');
+vcAddAndSelectObject(irradianceOi); oiWindow;
 
  %load the "graycard" image
 load('compPhotography/reflectanceRecovery/indObjIlluminantOi.mat'); 
 illuminantOi = opticalimage;
+illuminantOi = oiSet(illuminantOi, 'name', 'Graycard Image');
 vcAddAndSelectObject(illuminantOi); oiWindow;
 
-radianceValues = oiGet(radianceOi , 'photons');
+radianceValues = oiGet(irradianceOi , 'photons');
 illuminantValues = oiGet(illuminantOi, 'photons');
 
  %calculate the ground truth reflectance by dividing the radiance by the graycard image 
@@ -39,45 +41,68 @@ reflectance(isnan(reflectance)) = 0;
 reflectance(isinf(reflectance)) = 0;
 
  %show as an optical image of the reflectance
-reflectanceOi = radianceOi;
-reflectanceOi = oiSet(reflectanceOi, 'cphotons', double(reflectance * 10^20));
+reflectanceOi = irradianceOi;
+reflectanceOi = oiSet(reflectanceOi, 'cphotons', double(reflectance));
+reflectanceOi = oiSet(reflectanceOi,'name','Reflectance');
 vcAddAndSelectObject(reflectanceOi); oiWindow;
 
-%%find the basis functions of this reflectance
+%% find the basis functions of this reflectance
 samples = reshape(reflectance, [size(reflectance,3) size(reflectance,1) * size(reflectance,2) ]);    %dimensions:  31 x numSamples
 [bases,sValues,mn] = lmComputeBases(samples,0,3);
+% bases'*bases %should be identity matrix
 figure; plot(bases); grid on;
 
 
-%%process image 
-oi = oiSet(oi, 'photons', oiGet(radianceOi,'photons') * 10^13);  %some normalization issues
-myOptics = oiGet(oi, 'optics');  %to create proper crop at sensor
-myOptics = opticsSet(myOptics,'focalLength', .050);  %distance from lens to sensor - sensor will inherit this value!
-oi = oiSet(oi, 'optics', myOptics);
+%% Make a sensor image from the irradiance image
+%process image 
+oi = oiAdjustIlluminance(irradianceOi,.1);
+% oi = oiSet(oi, 'photons', oiGet(irradianceOi,'photons') * 10^13);  %some normalization issues
+optics = oiGet(oi, 'optics');  %to create proper crop at sensor
+optics = opticsSet(optics,'focalLength', .050);  %distance from lens to sensor - sensor will inherit this value!
+oi = oiSet(oi, 'optics', optics);
 oi = oiSet(oi,'fov', 39.60); %fov of the scene
 
  %sensor processing
-sensor = s3dProcessSensor(oi, 0, [], [], .32);   %test scene - back 100m flash - multiplication factor - 8
+sensor = s3dProcessSensor(oi, 0, [], 0);   
+sensor = sensorSet(sensor, 'name', oiGet(oi, 'name'));
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
- %image processing
+%% image processing
 [image, transformMatrices] = s3dProcessImage(sensor, []);
+image = imageSet(image, 'name', sensorGet(sensor, 'name'));
 vcAddAndSelectObject(image); vcimageWindow;
-imageData = imageGet(image, 'result');
-reshapedImageData = reshape(imageData, [size(imageData,1) * size(imageData,2) size(imageData, 3) ]);
+% imageData = imadjust(imageGet(image, 'result'), [],[],imageGet(image,
+% 'gamma'));   %gamma is not needed in this case!
+ pixel = sensorGet(sensor, 'pixel');
+ 
+imageData = imageGet(image, 'result'); % / pixelGet(pixel, 'conversionGain');
+[imageData,r,c] = RGB2XWFormat(imageData);
 
-reshapedImageData = reshapedImageData';
+% old code that RGB2XWFormat fixed
+% reshapedImageData = reshape(imageData, [size(imageData,1) * size(imageData,2) size(imageData, 3) ]);
+% reshapedImageData = reshapedImageData';
 
-%%reflectance calculation
-sensorResponse = sensorGet(sensor, 'colorfilters');
-colorTransform = imageGet(image, 'combinedTransform');
-surfaceReflectanceCalc = bases * ((sensorResponse)' * bases)^-1 * colorTransform^-1 * reshapedImageData;
+%% reflectance calculation
+% photodetectorResponse = pixelGet(pixel, 'pdspectralsr');
+% sensorResponse = sensorGet(sensor, 'colorfilters') .* repmat(photodetectorResponse, [1 3]);
+% colorTransform = imageGet(image, 'combinedTransform');
+sensorResponse = sensorGet(sensor, 'spectral QE');
 
-surfaceReflectanceCalc = reshape(surfaceReflectanceCalc', [size(imageData,1) size(imageData,2) size(surfaceReflectanceCalc, 1)]);
+%relative spectral response of illuminant is difficult to determine
+% illuminant = .255 * ones(31, 1);
+surfaceReflectanceCalc = bases * ((sensorResponse)' * bases)^-1 * imageData';
+surfaceReflectanceCalc = XW2RGBFormat(surfaceReflectanceCalc',r,c);
+
+% surfaceReflectanceCalc = reshape(surfaceReflectanceCalc', [size(imageData,1) size(imageData,2) size(surfaceReflectanceCalc, 1)]);
 % surfaceReflectance(surfaceReflectance < 0) = 0;
 % surfaceReflectance(surfaceReflectance > 1) = 1;
-surfaceReflectanceCalc = imresize(surfaceReflectanceCalc, [size(reflectance,1) size(reflectance,2)]);
+% surfaceReflectanceCalc = imresize(surfaceReflectanceCalc, [size(reflectance,1) size(reflectance,2)]);
+oi = oiCreate;
+oi = initDefaultSpectrum(oi);
+oi = oiSet(oi,'photons',surfaceReflectanceCalc);
+oi = oiSet(oi, 'name', 'Calculated Reflectance');
+vcAddAndSelectObject(oi); oiWindow;
 
-reflectanceCalcOi = radianceOi;
-reflectanceCalcOi = oiSet(reflectanceCalcOi, 'cphotons', double(surfaceReflectanceCalc * 10^20));
+reflectanceCalcOi = irradianceOi;
+reflectanceCalcOi = oiSet(reflectanceCalcOi, 'cphotons', double(surfaceReflectanceCalc));
 vcAddAndSelectObject(reflectanceCalcOi); oiWindow;

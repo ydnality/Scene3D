@@ -83,7 +83,7 @@ oi = oiSet(oi,'fov', 39.60); %fov of the scene
 vcAddAndSelectObject(oi); oiWindow;
 
 %sensor processing
-sensor = s3dProcessSensor(oi, 0, [], [], .32);   %test scene - back 100m flash - multiplication factor - 8
+sensor = s3dProcessSensor(oi, 0, [], .32);   %test scene - back 100m flash - multiplication factor - 8
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 %image processing
