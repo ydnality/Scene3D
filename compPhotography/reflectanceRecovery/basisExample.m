@@ -33,6 +33,7 @@ vcAddAndSelectObject(illuminantOi); oiWindow;
 
 radianceValues = oiGet(irradianceOi , 'photons');
 illuminantValues = oiGet(illuminantOi, 'photons');
+overallIlluminantMean = mean(illuminantValues(:));
 
  %calculate the ground truth reflectance by dividing the radiance by the graycard image 
  %assumptions: all lambertian surfaces, only 1 bounce allowed
@@ -86,11 +87,16 @@ imageData = imageGet(image, 'result'); % / pixelGet(pixel, 'conversionGain');
 % photodetectorResponse = pixelGet(pixel, 'pdspectralsr');
 % sensorResponse = sensorGet(sensor, 'colorfilters') .* repmat(photodetectorResponse, [1 3]);
 % colorTransform = imageGet(image, 'combinedTransform');
-sensorResponse = sensorGet(sensor, 'spectral QE');
+sensorResponse = sensorGet(sensor, 'spectral QE') * pixelGet(pixel, 'fill factor') * .7;  
+%overall sensor response is spectral QE * fill factor 
+%.7 is a fudge factor for now since the unit conversion from PBRT to Iset
+%is a mystery.  This will change for different exposures... must adjust for
+%it
 
 %relative spectral response of illuminant is difficult to determine
 % illuminant = .255 * ones(31, 1);
-surfaceReflectanceCalc = bases * ((sensorResponse)' * bases)^-1 * imageData';
+illuminant = diag(ones(31,1)) * overallIlluminantMean;% * sensorGet(sensor, 'gain') * sensorGet(sensor, 'analog gain');
+surfaceReflectanceCalc = bases * (((sensorResponse)' * illuminant * bases)^-1 * imageData');
 surfaceReflectanceCalc = XW2RGBFormat(surfaceReflectanceCalc',r,c);
 
 % surfaceReflectanceCalc = reshape(surfaceReflectanceCalc', [size(imageData,1) size(imageData,2) size(surfaceReflectanceCalc, 1)]);
@@ -103,6 +109,6 @@ oi = oiSet(oi,'photons',surfaceReflectanceCalc);
 oi = oiSet(oi, 'name', 'Calculated Reflectance');
 vcAddAndSelectObject(oi); oiWindow;
 
-reflectanceCalcOi = irradianceOi;
-reflectanceCalcOi = oiSet(reflectanceCalcOi, 'cphotons', double(surfaceReflectanceCalc));
-vcAddAndSelectObject(reflectanceCalcOi); oiWindow;
+% reflectanceCalcOi = irradianceOi;
+% reflectanceCalcOi = oiSet(reflectanceCalcOi, 'cphotons', double(surfaceReflectanceCalc));
+% vcAddAndSelectObject(reflectanceCalcOi); oiWindow;
