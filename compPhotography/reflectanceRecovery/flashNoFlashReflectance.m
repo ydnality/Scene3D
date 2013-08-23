@@ -283,6 +283,7 @@ for i = 1:1: size(surfaceReflectanceCalc,2)
     end
 end
 
+% Pool the results for better results
 pooledImage = ones(size(estimatedIlluminantImage));
 blockSize = 8;
 for i = 1:blockSize:size(estimatedIlluminantImage,2)-blockSize-1
@@ -298,6 +299,7 @@ colorbar;
 figure; imagesc(estimatedIlluminantImage);
 colorbar;
 
+% Calculate error
 error = sum(not(estimatedIlluminantImage(:)==  1))
 
 blockError = sum(not(pooledImage(:)==  1))
