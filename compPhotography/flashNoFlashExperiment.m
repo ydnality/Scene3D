@@ -6,7 +6,7 @@
 % fullName = 'benchFlash.mat';
 % fullName = 'indObjFlash.mat';
 fullName = 'deskFlash.mat';
-load(fullName,'vci');
+load([s3dRootPath '/compPhotography/' fullName],'vci');
 vciFlash = vci;
 vcAddAndSelectObject('vcimage',vciFlash);
 vcimageWindow;
@@ -16,7 +16,7 @@ vcimageWindow;
 % fullName = 'indObjNoFlash.mat';
 fullName = 'deskNoFlash.mat';
 %fullName = 'deskTest.mat';   %testing exposure things
-load(fullName,'vci');
+load([s3dRootPath '/compPhotography/' fullName],'vci');
 vciNoFlash = vci;
 vcAddAndSelectObject('vcimage',vciNoFlash);
 vcimageWindow;

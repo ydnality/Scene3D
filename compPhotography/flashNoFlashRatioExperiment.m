@@ -69,12 +69,12 @@
 % fullName = '2FlashDepth/indObject/frontFlashImageLambertian0.mat'; 
 % fullName = '2FlashDepth/indObject/grayFrontImage.mat'; 
 
-fullName = '2FlashDepth/indObject/newFrontFlashImage.mat'; 
+% fullName = '/2FlashDepth/indObject/newFrontFlashImage.mat'; 
 fullName = '2FlashDepth/indObject/downFrontFlashImage.mat'; 
-fullName = '2FlashDepth/indObject/downFrontFlashImage12bit.mat'; 
+% fullName = '/2FlashDepth/indObject/downFrontFlashImage12bit.mat'; 
 
 % fullName = 'floorWallBottomBack/frontFlashDownImage.mat'; 
-load(fullName,'vci');
+load([s3dRootPath '/compPhotography/' fullName],'vci');
 vciFlash = vci;
 vcAddAndSelectObject('vcimage',vciFlash);
 vcimageWindow;
@@ -86,9 +86,9 @@ vcimageWindow;
 % fullName = '2FlashDepth/indObject/backFlashImageLambertian0.mat'; 
 % fullName = '2FlashDepth/indObject/grayBackImage.mat'; 
 %% load 2nd flash image (flash now placed in back)
-fullName = '2FlashDepth/indObject/newBackFlashImage.mat'; 
+% fullName = '2FlashDepth/indObject/newBackFlashImage.mat'; 
 fullName = '2FlashDepth/indObject/downBackFlashImage.mat'; 
-fullName = '2FlashDepth/indObject/downBackFlashImage12bit.mat'; 
+% fullName = '2FlashDepth/indObject/downBackFlashImage12bit.mat'; 
 
 % fullName = 'floorWallBottomBack/backFlashDownImage.mat'; 
 % fullName = 'floorWallBottomBack/backFlashDown100Image.mat'; 
@@ -98,7 +98,7 @@ fullName = '2FlashDepth/indObject/downBackFlashImage12bit.mat';
 % multiplicationFactor = 16/8; %16 for the change in exposure, 8 for change in samples
 % multiplicationFactor = 8/8;
 multiplicationFactor = 1;
-load(fullName,'vci');
+load([s3dRootPath '/compPhotography/' fullName],'vci');
 vciFlashBack = vci;
 vcAddAndSelectObject('vcimage',vciFlashBack);
 vcimageWindow;
