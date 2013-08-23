@@ -1,0 +1,50 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+LookAt -1.518833 -0.524700 0.988473 
+       -0.641981 -0.045192 0.953791 
+       0.022607 0.030935 0.999266
+
+
+Camera "perspective"
+   "float fov" [49.134342]
+   "float screenwindow" [-1.000000 1.000000 -1.000000 1.000000]
+
+
+Film "image"
+   "integer xresolution" [100] 
+   "integer yresolution" [100]
+
+PixelFilter "mitchell"
+   "float B" [0.750000]
+   "float C" [0.125000]
+
+Sampler "lowdiscrepancy"
+   "integer pixelsamples" [1]
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]
+
+VolumeIntegrator "single"
+   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+
+AttributeBegin
+	
+LightSource "infinite"
+   "color L" [.001 .001 0.001]
+   "float scale" [1.000000]
+AttributeEnd
+
+Include "default-mat.pbrt"
+
+Include "default-geom.pbrt"
+
+Include "default-vol.pbrt"
+
+WorldEnd
+

@@ -1,0 +1,107 @@
+	# Material 'Material'
+TransformBegin
+	Scale 1.000000 1.000000 1.000000
+	Rotate 0.000000 1 0 0
+	Rotate 0.000000 0 1 0
+	Rotate 0.000000 0 0 1
+	Translate 0.000000 0.000000 0.000000
+Texture "Material::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["buildingblock.exr"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [0.000000]
+Texture "Material::bumpmap" "float" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["buildingblock.exr"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [1.000000]
+   "float udelta" [1.000000]
+   "float vdelta" [1.000000]
+TransformEnd
+MakeNamedMaterial "Material"
+   "string type" ["uber"] "texture Kd" ["Material::Kd"]
+   "color Ks" [0.778610 0.778610 0.778610]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.250000] "texture bumpmap" ["Material::bumpmap"]
+
+	# Material 'ebano'
+MakeNamedMaterial "ebano"
+   "string type" ["uber"]
+   "color Kd" [0.015881 0.015881 0.015881]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'ottone'
+MakeNamedMaterial "ottone"
+   "string type" ["uber"]
+   "color Kd" [0.317471 0.316148 0.141814]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'lampadina'
+MakeNamedMaterial "lampadina"
+   "string type" ["uber"]
+   "color Kd" [1.000000 1.000000 1.000000]
+   "color Ks" [0.391550 0.391550 0.391550]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'ciliegio'
+Texture "ciliegio::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["ciliegio.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "ciliegio::Kd.scale" "color" "scale" "texture tex1" ["ciliegio::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+MakeNamedMaterial "ciliegio"
+   "string type" ["matte"] "texture Kd" ["ciliegio::Kd.scale"]
+
+	# Material 'ottone lucido'
+MakeNamedMaterial "ottone lucido"
+   "string type" ["uber"]
+   "color Kd" [0.729964 0.737560 0.511296]
+   "color Ks" [0.391550 0.391550 0.391550]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'rame'
+MakeNamedMaterial "rame"
+   "string type" ["uber"]
+   "color Kd" [0.333579 0.189747 0.116417]
+   "color Ks" [0.391550 0.391550 0.391550]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'ghisa'
+MakeNamedMaterial "ghisa"
+   "string type" ["uber"]
+   "color Kd" [0.117467 0.117467 0.117467]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'acero'
+Texture "acero::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["acero.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "acero::Kd.scale" "color" "scale" "texture tex1" ["acero::Kd"] "color tex2" [0.748000 0.662000 0.367000]
+MakeNamedMaterial "acero"
+   "string type" ["uber"] "texture Kd" ["acero::Kd.scale"]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+

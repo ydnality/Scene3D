@@ -1,0 +1,82 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+#LookAt -129.027725 -87.079384 80.930077 
+#       -82.804611 -61.262680 72.396408 
+#       0 0 1#7.450568 4.160832 52.944099
+LookAt    -127.5649  -89.6985   80.9301   #right camera
+        -81.3417  -63.8818   72.3964
+       0 0 1
+
+
+
+#Camera "perspective"
+#   "float fov" [49.134342]
+   #"float screenwindow" [-1.000000 1.000000 -1.000000 1.000000]
+
+Camera "realisticDiffraction" 
+	"string specfile" "dgauss.50mmSA2.dat" 
+	#"float filmdistance" 36.77
+    "float filmdistance" 52 #64
+	"float aperture_diameter" 3 #3
+	"float filmdiag" 43.267  #70 
+	"float hither" [0.001 ] 
+	"float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]
+
+
+
+Film "image"
+   "integer xresolution" [300] 
+   "integer yresolution" [450]
+  
+
+PixelFilter "mitchell"
+   "float B" [0.750000]
+   "float C" [0.125000]
+
+Sampler "lowdiscrepancy"
+   #"integer pixelsamples" [131072]
+   "integer pixelsamples" [131072]
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]
+
+VolumeIntegrator "single"
+   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+
+#flash
+#LightSource "spot" "rgb I" [100000000 100000000 100000000] "float coneangle" [40] "float conedeltaangle" [30] "point from" [-129.027725 -87.079384 80.930077] "point to" [-82.804611 -61.262680 #72.396408 ]
+
+
+AttributeBegin
+	
+#LightSource "infinite"
+#   "color L" [0.0565629 0.220815 0.4]
+#   "float scale" [1.000000]
+#AttributeEnd
+
+AttributeBegin # Lamp
+	Transform [53.6274337769 0.0 0.0 0.0  0.0 53.6274337769 0.0 0.0  0.0 0.0 53.6274337769 0.0  -4.64945983887 100.42024231 131.211914063 1.0]
+	AreaLightSource "diffuse" "color L" [1.000000 1.000000 1.000000]
+   "float power" [100.000000]
+   "float scale" [1.000000]
+	Shape "trianglemesh" "integer indices" [0 1 2 0 2 3] "point P" [-0.250000 0.250000 0.0 0.250000 0.250000 0.0 0.250000 -0.250000 0.0 -0.250000 -0.250000 0.0]
+AttributeEnd # Lamp
+
+Include "default-mat.pbrt"
+
+Include "default-geom.pbrt"
+
+Include "default-vol.pbrt"
+
+WorldEnd
+

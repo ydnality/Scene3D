@@ -1,0 +1,70 @@
+	# Material 'Material'
+TransformBegin
+	Scale 1.000000 1.000000 1.000000
+	Rotate 0.000000 1 0 0
+	Rotate 0.000000 0 1 0
+	Rotate 0.000000 0 0 1
+	Translate 0.000000 0.000000 0.000000
+TransformEnd
+MakeNamedMaterial "Material"
+   "string type" ["matte"] "spectrum Kd" "../reflectances/paint3red.txt"#"../reflectances/paint50green.txt"
+	# Material 'ebano'
+MakeNamedMaterial "ebano"
+   "string type" ["matte"]
+   "spectrum Kd" "../reflectances/paint77Orange.txt"
+
+	# Material 'ottone'
+MakeNamedMaterial "ottone"
+   "string type" ["matte"]
+   "spectrum Kd" "../reflectances/paint97Yellow.txt"
+
+	# Material 'lampadina'
+MakeNamedMaterial "lampadina"
+   "string type" ["matte"]
+   "spectrum Kd" "../reflectances/paint4BlueGreen.txt"
+
+	# Material 'ciliegio'
+Texture "ciliegio::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["ciliegio.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "ciliegio::Kd.scale" "color" "scale" "texture tex1" ["ciliegio::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+MakeNamedMaterial "ciliegio"
+   "string type" ["matte"] "spectrum Kd" "../reflectances/paint77Orange.txt"
+
+	# Material 'ottone lucido'
+MakeNamedMaterial "ottone lucido"
+   "string type" ["matte"]
+   "spectrum Kd" "../reflectances/paint65Yellow.txt"
+
+	# Material 'rame'
+MakeNamedMaterial "rame"
+   "string type" ["matte"]
+   "spectrum Kd" "../reflectances/paint4BlueGreen.txt"
+
+	# Material 'ghisa'
+MakeNamedMaterial "ghisa"
+   "string type" ["matte"]
+   "spectrum Kd" "../reflectances/paint100red.txt"
+
+	# Material 'acero'
+Texture "acero::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["acero.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "acero::Kd.scale" "color" "scale" "texture tex1" ["acero::Kd"] "color tex2" [0.748000 0.662000 0.367000]
+MakeNamedMaterial "acero"
+   "string type" ["matte"] "spectrum Kd" "../reflectances/paint50green.txt" #"../reflectances/paint115Blue.txt"
+

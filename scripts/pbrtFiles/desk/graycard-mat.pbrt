@@ -1,0 +1,48 @@
+	# Material 'Material'
+TransformBegin
+	Scale 1.000000 1.000000 1.000000
+	Rotate 0.000000 1 0 0
+	Rotate 0.000000 0 1 0
+	Rotate 0.000000 0 0 1
+	Translate 0.000000 0.000000 0.000000
+TransformEnd
+MakeNamedMaterial "Material"
+   "color Kd" [1 1 1]
+	# Material 'ebano'
+MakeNamedMaterial "ebano"
+   "string type" ["matte"]
+   "color Kd" [1 1 1]
+
+	# Material 'ottone'
+MakeNamedMaterial "ottone"
+   "string type" ["matte"]
+   "color Kd" [1 1 1]
+
+	# Material 'lampadina'
+MakeNamedMaterial "lampadina"
+   "string type" ["matte"]
+   "color Kd" [1 1 1]
+
+
+MakeNamedMaterial "ciliegio"
+   "string type" ["matte"] "color Kd" [1 1 1]
+
+	# Material 'ottone lucido'
+MakeNamedMaterial "ottone lucido"
+   "string type" ["matte"]
+   "color Kd" [1 1 1]
+
+	# Material 'rame'
+MakeNamedMaterial "rame"
+   "string type" ["matte"]
+   "color Kd" [1 1 1]
+
+	# Material 'ghisa'
+MakeNamedMaterial "ghisa"
+   "string type" ["matte"]
+   "color Kd" [1 1 1]
+
+	# Material 'acero'
+MakeNamedMaterial "acero"
+   "string type" ["matte"] "color Kd" [1 1 1]
+

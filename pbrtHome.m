@@ -13,7 +13,7 @@ function [pbrtPath]=pbrtHome
 %rootPath=which('pbrtHome');
 %[rootPath,fName,ext]=fileparts(rootPath);
 
+%pbrtPath = '/home/andy/Dropbox/Scene3D/pbrt-v2-spectral-diffraction/';
 pbrtPath = '/home/ajwandell/Dropbox/Scene3D/pbrt-v2-spectral-diffraction/';
-%pbrtPath = '/home/ajwandell/Dropbox/Scene3D/pbrt-v2-test/pbrt-v2-spectral/';
 return;
 

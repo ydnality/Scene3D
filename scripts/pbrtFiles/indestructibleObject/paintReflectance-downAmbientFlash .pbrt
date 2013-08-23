@@ -1,0 +1,64 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+
+LookAt -56.914787 -105.385544 35.0148    #straight position
+       -56.487434 -104.481461 34.8 
+       -0.000013 -0.000031 1.000000
+
+
+
+Camera "realisticDiffraction" 
+    "string specfile" "dgauss.50mmSA2.DM.dat" 
+    "float filmdistance" 64 #75 #64
+	"float aperture_diameter" 16 #3
+	"float filmdiag" 43.267  #70 
+	"float hither" [0.001 ] 
+	"float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]
+
+Film "image"
+   "integer xresolution" [450] 
+   "integer yresolution" [300]
+
+
+Sampler "lowdiscrepancy"
+   "integer pixelsamples" 1024 #2048 #[16384]#[32768] #16384
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [0]
+
+#VolumeIntegrator "single"
+#   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+
+# current flash
+AttributeBegin
+    LightSource "spot" "spectrum I" "../lights/vivitarFlash.txt" "float coneangle" [120] "float conedeltaangle" [120] "point from" [ -56.914787 -105.385544 35.0148] "point to" [-56.487434 -104.481461 34.8 ]
+AttributeEnd
+
+AttributeBegin
+    AreaLightSource "diffuse" "spectrum L" "tungsten.txt"
+    Translate -36.914787 -105.385544 35.0148
+    Shape "sphere" "float radius" [10]
+AttributeEnd
+
+AttributeBegin
+    AreaLightSource "diffuse" "spectrum L" "tungsten.txt"
+    Translate -76.914787 -105.385544 35.0148
+    Shape "sphere" "float radius" [10]
+AttributeEnd
+
+Include "paintReflectance-mat.pbrt"
+
+Include "lambertian-geom.pbrt"
+
+WorldEnd
+
