@@ -18,16 +18,16 @@
 %%% load the radiance
 %load('compPhotography/reflectanceRecovery/indObjRadianceOi.mat'); 
 % load('compPhotography/reflectanceRecovery/indObjSimpleRadiance2Oi.mat'); 
-load([s3dRootPath '/compPhotography/reflectanceRecovery/milestone/indObjPaintWhiteFlash.mat']); 
-% load([s3dRootPath '/compPhotography/reflectanceRecovery/milestone/deskPaintWhiteFlash.mat']); 
+load([s3dRootPath '/compPhotography/reflectanceRecovery/imageData/indObjPaintWhiteFlash.mat']); 
+% load([s3dRootPath '/compPhotography/reflectanceRecovery/imageData/deskPaintWhiteFlash.mat']); 
 irradianceOi = opticalimage;
 irradianceOi = oiSet(irradianceOi,'name','Irradiance Image');
 vcAddAndSelectObject(irradianceOi); oiWindow;
 
 %%% load the "graycard" image
 % load('compPhotography/reflectanceRecovery/indObjIlluminantOi.mat'); 
-load([s3dRootPath '/compPhotography/reflectanceRecovery/milestone/indObjGraycardFlash.mat']); 
-% load([s3dRootPath '/compPhotography/reflectanceRecovery/milestone/deskGraycardFlash.mat']); 
+load([s3dRootPath '/compPhotography/reflectanceRecovery/imageData/indObjGraycardFlash.mat']); 
+% load([s3dRootPath '/compPhotography/reflectanceRecovery/imageData/deskGraycardFlash.mat']); 
 illuminantOi = opticalimage;
 illuminantOi = oiSet(illuminantOi, 'name', 'Graycard Image');
 vcAddAndSelectObject(illuminantOi); oiWindow;

@@ -14,14 +14,14 @@ ambientFile = 'desk/paint.pbrt';
 flashFile = 'desk/paintFlash.pbrt';
 
 
-ambientOiFile = [s3dRootPath '/compPhotography/reflectanceRecovery/milestone/indObjPaintAmbientOnly.mat']
-flashOiFile = [s3dRootPath '/compPhotography/reflectanceRecovery/milestone/indObjPaintAmbientAndFlash.mat']
+ambientOiFile = [s3dRootPath '/compPhotography/reflectanceRecovery/imageData/indObjPaintAmbientOnly.mat']
+flashOiFile = [s3dRootPath '/compPhotography/reflectanceRecovery/imageData/indObjPaintAmbientAndFlash.mat']
 ambientFlashExposureTime = 472.44*10^-3;
 ambientExposureTime = 1.8;
 
 
-% ambientOiFile = [s3dRootPath '/compPhotography/reflectanceRecovery/milestone/deskPaintAmbientOnly.mat']
-% flashOiFile = [s3dRootPath '/compPhotography/reflectanceRecovery/milestone/deskPaintAmbientAndFlash.mat']
+% ambientOiFile = [s3dRootPath '/compPhotography/reflectanceRecovery/imageData/deskPaintAmbientOnly.mat']
+% flashOiFile = [s3dRootPath '/compPhotography/reflectanceRecovery/imageData/deskPaintAmbientAndFlash.mat']
 % ambientFlashExposureTime = 1.91;
 % ambientExposureTime = 7.21;
 
@@ -191,7 +191,7 @@ oi = oiSet(oi, 'name', 'Calculated Reflectance');
 vcAddAndSelectObject(oi); oiWindow;
 
 % plot some example reflectance curves
-imported = load([s3dRootPath '/compPhotography/reflectanceRecovery/milestone/indObjReflectance.mat']);
+imported = load([s3dRootPath '/compPhotography/reflectanceRecovery/imageData/indObjReflectance.mat']);
 reflectance = oiGet(imported.opticalimage, 'photons');
 
 %plot red

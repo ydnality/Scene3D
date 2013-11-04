@@ -1,0 +1,51 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+
+LookAt 0 0 2002.0 
+       0 0 2001.0 
+       0.000000 1.00000 0.000000
+
+#old settings - pinhole was too small! way too much difraction...
+Camera "realistic" 
+	"string specfile"  "pointTest.dat"
+	"float filmdistance" 3200 
+	"float aperture_diameter" .15
+	"float filmdiag" 800
+	"float hither" [0.001 ] 
+    "float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+
+Film "image"
+   "integer xresolution" [200]  #[100]
+   "integer yresolution" [150]  #[75]
+   "string filename" ["pointTest_d.dat"]
+
+PixelFilter "mitchell"
+   "float B" [0.750000]
+   "float C" [0.125000]
+
+Sampler "lowdiscrepancy"
+   "integer pixelsamples" [4096]
+ #"integer pixelsamples" [128]
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]
+
+VolumeIntegrator "single"
+   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+    AttributeBegin
+        LightSource "spot" "color I" [100000000000000000000000 100000000000000000000000 100000000000000000000000] "point from" [0 0 100000] "point to" [0 0 0] "float coneangle" [140]
+    AttributeEnd
+
+    Include "pointTest-mat.pbrt"
+
+    Include "pointTest-geom.pbrt"
+
+WorldEnd
+

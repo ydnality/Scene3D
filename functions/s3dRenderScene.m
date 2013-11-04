@@ -12,13 +12,18 @@
 %
 % Todo: We are considering copying the pbrt file that was used to generate
 % the scene when we save the oi for future use.
-function oi = s3dRenderScene(fname, focalLength)
+function oi = s3dRenderScene(fname, focalLength, path)
 
     if (ieNotDefined('focalLength'))
         focalLength = .050;
     end
-    % PBRT will run the PBRT script - initializing
-    chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
+    if (ieNotDefined('path'))
+        % PBRT will run the PBRT script - initializing
+        chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
+    else
+        chdir(path)
+    end   
+    
 
     mkdir('tempOutput');
     chdir('tempOutput');
@@ -33,4 +38,5 @@ function oi = s3dRenderScene(fname, focalLength)
     % ISET will read the PBRT output
     oi = pbrt2oi(outfile);
     oi = s3dFixOi(oi, focalLength);
+    chdir('..');
 end
