@@ -1,0 +1,151 @@
+	# Material 'Material'
+MakeNamedMaterial "Material"
+   "string type" ["matte"]
+   "color Kd" [0.000000 0.000000 0.000000]
+
+	# Material 'Material.004'
+Texture "Material.004::Kd:tex1" "color" "mix" "float amount" [0.5] "color tex1" [0.019450 0.019450 0.019450] "color tex2" [0.000000 0.000000 0.000000]
+Texture "Material.004::Kd" "color" "mix" "float amount" [0.5] "texture tex1" ["Material.004::Kd:tex1"] "color tex2" [0.060778 0.060778 0.060778]
+Texture "Material.004::Kd.scale" "color" "scale" "texture tex1" ["Material.004::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+Texture "Material.004::bumpmap:tex1" "float" "mix" "float amount" [0.5] "float tex1" [0.0] "float tex2" [0.192795772552]
+Texture "Material.004::bumpmap" "float" "mix" "float amount" [0.5] "texture tex1" ["Material.004::bumpmap:tex1"] "float tex2" [0.005]
+MakeNamedMaterial "Material.004"
+   "string type" ["uber"] "texture Kd" ["Material.004::Kd.scale"]
+   "color Ks" [0.003344 0.003344 0.003344]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000] "texture bumpmap" ["Material.004::bumpmap"]
+
+	# Material 'Shoes'
+Texture "Shoes::bumpmap" "float" "mix" "float amount" [0.5] "float tex1" [0.0] "float tex2" [0.0591718578339]
+MakeNamedMaterial "Shoes"
+   "string type" ["matte"]
+   "color Kd" [0.019088 0.004369 0.000000] "texture bumpmap" ["Shoes::bumpmap"]
+
+	# Material 'Material.006'
+MakeNamedMaterial "Material.006"
+   "string type" ["uber"]
+   "color Kd" [0.031440 0.000093 0.000093]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Material.009'
+MakeNamedMaterial "Material.009"
+   "string type" ["uber"]
+   "color Kd" [0.612066 0.612066 0.612066]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Material.001'
+MakeNamedMaterial "Material.001"
+   "string type" ["uber"]
+   "color Kd" [0.374624 0.374624 0.374624]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Material.008'
+MakeNamedMaterial "Material.008"
+   "string type" ["uber"]
+   "color Kd" [0.101452 0.612066 0.000000]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'trunk.002'
+Texture "trunk.002::Kd" "color" "mix" "float amount" [0.5] "color tex1" [0.894067 0.646365 0.330437] "color tex2" [0.102023 0.030519 0.010488]
+Texture "trunk.002::bumpmap" "float" "mix" "float amount" [0.5] "float tex1" [0.0] "float tex2" [0.00234755247831]
+MakeNamedMaterial "trunk.002"
+   "string type" ["uber"] "texture Kd" ["trunk.002::Kd"]
+   "color Ks" [0.010400 0.010400 0.010400]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000] "texture bumpmap" ["trunk.002::bumpmap"]
+
+	# Material 'Material.007'
+Texture "Material.007::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["//..\\..\\Pictures\\Copy of 2007 Year's text desktop photos\\sunset_07.jpg"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "Material.007::Kd.scale" "color" "scale" "texture tex1" ["Material.007::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+MakeNamedMaterial "Material.007"
+   "string type" ["uber"] "texture Kd" ["Material.007::Kd.scale"]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Material.003'
+MakeNamedMaterial "Material.003"
+   "string type" ["mix"]
+
+	# Material 'trunk.001'
+Texture "trunk.001::Kd" "color" "mix" "float amount" [0.5] "color tex1" [0.894067 0.646365 0.330437] "color tex2" [0.102023 0.030519 0.010488]
+Texture "trunk.001::bumpmap" "float" "mix" "float amount" [0.5] "float tex1" [0.0] "float tex2" [0.00234755247831]
+MakeNamedMaterial "trunk.001"
+   "string type" ["uber"] "texture Kd" ["trunk.001::Kd"]
+   "color Ks" [0.010400 0.010400 0.010400]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000] "texture bumpmap" ["trunk.001::bumpmap"]
+
+	# Material 'leaf.001'
+Texture "leaf.001::Kd" "color" "imagemap"
+   "string wrap" ["black"]
+   "string filename" ["D:\\Armagan\\Blender\\Lsystem\\leaves.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+MakeNamedMaterial "leaf.001"
+   "string type" ["uber"] "texture Kd" ["leaf.001::Kd"]
+   "color Ks" [0.031216 0.031216 0.031216]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Skin'
+MakeNamedMaterial "Skin"
+   "string type" ["matte"]
+   "color Kd" [0.395538 0.203256 0.033571]
+
+	# Material 'Eyes'
+
+	# Material 'Lips'
+MakeNamedMaterial "Lips"
+   "string type" ["uber"]
+   "color Kd" [0.050624 0.000000 0.000000]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Hair.001'
+MakeNamedMaterial "Hair.001"
+   "string type" ["matte"]
+   "color Kd" [0.000000 0.000000 0.000000]
+
+	# Material 'Purple'
+MakeNamedMaterial "Purple"
+   "string type" ["uber"]
+   "color Kd" [0.114230 0.000000 0.612066]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Skin.001'
+MakeNamedMaterial "Skin.001"
+   "string type" ["uber"]
+   "color Kd" [0.385698 0.256763 0.129971]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Shirt'
+MakeNamedMaterial "Shirt"
+   "string type" ["matte"]
+   "color Kd" [0.024140 0.000000 0.000000]
+
+	# Material 'Pants'
+MakeNamedMaterial "Pants"
+   "string type" ["matte"]
+   "color Kd" [0.000000 0.003946 0.019088]
+
+	# Material 'Hair'
+MakeNamedMaterial "Hair"
+   "string type" ["matte"]
+   "color Kd" [0.000000 0.000000 0.000000]
+

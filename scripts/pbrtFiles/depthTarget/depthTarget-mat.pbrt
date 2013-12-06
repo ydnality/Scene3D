@@ -1,0 +1,34 @@
+	# Material 'Material'
+Texture "Material::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["brickDiffuse.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [0.000000]
+Texture "Material::Kd.scale" "color" "scale" "texture tex1" ["Material::Kd"] "color tex2" [0.640000 0.640000 0.640000]
+MakeNamedMaterial "Material"
+   "string type" ["uber"] "texture Kd" ["Material::Kd.scale"]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'wall'
+Texture "wall::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["brickDiffuse.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [0.000000]
+Texture "wall::Kd.scale" "color" "scale" "texture tex1" ["wall::Kd"] "color tex2" [0.640000 0.640000 0.640000]
+MakeNamedMaterial "wall"
+   "string type" ["uber"] "texture Kd" ["wall::Kd.scale"]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+

@@ -1,0 +1,38 @@
+#TransformBegin # Lamp.001
+#	Transform [1.0 0.0 0.0 0.0  0.0 1.0 0.0 0.0  0.0 0.0 1.0 0.0  -3.91400051117 -1.34105062485 #5.2478966713 1.0]
+
+#	Transform [1.0 0.0 0.0 0.0  0.0 1.0 0.0 0.0  0.0 0.0 1.0 0.0  0 0 5.2478966713 1.0]
+
+#LightSource "point" "color L" [1000000.000000 1000000.000000 1000000.000000]
+#   "float scale" [1000.000000]
+#TransformEnd # Lamp.001
+
+#TransformBegin # Lamp
+#	Transform [-0.290864646435 0.95517116785 -0.0551890581846 0.0  -0.771100819111 -0.19988335669 #0.604524731636 0.0  0.566393196583 0.21839119494 0.794672250748 0.0  4.07624530792 1.00545394421 #5.90386199951 1.0]
+#Texture "Lamp:light:L" "color" "blackbody"
+#LightSource "point" "texture L" ["Lamp:light:L"]
+#   "float scale" [1.000000]
+#TransformEnd # Lamp
+
+AttributeBegin # Cube
+	Transform [1000.0 0.0 0.0 0.0  0.0 1000.0 0.0 0.0  0.0 0.0 1.0 0.0  0.0 0.0 0.0 1.0]
+	NamedMaterial "Material"
+	Shape "trianglemesh" "integer indices" [
+0 1 2
+0 2 3
+	] "point P" [
+-1.000000 -1.000000 0
+-1.000000 1.000000 0
+1.0 1.0 0
+1.0 -1.0 0
+	] "float uv" [
+
+0 7 
+0 0
+7 0
+7 7 
+
+
+	]
+AttributeEnd
+

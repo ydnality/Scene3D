@@ -6,8 +6,8 @@
 %% Load image ( we will use the front flash image)
 
 %Potential images to use.  Choose One!
-% fullName = 'compPhotography/reflectanceRecovery/indObjOi.mat'; 
-fullName = 'reflectanceRecovery/indObjSimpleRadianceFrontFlashImage.mat';
+fullName = 'compPhotography/reflectanceRecovery/imageData/indObjOi.mat'; 
+%fullName = 'compPhotography/reflectanceRecovery/imageData/indObjSimpleRadianceFrontFlashImage.mat';
 
 load(fullName,'vci');
 vciFlash = vci;

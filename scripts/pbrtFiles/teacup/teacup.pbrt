@@ -1,0 +1,71 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+LookAt 220.784576 -263.762909 12.850847 
+       128.038239 -200.766434 -18.473597 
+       -25.124372 18.756388 112.109886
+
+# this is the default lens that the converter puts in.  However, our converter doesn't recognize this format.  So this can be removed.  Go and replace this with a realisticDiffraction camera from template Scene3D pbrt file.  
+#Camera "perspective"
+#   "float fov" [49.134342]
+#   "float screenwindow" [-1.000000 1.000000 -0.562500 0.562500]
+
+Camera "realisticDiffraction" 
+	"string specfile" "dgauss.50mmSA2.dat"    #must copy this file to scene directory
+	#"float filmdistance" 36.77
+    "float filmdistance" 75 #64
+	"float aperture_diameter" 16 #3
+	"float filmdiag" 43.267  #70 
+	"float hither" [0.001 ] 
+	"float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]
+
+
+# scene resolution - change this to something smaller
+Film "image"
+   "integer xresolution" [384]   #number of pixels
+   "integer yresolution" [256]
+   #change file location - delete this because Matlab script takes care of it
+   #"string filename" ["D:\\Downloads\\blender-2.48a-windows64\\Blender248a\\.blender\\scripts\\bpydata\\default"]
+
+# this is not necessary
+#PixelFilter "mitchell"
+#   "float B" [0.750000]
+#   "float C" [0.125000]
+
+
+Sampler "lowdiscrepancy"
+   "integer pixelsamples" [4]  
+# number of photons per pixel (more means better quality.  Only works in powers of 2).  We are calculating the radiance image from the perspective of the sensor.  In this example we shoot out 4 rays from one pixel on the sensor.  
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]  #number of reflections calculated per ray
+
+# we don't need the volume integrator unless we are rendering subsurface scaterring effects.
+#VolumeIntegrator "single"
+#   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+
+AttributeBegin
+
+# this is the default light source that the plugin adds to all scenes.  This can be removed.	
+#LightSource "infinite"
+#   "color L" [0.0508761 0.0508761 0.0508761]
+#   "float scale" [1.000000]
+#AttributeEnd
+
+Include "teacup-mat.pbrt"
+
+Include "teacup-geom.pbrt"
+
+#Include "default-vol.pbrt"
+
+WorldEnd
+

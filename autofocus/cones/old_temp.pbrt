@@ -1,0 +1,59 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+
+
+Film "image"
+   "integer xresolution" 60 #[450] 
+   "integer yresolution" 40 #[300]
+    "float cropwindow" [ 0.27556     0.36444     0.72667        0.86 ]
+
+#Scale -1 1 1  # account for fixed lookat bug...
+
+# Please render final images at 4 and 512 samples per pixel
+Sampler "lowdiscrepancy" "integer pixelsamples" [64]  #controls quality of render
+
+
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]
+
+
+#LookAt 2.3 .1 -.7    .4 0 -.9  0 1 0
+Scale 5000 5000 5000
+Rotate -3 1 0 0
+Rotate 52 0 1 0
+Translate -2.3 -.05 .5
+
+
+
+
+Camera "realisticDiffraction" 
+	"string specfile" "dgauss.50mmSA2.dat" 
+	"float filmdistance" 35.9 #39 (focused in front) #36.77 (middle cone)  #adjust this parameter to adjust focal distance!
+	"float aperture_diameter" 17 #3
+	"float filmdiag" 70
+	"float hither" [0.001 ] 
+	"float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]
+
+
+WorldBegin
+
+AttributeBegin
+AreaLightSource "area" "color L" [40 40 40] "integer nsamples" [4]
+Translate 0 9.9 0
+Rotate 90 1 0 0
+Shape "disk" "float radius" [8]
+AttributeEnd
+
+Include "cones.pbrt"
+
+
+WorldEnd
+
+
+

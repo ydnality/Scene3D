@@ -1,0 +1,86 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+LookAt -36.914787 -105.385544 13.014802    #original position
+        -36.914787 -104.481461 12.95        
+        #-36.914787 -104.481461 13.014835 
+       0 0 1.000000
+
+
+#LookAt    -54.2025 -106.6676   13.0148    #shifted position
+#         -53.7752 -105.7635   13.0148
+#        -0.000013 -0.000031 1.000000
+
+#Camera "perspective"
+#   "float fov" [49.134342]
+#   "float screenwindow" [-1.000000 1.000000 -1.380000 0.620000]
+
+
+Camera "realisticDiffraction" 
+	#"string specfile" "dgauss.50mmSA2.dat" 
+    "string specfile" "dgauss.50mmSA2.DM.dat" 
+	#"float filmdistance" 36.77
+    "float filmdistance" 75 #64
+	"float aperture_diameter" 16 #3
+	"float filmdiag" 43.267  #70 
+	"float hither" [0.001 ] 
+	"float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]
+
+
+
+
+Film "image"
+   "integer xresolution" [450] 
+   "integer yresolution" [300]
+
+#PixelFilter "mitchell"
+#   "float B" [0.750000]
+#   "float C" [0.125000]
+
+Sampler "lowdiscrepancy"
+   "integer pixelsamples" [512]
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [0]
+
+VolumeIntegrator "single"
+   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+
+#flash
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-36.914787 -105.385544 13.014802 ] "point to" [-36.914787 -104.481461 12.95     ]
+
+#flash - this one is placed further back
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [   -142.3855 -286.2024   13.0082] "point to" [ -141.9582 -285.2984   13.0082]
+
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [ -59.0516 -109.9060   13.0146] "point to" [-58.6242 -109.0019   13.0147]
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [  -78.2825 -150.5898   13.0132] "point to" [  -77.8551 -149.6857   13.0132]
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-36.9148 -155.2576   16.5895 ] "point to" [-36.9148 -154.3535   16.5247 ] #50
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-36.9148 -205.1296   20.1642 ] "point to" [-36.9148 -204.2256   20.0994] #100
+LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [13.0852 -105.385544   13.014802] "point to" [13.0852 -104.481461   12.9500] #50 side
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-11.9148 -105.3855   13.0148] "point to" [-11.9148 -104.4815   12.9500] #25 side
+
+  
+AttributeBegin
+	
+#LightSource "infinite"
+#   "color L" [.001 .001 .001]
+#   "float scale" [.0100000]
+#AttributeEnd
+
+Include "lambertian-mat.pbrt"
+
+Include "lambertian-geom-lite.pbrt"
+
+Include "default-vol.pbrt"
+
+WorldEnd
+

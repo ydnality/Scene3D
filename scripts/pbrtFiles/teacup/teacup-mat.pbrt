@@ -1,0 +1,21 @@
+	# Material 'Material.003'
+MakeNamedMaterial "Material.003"
+   "string type" ["uber"]
+   "color Kd" [0.374624 0.374624 0.374624]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Material.002'
+MakeNamedMaterial "Material.002"
+   "string type" ["uber"]
+   "color Kd" [0.374624 0.374624 0.374624]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+
+	# Material 'Material.001'
+MakeNamedMaterial "Material.001"
+   "string type" ["uber"]
+   "color Kd" [0.374624 0.374624 0.374624]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000]
+

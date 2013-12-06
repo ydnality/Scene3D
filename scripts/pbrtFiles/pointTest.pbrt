@@ -17,14 +17,14 @@ Film "image"
    "integer yresolution" [150]
    "string filename" ["pointTest_d.dat"]
 
-PixelFilter "mitchell"
-   "float B" [0.750000]
-   "float C" [0.125000]
+#PixelFilter "mitchell"
+#   "float B" [0.750000]
+#   "float C" [0.125000]
 
 Sampler "lowdiscrepancy"
 
-    "integer pixelsamples" [131070]
- # "integer pixelsamples" [16384]
+    #"integer pixelsamples" [131070]
+  "integer pixelsamples" [16384]
  #"integer pixelsamples" [128]
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [1]
