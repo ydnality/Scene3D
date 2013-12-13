@@ -1,0 +1,4 @@
+fileName	focalLength	apertureDiameter	targetDistance	sensorDistance	resolution	numSamples
+50mm_4m	50	2.2727	4000	50.6329	32	262144
+25mm_4m	25	1.1364	4000	25.1572	32	262144
+100mm_4m	100	4.5455	4000	102.5641	32	262144

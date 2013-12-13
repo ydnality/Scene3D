@@ -15,15 +15,15 @@ function output = s3dRenderDepthMap(fname, numRenders)
     if (ieNotDefined('numRenders'))
         numRenders = 31;
     end
-    chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
+%     chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
     mkdir('tempOutput');
     chdir('tempOutput');
     unix('rm -rf*');
     
     outfile = 'depthRender_out.dat';
     dMapFile = 'depthRender_out_DM.dat';
-    imageWidth = 450;
-    imageHeight = 300;
+    imageWidth = 300;
+    imageHeight = 200;
     depthMap = zeros(imageHeight, imageWidth, numRenders);
 
     for i = 1:numRenders

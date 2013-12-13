@@ -1,0 +1,3 @@
+lightColor	imageName	numSamples
+300:10 800:100	reddish	512
+

@@ -1,0 +1,4 @@
+fileName	focalLength	scale	apertureDiameter	targetDistance	targetDistanceDir	sensorDistance	resolution	numSamples
+100mm_4m_129res	100	13	4.5455	4000	3999	102.5641	129	1048560
+50mm_4m_129res	50	26	2.2727	4000	3999	50.6329	129	1048560
+25mm_4m_129res	25	52	1.1364	4000	3999	25.1572	129	1048560

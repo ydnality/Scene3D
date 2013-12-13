@@ -1,0 +1,76 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+
+LookAt 0 0 4000 
+       0 0 3999
+       0.000000 1.00000 0.0000005
+
+#test perspective camera
+#Camera "perspectiveDiffraction" "float fov" [8]   #this sets FOV for smaller dimension!!
+#	"float focaldistance" [2001] 
+#	"float lensradius" [.05] 
+
+Camera "idealDiffraction"
+	"float focal_length" 25 
+	"float filmdistance" 25.1572
+	"float aperture_diameter" 1.1364
+	"float filmdiag" [.2]
+	"float diffractionEnabled" [1]
+
+
+Film "image"
+   "integer xresolution" 129
+   "integer yresolution" 129
+  # "string filename" ["pointTest_d.dat"]
+
+#PixelFilter "mitchell"
+#   "float B" [0.750000]
+#   "float C" [0.125000]
+
+Sampler "lowdiscrepancy"
+
+   "integer pixelsamples" 1048560 #[131070]
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]
+
+#VolumeIntegrator "single"
+ #  "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+    AttributeBegin
+        LightSource "spot" "color I" [100000000000000000000000 100000000000000000000000 100000000000000000000000] "point from" [0 0 100000] "point to" [0 0 0] "float coneangle" [140] "integer nsamples" [32]
+    AttributeEnd
+
+    Include "pointTest-mat.pbrt"
+
+
+
+AttributeBegin # Cube
+	Transform [52 0.0 0.0 0.0  0.0 52 0.0 0.0  0.0 0.0 1.0 0.0  0.0 0.0 0.0 1.0]
+	NamedMaterial "Material"
+	Shape "trianglemesh" "integer indices" [
+0 1 2
+0 2 3
+	] "point P" [
+-1.000000 -1.000000 0
+-1.000000 1.000000 0
+1.0 1.0 0
+1.0 -1.0 0
+	] "float uv" [
+
+0 7 
+0 0
+7 0
+7 7 
+
+
+	]
+AttributeEnd
+
+WorldEnd
+

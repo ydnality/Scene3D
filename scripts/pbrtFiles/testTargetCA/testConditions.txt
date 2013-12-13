@@ -1,0 +1,3 @@
+lightColor	imageName	test
+300:10 800:100	reddish	lala
+300:100 800:10	blueish	lala

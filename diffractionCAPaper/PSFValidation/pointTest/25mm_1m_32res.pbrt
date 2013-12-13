@@ -21,8 +21,8 @@ Camera "idealDiffraction"
 
 
 Film "image"
-   "integer xresolution" 32
-   "integer yresolution" 32
+   "integer xresolution" 64
+   "integer yresolution" 64
   # "string filename" ["pointTest_d.dat"]
 
 #PixelFilter "mitchell"

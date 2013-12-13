@@ -1,0 +1,45 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+LookAt 4.500000 -80 8.500000 
+       4.500000 -79 8.500000 
+       0.000000 -0.000000 1.000000
+
+Include "50mmDepthMap-idealLens.pbrt"
+
+Film "image"
+   "integer xresolution" [300] 
+   "integer yresolution" [200]
+
+Sampler "lowdiscrepancy"
+   "integer pixelsamples" [1] #[64]
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [0]
+
+VolumeIntegrator "single"
+   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+
+AttributeBegin
+	
+#LightSource "infinite"
+#   "color L" [1 1 1]
+#   "float scale" [1.000000]
+#AttributeEnd
+
+#flash
+LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [4.500000 -80.000000 8.500000] "point to" [4.500000 -79.000000 8.500000]
+
+Include "depthTarget-mat.pbrt"
+
+Include "depthTarget-geom.pbrt"
+
+Include "depthTarget-vol.pbrt"
+
+WorldEnd
+

@@ -1,0 +1,5 @@
+fileName	focalLength	scale	apertureDiameter	targetDistance	targetDistanceDir	sensorDistance	resolution	numSamples
+50mm_2m_65res_f22	50	19.5	2.2727	2000	1999	51.2821	65	1048560
+50mm_2m_65res_f16	50	19.5	3.1250	2000	1999	51.2821	65	1048560
+50mm_2m_65res_f11	50	19.5	4.5455	2000	1999	51.2821	65	1048560
+50mm_2m_65res_f8	50	19.5	6.2500	2000	1999	51.2821	65	1048560

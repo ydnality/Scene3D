@@ -1,0 +1,4 @@
+lightColor	imageName
+300:10 800:100	reddish
+300:100 800:10	blueish
+

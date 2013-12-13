@@ -21,8 +21,8 @@ Camera "idealDiffraction"
 
 
 Film "image"
-   "integer xresolution" 32
-   "integer yresolution" 32
+   "integer xresolution" 16
+   "integer yresolution" 16
   # "string filename" ["pointTest_d.dat"]
 
 #PixelFilter "mitchell"
@@ -31,7 +31,7 @@ Film "image"
 
 Sampler "lowdiscrepancy"
 
-   "integer pixelsamples" 524288 #[131070]
+   "integer pixelsamples" 131072 #[131070]
 
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [1]
