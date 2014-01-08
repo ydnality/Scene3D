@@ -1,4 +1,5 @@
 %% PBRT will run the PBRT script
+%TODO: fix path
 chdir(fullfile(s3dRootPath, 'scripts', 'validate'));
 %unix('../../../pbrt-v2-spectral-diffraction/src/bin/pbrt pointTest.pbrt'); 
 unix([fullfile(pbrtHome, '/src/bin/pbrt') ' pointTest.pbrt']);

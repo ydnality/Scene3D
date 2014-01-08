@@ -1,4 +1,11 @@
-%adapted from code originally written by my cousin Yeong-Jeh(James) Huang
+%% returnVal = s3dReplaceVar(pbrtFile, outFile, varArray)
+% Replaces variables in template pbrt files with proper values, given by conditions file
+% pbrtFile: the template pbrt file, with <variableName> as the general form for variables 
+% outFile: the output file name
+% varArray: a cell array containing the variable values 
+% TODO: write more documentation on this function 
+% TODO: make varArray an array of a new type pbrtVars as a better programming practice
+% **adapted from code originally written by my cousin Yeong-Jeh(James) Huang
 
 function returnVal = s3dReplaceVar(pbrtFile, outFile, varArray)
     
