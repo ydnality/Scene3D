@@ -1,0 +1,6 @@
+Camera "idealDiffraction"
+	"float focal_length" 50 
+	"float filmdistance" 133.33
+	"float aperture_diameter" .5556
+	"float filmdiag" 43.267
+	"float diffractionEnabled" 0

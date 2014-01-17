@@ -36,16 +36,58 @@ pbrt.film.name = 'image';
 pbrt.film.xresolution = 200;
 pbrt.film.yresolution = 200;
 
-% SurfaceIntegrator
+% 
 % Sampler
+pbrt.sampler.type = 'lowdiscrepancy';
+pbrt.sampler.pixelsamples = 512;
+
+% SurfaceIntegrator
+pbrt.surfaceIntegrator.type  = 'directlighting';
+pbrt.surfaceIntegrator.maxdepth = 0;
+
 % Renderer
+pbrt.renderer = 'sample';
 
 % World Begin
+
 %  Attribute Begin
 %   Light source
+pbrt.lightSource = cell(1,1);
+
+%default white light at camera position
+whiteLight.type = 'spot';
+whiteLight.spectrum.type = 'rgb I';
+whiteLight.spectrum.value = [1000 1000 1000];
+whiteLight.coneangle = 180;
+whiteLight.conedeltaangle = 180;
+whiteLight.from = [4.5 -90 8.5];
+whiteLight.to = [4.5 -89 8.5];
+
+%green spotlight
+greenLight.type = 'spot';
+greenLight.spectrum.type = 'rgb I';
+greenLight.spectrum.value = [0 1000 0];
+greenLight.coneangle = 180;
+greenLight.conedeltaangle = 180;
+greenLight.from = [4.5 -90 8.5];
+greenLight.to = [4.5 -89 8.5];
+
+%red spotlight
+redLight.type = 'spot';
+redLight.spectrum.type = 'rgb I';
+redLight.spectrum.value = [1000 0 0];
+redLight.coneangle = 180;
+redLight.conedeltaangle = 180;
+redLight.from = [4.5 -90 8.5];
+redLight.to = [4.5 -89 8.5];
+
+pbrt.lightSource{1} = greenLight;
 %  Attribute End
+
 %  Material file
+pbrt.materialsFile = 'depthTargetDepths-mat.pbrt';
 %  Geometry file
+pbrt.geometryFile = 'depthTargetDepths-geom.pbrt';
 % WorldEnd
 
 

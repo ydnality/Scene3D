@@ -1,0 +1,45 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+
+
+LookAt 0 0 2001.0 
+       0 0 2000.0 
+       0.000000 1.00000 0.0000005
+
+#test perspective camera
+#Camera "perspectiveDiffraction" "float fov" [8]   #this sets FOV for smaller dimension!!
+#	"float focaldistance" [2001] 
+#	"float lensradius" [.05] 
+
+Camera "realisticDiffraction" 
+	"string specfile"  "dgauss.50mm.dat"
+	"float filmdistance" 36.77 #86 #42 #15  #36.77
+	"float aperture_diameter" 1
+	"float filmdiag" 5
+	"float diffractionEnabled" [1]
+    "float chromaticAberrationEnabled" [0]
+
+Film "image"
+   "integer xresolution" [100]
+   "integer yresolution" [100]
+
+Sampler "lowdiscrepancy"
+ "integer pixelsamples" [2048]
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]
+
+Renderer "sample"
+
+WorldBegin
+    AttributeBegin
+        LightSource "spot" "color I" [100000000000000000000000 100000000000000000000000 100000000000000000000000] "point from" [0 0 100000] "point to" [0 0 0] "float coneangle" [140] "integer nsamples" [32]
+    AttributeEnd
+
+    Include "pointTest-mat.pbrt"
+
+    Include "pointTest-geom.pbrt"
+WorldEnd
+

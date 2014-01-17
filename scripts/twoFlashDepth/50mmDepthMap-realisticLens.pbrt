@@ -1,0 +1,11 @@
+Camera "realisticDiffraction" 
+    "string specfile" "dgauss.50mmSA2.DM.dat" 
+    "float filmdistance" 75 #64
+	"float aperture_diameter" 16 #3
+	"float filmdiag" 43.267  #70 
+	"float hither" [0.001 ] 
+	"float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]

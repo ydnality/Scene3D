@@ -1,1 +1,0 @@
-function [rootPath]=TwoFlashDepthPath%%   rootPath = s3dRootPath;%% This file must reside in the root directory of the 2FlashDepth Project% folder.  The file is used to identify the directory it resides in.% TODO: move this or delete itrootPath=which('TwoFlashDepthPath');[rootPath,fName,ext]=fileparts(rootPath);return;

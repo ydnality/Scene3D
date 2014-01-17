@@ -82,8 +82,7 @@ for i = 1:length(renderFileArray)
     vcAddAndSelectObject(oi);
     oiWindow;
     opticalimage = oi;
-    vcSaveObject(opticalimage, [renderFileArray{i} '.mat']);
-    
+    vcSaveObject(opticalimage, [renderFileArray{i} '.mat']); 
 end
 
 end

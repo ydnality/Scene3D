@@ -17,6 +17,7 @@ GTDepthMap = 'twoFlashDepth/depthTargetDepths/GTDepthMap.mat';
 %% load 1st image
 %fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
 fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
+% fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
 
 load([s3dRootPath '/data/' fullName],'vci');
 vciFlash = vci;
@@ -26,6 +27,7 @@ vcimageWindow;
 %% load 2nd flash image (flash now placed in back)
 %fullName = '2FlashDepth/indObject/idealDownBackFlashImage.mat';
 fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
+% fullName = 'twoFlashDepth/depthTargetDepths/50mmBack10s.pbrt.image.mat';  
 
 multiplicationFactor = 1;  %to account for differences in exposure
 load([s3dRootPath '/data/' fullName],'vci');
@@ -55,11 +57,28 @@ ratioImage = linearIntensityFlash./linearIntensityFlashBack;
 % steps needed to calculate depth
 
 % figure; imagesc(ratioImage);
-fieldOfView = 25; % used for front back 100 experiment
+
+% we are using the magnification ratio to calculate field of view since
+% this is a macro photography case.  See
+% http://en.wikipedia.org/wiki/Angle_of_view for details.  
+% alpha = 2 * arctan (d/(2 * F * (1 + m/P))
+% here P = 1 since we are using an ideal lens, and m = S2/S1 = 133.33/80
+fieldOfView = 15.4150; % this FOV takes into account magnification in a macro sense (does this work better?)
+
+
+% fieldOfView = 25; % used for front back 100 experiment
+
+
+% fieldOfView = 26.9915; % used for front back 100 experiment  %vertical
+% fieldOfView = 39.5978;   %horizontal field of view
+
 sensorWidth = 36;
 sensorHeight  = 24;
 sensorDistance = sensorWidth/2 / tan(fieldOfView/2 * pi/180);
+% sensorDistance = 133.33;
+
 f = 50;  % f signifies distance between 2 flashes
+% f = 10;  % f signifies distance between 2 flashes
 
 % calculate alpha and phi for each pixel
 xMatrix = linspace(-sensorWidth/2, sensorWidth/2, size(ratioImage,2));
@@ -68,8 +87,11 @@ yMatrix = linspace(-sensorHeight/2, sensorHeight/2, size(ratioImage,1))';
 yMatrix = repmat(yMatrix, [1 size(ratioImage,2)]);
 z = sensorDistance;
 fakeD1 = sqrt(xMatrix.^2 + yMatrix.^2 + z.^2);
+
 alpha = asin(xMatrix./fakeD1); 
 phi   = asin(z./(fakeD1.*cos(alpha)));
+% alpha = asin(xMatrix./fakeD1);
+% phi   = atan(yMatrix./sqrt(yMatrix.^2 + z.^2));
 
 %front back flash case
 radical = abs(sqrt(4*cos(alpha).^2.*sin(phi).^2.*f.^2 - 4*f^2.*(1 - ratioImage)));
@@ -98,7 +120,9 @@ colorbar; title('Filtered Depth'); caxis([80 150]);
 % test case - use GT depth map to calculate depth map
 % this allows us to decouple the effect of a bad depth map calculation
 % method with the 2flashdepth algorithm
-%d1TestFiltered = imresize(groundTruthDepthMap, [400 600]);
+
+
+% d1TestFiltered = imresize(groundTruthDepthMap, [400 600]);
 
 % calculate normal vectors using averaged cross products
 recordedLateralDistance = zeros(size(d1Test));
@@ -113,7 +137,7 @@ for i = 2:(size(d1TestFiltered, 2) - 1)
         %lateralDistance = d1TestFiltered(j,i) * pixelUnit/sensorDistance;
         %%this does not make a lot of sense
         
-        lateralDistance = d1TestFiltered(j,i) * tan(fieldOfView/size(ratioImage,2) * pi/180);
+%         lateralDistance = d1TestFiltered(j,i) * tan(fieldOfView/size(ratioImage,2) * pi/180);
         lateralDistance = 100 * tan(fieldOfView/size(ratioImage,2) * pi/180);
         recordedLateralDistance(j,i) = lateralDistance;
         aVector = [0 lateralDistance -aRelief];
@@ -212,6 +236,9 @@ z = sensorDistance;
 fakeD1 = sqrt(xMatrix.^2 + yMatrix.^2 + z.^2);
 alpha = asin(xMatrix./fakeD1); 
 phi   = asin(z./(fakeD1.*cos(alpha)));
+
+% alpha = atan(xMatrix./z);
+% phi   = atan(yMatrix./sqrt(yMatrix.^2 + z.^2));
 
 %front back flash case
 radical = abs(sqrt(4*cos(alpha).^2.*sin(phi).^2.*f.^2 - 4*f^2.*(1 - ratioImage)));

@@ -8,7 +8,8 @@
 %
 
 %%
+pbrt=pbrtCreate
+pbrtWrite(pbrt, 'deleteMe.pbrt');
 
-
-
+oi = s3dRenderScene('deleteMe.pbrt', 50, [dataPath '/tmp/'])
 %% End

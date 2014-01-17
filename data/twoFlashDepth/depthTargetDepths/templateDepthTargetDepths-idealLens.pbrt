@@ -1,0 +1,6 @@
+Camera "idealDiffraction"
+	"float focal_length" <focalLength> 
+	"float filmdistance" <sensorDistance>
+	"float aperture_diameter" <apertureDiameter>
+	"float filmdiag" [<filmDiag>]
+	"float diffractionEnabled" [<diffractionEnabled>]

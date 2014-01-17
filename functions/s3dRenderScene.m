@@ -19,7 +19,7 @@ function oi = s3dRenderScene(fname, focalLength, path)
     end
     if (ieNotDefined('path'))
         % PBRT will run the PBRT script - initializing
-        chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
+        chdir(fullfile(s3dRootPath, 'data', 'pbrtScenes'));
     else
         chdir(path)
     end   
