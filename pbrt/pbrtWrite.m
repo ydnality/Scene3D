@@ -1,4 +1,4 @@
-function pbrtWrite(pbrt,fname)
+function returnValue = pbrtWrite(pbrt,fname)
 % Write a text file from a pbrt structure
 %
 % 
@@ -23,7 +23,12 @@ fprintf(fid,'# account for fixed lookat bug\n');
 %% Camera position
 
 fprintf(fid,'\n\nLookAt\n');
-fprintf(fid,'\t%f %f %f\n',pbrt.cameraPosition');
+
+if (isfield(pbrt.cameraPosition, 'fileName'))
+    fprintf(fid,'\n\nInclude "%s"\n', pbrt.cameraPosition.fileName);
+else
+    fprintf(fid,'\t%f %f %f\n',pbrt.cameraPosition');
+end
 
 %% Lens file
 fprintf(fid,'\n\nInclude "%s"\n', pbrt.lensFile);
@@ -55,26 +60,36 @@ fprintf(fid,'\n\nWorldBegin\n');
 
 %loop through each light source
 for i = 1:length(pbrt.lightSource)
-    fprintf(fid,'\n\nAttributeBegin\n');
-    fprintf(fid,'\n\tLightSource\n');
-    fprintf(fid,'\t\t"%s"\n', pbrt.lightSource{i}.type);
     
-    fprintf(fid,'\t\t"%s" [', pbrt.lightSource{i}.spectrum.type);
-    fprintf(fid,'%f ', pbrt.lightSource{i}.spectrum.value);
-    fprintf(fid,']\n');
-    
-    fprintf(fid,'\t\t"float coneangle" %f\n', pbrt.lightSource{i}.coneangle);
-    fprintf(fid,'\t\t"float conedeltaangle" %f\n', pbrt.lightSource{i}.conedeltaangle);
-    
-    fprintf(fid,'\t\t"point from" [');
-    fprintf(fid,'%f ', pbrt.lightSource{i}.from);
-    fprintf(fid,']\n');
-    
-    fprintf(fid,'\t\t"point to" [');
-    fprintf(fid,'%f ', pbrt.lightSource{i}.to);
-    fprintf(fid,']\n');    
-    
-    fprintf(fid,'\nAttributeEnd\n');
+    %check to see if a file or directly defined
+    %if it is a filename, use an include, if not 
+    if (isfield(pbrt.lightSource{i}, 'fileName'))
+        if ~strcmp(pbrt.lightSource{i}.fileName , '')
+            fprintf(fid,'\n\nInclude "%s"\n', pbrt.lightSource{i}.fileName);
+        end
+    else
+        %this is the case where the lightsource is explicitly declared
+        fprintf(fid,'\n\nAttributeBegin\n');
+        fprintf(fid,'\n\tLightSource\n');
+        fprintf(fid,'\t\t"%s"\n', pbrt.lightSource{i}.type);
+
+        fprintf(fid,'\t\t"%s" [', pbrt.lightSource{i}.spectrum.type);
+        fprintf(fid,'%f ', pbrt.lightSource{i}.spectrum.value);
+        fprintf(fid,']\n');
+
+        fprintf(fid,'\t\t"float coneangle" %f\n', pbrt.lightSource{i}.coneangle);
+        fprintf(fid,'\t\t"float conedeltaangle" %f\n', pbrt.lightSource{i}.conedeltaangle);
+
+        fprintf(fid,'\t\t"point from" [');
+        fprintf(fid,'%f ', pbrt.lightSource{i}.from);
+        fprintf(fid,']\n');
+
+        fprintf(fid,'\t\t"point to" [');
+        fprintf(fid,'%f ', pbrt.lightSource{i}.to);
+        fprintf(fid,']\n');    
+
+        fprintf(fid,'\nAttributeEnd\n');
+    end
 end
 
 %% Materials File
@@ -88,4 +103,6 @@ fprintf(fid,'\n\nWorldEnd\n');
 
 %%
 fclose(fid);
+
+returnValue = 1; %1 for success, 0 for failure
 end

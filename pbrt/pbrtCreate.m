@@ -63,25 +63,7 @@ whiteLight.conedeltaangle = 180;
 whiteLight.from = [4.5 -90 8.5];
 whiteLight.to = [4.5 -89 8.5];
 
-%green spotlight
-greenLight.type = 'spot';
-greenLight.spectrum.type = 'rgb I';
-greenLight.spectrum.value = [0 1000 0];
-greenLight.coneangle = 180;
-greenLight.conedeltaangle = 180;
-greenLight.from = [4.5 -90 8.5];
-greenLight.to = [4.5 -89 8.5];
-
-%red spotlight
-redLight.type = 'spot';
-redLight.spectrum.type = 'rgb I';
-redLight.spectrum.value = [1000 0 0];
-redLight.coneangle = 180;
-redLight.conedeltaangle = 180;
-redLight.from = [4.5 -90 8.5];
-redLight.to = [4.5 -89 8.5];
-
-pbrt.lightSource{1} = greenLight;
+pbrt.lightSource{1} = whiteLight;
 %  Attribute End
 
 %  Material file
