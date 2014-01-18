@@ -13,7 +13,7 @@
 classdef batchFileClass <  handle
     
     %matlab.mixin.Copyable
-    properties
+    properties (SetAccess = private)
         inputStem;
         outputStem;
         postfix; 
