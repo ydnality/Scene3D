@@ -1,4 +1,0 @@
-lightColor	fileName	numSamples
-300 10 700 100	reddish	512
-300 80 700 5	blueish	256
-
