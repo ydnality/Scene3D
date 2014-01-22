@@ -2,6 +2,7 @@
 % All this information will be used to create a pbrt File.  However, note
 % that key properties such as materials and geometry are still handled by
 % importing text files, since these are very complex.
+%TODO: check types
 classdef pbrtObject <  handle
     
     %matlab.mixin.Copyable
@@ -13,8 +14,8 @@ classdef pbrtObject <  handle
         surfaceIntegrator;
         renderer;
         lightSourceArray;
-        materials;  %we will use .fileName for now to avoid declaring all the materials stuff
-        geometry;   %we will use .fileName for now to avoid declaring all the geometry stuff
+        materialsArray;  %we will use .fileName for now to avoid declaring all the materials stuff
+        geometryArray;   %we will use .fileName for now to avoid declaring all the geometry stuff
     end
     methods
         % default constructor
@@ -27,8 +28,8 @@ classdef pbrtObject <  handle
             % Placement of the camera.  Defined by a vector that looks in a certain
             % direction, and then tells you which way is up.
             obj.camera.position = [
-                4.5 -80 7 % Starting up
-                4.5 -79 7 % Ending up
+                4.5 -80 7; % Starting up
+                4.5 -79 7; % Ending up
                 0 0 1];   % Which way is up
             
             % Example lens
@@ -40,11 +41,13 @@ classdef pbrtObject <  handle
             obj.camera.film.yresolution = 200;
             
             % Sampler
-            obj.sampler.type = 'lowdiscrepancy';
+            obj.sampler.type = 'sampler';
+            obj.sampler.samplerType = 'lowdiscrepancy';
             obj.sampler.pixelsamples = 512;
             
             % SurfaceIntegrator
-            obj.surfaceIntegrator.type  = 'directlighting';
+            obj.surfaceIntegrator.type  = 'surfaceIntegrator';
+            obj.surfaceIntegrator.surfIntType = 'directlighting';
             obj.surfaceIntegrator.maxdepth = 0;
             
             % Renderer
@@ -57,7 +60,8 @@ classdef pbrtObject <  handle
             obj.lightSourceArray = cell(1,1);
             
             %default white light at camera position
-            whiteLight.type = 'spot';
+            whiteLight.type = 'light';
+            whiteLight.lightType = 'spot';
             whiteLight.spectrum.type = 'rgb I';
             whiteLight.spectrum.value = [1000 1000 1000];
             whiteLight.coneangle = 180;
@@ -69,9 +73,41 @@ classdef pbrtObject <  handle
             %  Attribute End
             
             %  Material file
-            obj.materials.file = 'depthTargetDepths-mat.pbrt';
-            %  Geometry file
-            obj.geometry.file = 'depthTargetDepths-geom.pbrt';
+            obj.materialsArray = cell(1,1);
+            obj.materialsArray{1}.type = 'file';
+            obj.materialsArray{1}.file = 'depthTargetDepths-mat.pbrt';
+            
+            %example materials object
+            greenLambertian.type = 'material';
+            greenLambertian.name = 'greenLambertian';
+            greenLambertian.matType = 'matte';
+            greenLambertian.kd.type = 'kd';
+            greenLambertian.kd.kdType = 'color Kd';
+            greenLambertian.kd.value = [0 0.374624 0];
+            
+            obj.materialsArray{2} = greenLambertian;
+            
+            % Geometry file
+            obj.geometryArray = cell(1,1);
+            obj.geometryArray{1}.type = 'file';
+            obj.geometryArray{1}.file = 'depthTargetDepths-geom.pbrt';
+            
+            %example geometry object
+            examplePlane.type = 'geometry';
+            examplePlane.name = 'Example Plane';
+            examplePlane.material = 'greenLambertian';
+            examplePlane.triangleMesh = [0 1 2;
+                0 2 3];
+            examplePlane.points = [1.000000 1.000000 0.000000;
+                -1.000000 1.000000 0.000000;
+                -1.000000 -1.000000 0.000000;
+                1.000000 -1.000000 0.000000];
+            examplePlane.transform = [-4.37113882867e-008 -0.0 -1.0 0.0;
+                1.0 -4.37113882867e-008 -4.37113882867e-008 0.0 ;
+                -4.37113882867e-008 -1.0 1.91068567692e-015 0.0;
+                0.0 0.0 8.87306690216 1.0];
+            obj.geometryArray{2} = examplePlane;
+            
             % WorldEnd
         end
         
@@ -108,12 +144,12 @@ classdef pbrtObject <  handle
             
             %% Sampler
             
-            fprintf(fid,'\n\nSampler "%s"\n', obj.sampler.type);
+            fprintf(fid,'\n\nSampler "%s"\n', obj.sampler.samplerType);
             fprintf(fid,'\t"integer pixelsamples" [%i]\n',obj.sampler.pixelsamples);
             
             %% SurfaceIntegrator
             
-            fprintf(fid,'\n\nSurfaceIntegrator "%s"\n', obj.surfaceIntegrator.type);
+            fprintf(fid,'\n\nSurfaceIntegrator "%s"\n', obj.surfaceIntegrator.surfIntType);
             fprintf(fid,'\t"integer maxdepth" [%i]\n',obj.surfaceIntegrator.maxdepth);
             
             %% Renderer
@@ -130,43 +166,87 @@ classdef pbrtObject <  handle
                 
                 %check to see if a file or directly defined
                 %if it is a filename, use an include, if not
-                if (isfield(obj.lightSourceArray{i}, 'fileName'))
-                    if ~strcmp(obj.lightSourceArray{i}.fileName , '')
+                if (strcmp(obj.lightSourceArray{i}, 'file'))
+                    if ~strcmp(obj.lightSourceArray{i}.file , '')
                         fprintf(fid,'\n\nInclude "%s"\n', obj.lightSourceArray{i}.fileName);
                     end
                 else
                     %this is the case where the lightsource is explicitly declared
-                    fprintf(fid,'\n\nAttributeBegin\n');
-                    fprintf(fid,'\n\tLightSource\n');
-                    fprintf(fid,'\t\t"%s"\n', obj.lightSourceArray{i}.type);
-                    
-                    fprintf(fid,'\t\t"%s" [', obj.lightSourceArray{i}.spectrum.type);
-                    fprintf(fid,'%f ', obj.lightSourceArray{i}.spectrum.value);
-                    fprintf(fid,']\n');
-                    
-                    fprintf(fid,'\t\t"float coneangle" %f\n', obj.lightSourceArray{i}.coneangle);
-                    fprintf(fid,'\t\t"float conedeltaangle" %f\n', obj.lightSourceArray{i}.conedeltaangle);
-                    
-                    fprintf(fid,'\t\t"point from" [');
-                    fprintf(fid,'%f ', obj.lightSourceArray{i}.from);
-                    fprintf(fid,']\n');
-                    
-                    fprintf(fid,'\t\t"point to" [');
-                    fprintf(fid,'%f ', obj.lightSourceArray{i}.to);
-                    fprintf(fid,']\n');
-                    
-                    fprintf(fid,'\nAttributeEnd\n');
+                    if (strcmp(obj.lightSourceArray{i}.type, 'light'))
+                        fprintf(fid,'\n\nAttributeBegin\n');
+                        fprintf(fid,'\n\tLightSource\n');
+                        fprintf(fid,'\t\t"%s"\n', obj.lightSourceArray{i}.lightType);
+
+                        fprintf(fid,'\t\t"%s" [', obj.lightSourceArray{i}.spectrum.type);
+                        fprintf(fid,'%f ', obj.lightSourceArray{i}.spectrum.value);
+                        fprintf(fid,']\n');
+
+                        fprintf(fid,'\t\t"float coneangle" %f\n', obj.lightSourceArray{i}.coneangle);
+                        fprintf(fid,'\t\t"float conedeltaangle" %f\n', obj.lightSourceArray{i}.conedeltaangle);
+
+                        fprintf(fid,'\t\t"point from" [');
+                        fprintf(fid,'%f ', obj.lightSourceArray{i}.from);
+                        fprintf(fid,']\n');
+
+                        fprintf(fid,'\t\t"point to" [');
+                        fprintf(fid,'%f ', obj.lightSourceArray{i}.to);
+                        fprintf(fid,']\n');
+
+                        fprintf(fid,'\nAttributeEnd\n');
+                    else
+                        disp('Error! Non-light type placed in light array!');
+                        return;
+                    end
                 end
             end
             
             %% Materials File
             %TODO check for file or not
-            fprintf(fid,'\n\nInclude "%s"\n', obj.materials.file);
             
+            for i = 1:length(obj.materialsArray)
+                if (strcmp(obj.materialsArray{i}.type,'file')); 
+                    fprintf(fid,'\n\nInclude "%s"\n', obj.materialsArray{i}.file);
+                else
+                    fprintf(fid,'\n\nMakeNamedMaterial "%s"\n', obj.materialsArray{i}.name);
+                    fprintf(fid,'\t"string type" ["%s"]\n', obj.materialsArray{i}.matType);
+                    
+                    if (strcmp(obj.materialsArray{i}.matType, 'matte'))
+                        fprintf(fid,'\t"%s" [', obj.materialsArray{i}.kd.kdType);
+                        fprintf(fid,'%f ', obj.materialsArray{i}.kd.value);
+                        fprintf(fid,']\n');
+                    end
+                    
+                end
+            end
             %% Geometry File
             %TODO check for file or not
-            fprintf(fid,'\n\nInclude "%s"\n', obj.geometry.file);
             
+            
+            for i = 1:length(obj.geometryArray)
+                
+                curGeometry =obj.geometryArray{i}; 
+                if (strcmp(curGeometry.type,'file')); 
+                    fprintf(fid,'\n\nInclude "%s"\n', curGeometry.file);
+                else
+                    fprintf(fid,'\n\nAttributeBegin #%s\n', curGeometry.name);
+                    
+                    fprintf(fid,'\n\tTransform \n\t[\n');
+                    fprintf(fid,'\t%f %f %f %f \n', curGeometry.transform' );
+                    fprintf(fid,'\t]\n');
+                    
+                    fprintf(fid,'\tNamedMaterial "%s"\n', curGeometry.material);
+                    
+                    fprintf(fid,'\tShape "trianglemesh" "integer indices" \n\t[\n');
+                    fprintf(fid,'\t%i %i %i\n', curGeometry.triangleMesh');
+                    fprintf(fid,'\t]\n');
+                    
+                    fprintf(fid,'\t"point P" \n\t[\n');
+                    fprintf(fid,'\t%f %f %f\n', curGeometry.points');
+                    fprintf(fid,'\t]\n');                   
+                    
+                    fprintf(fid,'\n\nAttributeEnd\n');
+                end
+            end
             %% World End
             fprintf(fid,'\n\nWorldEnd\n');
             
@@ -174,6 +254,11 @@ classdef pbrtObject <  handle
             fclose(fid);
             
             returnVal = 1; %1 for success, 0 for failure
+        end
+        
+        function addLightSource(obj,newLightSource)
+            arrayLength = length(obj.lightSourceArray);
+            obj.lightSourceArray{arrayLength+1} = newLightSource; 
         end
         
         %example code
