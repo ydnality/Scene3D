@@ -68,16 +68,18 @@ testPbrtObject = pbrtObject();
 
 % declare an additional spotlight
 clear blueLight;
-light.type = 'light';
-light.lightType = 'spot';
-light.spectrum.type = 'rgb I';
-light.spectrum.value = [1000 1000 1000];
-light.coneangle = 180;
-light.conedeltaangle = 180;
-light.from = [4.5 -90 8.5];
-light.to = [4.5 -89 8.5];
-blueLight = light;
-blueLight.spectrum.value = [0 0 1000];
+% light.type = 'light';
+% light.lightType = 'spot';
+% light.spectrum.type = 'rgb I';
+% light.spectrum.value = [1000 1000 1000];
+% light.coneangle = 180;
+% light.conedeltaangle = 180;
+% light.from = [4.5 -90 8.5];
+% light.to = [4.5 -89 8.5];
+
+
+blueLight = lightObject();
+blueLight.spectrum.setValue([0 0 1000]);
 %add this light source to the object
 testPbrtObject.addLightSource(blueLight);
 

@@ -1,39 +1,65 @@
 % lightObject contains the object to create a light in PBRT
 classdef lightObject <  handle
     
-    properties %(SetAccess = private)
+    properties (SetAccess = private)
         name;
+        type;
         spectrum; 
         coneAngle;
         coneDeltaAngle;
         from;
         to;
-        
-        % declare an additional spotlight
-%         light.type = 'light';
-%         light.lightType = 'spot';
-%         light.spectrum.type = 'rgb I';
-%         light.spectrum.value = [1000 1000 1000];
-%         light.coneangle = 180;
-%         light.conedeltaangle = 180;
-%         light.from = [4.5 -90 8.5];
-%         light.to = [4.5 -89 8.5];
-
     end
     methods
         
         %default constructor
         function obj = lightObject()
             obj.name = 'defaultLight';
-            obj.spectrum.type = 'rgb I';
-            obj.spectrum.value = [1000 1000 1000];
+            obj.type = 'spot';
+            obj.spectrum = spectrumObject();
             obj.coneAngle = 180;
             obj.coneDeltaAngle = 180;
             obj.from =  [4.5 -90 8.5];
             obj.to = [4.5 -89 8.5];
         end
         
+        function setSpectrum(obj, inSpectrum)
+           if (isa(inSpectrum, 'spectrumObject'))
+                obj.spectrum = inSpectrum; 
+           else
+                disp('**Warning: must be of type spectrumObject!!');
+           end
+           return;
+        end
+
+        function setType(obj, inType)
+           obj.type = inType; 
+           return;
+        end
+
+        function setName(obj, inName)
+           obj.name = inName; 
+           return;
+        end    
+                
+        function setAngle(obj, inConeAngle)
+           obj.coneAngle = inConeAngle; 
+           return;
+        end    
         
+        function setDeltaAngle(obj, inDeltAngle)
+           obj.coneDeltaAngle = inDeltAngle; 
+           return;
+        end    
+        
+        %sets the direction of the camera
+        %inFrom: will be the input initial point of vector representing
+        %direction
+        %inTo: is the second point of the vector
+        function setDirection(obj, inFrom, inTo)
+           obj.from = inFrom;
+           obj.To = inTo;
+           return;
+        end   
     end
-    
 end
