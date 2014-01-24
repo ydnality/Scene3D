@@ -58,8 +58,18 @@ classdef lightObject <  handle
         %inTo: is the second point of the vector
         function setDirection(obj, inFrom, inTo)
            obj.from = inFrom;
-           obj.To = inTo;
+           obj.to = inTo;
            return;
-        end   
+        end
+        
+         %sets the direction of the camera
+        %inFrom: how much the light should be moved. Note that the
+        %direction stays the same
+        function move(obj, offset)
+           obj.from = obj.from + offset;
+           obj.to = obj.to + offset;
+           return;
+        end
+               
     end
 end

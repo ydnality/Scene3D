@@ -44,7 +44,6 @@ classdef pbrtObject <  handle
             %   Light source
             obj.lightSourceArray = cell(1,1);
             whiteLight = lightObject();
-            
             obj.lightSourceArray{1} = whiteLight;
             %  Attribute End
             
@@ -53,35 +52,15 @@ classdef pbrtObject <  handle
             obj.materialArray{1} = 'depthTargetSpheres-mat.pbrt';
             
             %example materials object
-            tempPropertyArray = cell(1,1);
-            tempKd.type = 'color Kd';   %TODO: the user shouldn't need to know pbrt syntax...
-            tempKd.value = [0 0.374624 0];
-            tempPropertyArray{1} = tempKd;
-            greenLambertian = materialObject('greenLambertian', 'matte', tempPropertyArray);
-            
-            obj.materialArray{2} = greenLambertian;
-            
+            %             tempProperty = propertyObject('color Kd', [0 0.374624 0]);  %TODO: the user shouldn't need to know pbrt syntax...
+            %             greenLambertian = materialObject('greenLambertian', 'matte', tempProperty);
+            %             obj.addMaterial(greenLambertian);
+             
             % Geometry file
             obj.geometryArray = cell(1,1);
             obj.geometryArray{1} = 'depthTargetSpheres-geom.pbrt';
-           
-            %example geometry object
-            %             examplePlane.type = 'geometry';
-            %             examplePlane.name = 'Example Plane';
-            %             examplePlane.material = 'greenLambertian';
-            %             examplePlane.triangleMesh = [0 1 2;
-            %                 0 2 3];
-            %             examplePlane.points = [1.000000 1.000000 0.000000;
-            %                 -1.000000 1.000000 0.000000;
-            %                 -1.000000 -1.000000 0.000000;
-            %                 1.000000 -1.000000 0.000000];
-            %             examplePlane.transform = [-4.37113882867e-008 -0.0 -1.0 0.0;
-            %                 1.0 -4.37113882867e-008 -4.37113882867e-008 0.0 ;
-            %                 -4.37113882867e-008 -1.0 1.91068567692e-015 0.0;
-            %                 0.0 0.0 8.87306690216 1.0];
-            
-            examplePlane = geometryObject();
-            obj.geometryArray{2} = examplePlane;
+            %             examplePlane = geometryObject();
+            %             obj.addGeometry = examplePlane;
             
             % WorldEnd
         end
@@ -236,10 +215,23 @@ classdef pbrtObject <  handle
             returnVal = 1; %1 for success, 0 for failure
         end
         
+        %adds a light source to the light source array
         function addLightSource(obj,newLightSource)
             arrayLength = length(obj.lightSourceArray);
             obj.lightSourceArray{arrayLength+1} = newLightSource; 
         end
+        
+        %adds a material to the material array
+        function addMaterial(obj, newMaterial)
+            arrayLength = length(obj.materialArray);
+            obj.materialArray{arrayLength+1} = newMaterial;
+        end
+            
+        %adds geoemtery to the geometry array
+        function addGeometry(obj, newGeometry)
+            arrayLength = length(obj.geometryArray);
+            obj.geometryArray{arrayLength+1} = newGeometry;
+        end        
         
         %example code
         %     function obj = batchFileClass(inStem, inPostfix)

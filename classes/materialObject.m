@@ -16,7 +16,8 @@ classdef materialObject <  handle
     methods
         
         %default constructor
-        function obj = materialObject(inName, inType, inPropArray)
+        %TODO: doccument
+        function obj = materialObject(inName, inType, inProperty)
             if (ieNotDefined('inName'))
                 obj.name = 'defaultMaterial';
             else
@@ -30,12 +31,11 @@ classdef materialObject <  handle
                 obj.type = inType;
             end
             
-            if (ieNotDefined('inPropArray'))
-                obj.propertyArray = cell(1,1);
-                obj.propertyArray{1}.type = 'color Kd';  %TODO: make an actual object for this
-                obj.propertyArray{1}.value = [0 0.374624 0];
+            obj.propertyArray = cell(1,1);
+            if (ieNotDefined('inProperty'))
+                obj.propertyArray{1} = propertyObject('color Kd', [0 0.374624 0]);
             else
-                obj.propertyArray = inPropArray;
+                obj.propertyArray{1} = inProperty;
             end
         end
         

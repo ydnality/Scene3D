@@ -1,19 +1,5 @@
 % a simple pbrt geometry
 classdef geometryObject <  handle
-    
-    %             examplePlane.type = 'geometry';
-    %             examplePlane.name = 'Example Plane';
-    %             examplePlane.material = 'greenLambertian';
-    %             examplePlane.triangleMesh = [0 1 2;
-    %                 0 2 3];
-    %             examplePlane.points = [1.000000 1.000000 0.000000;
-    %                 -1.000000 1.000000 0.000000;
-    %                 -1.000000 -1.000000 0.000000;
-    %                 1.000000 -1.000000 0.000000];
-    %             examplePlane.transform = [-4.37113882867e-008 -0.0 -1.0 0.0;
-    %                 1.0 -4.37113882867e-008 -4.37113882867e-008 0.0 ;
-    %                 -4.37113882867e-008 -1.0 1.91068567692e-015 0.0;
-    %                 0.0 0.0 8.87306690216 1.0];
     properties (SetAccess = private)
         name;
         material;

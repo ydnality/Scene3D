@@ -40,7 +40,11 @@ classdef cameraObject <  handle
         
         %TODO: error checking
         function setPosition(obj, inPos)
-            obj.pos = inPos;
+            obj.position = inPos;
+        end
+        
+        function moveCamera(obj, offset)
+            obj.position = obj.position + cat(1, repmat(offset, [2 1]), [ 0 0 0]);
         end
         
         %TODO: error checking
