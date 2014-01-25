@@ -1,8 +1,15 @@
-%% loops through a series of different surface and geometries
+%% loops through a series of different surface and geometries (shifts the example plane in this example and changes its colors)
+%makes a new tempPbrtFiles directory and puts all the files for the batch
+%job in there.  Note that we must copy all the pbrt files in the current
+%directory due to the way that s3dRenderScene is configured. 
+filePath = [datapath '/validate/pbrtObject/']
+chdir(filePath);
+mkdir('batchPbrtFiles');
+unix('rm batchPbrtFiles/*');
+unix('cp * ./batchPbrtFiles/');
+chdir('batchPbrtFiles');
 
-chdir([datapath '/tmp/']);
-
-% material list
+% material list.  each line represents an rgb reflectance.
 matList = ...
     [1 1 1;
     1 0 0;
@@ -22,6 +29,7 @@ for i = 1:size(matList, 1)
    
    %add new geoemtry
    %geometryObject(inName, inMaterial, inTriMesh, inPoints, inTransform)
+   %the plane is shifted in the x direction depending on the job number
    newTransform = [0 0 -1 0;
                     1 0 0 0 ;
                     0 -1 0 0;
@@ -31,9 +39,10 @@ for i = 1:size(matList, 1)
    
    tmpFileName = ['deleteMe' int2str(i) '.pbrt'];
    curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderScene(tmpFileName, 50, [dataPath '/tmp/'], tmpFileName);
+   oi = s3dRenderScene(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
 end
 
+chdir('..');
 %the result should be the depthTargeSpheres scene with an additional plane
 %on the bottom.  the plane should move to the right and change colors with
 %subsequent jobs.

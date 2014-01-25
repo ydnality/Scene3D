@@ -1,6 +1,14 @@
-%% loops through a series of different surface and geometries
+%% loops through a series of different camera positions
+%makes a new tempPbrtFiles directory and puts all the files for the batch
+%job in there.  Note that we must copy all the pbrt files in the current
+%directory due to the way that s3dRenderScene is configured. 
+filePath = [datapath '/validate/pbrtObject/']
+chdir(filePath);
+mkdir('batchPbrtFiles');
+unix('rm batchPbrtFiles/*');
+unix('cp * ./batchPbrtFiles/');
+chdir('batchPbrtFiles');
 
-chdir([datapath '/tmp/']);
 
 % camera position x-z offset list
 cameraOffsetList = ...
@@ -27,9 +35,9 @@ for i = 1:size(cameraOffsetList, 1)
    
    tmpFileName = ['deleteMe' int2str(i) '.pbrt'];
    curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderScene(tmpFileName, 50, [dataPath '/tmp/'], tmpFileName);
+   oi = s3dRenderScene(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
 end
 
-%the result should be the depthTargeSpheres scene with an additional plane
-%on the bottom.  the plane should move to the right and change colors with
-%subsequent jobs.
+chdir('..');
+%the result should be the depthTargeSpheres scene.  The camera will move
+%left-right, and up-down depending on the offset specified.

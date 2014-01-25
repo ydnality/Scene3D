@@ -33,7 +33,7 @@ function oi = s3dRenderScene(fname, focalLength, path, oiName)
     % unix([fullfile(pbrtHome, '/src/bin/pbrt') fname '--outfile output.dat']);
     outfile = 'temp_out.dat';
     dMapFile = 'temp_out_DM.dat'; 
-    unix([fullfile(pbrtHome, '/src/bin/pbrt ') '../' fname ' --outfile ' outfile]);
+    unix([fullfile(pbrtHome, '/src/bin/pbrt ') '../' fname ' --outfile ' outfile])
 
     % ISET will read the PBRT output
     oi = pbrt2oi(outfile);
