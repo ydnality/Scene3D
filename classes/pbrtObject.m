@@ -43,7 +43,7 @@ classdef pbrtObject <  handle
             %  Attribute Begin
             %   Light source
             obj.lightSourceArray = cell(1,1);
-            whiteLight = lightObject();
+            whiteLight = lightSpotObject();
             obj.lightSourceArray{1} = whiteLight;
             %  Attribute End
             
@@ -128,28 +128,10 @@ classdef pbrtObject <  handle
                     %this is the case where the lightsource is explicitly declared
                     if (isa(obj.lightSourceArray{i}, 'lightObject'))
                         fprintf(fid,'\n\nAttributeBegin\n');
-                        fprintf(fid,'\n\tLightSource\n');
-                        fprintf(fid,'\t\t"%s"\n', obj.lightSourceArray{i}.type);
-
-                        fprintf(fid,'\t\t"%s" [', obj.lightSourceArray{i}.spectrum.type);
-                        fprintf(fid,'%f ', obj.lightSourceArray{i}.spectrum.value);
-                        fprintf(fid,']\n');
-
-                        fprintf(fid,'\t\t"float coneangle" %f\n', obj.lightSourceArray{i}.coneAngle);
-                        fprintf(fid,'\t\t"float conedeltaangle" %f\n', obj.lightSourceArray{i}.coneDeltaAngle);
-
-                        fprintf(fid,'\t\t"point from" [');
-                        fprintf(fid,'%f ', obj.lightSourceArray{i}.from);
-                        fprintf(fid,']\n');
-
-                        fprintf(fid,'\t\t"point to" [');
-                        fprintf(fid,'%f ', obj.lightSourceArray{i}.to);
-                        fprintf(fid,']\n');
-
+                        obj.lightSourceArray{i}.writeFile(fid);
                         fprintf(fid,'\nAttributeEnd\n');
                     else
-                        disp('Error! Non-light type placed in light array!');
-                        return;
+                        error('Error! Non-light type placed in light array!');
                     end
                 end
             end
@@ -217,22 +199,54 @@ classdef pbrtObject <  handle
         
         %adds a light source to the light source array
         function addLightSource(obj,newLightSource)
-            arrayLength = length(obj.lightSourceArray);
-            obj.lightSourceArray{arrayLength+1} = newLightSource; 
+            obj.lightSourceArray{end+1} = newLightSource; 
         end
         
         %adds a material to the material array
         function addMaterial(obj, newMaterial)
-            arrayLength = length(obj.materialArray);
-            obj.materialArray{arrayLength+1} = newMaterial;
+            obj.materialArray{end+1} = newMaterial;
         end
             
         %adds geoemtery to the geometry array
         function addGeometry(obj, newGeometry)
-            arrayLength = length(obj.geometryArray);
-            obj.geometryArray{arrayLength+1} = newGeometry;
+            obj.geometryArray{end+1} = newGeometry;
         end        
         
+        %removes the geometry corresponding to the specified index
+        %if deleteIndex is undefined, remove from the end
+        function removeGeometry(obj, deleteIndex)
+            if (ieNotDefined('deleteIndex'))
+                obj.geometryArray(end) = [];
+            else
+                obj.geometryArray(deleteIndex) = [];
+            end
+        end
+        
+        %removes the light source corresponding to the specified index
+        %if deleteIndex is undefined, remove from the end
+        %returns the deleted value
+        function returnVal = removeLight(obj, deleteIndex)
+            if (ieNotDefined('deleteIndex'))
+                returnVal = obj.lightSourceArray(end);
+                obj.lightSourceArray(end) = [];
+            else
+                returnVal = obj.lightSourceArray(deleteIndex);
+                obj.lightSourceArray(deleteIndex) = [];
+            end
+        end
+        
+        %removes the light source corresponding to the specified index
+        %if deleteIndex is undefined, remove from the end
+        %returns the deleted value
+        function returnVal = removeMaterial(obj, deleteIndex)
+            if (ieNotDefined('deleteIndex'))
+                returnVal = obj.materialArray(end);
+                obj.materialArray(end) = [];
+            else
+                returnVal = obj.materialArray(deleteIndex);
+                obj.materialArray(deleteIndex) = [];
+            end
+        end        
         %example code
         %     function obj = batchFileClass(inStem, inPostfix)
         %         obj.inputStem = inStem;

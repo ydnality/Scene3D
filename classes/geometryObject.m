@@ -42,9 +42,9 @@ classdef geometryObject <  handle
             
             %TODO:error checking
             if (ieNotDefined('inTransform'))
-                obj.transform = [-4.37113882867e-008 -0.0 -1.0 0.0;
-                    1.0 -4.37113882867e-008 -4.37113882867e-008 0.0 ;
-                    -4.37113882867e-008 -1.0 1.91068567692e-015 0.0;
+                obj.transform = [0 -0.0 -1.0 0.0;
+                    1.0 -0 0 0.0 ;
+                    0 -1.0 0 0.0;
                     0.0 0.0 8.87306690216 1.0];
             else
                 obj.transform = inTransform;

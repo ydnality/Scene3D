@@ -1,0 +1,845 @@
+# PBRT v2.0 Blender Scene file (written from Scene3D)
+#
+
+Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
+
+
+LookAt
+	4.500000 -80.000000 7.000000
+	4.500000 -79.000000 7.000000
+	0.000000 0.000000 1.000000
+
+
+Include "idealLensDiffraction-50mm.pbrt"
+
+
+Film "image"
+	"integer xresolution" [201]
+	"integer yresolution" [201]
+
+
+Sampler "lowdiscrepancy"
+	"integer pixelsamples" [131070]
+
+
+SurfaceIntegrator "directlighting"
+	"integer maxdepth" [0]
+
+
+Renderer "sample"
+
+
+WorldBegin
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -3.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate -1.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 0.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 2.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 4.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 6.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 8.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 10.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 -1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 1.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 3.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 5.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 7.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 9.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 11.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 13.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	AreaLightSource "diffuse" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	Translate 0.000000 0.000000 0.000000 
+	Translate 12.500000 0.000000 15.000000 
+	Shape "sphere" "float  radius" [0.020000 ]
+
+AttributeEnd
+
+
+WorldEnd

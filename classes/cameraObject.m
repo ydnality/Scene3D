@@ -43,20 +43,25 @@ classdef cameraObject <  handle
             obj.position = inPos;
         end
         
+        %moves the camera by an offset
+        %TODO: error checking
         function moveCamera(obj, offset)
             obj.position = obj.position + cat(1, repmat(offset, [2 1]), [ 0 0 0]);
         end
         
-        %TODO: error checking
-        function setFilm(obj, inFilm)
-            obj.film = inFilm;
-        end
-        
-        %TODO: error checking
+        %sets the lens to inLens
         function setLens(obj, inLens)
+            validateattributes(inLens, {'lensObject', 'char'}, {'nonempty'});
             obj.lens = inLens;
         end
-        
+ 
+        %Sets the resolution of the camera to inXres and inYRes
+        function setResolution(obj, inXRes, inYRes)
+            validateattributes(inXRes, {'numeric'}, {'nonnegative'});
+            validateattributes(inYRes, {'numeric'}, {'nonnegative'});
+            obj.film.xresolution = inXRes;
+            obj.film.yresolution = inYRes;
+        end
     end
     
 end
