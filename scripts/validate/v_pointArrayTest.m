@@ -17,7 +17,7 @@ curPbrt.camera.setLens('idealLensDiffraction-50mm.pbrt');
 curPbrt.removeLight();   %remove existing lights and geometry
 curPbrt.removeGeometry();
 curPbrt.removeMaterial();
-curPbrt.sampler.setPixelSamples(131070);
+curPbrt.sampler.setPixelSamples(64);  %curPbrt.sampler.setPixelSamples(131070);
 curPbrt.camera.setResolution(201, 201);
 
 %add a grid of point light sources
@@ -34,13 +34,21 @@ for i = xPos
     end
 end
 
-%run pbrt
-tmpFileName = ['deleteMePointArray' '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-oi = s3dRenderScene(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
+%loop through different depths
+for depth = 50:10:130
+
+    curPbrt.camera.setPosition([4.5 -depth 7; % Starting up
+                    4.5 -depth + 1 7; % Ending up
+                    0 0 1]);
+
+    %run pbrt
+    tmpFileName = ['pointArrayDepth' int2str(depth) '.pbrt'];
+    curPbrt.writeFile(tmpFileName);
+    oi = s3dRenderScene(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
+end
+
 
 chdir('..');
-
 %the result should be a grid of points
 
 
