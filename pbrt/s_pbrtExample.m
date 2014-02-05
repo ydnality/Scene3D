@@ -10,7 +10,7 @@
 %% simple case
 pbrt=pbrtCreate
 pbrtWrite(pbrt, 'deleteMe.pbrt');
-oi = s3dRenderScene('deleteMe.pbrt', 50, [dataPath '/tmp/'])
+oi = s3dRenderOI('deleteMe.pbrt', 50, [dataPath '/tmp/'])
 
 
 %% example batch job using a different light source for each job
@@ -58,7 +58,7 @@ pbrtArray{4}.name = 'whiteLight';
 for i = 1:length(pbrtArray)
     fileName = [pbrtArray{i}.name '.pbrt'];
     pbrtWrite(pbrtArray{i}, fileName);   
-    oi = s3dRenderScene(fileName, 50, [dataPath '/tmp/'], fileName);
+    oi = s3dRenderOI(fileName, 50, [dataPath '/tmp/'], fileName);
 end
 
 
@@ -84,6 +84,6 @@ blueLight.spectrum.setValue([0 0 1000]);
 testPbrtObject.addLightSource(blueLight);
 
 testPbrtObject.writeFile('deleteMe.pbrt');
-oi = s3dRenderScene('deleteMe.pbrt', 50, [dataPath '/tmp/'], 'deleteMe.pbrt');
+oi = s3dRenderOI('deleteMe.pbrt', 50, [dataPath '/tmp/'], 'deleteMe.pbrt');
 
 %% End

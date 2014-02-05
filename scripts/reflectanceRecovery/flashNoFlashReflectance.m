@@ -30,7 +30,7 @@ if (reRenderScenes)
     %%% Scene rendering
     %%% Ambient only scene generation
     sceneName = 'Ambient Irradiance Image';
-    oiAmbient = s3dRenderScene(ambientFile, .050);
+    oiAmbient = s3dRenderOI(ambientFile, .050);
     oiAmbient = oiSet(oiAmbient, 'name', sceneName);
     % strip the file name from the path and assign that as the name of the
     % object  ... vcSaveObject(oi,);
@@ -39,7 +39,7 @@ if (reRenderScenes)
 
     %%% Ambient and flash scene generation
     sceneName = 'Flash + Ambient Irradiance Image';
-    oiFlash = s3dRenderScene(flashFile, .050);
+    oiFlash = s3dRenderOI(flashFile, .050);
     oiFlash = oiSet(oiFlash, 'name', sceneName);
     % strip the file name from the path and assign that as the name of the
     % object  ... vcSaveObject(oi,);

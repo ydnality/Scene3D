@@ -10,7 +10,7 @@ inputFile = 'testTargetCA/realisticStarField9Offset.pbrt';
 %%% Scene rendering
 %%% Ambient only scene generation
 sceneName = 'Starfield Image';
-oi = s3dRenderScene(inputFile, .050);
+oi = s3dRenderOI(inputFile, .050);
 oi = oiSet(oi, 'name', sceneName);
 % strip the file name from the path and assign that as the name of the
 % object  ... vcSaveObject(oi,);
@@ -47,7 +47,7 @@ for i = depthList
     %%% Scene rendering
     %%% Ambient only scene generation
     sceneName = ['Starfield Image; Depth: ' int2str(i)];
-    oi = s3dRenderScene(inputFile, .050);
+    oi = s3dRenderOI(inputFile, .050);
     oi = oiSet(oi, 'name', sceneName);
     % strip the file name from the path and assign that as the name of the
     % object  ... vcSaveObject(oi,);

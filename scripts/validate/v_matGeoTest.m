@@ -1,7 +1,7 @@
 %% loops through a series of different surface and geometries (shifts the example plane in this example and changes its colors)
 %makes a new tempPbrtFiles directory and puts all the files for the batch
 %job in there.  Note that we must copy all the pbrt files in the current
-%directory due to the way that s3dRenderScene is configured. 
+%directory due to the way that s3dRenderOI is configured. 
 filePath = [datapath '/validate/pbrtObject/']
 chdir(filePath);
 mkdir('batchPbrtFiles');
@@ -39,7 +39,7 @@ for i = 1:size(matList, 1)
    
    tmpFileName = ['deleteMe' int2str(i) '.pbrt'];
    curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderScene(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
+   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
 end
 
 chdir('..');

@@ -2,12 +2,12 @@
 
 %% render scene with PBRT
 sceneName = 'indObjAmbientOnly';
-% oi = s3dRenderScene('indestructibleObject/simpleReflectance-downAmbient.pbrt', .050);
-% oi = s3dRenderScene('indestructibleObject/graycard-down.pbrt', .050);
-% oi = s3dRenderScene('desk/paintWhiteFlash.pbrt', .050);
-oi = s3dRenderScene('desk/graycardWhiteFlash.pbrt', .050);
-% oi = s3dRenderScene('indestructibleObject/paintReflectance-downWhiteFlash.pbrt', .050);
-% oi = s3dRenderScene('indestructibleObject/simpleReflectance-downAmbientOnly.pbrt', .050);
+% oi = s3dRenderOI('indestructibleObject/simpleReflectance-downAmbient.pbrt', .050);
+% oi = s3dRenderOI('indestructibleObject/graycard-down.pbrt', .050);
+% oi = s3dRenderOI('desk/paintWhiteFlash.pbrt', .050);
+oi = s3dRenderOI('desk/graycardWhiteFlash.pbrt', .050);
+% oi = s3dRenderOI('indestructibleObject/paintReflectance-downWhiteFlash.pbrt', .050);
+% oi = s3dRenderOI('indestructibleObject/simpleReflectance-downAmbientOnly.pbrt', .050);
 
 oi = oiSet(oi, 'name', sceneName);
 % strip the file name from the path and assign that as the name of the

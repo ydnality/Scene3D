@@ -1,7 +1,7 @@
 %% loops through a series of different lights for a batch job
 %makes a new tempPbrtFiles directory and puts all the files for the batch
 %job in there.  Note that we must copy all the pbrt files in the current
-%directory due to the way that s3dRenderScene is configured. 
+%directory due to the way that s3dRenderOI is configured. 
 filePath = [datapath '/validate/pbrtObject/']
 chdir(filePath);
 mkdir('batchPbrtFiles');
@@ -23,7 +23,7 @@ for i = 1:size(lightList, 1)
    curPbrt.lightSourceArray{1}.setSpectrum(spectrumObject('rgb I', lightList(i, :))); %sets the spectrum to the one in teh list
    tmpFileName = ['deleteMe' int2str(i) '.pbrt']; %the pbrt file name
    curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderScene(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
+   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
 end
 
 chdir('..');
@@ -35,7 +35,7 @@ chdir('..');
 %% this section changes the directions of the lights
 %makes a new tempPbrtFiles directory and puts all the files for the batch
 %job in there.  Note that we must copy all the pbrt files in the current
-%directory due to the way that s3dRenderScene is configured. 
+%directory due to the way that s3dRenderOI is configured. 
 filePath = [datapath '/validate/pbrtObject/']
 chdir(filePath);
 mkdir('batchPbrtFiles');
@@ -62,7 +62,7 @@ for i = 1:size(lightOffsetList, 1)
    curPbrt.lightSourceArray{1}.move(lightOffsetList(i, :));
    tmpFileName = ['deleteMe' int2str(i) '.pbrt']; %the pbrt file name
    curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderScene(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
+   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
 end
 
 chdir('..');

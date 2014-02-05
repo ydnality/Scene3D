@@ -1,5 +1,5 @@
 %% TEST CASE - Walls straight on 
-oi = s3dRenderScene('floorWallBottomBack/lambertian.pbrt');
+oi = s3dRenderOI('floorWallBottomBack/lambertian.pbrt');
 vcAddAndSelectObject(oi);
 oiWindow;
 

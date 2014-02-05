@@ -76,7 +76,7 @@ end
 % 
 % %run the new pbrt files
 for i = 1:length(renderFileArray)
-    oi = s3dRenderScene(renderFileArray{i}, .050, pwd);
+    oi = s3dRenderOI(renderFileArray{i}, .050, pwd);
     oi = oiSet(oi, 'name', renderFileArray{i});
 
     vcAddAndSelectObject(oi);

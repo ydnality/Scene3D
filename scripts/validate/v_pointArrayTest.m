@@ -44,7 +44,7 @@ for depth = 50:10:130
     %run pbrt
     tmpFileName = ['pointArrayDepth' int2str(depth) '.pbrt'];
     curPbrt.writeFile(tmpFileName);
-    oi = s3dRenderScene(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
+    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
 end
 
 

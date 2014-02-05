@@ -6,7 +6,7 @@
 
 %old stuff
 % sceneName = 'indObjAmbientOnly';
-% oi = s3dRenderScene('indestructibleObject/graycard-down.pbrt', .050);
+% oi = s3dRenderOI('indestructibleObject/graycard-down.pbrt', .050);
 % 
 % oi = oiSet(oi, 'name', sceneName);
 % % strip the file name from the path and assign that as the name of the

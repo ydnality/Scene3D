@@ -19,7 +19,7 @@ if (reRenderScenes)
     %%% Scene rendering
     %%% Ambient only scene generation
     sceneName = 'Chromatic Aberration Image';
-    oi = s3dRenderScene(inputFile, .050);
+    oi = s3dRenderOI(inputFile, .050);
     oi = oiSet(oi, 'name', sceneName);
     % strip the file name from the path and assign that as the name of the
     % object  ... vcSaveObject(oi,);
