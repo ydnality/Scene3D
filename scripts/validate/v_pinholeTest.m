@@ -25,8 +25,12 @@ fullfname = fullfile(filePath,'batchPbrtFiles',tmpFileName);
 sceneName = tmpFileName;
 scene = s3dRenderScene(fullfname, sceneName);
 
+%% Let's see what we have
+vcAddObject(scene);
+sceneWindow;
+
 % chdir('..');
 %the result should be a grid of points
 
-
+%% End
 
