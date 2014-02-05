@@ -1,0 +1,3 @@
+Camera "pinhole"
+	"float filmdistance" 70
+	"float filmdiag" [43.267]
