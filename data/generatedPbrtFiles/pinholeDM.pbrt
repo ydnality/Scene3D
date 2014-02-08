@@ -19,8 +19,10 @@ Film "image"
 	"integer yresolution" [201]
 
 
-Sampler "lowdiscrepancy"
-	"integer pixelsamples" [256]
+Sampler "stratified"
+	"bool jitter" "false"
+	"integer xsamples" [1]
+	"integer ysamples" [1]
 
 
 SurfaceIntegrator "directlighting"

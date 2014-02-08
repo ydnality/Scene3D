@@ -61,24 +61,5 @@ A2 = A(1:imageSize(1)*imageSize(2));
 %reshape data
 A3 = reshape(A2, [imageSize(2) imageSize(1)])';
 
-%make the range shown appropriate - only for debugging purposes
-% lowerLimit = 900;
-% upperLimit = 1000;
-
-% This used to print out the lowerLimit and upperLimit
-% Either they should be returned, or we should calculate them quietly.
-% viewImage = abs(A3 - 900)/100;
-% viewImage = abs(A3 - lowerLimit)/(upperLimit-lowerLimit);
-%lowerLimit = min(A2);    %will this cause scaling problems later with inconsistent scaling?  No - this is only for viewing purposes!  
-%upperLimit = max(A2);
-
-% Scale the data to between 0 and 1
-%viewImage = abs((A3 - lowerLimit)/(upperLimit-lowerLimit));
-%figure; imshow(viewImage);
-% 
-% % Write out a tiff file.  This provides a basic debugging output to see if
-% % the depthmap was properly read.  
-% imwrite(viewImage, 'depthMapView.tif');
-
 return
 

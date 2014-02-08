@@ -23,7 +23,7 @@ function scene = s3dRenderScene(fullfname, sceneName)
 
 
 if (ieNotDefined('fullfname')) || ~exist(fullfname,'file')
-    error('PBRT full file name required.');
+    error('PBRT full file name required.  File not found');
 end
 
 % Use pinhole and pbrt to create the scene data
@@ -33,12 +33,13 @@ if ~exist(pbrtExe,'file')
 end
 
 % Make a tempPBRT directory where the output files will go
-if exist('tempPBRT','dir')
-    unix('rm tempPBRT/*');
+generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
+if exist(generatedDir,'dir')
+    unix(['rm ' generatedDir]);
 else
-    mkdir('tempPBRT');
+    mkdir(generatedDir);
 end
-outfile  = 'tempPBRT/temp_out.dat';
+outfile  = fullfile(generatedDir, 'temp_out.dat');
 
 % [p,n,ext] = fileparts(fullfname);
 cmd = sprintf('%s %s --outfile %s',pbrtExe,fullfname,outfile);

@@ -1,5 +1,6 @@
 % basic pbrt shapes such as spheres, cylinders etc.  Currently, only a
 % sphere is supported
+% TODO: use propertyArrayObject instead
 classdef shapeObject <  handle
 
     properties (SetAccess = private)

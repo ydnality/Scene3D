@@ -9,17 +9,18 @@ LookAt
 	4.500000 -79.000000 7.000000
 	0.000000 0.000000 1.000000
 
-
-Include "idealLens-50mm.pbrt"
+Camera "pinhole"
+	"float filmdistance" 140.000000
+	"float filmdiag" 43.267000
 
 
 Film "image"
-	"integer xresolution" [200]
-	"integer yresolution" [200]
+	"integer xresolution" [201]
+	"integer yresolution" [201]
 
 
 Sampler "lowdiscrepancy"
-	"integer pixelsamples" [512]
+	"integer pixelsamples" [256]
 
 
 SurfaceIntegrator "directlighting"
@@ -45,10 +46,10 @@ AttributeBegin
 AttributeEnd
 
 
-Include "depthTargetDepths-mat.pbrt"
+Include "/home/ajwandell/Dropbox/Scene3D/Scene3DMatlab/data/validate/pbrtObject/depthTargetSpheres-mat.pbrt"
 
 
-Include "depthTargetDepths-geom.pbrt"
+Include "/home/ajwandell/Dropbox/Scene3D/Scene3DMatlab/data/validate/pbrtObject/depthTargetSpheres-geom.pbrt"
 
 
 WorldEnd

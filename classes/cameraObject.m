@@ -23,8 +23,10 @@ classdef cameraObject <  handle
             
             if (ieNotDefined('inLens'))
                 % Example lens
-                obj.lens = 'idealLens-50mm.pbrt';
+%                 obj.lens = 'idealLens-50mm.pbrt';
+                obj.lens = lensPinholeObject();
             else
+                validateattributes(inLens, {'lensObject'}, {'nonempty'});
                 obj.lens = inLens;
             end
             
@@ -34,6 +36,7 @@ classdef cameraObject <  handle
                 obj.film.xresolution = 200;
                 obj.film.yresolution = 200;
             else
+                %TODO: verify the film
                 obj.film = inFilm;
             end
         end
@@ -61,6 +64,31 @@ classdef cameraObject <  handle
             validateattributes(inYRes, {'numeric'}, {'nonnegative'});
             obj.film.xresolution = inXRes;
             obj.film.yresolution = inYRes;
+        end
+        
+        function returnVal = writeFile(obj, fid)
+            %camera position
+            fprintf(fid,'\n\nLookAt\n');
+            
+            if (isfield(obj.position, 'fileName'))
+                fprintf(fid,'\n\nInclude "%s"\n', obj.position.fileName);  %TODO: this might need to be fixed later
+            else
+                fprintf(fid,'\t%f %f %f\n',obj.position');
+            end
+            
+            %lens
+            if (ischar(obj.lens))
+                fprintf(fid,'\n\nInclude "%s"\n', obj.lens);
+            else
+                obj.lens.writeFile(fid);
+            end
+            returnVal = 1;
+            
+            %film resolution
+            fprintf(fid,'\n\nFilm "image"\n');
+            fprintf(fid,'\t"integer xresolution" [%i]\n',obj.film.xresolution);
+            fprintf(fid,'\t"integer yresolution" [%i]\n',obj.film.yresolution);
+            
         end
     end
     

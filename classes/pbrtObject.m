@@ -27,7 +27,7 @@ classdef pbrtObject <  handle
             obj.camera = cameraObject(); %assign the default camera
             
             % Sampler
-            obj.sampler = samplerObject(); 
+            obj.sampler = samplerObject('lowdiscrepancy', propertyObject('integer pixelsamples', 128)); 
             
             % SurfaceIntegrator
             %             obj.surfaceIntegrator.type  = 'surfaceIntegrator';
@@ -49,7 +49,7 @@ classdef pbrtObject <  handle
             
             %  Material file
             obj.materialArray = cell(1,1);
-            obj.materialArray{1} = 'depthTargetSpheres-mat.pbrt';
+            obj.materialArray{1} = fullfile(datapath,'validate', 'pbrtObject', 'depthTargetSpheres-mat.pbrt');
             
             %example materials object
             %             tempProperty = propertyObject('color Kd', [0 0.374624 0]);  %TODO: the user shouldn't need to know pbrt syntax...
@@ -58,7 +58,7 @@ classdef pbrtObject <  handle
              
             % Geometry file
             obj.geometryArray = cell(1,1);
-            obj.geometryArray{1} = 'depthTargetSpheres-geom.pbrt';
+            obj.geometryArray{1} = fullfile(datapath,'validate', 'pbrtObject', 'depthTargetSpheres-geom.pbrt');
             %             examplePlane = geometryObject();
             %             obj.addGeometry = examplePlane;
             
@@ -76,30 +76,11 @@ classdef pbrtObject <  handle
             fprintf(fid,'%f  ',obj.scale);
             fprintf(fid,'# account for fixed lookat bug\n');
             
-            %% Camera position
-            
-            fprintf(fid,'\n\nLookAt\n');
-            
-            if (isfield(obj.camera.position, 'fileName'))
-                fprintf(fid,'\n\nInclude "%s"\n', obj.camera.position.fileName);
-            else
-                fprintf(fid,'\t%f %f %f\n',obj.camera.position');
-            end
-            
-            %% Lens file 
-            % TODO check for lens file or not a lens file
-            fprintf(fid,'\n\nInclude "%s"\n', obj.camera.lens);
-            
-            %% Image resolution
-            
-            fprintf(fid,'\n\nFilm "image"\n');
-            fprintf(fid,'\t"integer xresolution" [%i]\n',obj.camera.film.xresolution);
-            fprintf(fid,'\t"integer yresolution" [%i]\n',obj.camera.film.yresolution);
-            
+            %% Camera position & Lens & Image resolution
+            obj.camera.writeFile(fid);
+
             %% Sampler
-            
-            fprintf(fid,'\n\nSampler "%s"\n', obj.sampler.type);    %TODO: consider putting this inside each of the objects? i'm not sure yet
-            fprintf(fid,'\t"integer pixelsamples" [%i]\n',obj.sampler.pixelSamples);
+            obj.sampler.writeFile(fid);
             
             %% SurfaceIntegrator
             
