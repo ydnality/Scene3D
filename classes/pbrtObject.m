@@ -83,9 +83,7 @@ classdef pbrtObject <  handle
             obj.sampler.writeFile(fid);
             
             %% SurfaceIntegrator
-            
-            fprintf(fid,'\n\nSurfaceIntegrator "%s"\n', obj.surfaceIntegrator.type);
-            fprintf(fid,'\t"integer maxdepth" [%i]\n',obj.surfaceIntegrator.maxDepth);
+            obj.surfaceIntegrator.writeFile(fid);
             
             %% Renderer
             
@@ -118,19 +116,9 @@ classdef pbrtObject <  handle
             end
             
             %% Materials File
-            %TODO check for file or not
-            
             for i = 1:length(obj.materialArray)
                 if (isa(obj.materialArray{i},'materialObject')); 
-                    fprintf(fid,'\n\nMakeNamedMaterial "%s"\n', obj.materialArray{i}.name);
-                    fprintf(fid,'\t"string type" ["%s"]\n', obj.materialArray{i}.type);
-                    
-                    for j = 1:length(obj.materialArray{i}.propertyArray)
-                        fprintf(fid,'\t"%s" [', obj.materialArray{i}.propertyArray{j}.type);
-                        fprintf(fid,'%f ', obj.materialArray{i}.propertyArray{j}.value);
-                        fprintf(fid,']\n');
-                    end
-                    
+                    obj.materialArray{i}.writeFile(fid);
                     %                     if (strcmp(obj.materialArray{i}.matType, 'matte'))
                     %                         fprintf(fid,'\t"%s" [', obj.materialArray{i}.kd.kdType);
                     %                         fprintf(fid,'%f ', obj.materialArray{i}.kd.value);
@@ -141,30 +129,10 @@ classdef pbrtObject <  handle
                 end
             end
             %% Geometry File
-            %TODO check for file or not
-            
-            
             for i = 1:length(obj.geometryArray)
-                
                 curGeometry =obj.geometryArray{i}; 
                 if (isa(curGeometry,'geometryObject')); 
-                    fprintf(fid,'\n\nAttributeBegin #%s\n', curGeometry.name);
-                    
-                    fprintf(fid,'\n\tTransform \n\t[\n');
-                    fprintf(fid,'\t%f %f %f %f \n', curGeometry.transform' );
-                    fprintf(fid,'\t]\n');
-                    
-                    fprintf(fid,'\tNamedMaterial "%s"\n', curGeometry.material);
-                    
-                    fprintf(fid,'\tShape "trianglemesh" "integer indices" \n\t[\n');
-                    fprintf(fid,'\t%i %i %i\n', curGeometry.triangleMesh');
-                    fprintf(fid,'\t]\n');
-                    
-                    fprintf(fid,'\t"point P" \n\t[\n');
-                    fprintf(fid,'\t%f %f %f\n', curGeometry.points');
-                    fprintf(fid,'\t]\n');                   
-                    
-                    fprintf(fid,'\n\nAttributeEnd\n');
+                    curGeometry.writeFile(fid);
                 else
                     fprintf(fid,'\n\nInclude "%s"\n', curGeometry);
                 end

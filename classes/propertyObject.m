@@ -1,4 +1,5 @@
-% propertyObject
+% propertyObject - contains the type and value of each property.  This is
+% meant to be put in array for general properties.
 % TODO: document what this does
 classdef propertyObject <  handle
     properties 
@@ -22,6 +23,14 @@ classdef propertyObject <  handle
             else
                 obj.value = inValue;
             end
+        end
+        
+        %prints the pbrt representation to file object fid
+        function returnVal = writeFile(obj, fid)
+            fprintf(fid,'\t"%s" [', obj.type);
+            fprintf(fid,'%f ', obj.value);
+            fprintf(fid,']\n');
+            returnVal = 1;
         end
 
     end

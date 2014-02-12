@@ -2,12 +2,12 @@
 %makes a new tempPbrtFiles directory and puts all the files for the batch
 %job in there.  Note that we must copy all the pbrt files in the current
 %directory due to the way that s3dRenderOI is configured. 
-filePath = [datapath '/validate/pbrtObject/']
-chdir(filePath);
-mkdir('batchPbrtFiles');
-unix('rm batchPbrtFiles/*');
-unix('cp * ./batchPbrtFiles/');
-chdir('batchPbrtFiles');
+% filePath = [datapath '/validate/pbrtObject/']
+% chdir(filePath);
+% mkdir('batchPbrtFiles');
+% unix('rm batchPbrtFiles/*');
+% unix('cp * ./batchPbrtFiles/');
+% chdir('batchPbrtFiles');
 
 % material list.  each line represents an rgb reflectance.
 matList = ...
@@ -37,12 +37,13 @@ for i = 1:size(matList, 1)
    newGeometry = geometryObject('newGeom', ['mat' int2str(i)], [], [], newTransform);  
    curPbrt.addGeometry(newGeometry);
    
-   tmpFileName = ['deleteMe' int2str(i) '.pbrt'];
-   curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
+%    tmpFileName = ['deleteMe' int2str(i) '.pbrt'];
+%    curPbrt.writeFile(tmpFileName);
+   oi = s3dRenderOI(curPbrt, 50, tmpFileName);
 end
 
-chdir('..');
+% chdir('..');
+
 %the result should be the depthTargeSpheres scene with an additional plane
 %on the bottom.  the plane should move to the right and change colors with
 %subsequent jobs.

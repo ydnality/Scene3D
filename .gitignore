@@ -7,3 +7,4 @@ tmp/
 pbrtHome.m
 *(copy)*
 *tempOutput/*
+data/generatedPbrtFiles/

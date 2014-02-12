@@ -38,5 +38,13 @@ classdef surfaceIntegratorObject <  handle
         
         %TODO: might want to use a parameter list instead of hard coded max
         %depth
+        
+        %prints the pbrt representation to file object fid
+        function returnVal = writeFile(obj, fid)
+            fprintf(fid,'\n\nSurfaceIntegrator "%s"\n', obj.type);
+            fprintf(fid,'\t"integer maxdepth" [%i]\n',obj.maxDepth);
+            returnVal = 1;
+        end
+        
     end
 end

@@ -75,6 +75,30 @@ classdef geometryObject <  handle
         function setTriangleMesh(obj, inTriangleMesh)
             obj.triangleMesh = inTriangleMesh;
         end
+        
+        %prints the pbrt representation to file object fid
+        function returnVal = writeFile(obj, fid)
+            fprintf(fid,'\n\nAttributeBegin #%s\n', obj.name);
+            
+            fprintf(fid,'\n\tTransform \n\t[\n');
+            fprintf(fid,'\t%f %f %f %f \n', obj.transform' );
+            fprintf(fid,'\t]\n');
+            
+            fprintf(fid,'\tNamedMaterial "%s"\n', obj.material);
+            
+            fprintf(fid,'\tShape "trianglemesh" "integer indices" \n\t[\n');
+            fprintf(fid,'\t%i %i %i\n', obj.triangleMesh');
+            fprintf(fid,'\t]\n');
+            
+            fprintf(fid,'\t"point P" \n\t[\n');
+            fprintf(fid,'\t%f %f %f\n', obj.points');
+            fprintf(fid,'\t]\n');
+            
+            fprintf(fid,'\n\nAttributeEnd\n');
+            returnVal = 1;
+        end
+        
+        
     end
     
 end

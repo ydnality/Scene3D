@@ -12,28 +12,26 @@
 %
 % Todo: We are considering copying the pbrt file that was used to generate
 % the scene when we save the oi for future use.
-function oi = s3dRenderOI(fname, focalLength, path, oiName)
+function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
 
     if (ieNotDefined('focalLength'))
         focalLength = .050;
     end
-    if (ieNotDefined('path'))
-        % PBRT will run the PBRT script - initializing
-        chdir(fullfile(s3dRootPath, 'data', 'pbrtScenes'));
-    else
-        chdir(path)
-    end
+
+    fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
+    inputPbrt.writeFile(fullfname);
     
+    
+    generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
+    if exist(generatedDir,'dir')
+        unix(['rm ' generatedDir]);
+    else
+        mkdir(generatedDir);
+    end
+    outfile  = fullfile(generatedDir, 'temp_out.dat');
 
-    mkdir('tempOutput');
-    chdir('tempOutput');
-    unix('rm *');
-
-    % scene rendering
-    % unix([fullfile(pbrtHome, '/src/bin/pbrt') fname '--outfile output.dat']);
-    outfile = 'temp_out.dat';
     % dMapFile = 'temp_out_DM.dat'; 
-    unix([fullfile(pbrtHome, '/src/bin/pbrt ') '../' fname ' --outfile ' outfile])
+    unix([fullfile(pbrtHome, '/src/bin/pbrt ') fullfname ' --outfile ' outfile])
 
     % ISET will read the PBRT output
     oi = pbrt2oi(outfile);
@@ -42,5 +40,5 @@ function oi = s3dRenderOI(fname, focalLength, path, oiName)
         oi = oiSet(oi, 'name', oiName);
     end
     oi = s3dFixOi(oi, focalLength);
-    chdir('..');
+%     chdir('..');
 end

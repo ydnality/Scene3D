@@ -56,6 +56,18 @@ classdef materialObject <  handle
         end
         
         %TODO: add a pop method? or some other array manipulation
+        
+        %prints the pbrt representation to file object fid
+        function returnVal = writeFile(obj, fid)
+            fprintf(fid,'\n\nMakeNamedMaterial "%s"\n', obj.name);
+            fprintf(fid,'\t"string type" ["%s"]\n', obj.type);
+            
+            %loop through property array and print the corresponding values
+            for j = 1:length(obj.propertyArray)
+                obj.propertyArray{j}.writeFile(fid);
+            end
+            returnVal = 1;
+        end
     end
     
 end
