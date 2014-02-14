@@ -2,19 +2,25 @@
 
 % declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
-pointSources = [0 0 -100;
-                0 50 -100;
-                0 -50 -100;
-                50 0 -100;
-                50 50 -100;
-                50 -50 -100;
-                -50 0 -100;
-                -50 50 -100;
-                -50 -50 -100;];
+% pointSources = [0 0 -100;
+%                 0 50 -100;
+%                 0 -50 -100;
+%                 50 0 -100;
+%                 50 50 -100;
+%                 50 -50 -100;
+%                 -50 0 -100;
+%                 -50 50 -100;
+%                 -50 -50 -100;];
+
+
+[XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
+
+pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
+
  
 
 %sensor properties
-sensor.size = [24 24]; %in mm
+sensor.size = [48 48]; %in mm
 sensor.position = [0 0 50]; 
 sensor.resolution = [200 200];
 sensor.image = zeros(sensor.resolution);
@@ -47,7 +53,7 @@ for curInd = 1:size(pointSources, 1);
     [apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 90),linspace(-1, 1, 90)); %adjust this if needed
     
     %assume a circular aperture, and make a mask that is 1 when the pixel
-    %is within a circle of radius .5
+    %is within a circle of radius 1
     apertureMask = (apertureSample.X.^2 + apertureSample.Y.^2) <= 1;
     
     scaledApertureSample.X = apertureSample.X .* apertureRadius; 
@@ -80,7 +86,7 @@ for curInd = 1:size(pointSources, 1);
     
     intersectPosition = newRays.origin + newRays.direction .* repmat(intersectT, [1 3]);
     imagePixel = [intersectPosition(:,2) intersectPosition(:, 1)]; 
-    imagePixel = round(imagePixel + repmat( sensor.resolution./2, [size(imagePixel,1) 1]));
+    imagePixel = round(imagePixel * sensor.resolution(1)/sensor.size(1)  + repmat( sensor.resolution./2, [size(imagePixel,1) 1]));
     
     %make sure imagePixel is in range;
     imagePixel(imagePixel < 1) = 1;

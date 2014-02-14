@@ -42,7 +42,7 @@ for curInd = 1:size(pointSources, 1);
     [apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 90),linspace(-1, 1, 90)); %adjust this if needed
     
     %assume a circular aperture, and make a mask that is 1 when the pixel
-    %is within a circle of radius .5
+    %is within a circle of radius 1
     apertureMask = (apertureSample.X.^2 + apertureSample.Y.^2) <= 1;
     
     scaledApertureSample.X = apertureSample.X .* apertureRadius; 
