@@ -37,7 +37,8 @@ sensor.focalLength = 50; %in mm
 
 apertureRadius =1; % in mm
 
-%note: the offset format is DIFFERENT from the lens files - we must address
+
+%note: the offset format is DIFFERENT from the lens files - we must fix
 %this somehow
 lensSurfaces = cell(1,1);
 lensSurfaces{1}.offset = 3;
@@ -58,7 +59,7 @@ end
 
 %loop through aperture positions and uniformly sample the aperture
 %everything is done in vector form for speed
-[apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 3),linspace(-1, 1, 3)); %adjust this if needed
+[apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 3),linspace(-1, 1, 3)); %adjust this if needed - this determines the number of samples per light source
 
 % this position should NOT change
 lensCenterPosition = [0 0 -1.5];
@@ -69,9 +70,7 @@ figure;
 
 %loop through all point sources
 for curInd = 1:size(pointSources, 1);
-    
     curPointSource = pointSources(curInd, :);
-    
 
     %assume a circular aperture, and make a mask that is 1 when the pixel
     %is within a circle of radius 1
@@ -92,16 +91,11 @@ for curInd = 1:size(pointSources, 1);
     rays.origin = repmat(curPointSource, [size(croppedApertureSample.Y(:), 1) 1] );   %the new origin will just be the position of the current light source
     rays.direction = [(croppedApertureSample.X(:) -  rays.origin(:,1)) (croppedApertureSample.Y(:) -  rays.origin(:,2)) (lensCenterPosition(3) - rays.origin (:,3)) .* ones(size(croppedApertureSample.Y(:)))];
     rays.direction = rays.direction./repmat( sqrt(rays.direction(:, 1).^2 + rays.direction(:, 2).^2 + rays.direction(:,3).^2), [1 3]); %normalize direction
-    
-    
-    
-    
+
     
     prevSurfaceZ = -totalOffset;
     prevN = 1;  %assume that we start off in air
-    
-    
-    
+
     %initialize newRays to be the old ray.  We will update it later.
     newRays = rays;
     for lensEl = length(lensSurfaces):-1:1
@@ -123,7 +117,7 @@ for curInd = 1:size(pointSources, 1);
         for i = 1:size(rays.origin, 1)
             ray.direction = newRays.direction(i,:);
             ray.origin = newRays.origin(i,:);
-            %calculate intersection with lens element
+            %calculate intersection with spherical lens element
             radicand = dot(ray.direction, ray.origin - sphere.center)^2 - ...
                 ( dot(ray.origin -sphere.center, ray.origin -sphere.center)) + sphere.radius^2;
             if (sphere.radius < 0)
@@ -145,17 +139,14 @@ for curInd = 1:size(pointSources, 1);
             line([ray.origin(3) intersectPosition(3) ], [ray.origin(2) intersectPosition(2)] ,'Color','b','LineWidth',1);
             
 
-            
-            
-            
-            normalVec = intersectPosition - sphere.center;  %does the polarity of this vector matter?
+            normalVec = intersectPosition - sphere.center;  %does the polarity of this vector matter? YES
             normalVec = normalVec./norm(normalVec);
-            if (sphere.radius < 0)  %which is the correct sign convention?
+            if (sphere.radius < 0)  %which is the correct sign convention? This is correct
                 normalVec = -normalVec;
             end
             ratio = prevN/sphere.indexOfRefr;
             c = -dot(normalVec, ray.direction);
-            newVec = ratio *ray.direction + (ratio*c -sqrt(1 - ratio^2 * (1 - c^2)))  * normalVec; 
+            newVec = ratio *ray.direction + (ratio*c -sqrt(1 - ratio^2 * (1 - c^2)))  * normalVec; %Snell's Law
             newVec = newVec./norm(newVec); %normalize
             
             %update the direction of the ray
@@ -188,8 +179,6 @@ for curInd = 1:size(pointSources, 1);
         
         %illustrations for debugging
         line([newRays.origin(i, 3) intersectPosition(i, 3)] ,  [newRays.origin(i, 2);  intersectPosition(i, 2)]);
-        
-    
     end
 end
 
