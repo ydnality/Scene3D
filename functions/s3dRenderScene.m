@@ -4,21 +4,18 @@ function scene = s3dRenderScene(fullfname, sceneName)
 % fullfname: full path (file name) of the pbrt file that we render
 % path:  
 %
-% This function renders a PBRT scene using the given pbrt fname, then
-% returns the data as an optical image. A temporary directory is created to
-% render the PBRT scene.  The contents of this directory are deleted at the
-% function call to the particular scene.  The oi is added to an oiWindow,
-% but the oiWindow is not displayed by default.  The directory that this
-% function looks for the pbrt file is s3dRooth/scripts/pbrtFiles/.  The
+% This function renders a PBRT scene using the given a full fname, then
+% returns the data as an optical image. The pbrt file should be previously 
+% generated and be in datapath/generatedPbrtFiles/.  The output file is placed
+% in datapath/generatedPbrtFiles/tempPBRT/.  The
 % proper optics is also placed into this optical image that corresponds to
 % the focal length and field of view (FOV).
-%
-% PBRT creates some temporary files.  We put these in a local ./tempPBRT
-% and then we delete them at the end.
+
 %
 % Todo: We are considering copying the pbrt file that was used to generate
-% the scene when we save the oi for future use.
-
+% the scene when we save the scene for future use.
+%
+% Todo: figure out consistency between s3dRenderScen and s3dRenderOi
 %%  
 
 
