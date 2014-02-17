@@ -1,4 +1,10 @@
-%% point source ray-tracing prototype
+%% Point source ray-tracing prototype
+%
+% What does this do?
+%   Illustrate creating a ray structure - TODO, make a rayCreate/Set/Get?
+%   Illustrate geometric calculation with rays
+%
+% (AL) Vistalab, 2013 
 
 % declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
@@ -50,6 +56,10 @@ for curInd = 1:size(pointSources, 1);
     sensor.image(imagePixel(1), imagePixel(2)) = sensor.image(imagePixel(1), imagePixel(2)) + 1;
 end
 
-figure; imshow(sensor.image);
+%%
+vcNewGraphWin; imshow(sensor.image);
+
+
+%% End
 
 

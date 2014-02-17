@@ -1,6 +1,18 @@
-%% ray-tracing for an ideal lens
+%% Ray-tracing for an ideal lens
+%
+% What does this do?
+%
+%  TODO:
+%   We can't use sensor here and sensorCreate in same way.
+%   Somehow we should integrate this sensor stuff with ISET.
+%   I don't see the lens part here.  Need more comments about what this is
+%   doing, and what it tests.
+%
+% See also: s_3dRayTrace*.m
+%
+% AL Vistalab 2014
 
-% declare point sources in world space.  The camera is usually at [0 0 0],
+% Declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
 % pointSources = [0 0 -100;
 %                 0 50 -100;
@@ -12,14 +24,19 @@
 %                 -50 50 -100;
 %                 -50 -50 -100;];
 
+%%  Create the array of point sources.
+%
 
 [XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
 
+% Points are on a plane in 3D
+% Not sure about the units.
 pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
 
- 
+%% Sensor properties
 
-%sensor properties
+% This should be integrated with the ISET sensor idea.  Or given a
+% different name.  Or both.
 sensor.size = [48 48]; %in mm
 sensor.position = [0 0 50]; 
 sensor.resolution = [200 200];
@@ -34,6 +51,7 @@ lensCenterPosition = [0 0 0];
 %loop through all point sources
 for curInd = 1:size(pointSources, 1);
     
+    % This calculation happens a lot ... we should functionalize it.
     curPointSource = pointSources(curInd, :);
     
     %trace ray from point source to lens center, to image.  This helps
@@ -42,14 +60,16 @@ for curInd = 1:size(pointSources, 1);
     centerRay.direction = lensCenterPosition - centerRay.origin;
     centerRay.direction = centerRay.direction./norm(centerRay.direction);
     
-    %calculate the in-focus position using thin lens equation
+    %calculate the in-focus plane using thin lens equation
     inFocusDistance = 1/(1/sensor.focalLength - -1/curPointSource(3));
+    
+    % What is this?
     inFocusT = (inFocusDistance - centerRay.origin(3))/centerRay.direction(3);
     inFocusPosition = centerRay.origin + inFocusT .* centerRay.direction;
     
-
-    %loop through aperture positions and uniformly sample the aperture
-    %everything is done in vector form for speed
+    %Create a set of circular aperture positions and uniformly sample the aperture
+    %everything.  Calculations will be done in vector form for speed
+    % The code here is a good candidate for a function (BW).
     [apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 90),linspace(-1, 1, 90)); %adjust this if needed
     
     %assume a circular aperture, and make a mask that is 1 when the pixel
@@ -98,4 +118,7 @@ for curInd = 1:size(pointSources, 1);
     end
 end
 
-figure; imshow(sensor.image/ max(sensor.image(:)));
+%%
+vcNewGraphWin; imshow(sensor.image/ max(sensor.image(:)));
+
+%%

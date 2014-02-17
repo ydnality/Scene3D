@@ -1,5 +1,12 @@
-%% ray-tracing for an ideal lens
+%% ray-tracing for realistic lens
+%
+%  This uses Snell's law and a lens prescription to create a tray trace.
+%  The script is too long, and we need to start writing functions so that
+%  the length is shortened and the clarity increased.
+%
+% AL Vistalab, 2014
 
+%%
 % declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
 
@@ -25,7 +32,7 @@ pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distanc
 
 
 
-%sensor properties
+%% sensor properties - 
 % sensor.position = [0 0 49];  %large distance 
 % sensor.position = [0 0 165]; 
 sensor.position = [0 0 100];  %small distance ----ADJUST ME!!----
@@ -33,13 +40,15 @@ sensor.position = [0 0 100];  %small distance ----ADJUST ME!!----
 sensor.size = [48 48];  %in mm
 sensor.resolution = [200 200];
 sensor.image = zeros(sensor.resolution);
+
 sensor.focalLength = 50; %in mm
+apertureRadius = 1; % in mm
 
-apertureRadius =1; % in mm
 
+%% Should be a function for reading and writing lens files
 
 %note: the offset format is DIFFERENT from the lens files - we must fix
-%this somehow
+%this somehow (AL)
 lensSurfaces = cell(1,1);
 lensSurfaces{1}.offset = 3;
 lensSurfaces{1}.radius = -67;
@@ -56,19 +65,24 @@ for i = 1:length(lensSurfaces)
     totalOffset = totalOffset + lensSurfaces{i}.offset; 
 end
 
+%% Set up aperture sampling positions 
 
-%loop through aperture positions and uniformly sample the aperture
-%everything is done in vector form for speed
-[apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 3),linspace(-1, 1, 3)); %adjust this if needed - this determines the number of samples per light source
+% This should be a function
+
+% Create aperture sample positions
+% Adjust the sampling rate if needed - this determines the number of
+% samples per light source 
+[apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 3),linspace(-1, 1, 3));
 
 % this position should NOT change
 lensCenterPosition = [0 0 -1.5];
 
 %debug illustrations initialize
 lensIllustration = zeros(300, 300);
-figure;
 
-%loop through all point sources
+%% loop through all point sources
+vcNewGraphWin;
+
 for curInd = 1:size(pointSources, 1);
     curPointSource = pointSources(curInd, :);
 
@@ -182,4 +196,9 @@ for curInd = 1:size(pointSources, 1);
     end
 end
 
-figure; imshow(sensor.image/ max(sensor.image(:)));
+%% Show the image
+
+vcNewGraphWin;
+imshow(sensor.image/ max(sensor.image(:)));
+
+%% End
