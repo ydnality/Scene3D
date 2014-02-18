@@ -21,13 +21,15 @@
 pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distance ----ADJUST ME!!----
 % pointSources = [ 0 0 -100];  %small distance - TURN THIS ON FOR ONLY 1
 
+
+
+wave = [400 550 700];  % in nm
+wavelengthConversion = [400 3; 550 2; 700 1];
+
 %sensor properties
 % sensor.position = [0 0 49];  %large distance 
 % sensor.position = [0 0 165]; 
 sensor.position = [0 0 100];  %small distance ----ADJUST ME!!----
-
-
-wave = [400 550 700];  % in nm
 sensor.size = [48 48];  %in mm
 sensor.resolution = [200 200 length(wave)];
 sensor.image = zeros(sensor.resolution);
@@ -189,7 +191,6 @@ for curInd = 1:size(pointSources, 1);
     
     %imagePixel is the pixel that will gain a photon due to the traced ray
     imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)]; 
-    
     imagePixel.position = real(imagePixel.position); %add error handling for this
     imagePixel.position = round(imagePixel.position * sensor.resolution(1)/sensor.size(1) + ...
         repmat( sensor.resolution(1:2)./2, [size(imagePixel.position,1) 1]));   %
@@ -199,7 +200,7 @@ for curInd = 1:size(pointSources, 1);
     imagePixel.wavelength = newRays.wavelength; 
     
     
-    wavelengthConversion = [400 3; 550 2; 700 1];
+    
     %add a value to the intersection position
     for i = 1:size(rays.origin , 1)
         wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(wavelengthConversion == imagePixel.wavelength(i))];  %pixel to update
