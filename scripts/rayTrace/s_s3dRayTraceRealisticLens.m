@@ -59,6 +59,14 @@ lensSurfaces{2}.radius = 67;
 lensSurfaces{2}.aperture = 3;
 lensSurfaces{2}.indexOfRefr = 1.67;
 
+% Start testing here ...
+%
+% offset = [3, 0]
+% radius = [-67 67]
+% aperture = [3 3]
+% n = [ 1 1.67];
+% lensObject(offset,radius,aperture,n)
+
 totalOffset = 0;
 for i = 1:length(lensSurfaces)
     totalOffset = totalOffset + lensSurfaces{i}.offset; 
