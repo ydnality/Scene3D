@@ -1,7 +1,7 @@
-classdef lensObject <  handle
-    % Create a lens object
+classdef filmObject <  handle
+    % Create a film object
     %
-    %   lens = lensObject(filmDistance,filmDiag);  % Units are mm
+    %   lens = filmObject(filmDistance,filmDiag);  % Units are mm
     %
     % Presently we only represent spherical lenses and apertures.
     %
@@ -28,35 +28,21 @@ classdef lensObject <  handle
     % AL Vistasoft Copyright 2014
     
     properties
-        offset;
-        radius;
-        aperture;
-        n;
+        filmDistance;   % Probably will go away
+        filmDiag;       % Probably will go away, or we will call this camera
     end
     
     methods
         
         %default constructor
-        function obj = lensObject(offset, radius, aperture, n)
-            
-            % Units are mm
-            if (ieNotDefined('offset')), obj.offset = 0;
-            else                         obj.offset = offset;
+        function obj = filmObject(inFilmDistance, inFilmDiag)
+                        
+            if (ieNotDefined('inFilmDistance')), obj.filmDistance = 140;
+            else                                 obj.filmDistance = inFilmDistance;
             end
             
-            % Units are mm
-            if (ieNotDefined('radius')), obj.radius = 10;
-            else                         obj.radius = radius;
-            end
-            
-            % Units are mm
-            if (ieNotDefined('aperture')), obj.aperture = 10;
-            else                           obj.aperture = aperture;
-            end
-            
-            % Units are mm
-            if (ieNotDefined('n')), obj.n = 1;
-            else                    obj.n = n;
+            if (ieNotDefined('inFilmDiag')),     obj.filmDiag = 43.267;
+            else                                 obj.filmDiag = inFilmDiag;
             end
             
             
