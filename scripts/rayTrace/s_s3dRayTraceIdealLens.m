@@ -1,6 +1,14 @@
 %% Ray-tracing for an ideal lens
 %
-% What does this do?
+% An ideal thin lens is defined as one that obey's the thin lens equation
+% (1/s1 + 1/s2 = 1/f).  Therefore, Snell's Law is not used in this script
+% at all.  Instead, the direction that the rays bend are determined by the
+% thin lens equation.  At each point source, a "center ray" is shot at the
+% center of the lens.  The intersection of this ray and the focal-plane as
+% defined by the thin lens equation determines the point of focus of the
+% lens.  All other rays that are shot at the edge of the aperture will then
+% intersect this ideal focal point.  
+% All units are in mm.
 %
 %  TODO:
 %   We can't use sensor here and sensorCreate in same way.
@@ -12,66 +20,39 @@
 %
 % AL Vistalab 2014
 
-<<<<<<< HEAD
-% Declare point sources in world space.  The camera is usually at [0 0 0],
-=======
-
 diffractionEnabled = true;
-
-% point sources
-
+%% point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
->>>>>>> twoFlashDepth
 % and pointing towards -z.  We are using a right-handed coordinate system.
-% pointSources = [0 0 -100;
-%                 0 50 -100;
-%                 0 -50 -100;
-%                 50 0 -100;
-%                 50 50 -100;
-%                 50 -50 -100;
-%                 -50 0 -100;
-%                 -50 50 -100;
-%                 -50 -50 -100;];
 
-<<<<<<< HEAD
-%%  Create the array of point sources.
-%
-
-[XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
-
-% Points are on a plane in 3D
-% Not sure about the units.
-pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
-
-%% Sensor properties
-
-% This should be integrated with the ISET sensor idea.  Or given a
-% different name.  Or both.
-sensor.size = [48 48]; %in mm
-=======
 % [XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
 % pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
 pointSources = [0 0 -20000];
  
-% wavelength sampling
-wave = [450 550 650];  % in nm
-wavelengthConversion = [450 3; 550 2; 650 1];
+%%  wavelength sampling
+wave = 400:10:700; % in nm
+wavelengthConversion = [wave' (1:31)'];
 
-% sensor properties
+%% camera properties 
+% TODO: change the name
 sensor.size = [1 1]; 
 %sensor.size = [48 48]; %in mm
->>>>>>> twoFlashDepth
 sensor.position = [0 0 50]; 
 sensor.resolution = [200 200 length(wave)];
 sensor.image = zeros(sensor.resolution);
 sensor.focalLength = 50; %in mm
-
 apertureRadius =.1; % in mm
+
+%Create a set of circular aperture positions and uniformly sample the aperture
+%everything.  Calculations will be done in vector form for speed
+% The code here is a good candidate for a function (BW).
+[apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 90),linspace(-1, 1, 90)); %adjust this if needed
+
 
 % this position should NOT change
 lensCenterPosition = [0 0 0];
 
-%loop through all point sources
+%% loop through all point sources
 for curInd = 1:size(pointSources, 1);
     
     % This calculation happens a lot ... we should functionalize it.
@@ -86,19 +67,10 @@ for curInd = 1:size(pointSources, 1);
     %calculate the in-focus plane using thin lens equation
     inFocusDistance = 1/(1/sensor.focalLength - -1/curPointSource(3));
     
-    % What is this?
+    %calculates the in-focus position.  The in-focus position is the
+    %intersection of the in-focus plane and the center-ray
     inFocusT = (inFocusDistance - centerRay.origin(3))/centerRay.direction(3);
     inFocusPosition = centerRay.origin + inFocusT .* centerRay.direction;
-    
-<<<<<<< HEAD
-    %Create a set of circular aperture positions and uniformly sample the aperture
-    %everything.  Calculations will be done in vector form for speed
-    % The code here is a good candidate for a function (BW).
-=======
-    %loop through aperture positions and uniformly sample the aperture
-    %everything is done in vector form for speed
->>>>>>> twoFlashDepth
-    [apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 90),linspace(-1, 1, 90)); %adjust this if needed
     
     %assume a circular aperture, and make a mask that is 1 when the pixel
     %is within a circle of radius 1
@@ -120,7 +92,6 @@ for curInd = 1:size(pointSources, 1);
     rays.direction = [(croppedApertureSample.X(:) -  rays.origin(:,1)) (croppedApertureSample.Y(:) -  rays.origin(:,2)) (lensCenterPosition(3) - rays.origin (:,3)) .* ones(size(croppedApertureSample.Y(:)))];
     rays.direction = rays.direction./repmat( sqrt(rays.direction(:, 1).^2 + rays.direction(:, 2).^2 + rays.direction(:,3).^2), [1 3]); %normalize direction
        
-    
     %add different wavelengths
     %first duplicate the existing entries, and create one for each
     %wavelength
@@ -130,7 +101,6 @@ for curInd = 1:size(pointSources, 1);
     %creates a vector representing wavelengths... for example: [400 400 400... 410 410 410... ..... 700]
     rays.wavelength = vectorize((wave' * ones(1, subLength))');  
     
-
     %when intersecting ideal lens, change the direction to intersect the
     %inFocusPosition, and update the origin
     lensIntersectT = (lensCenterPosition(3) - rays.origin(:,3))./ rays.direction(:,3);
@@ -139,7 +109,6 @@ for curInd = 1:size(pointSources, 1);
     newRays.origin = lensIntersectPosition;
     newRays.direction = repmat(inFocusPosition , [size(newRays.origin,1) 1 ]) - newRays.origin;
     newRays.wavelength = rays.wavelength;
-    
     
     % -- diffraction -- (make this into a function)
     if (diffractionEnabled)
@@ -173,8 +142,6 @@ for curInd = 1:size(pointSources, 1);
             
             %calculate component of these vectors based on 2 random degrees
             %assign noise in the s and l directions according to data at these pointers
-            %             noiseS = (float)(*noiseSPointer);
-            %             noiseL = (float)(*noiseLPointer);
             noiseS = randOut(1);
             noiseL = randOut(2);
             
@@ -207,7 +174,6 @@ for curInd = 1:size(pointSources, 1);
     end
     % -- end diffraction --
     
-    
     %calculate intersection point at sensor
     intersectZ = repmat(sensor.position(3), [size(newRays.origin, 1) 1]);
     intersectT = (intersectZ - newRays.origin(:, 3))./newRays.direction(:, 3);
@@ -223,8 +189,7 @@ for curInd = 1:size(pointSources, 1);
     imagePixel.position = min(imagePixel.position, repmat(sensor.resolution(1:2), [size(imagePixel.position,1) 1]));
     imagePixel.wavelength = newRays.wavelength; 
     
-    
-    
+
     %add a value to the intersection position
     for i = 1:size(rays.origin , 1)
         wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(wavelengthConversion == imagePixel.wavelength(i))];  %pixel to update
@@ -232,26 +197,17 @@ for curInd = 1:size(pointSources, 1);
         %illustrations for debugging
 %         line([newRays.origin(i, 3) intersectPosition(i, 3)] ,  [newRays.origin(i, 2);  intersectPosition(i, 2)]);
     end
-    
-
-%     
-%     
-%     
-%     
-%     imagePixel = [intersectPosition(:,2) intersectPosition(:, 1)]; 
-%     imagePixel = round(imagePixel * sensor.resolution(1)/sensor.size(1)  + repmat( sensor.resolution./2, [size(imagePixel,1) 1]));
-%     
-%     %make sure imagePixel is in range;
-%     imagePixel(imagePixel < 1) = 1;
-%     imagePixel = min(imagePixel, repmat(sensor.resolution, [size(imagePixel,1) 1]));
-%     
-%     %add a value to the intersection position
-%     for i = 1:size(croppedApertureSample.Y(:))
-%         sensor.image(imagePixel(i,1), imagePixel(i,2)) =  sensor.image(imagePixel(i,1), imagePixel(i,2)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
-%     end
 end
 
 %%
-vcNewGraphWin; imshow(sensor.image/ max(sensor.image(:)));
+% vcNewGraphWin; imshow(sensor.image/ max(sensor.image(:)));
+
+
+%assign as optical image
+oi = oiCreate;
+oi = initDefaultSpectrum(oi);
+oi = oiSet(oi,'photons',sensor.image);
+vcAddAndSelectObject(oi); oiWindow;
+
 
 %%
