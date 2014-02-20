@@ -1,27 +1,11 @@
-%% Ray-tracing for an ideal lens
-%
-% What does this do?
-%
-%  TODO:
-%   We can't use sensor here and sensorCreate in same way.
-%   Somehow we should integrate this sensor stuff with ISET.
-%   I don't see the lens part here.  Need more comments about what this is
-%   doing, and what it tests.
-%
-% See also: s_3dRayTrace*.m
-%
-% AL Vistalab 2014
+%% ray-tracing for an ideal lens
 
-<<<<<<< HEAD
-% Declare point sources in world space.  The camera is usually at [0 0 0],
-=======
 
 diffractionEnabled = true;
 
 % point sources
 
 % declare point sources in world space.  The camera is usually at [0 0 0],
->>>>>>> twoFlashDepth
 % and pointing towards -z.  We are using a right-handed coordinate system.
 % pointSources = [0 0 -100;
 %                 0 50 -100;
@@ -33,40 +17,28 @@ diffractionEnabled = true;
 %                 -50 50 -100;
 %                 -50 -50 -100;];
 
-<<<<<<< HEAD
-%%  Create the array of point sources.
-%
-
-[XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
-
-% Points are on a plane in 3D
-% Not sure about the units.
-pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
-
-%% Sensor properties
-
-% This should be integrated with the ISET sensor idea.  Or given a
-% different name.  Or both.
-sensor.size = [48 48]; %in mm
-=======
 % [XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
 % pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
 pointSources = [0 0 -20000];
  
 % wavelength sampling
-wave = [450 550 650];  % in nm
-wavelengthConversion = [450 3; 550 2; 650 1];
+wave = 400:10:700;  % in nm
+wavelengthConversion = [wave' (1:31)'];  %[475 3; 550 2; 600 1];
 
 % sensor properties
 sensor.size = [1 1]; 
 %sensor.size = [48 48]; %in mm
->>>>>>> twoFlashDepth
 sensor.position = [0 0 50]; 
 sensor.resolution = [200 200 length(wave)];
 sensor.image = zeros(sensor.resolution);
 sensor.focalLength = 50; %in mm
 
 apertureRadius =.1; % in mm
+%loop through aperture positions and uniformly sample the aperture
+%everything is done in vector form for speed
+[apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 1000),linspace(-1, 1, 2000)); %adjust this if needed
+
+
 
 % this position should NOT change
 lensCenterPosition = [0 0 0];
@@ -74,7 +46,6 @@ lensCenterPosition = [0 0 0];
 %loop through all point sources
 for curInd = 1:size(pointSources, 1);
     
-    % This calculation happens a lot ... we should functionalize it.
     curPointSource = pointSources(curInd, :);
     
     %trace ray from point source to lens center, to image.  This helps
@@ -83,22 +54,12 @@ for curInd = 1:size(pointSources, 1);
     centerRay.direction = lensCenterPosition - centerRay.origin;
     centerRay.direction = centerRay.direction./norm(centerRay.direction);
     
-    %calculate the in-focus plane using thin lens equation
+    %calculate the in-focus position using thin lens equation
     inFocusDistance = 1/(1/sensor.focalLength - -1/curPointSource(3));
-    
-    % What is this?
     inFocusT = (inFocusDistance - centerRay.origin(3))/centerRay.direction(3);
     inFocusPosition = centerRay.origin + inFocusT .* centerRay.direction;
     
-<<<<<<< HEAD
-    %Create a set of circular aperture positions and uniformly sample the aperture
-    %everything.  Calculations will be done in vector form for speed
-    % The code here is a good candidate for a function (BW).
-=======
-    %loop through aperture positions and uniformly sample the aperture
-    %everything is done in vector form for speed
->>>>>>> twoFlashDepth
-    [apertureSample.X, apertureSample.Y] = meshgrid(linspace(-1, 1, 90),linspace(-1, 1, 90)); %adjust this if needed
+
     
     %assume a circular aperture, and make a mask that is 1 when the pixel
     %is within a circle of radius 1
@@ -232,26 +193,15 @@ for curInd = 1:size(pointSources, 1);
         %illustrations for debugging
 %         line([newRays.origin(i, 3) intersectPosition(i, 3)] ,  [newRays.origin(i, 2);  intersectPosition(i, 2)]);
     end
-    
-
-%     
-%     
-%     
-%     
-%     imagePixel = [intersectPosition(:,2) intersectPosition(:, 1)]; 
-%     imagePixel = round(imagePixel * sensor.resolution(1)/sensor.size(1)  + repmat( sensor.resolution./2, [size(imagePixel,1) 1]));
-%     
-%     %make sure imagePixel is in range;
-%     imagePixel(imagePixel < 1) = 1;
-%     imagePixel = min(imagePixel, repmat(sensor.resolution, [size(imagePixel,1) 1]));
-%     
-%     %add a value to the intersection position
-%     for i = 1:size(croppedApertureSample.Y(:))
-%         sensor.image(imagePixel(i,1), imagePixel(i,2)) =  sensor.image(imagePixel(i,1), imagePixel(i,2)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
-%     end
 end
 
-%%
-vcNewGraphWin; imshow(sensor.image/ max(sensor.image(:)));
+% figure; imshow(sensor.image/ max(sensor.image(:)));
 
-%%
+
+%assign as optical image
+oi = oiCreate;
+oi = initDefaultSpectrum(oi);
+oi = oiSet(oi,'photons',sensor.image);
+vcAddAndSelectObject(oi); oiWindow;
+
+

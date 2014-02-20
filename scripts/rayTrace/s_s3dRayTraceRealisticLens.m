@@ -1,15 +1,8 @@
-%% ray-tracing for realistic lens
-%
-%  This uses Snell's law and a lens prescription to create a tray trace.
-%  The script is too long, and we need to start writing functions so that
-%  the length is shortened and the clarity increased.
-%
-% AL Vistalab, 2014
-
-%% ray-tracing 
+%% ray-tracing for an ideal lens
 % -We are only ray-tracing ideal point sources in order to extract out point
 % spread functions.
 % -New support: different wavelength support
+
 
 
 % declare point sources in world space.  The camera is usually at [0 0 0],
@@ -28,26 +21,26 @@
 pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distance ----ADJUST ME!!----
 % pointSources = [ 0 0 -100];  %small distance - TURN THIS ON FOR ONLY 1
 
+
+
 wave = [400 550 700];  % in nm
 wavelengthConversion = [400 3; 550 2; 700 1];
 
-%% sensor properties - 
+%sensor properties
 % sensor.position = [0 0 49];  %large distance 
 % sensor.position = [0 0 165]; 
 sensor.position = [0 0 100];  %small distance ----ADJUST ME!!----
 sensor.size = [48 48];  %in mm
 sensor.resolution = [200 200 length(wave)];
 sensor.image = zeros(sensor.resolution);
+sensor.focalLength = 50; %in mm
 
-% sensor.focalLength = 50; %in mm
-% apertureRadius = 1; % in mm
 apertureRadius =3; % in mm
 
 
-%% Should be a function for reading and writing lens files
 
 %note: the offset format is DIFFERENT from the lens files - we must fix
-%this somehow (AL)
+%this somehow
 lensSurfaces = cell(1,1);
 lensSurfaces{1}.offset = 3;
 lensSurfaces{1}.radius = -67;
@@ -59,25 +52,11 @@ lensSurfaces{2}.radius = 67;
 lensSurfaces{2}.aperture = 3;
 lensSurfaces{2}.indexOfRefr = 1.67;
 
-% Start testing here ...
-%
-% offset = [3, 0]
-% radius = [-67 67]
-% aperture = [3 3]
-% n = [ 1 1.67];
-% lensObject(offset,radius,aperture,n)
-
 totalOffset = 0;
 for i = 1:length(lensSurfaces)
     totalOffset = totalOffset + lensSurfaces{i}.offset; 
 end
 
-%% Set up aperture sampling positions 
-
-% This should be a function
-% Create aperture sample positions
-% Adjust the sampling rate if needed - this determines the number of
-% samples per light source 
 
 %loop through aperture positions and uniformly sample the aperture
 %everything is done in vector form for speed
@@ -88,10 +67,9 @@ lensCenterPosition = [0 0 -1.5];
 
 %debug illustrations initialize
 lensIllustration = zeros(300, 300);
+figure;
 
-%% loop through all point sources
-vcNewGraphWin;
-
+%loop through all point sources
 for curInd = 1:size(pointSources, 1);
     curPointSource = pointSources(curInd, :);
 
@@ -121,10 +99,8 @@ for curInd = 1:size(pointSources, 1);
     subLength = size(rays.origin, 1);
     rays.origin = repmat(rays.origin, [length(wave) 1]);
     rays.direction = repmat(rays.direction, [length(wave) 1]);
-    
     %creates a vector representing wavelengths... for example: [400 400 400... 410 410 410... ..... 700]
-    tmp = (wave' * ones(1, subLength))'; 
-    rays.wavelength = tmp(:);  
+    rays.wavelength = vectorize((wave' * ones(1, subLength))');  
     
     
     prevSurfaceZ = -totalOffset;
@@ -234,9 +210,4 @@ for curInd = 1:size(pointSources, 1);
     end
 end
 
-%% Show the image
-
-vcNewGraphWin;
-imshow(sensor.image/ max(sensor.image(:)));
-
-%% End
+figure; imshow(sensor.image/ max(sensor.image(:)));
