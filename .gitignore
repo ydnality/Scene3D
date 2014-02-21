@@ -3,8 +3,27 @@ tmp/
 *conflicted copy*
 *~
 *Bak*
-*.original
+*.original*
 pbrtHome.m
 *(copy)*
 *tempOutput/*
+*.mat
 data/generatedPbrtFiles/
+*(Case Conflict*
+*.exr
+*.old
+*.mat*
+*.fig
+*.jpg
+*.blend*
+*.dae
+*.html
+*.bak
+*bak
+*.zip
+*.mif
+*.tiff
+*deleteMe*
+*.pbrt
+*.pbrt#
+*.brdf
