@@ -40,7 +40,7 @@ classdef rayObject <  handle
         
         %performs ray-trace of the lens, given an input bundle or rays
         %outputs the rays that have been refracted by the lens
-        %TODO: use the rayObject eventually
+        %TODO: consdier moving this to the lens
         function obj =  traceThroughLens(obj, lens)
            
             prevN = 1;  %assume that we start off in air

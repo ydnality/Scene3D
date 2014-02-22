@@ -52,10 +52,10 @@ radius = [-67 67];
 aperture = [3 3];
 n = [ 1 1.67];
 lensCenterPosition = [0 0 -1.5];  %eventually calculate this given the lens file
-lens = lensObject(offset,radius,aperture,n, 3, lensCenterPosition);
+lens = lensRealisticObject(offset,radius,aperture,n, 3, lensCenterPosition);
 
 %debug illustrations initialize
-lensIllustration = zeros(300, 300);
+% lensIllustration = zeros(300, 300);
 
 %% loop through all point sources
 vcNewGraphWin; %for illustration
@@ -66,7 +66,7 @@ for curInd = 1:size(pointSources, 1);
     
     %duplicate the existing rays, and creates one for each
     %wavelength
-    rays.expandWavelengths(wave);
+    rays.expandWavelengths(film.wave);
     
     %lens intersection and raytrace
     rays.traceThroughLens(lens);
