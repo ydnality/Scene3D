@@ -28,25 +28,44 @@ classdef filmObject <  handle
     % AL Vistasoft Copyright 2014
     
     properties
-        filmDistance;   % Probably will go away
-        filmDiag;       % Probably will go away, or we will call this camera
+        position;
+        size;  %in mm
+        wave;
+        waveConversion;
+        resolution;  %decide whether this includes the 3rd dimension or not
+        image;
     end
     
     methods
         
         %default constructor
-        function obj = filmObject(inFilmDistance, inFilmDiag)
+        function obj = filmObject(position, size,  wave, waveConversion, resolution)
                         
-            if (ieNotDefined('inFilmDistance')), obj.filmDistance = 140;
-            else                                 obj.filmDistance = inFilmDistance;
+            if (ieNotDefined('position')), obj.position = [0 0 100];
+            else                           obj.position = position;
             end
             
-            if (ieNotDefined('inFilmDiag')),     obj.filmDiag = 43.267;
-            else                                 obj.filmDiag = inFilmDiag;
+            if (ieNotDefined('size')),     obj.size = [48 48];
+            else                           obj.size = size;
             end
             
+            if (ieNotDefined('wave')),     obj.wave = [400 550 700];  % in nm;
+            else                           obj.wave = wave;
+            end      
             
+            if (ieNotDefined('waveConversion')),     obj.waveConversion = [400 3; 550 2; 700 1];  % in nm;
+            else                           obj.waveConversion = waveConversion;
+            end  
+            
+            if (ieNotDefined('resolution')),     obj.resolution = [200 200 length(obj.wave)];
+            else                           obj.size = resolution;
+            end
+            %TODO: error checking.  make sure all dimensions are good
+            
+            obj.image = zeros(obj.resolution);
         end
+        
+        
     end
     
 end
