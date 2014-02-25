@@ -144,6 +144,7 @@ classdef rayObject <  handle
             
             %add a value to the intersection position
             for i = 1:size(obj.origin , 1)
+%                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
                 film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) =  film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
                 %illustrations for debugging

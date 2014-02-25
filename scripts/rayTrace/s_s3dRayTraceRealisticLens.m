@@ -30,19 +30,8 @@ pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distanc
 wave = [400 550 700];  % in nm
 wavelengthConversion = [400 3; 550 2; 700 1];
 
-%% sensor properties - 
-% sensor.position = [0 0 49];  %large distance 
-% sensor.position = [0 0 165]; 
-% film.position = [0 0 100];  %small distance ----ADJUST ME!!----
-% film.size = [48 48];  %in mm
-% film.wave = wave;
-% film.waveConversion = wavelengthConversion;
-% film.resolution = [200 200 length(film.wave)];
-% film.image = zeros(film.resolution);
-film = filmObject();
-
-% sensor.focalLength = 50; %in mm
-% apertureRadius =2; % in mm
+%% film properties - 
+film = filmObject([], [],  400:10:700, [(400:10:700)' (1:31)'], []);
 
 %% Should be a function for reading and writing lens files
 
@@ -53,15 +42,13 @@ aperture = [3 3];
 n = [ 1 1.67];
 lensCenterPosition = [0 0 -1.5];  %eventually calculate this given the lens file
 lens = lensRealisticObject(offset,radius,aperture,n, 3, lensCenterPosition);
-%debug illustrations initialize
-% lensIllustration = zeros(300, 300);
 
 %% loop through all point sources
 vcNewGraphWin; %for illustration
 for curInd = 1:size(pointSources, 1);
     %calculate the origin and direction of the rays
     rays = rayObject;
-%     rays.traceSourceToLens(pointSources(curInd, :), lens);
+    %     rays.traceSourceToLens(pointSources(curInd, :), lens);
     lens.rayTraceSourceToLens(pointSources(curInd, :), rays);
     
     %duplicate the existing rays, and creates one for each
@@ -77,7 +64,13 @@ end
 
 %% Show the image
 
-vcNewGraphWin;
-imshow(film.image/ max(film.image(:)));
+% vcNewGraphWin;
+% imshow(film.image/ max(film.image(:)));
+
+oi = oiCreate;
+oi = initDefaultSpectrum(oi);
+oi = oiSet(oi, 'wave', film.wave);
+oi = oiSet(oi,'photons',film.image);
+vcAddAndSelectObject(oi); oiWindow;
 
 %% End

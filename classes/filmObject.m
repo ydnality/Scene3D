@@ -53,7 +53,8 @@ classdef filmObject <  handle
             else                           obj.wave = wave;
             end      
             
-            if (ieNotDefined('waveConversion')),     obj.waveConversion = [400 3; 550 2; 700 1];  % in nm;
+            %this field might go away soon
+            if (ieNotDefined('waveConversion')),     obj.waveConversion = [400 1; 550 2; 700 3];  % in nm;
             else                           obj.waveConversion = waveConversion;
             end  
             
