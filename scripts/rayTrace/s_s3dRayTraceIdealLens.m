@@ -20,7 +20,7 @@
 %
 % AL Vistalab 2014
 
-diffractionEnabled = false;
+diffractionEnabled = true;
 %% point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
@@ -51,37 +51,17 @@ pointSources = [0 0 -20000];
 
 % this position should NOT change
 % lensCenterPosition = [0 0 0];
-film = filmObject([0 0 50],[], 400:10:700, [(400:10:700)' (1:31)'], []);   %(position, size,  wave, waveConversion, resolution)
-lens = lensIdealObject(3, 50, [0 0 0]);
+film = filmObject([0 0 50],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %(position, size,  wave, waveConversion, resolution)
+lens = lensIdealObject(.1, 50, [0 0 0], true);
 
+lens.calculateApertureSample([20 20]);
 
 
 %% loop through all point sources
 for curInd = 1:size(pointSources, 1);
     
     % This calculation happens a lot ... we should functionalize it.
-%     curPointSource = pointSources(curInd, :);
-    
-    
-
-    % --------center ray calculation ---- should go in function-----
-    
-    %trace ray from point source to lens center, to image.  This helps
-    %determine the point of focus
-    centerRay.origin = curPointSource;
-    centerRay.direction = lens.centerPosition - centerRay.origin;
-    centerRay.direction = centerRay.direction./norm(centerRay.direction);
-    
-    %calculate the in-focus plane using thin lens equation
-    inFocusDistance = 1/(1/lens.focalLength - -1/curPointSource(3));
-    
-    %calculates the in-focus position.  The in-focus position is the
-    %intersection of the in-focus plane and the center-ray
-    inFocusT = (inFocusDistance - centerRay.origin(3))/centerRay.direction(3);
-    inFocusPosition = centerRay.origin + inFocusT .* centerRay.direction;
-    
-    % --------center ray calculation ---- should go in function-----
-    
+%      curPointSource = pointSources(curInd, :);
     
     
 
@@ -92,7 +72,7 @@ for curInd = 1:size(pointSources, 1);
 %        
 %     
     rays = rayObject;
-    rays.traceSourceToLens(pointSources(curInd, :), lens);
+    lens.rayTraceSourceToLens(pointSources(curInd, :), rays);
     
 
     %duplicate the existing rays, and creates one for each
@@ -109,88 +89,11 @@ for curInd = 1:size(pointSources, 1);
 %     
 %     
     
-    %---------------- lens refraction code should go in function -----
+%--lens refraction
     
-    %when intersecting ideal lens, change the direction to intersect the
-    %inFocusPosition, and update the origin
-    lensIntersectT = (lens.centerPosition(3) - rays.origin(:,3))./ rays.direction(:,3);
-    lensIntersectPosition = rays.origin +  repmat(lensIntersectT, [1 3]) .* rays.direction;
-    %calculate new direction
-    
-    newRays = rayObject(); % added
-    newRays.origin = lensIntersectPosition;
-    newRays.direction = repmat(inFocusPosition , [size(newRays.origin,1) 1 ]) - newRays.origin;
-    newRays.wavelength = rays.wavelength;
-    
-    % -- diffraction -- (make this into a function)
-    if (diffractionEnabled)
-        %vectorize this later for speed
-        for i = 1:size(rays.direction, 1)
-            %calculate the distance of the intersect point to the center of the lens
-            curLensIntersectPosition = lensIntersectPosition(i, :);
-            curRay.origin = newRays.origin(i, :);
-            curRay.direction = newRays.direction(i, :);
-            curRay.wavelength = newRays.wavelength(i);
-            
-            ipLength = norm(curLensIntersectPosition);
-            
-            %calculate directionS and orthogonal directionL
-            directionS = [curLensIntersectPosition(1) curLensIntersectPosition(2) 0];
-            directionL = [-curLensIntersectPosition(2) curLensIntersectPosition(1) 0];
-            directionS = directionS./norm(directionS);
-            directionL = directionL./norm(directionL);
-            
-            pointToEdgeS = lens.apertureRadius - ipLength;   %this is 'a' from paper  //pointToEdgeS stands for point to edge short
-            pointToEdgeL = sqrt((lens.apertureRadius* lens.apertureRadius) - ipLength * ipLength);  %pointToEdgeS stands for point to edge long
-            
-            lambda = curRay.wavelength * 1e-9;  %this converts lambda to meters
-            sigmaS = atan(1/(2 * pointToEdgeS *.001 * 2 * pi/lambda));  %the .001 converts mm to m
-            sigmaL = atan(1/(2 * pointToEdgeL * .001 * 2 * pi/lambda));
-            
-            %this function regenerates a 2D gaussian sample and
-            %returns it randOut
-            %gsl_ran_bivariate_gaussian (r, sigmaS, sigmaL, 0, noiseSPointer, noiseLPointer);    %experiment for now
-            [randOut] = randn(1,2) .* [sigmaS sigmaL];   
-            
-            %calculate component of these vectors based on 2 random degrees
-            %assign noise in the s and l directions according to data at these pointers
-            noiseS = randOut(1);
-            noiseL = randOut(2);
-            
-            %project the original ray (in world coordinates) onto a new set of basis vectors in the s and l directions
-            projS = (curRay.direction(1) * directionS(1) + curRay.direction(2) * directionS(2))/sqrt(directionS(1) * directionS(1) + directionS(2) * directionS(2));
-            projL = (curRay.direction(1) * directionL(1) + curRay.direction(2) * directionL(2))/sqrt(directionL(1) * directionL(1) + directionL(2) * directionL(2));
-            thetaA = atan(projS/curRay.direction(3));   %azimuth - this corresponds to sigmaS
-            thetaE = atan(projL/sqrt(projS*projS + curRay.direction(3)* curRay.direction(3)));   %elevation - this corresponds to sigmaL
-            
-            %add uncertainty
-            thetaA = thetaA + noiseS;
-            thetaE = thetaE + noiseL;
-            
-            %convert angles back into cartesian coordinates, but in s,l space
-            newprojL = sin(thetaE);
-            smallH = cos(thetaE);   %smallH corresponds to the projection of the ray onto the s-z plane
-            newprojS = smallH * sin(thetaA);
-            curRay.direction(3) = smallH * cos(thetaA);
-            
-            %convert from s-l space back to x-y space
-            curRay.direction(1) = (directionS(1) * newprojS + directionL(1) * newprojL)/sqrt(directionS(1) * directionS(1) + directionL(1) * directionL(1));
-            curRay.direction(2) = (directionS(2) * newprojS + directionL(2) * newprojL)/sqrt(directionS(2) * directionS(2) + directionL(2) * directionL(2));
-            curRay.direction = curRay.direction./norm(curRay.direction);
+    lens.rayTraceThroughLens(rays, pointSources(curInd, :));
 
-            %reassign ray
-            newRays.origin(i,:) = curRay.origin;
-            newRays.direction(i, :) = curRay.direction;
-            newRays.wavelength(i,:) = curRay.wavelength;
-        end
-    end
-    % -- end diffraction --
-    
 
-    %---------------- lens refraction code should go in function -----    
-    
-    
-    
 %     
 % %     %calculate intersection point at sensor
 %     intersectZ = repmat(film.position(3), [size(newRays.origin, 1) 1]);
@@ -218,7 +121,7 @@ for curInd = 1:size(pointSources, 1);
 
 
 %     intersect with "film" and add to film
-   newRays.recordOnFilm(film);
+   rays.recordOnFilm(film);
 
 end
 
