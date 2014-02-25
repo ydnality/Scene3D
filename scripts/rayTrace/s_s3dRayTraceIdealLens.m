@@ -34,7 +34,7 @@ pointSources = [0 0 -20000];
 diffractionEnabled = true;
 film = filmObject([0 0 50],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %(position, size,  wave, waveConversion, resolution)
 lens = lensIdealObject(.1, 50, [0 0 0], diffractionEnabled);
-lens.calculateApertureSample([5 5]);
+lens.calculateApertureSample([20 20]);
 
 vcNewGraphWin; 
 

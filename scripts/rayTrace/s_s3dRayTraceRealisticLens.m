@@ -23,15 +23,16 @@
 % pointSources = [ 0 0 -20000];  %large distance 
 
 %Small Distance Test
-[XGrid YGrid] = meshgrid(-15:5:15,-15:5:15);   %small distance test
-pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distance ----ADJUST ME!!----
-% pointSources = [ 0 0 -100];  %small distance - TURN THIS ON FOR ONLY 1
+% [XGrid YGrid] = meshgrid(-15:5:15,-15:5:15);   %small distance test
+% pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distance ----ADJUST ME!!----
 
-wave = [400 550 700];  % in nm
-wavelengthConversion = [400 3; 550 2; 700 1];
+pointSources = [ 0 0 -100];  %small distance - TURN THIS ON FOR ONLY 1
+
+% wave = [400 550 700];  % in nm
+% wavelengthConversion = [400 3; 550 2; 700 1];
 
 %% film properties - 
-film = filmObject([], [],  400:10:700, [(400:10:700)' (1:31)'], []);
+film = filmObject([], [2 2],  400:10:700, [(400:10:700)' (1:31)'], []);
 
 %% Should be a function for reading and writing lens files
 
@@ -42,6 +43,7 @@ aperture = [3 3];
 n = [ 1 1.67];
 lensCenterPosition = [0 0 -1.5];  %eventually calculate this given the lens file
 lens = lensRealisticObject(offset,radius,aperture,n, 3, lensCenterPosition);
+lens.calculateApertureSample([50 50]);
 
 %% loop through all point sources
 vcNewGraphWin; %for illustration
