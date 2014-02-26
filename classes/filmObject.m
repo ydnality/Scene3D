@@ -1,35 +1,28 @@
 classdef filmObject <  handle
     % Create a film object
     %
-    %   lens = filmObject(filmDistance,filmDiag);  % Units are mm
+    %   film = filmObject(position,size,wave,waveConversion,resolution);
     %
-    % Presently we only represent spherical lenses and apertures.
+    % Spatial units throughout are mm
     %
-    % These are defined by a series of surfaces. We code the offset to each
-    % surface radius to the center of the spherical lens.  Positive means
-    % to the right (or left???). Aperture parameters (a single number is a
-    % diameter in mm). index of refraction (n) for the material to the left
-    % of the surface.
-    % 
-    % pinhole cameras have no aperture and the pinhole lens will inherit
-    % this superclas. This will be a superclass that will be inherited by
-    % other classes in the future
+    % For ray tracing, the sensor plane is called the 'film'.  At some
+    % point we will need to be able to convert data from the ISET sensor
+    % object and this film object.  In the fullness of time, they may be
+    % closely coordinated.
     %
-    % We aim to be consistent with the PBRT lens files, and maybe the Zemax
-    % as far possible ?
+    % The film properties are
     %
-    % This could become a camera, or we could make a camera object that has
-    % a lens and film.
-    % 
-    % Example:
-    %   lensObject
-    %   lensObject(30,250)
+    %   position - relative to lens
+    %   size     - size in millimeters (height, width)
+    %   wave     - sample wavelengths
+    %   waveConversion - we will see
+    %   resolution - Number of samples (pixels) in the film plane
     %
     % AL Vistasoft Copyright 2014
     
     properties
         position;
-        size;  %in mm
+        size;        %in mm
         wave;
         waveConversion;
         resolution;  %decide whether this includes the 3rd dimension or not
@@ -40,7 +33,7 @@ classdef filmObject <  handle
         
         %default constructor
         function obj = filmObject(position, size,  wave, waveConversion, resolution)
-                        
+            
             if (ieNotDefined('position')), obj.position = [0 0 100];
             else                           obj.position = position;
             end
@@ -51,12 +44,12 @@ classdef filmObject <  handle
             
             if (ieNotDefined('wave')),     obj.wave = [400 550 700];  % in nm;
             else                           obj.wave = wave;
-            end      
+            end
             
             %this field might go away soon
             if (ieNotDefined('waveConversion')),     obj.waveConversion = [400 1; 550 2; 700 3];  % in nm;
             else                           obj.waveConversion = waveConversion;
-            end  
+            end
             
             if (ieNotDefined('resolution')),     obj.resolution = [200 200 length(obj.wave)];
             else                           obj.size = resolution;

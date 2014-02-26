@@ -20,6 +20,8 @@
 %
 % AL Vistalab 2014
 
+%% 
+s_initISET
 
 %% point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
@@ -31,18 +33,26 @@ pointSources = [0 0 -20000];
 
 
 %% camera and film properties 
-diffractionEnabled = true;
-film = filmObject([0 0 50],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %(position, size,  wave, waveConversion, resolution)
-lens = lensIdealObject(.1, 50, [0 0 0], diffractionEnabled);
-lens.calculateApertureSample([20 20]);
 
-vcNewGraphWin; 
+% Build a sensor (film) object
+% Position, size,  wave, waveConversion, resolution
+film = filmObject([0 0 50],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   
+
+diffractionEnabled = true;
+% lensObject('ideal')
+apertureRadiusMM = 0.1;  
+lens = lensIdealObject(apertureRadiusMM, 50, [0 0 0], diffractionEnabled);
+
+n = 40;
+lens.calculateApertureSample([n n]);
 
 %% loop through all point sources
+vcNewGraphWin; 
+
 for curInd = 1:size(pointSources, 1);
-    rays = rayObject;
+    
     %calculate the origin and direction of the rays
-    lens.rayTraceSourceToLens(pointSources(curInd, :), rays);
+    rays = lens.rayTraceSourceToLens(pointSources(curInd, :));
     
     %duplicate the existing rays, and creates one for each
     %wavelength
@@ -55,11 +65,23 @@ for curInd = 1:size(pointSources, 1);
     rays.recordOnFilm(film);
 end
 
-%%
-%assign as optical image
+%% Assign to optical image
 oi = oiCreate;
 oi = initDefaultSpectrum(oi);
 oi = oiSet(oi,'photons',film.image);
-vcAddAndSelectObject(oi); oiWindow;
+
+% Set the optics parameters too
+%
+optics = oiGet(oi,'optics');
+optics = opticsSet(optics,'focal length',lens.focalLength/1000);
+optics = opticsSet(optics,'fnumber', lens.focalLength/(2*apertureRadiusMM));
+oi = oiSet(oi,'optics',optics);
+
+% Opposite over adjacent is the tan of half the angle ...
+% Everything is mm
+hfov = rad2deg(2*atan2(apertureRadiusMM,lens.focalLength));
+oi = oiSet(oi,'hfov',5*hfov);
+
+vcAddObject(oi); oiWindow;
 
 %%
