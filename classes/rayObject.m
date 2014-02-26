@@ -16,8 +16,9 @@ classdef rayObject <  handle
     
     methods
         
-        %default constructor
+        
         function obj = rayObject(origin, direction, wavelength)
+            %default constructor
             if (ieNotDefined('origin')),   obj.origin = [0,0,0];
             else                           obj.origin = origin;
             end
@@ -31,18 +32,19 @@ classdef rayObject <  handle
             end
         end
         
-        %traces rays from a point source to a sampling function on the lens
+        
         function obj = traceSourceToLens(obj, curPointSource, lens)
+            %traces rays from a point source to a sampling function on the lens
             obj.origin = repmat(curPointSource, [size(lens.apertureSample.Y(:), 1) 1] );   %the new origin will just be the position of the current light source
             obj.direction = [(lens.apertureSample.X(:) -  obj.origin(:,1)) (lens.apertureSample.Y(:) -  obj.origin(:,2)) (lens.centerPosition(3) - obj.origin (:,3)) .* ones(size(lens.apertureSample.Y(:)))];
             obj.direction = obj.direction./repmat( sqrt(obj.direction(:, 1).^2 + obj.direction(:, 2).^2 + obj.direction(:,3).^2), [1 3]); %normalize direction
         end
         
-        %performs ray-trace of the lens, given an input bundle or rays
-        %outputs the rays that have been refracted by the lens
-        %TODO: consdier moving this to the lens
+
         function obj =  traceThroughLens(obj, lens)
-           
+            %performs ray-trace of the lens, given an input bundle or rays
+            %outputs the rays that have been refracted by the lens
+            %TODO: consdier moving this to the lens
             prevN = 1;  %assume that we start off in air
             
             %initialize newRays to be the old ray.  We will update it later.
@@ -124,9 +126,10 @@ classdef rayObject <  handle
             end
         end
         
-        %records the ray on the film
+        
         function obj = recordOnFilm(obj, film)
-            
+            %records the ray on the film
+          
             %calculate intersection point at sensor
             intersectZ = repmat(film.position(3), [size(obj.origin, 1) 1]);
             intersectT = (intersectZ - obj.origin(:, 3))./obj.direction(:, 3);

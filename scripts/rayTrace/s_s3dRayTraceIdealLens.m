@@ -79,8 +79,9 @@ oi = oiSet(oi,'optics',optics);
 
 % Opposite over adjacent is the tan of half the angle ...
 % Everything is mm
-hfov = rad2deg(2*atan2(apertureRadiusMM,lens.focalLength));
-oi = oiSet(oi,'hfov',5*hfov);
+% hfov = rad2deg(2*atan2(apertureRadiusMM,lens.focalLength));
+hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
+oi = oiSet(oi,'hfov', hfov);
 
 vcAddObject(oi); oiWindow;
 
