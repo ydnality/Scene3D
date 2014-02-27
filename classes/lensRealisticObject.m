@@ -35,8 +35,9 @@ classdef lensRealisticObject <  lensObject
     
     methods
         
-        %default constructor
+        
         function obj = lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled)
+        %default constructor
             
             % Units are mm
             if (ieNotDefined('elOffset')), elOffset = 0;
@@ -94,19 +95,21 @@ classdef lensRealisticObject <  lensObject
             obj.calculateApertureSample();
         end
         
+
+        function computeTotalOffset(obj)
         %Calculates the total offset of the lens by adding all existing
         %offsets
         %make this private later
-        function computeTotalOffset(obj)
             obj.totalOffset  = 0;
             for i = 1:obj.numEls
                 obj.totalOffset = obj.totalOffset + obj.elementArray(i).offset;
             end
         end
 
-        %computes the spherical centers of each element
+        
         function computeCenters(obj)
-
+        %computes the spherical centers of each element
+        
             obj.computeTotalOffset();
             prevSurfaceZ = -obj.totalOffset;
             for i = length(obj.elementArray):-1:1
@@ -140,11 +143,11 @@ classdef lensRealisticObject <  lensObject
 %         end
 
 
+        function obj =  rayTraceThroughLens(obj, rays)
         %performs ray-trace of the lens, given an input bundle or rays
         %outputs the rays that have been refracted by the lens
         %TODO: consdier moving this to the lens
-        function obj =  rayTraceThroughLens(obj, rays)
-           
+        
             prevN = 1;  %assume that we start off in air
             
             %initialize newRays to be the old ray.  We will update it later.
@@ -169,9 +172,11 @@ classdef lensRealisticObject <  lensObject
                 %vectorize this operation later
                 for i = 1:size(rays.origin, 1)
                     %get the current ray
-                    ray.direction = rays.direction(i,:);   %TODO: replace with real ray object
-                    ray.origin = rays.origin(i,:);
-                    ray.wavelength = rays.wavelength(i);
+                    
+                    ray = rayObject(rays.origin(i,:), rays.direction(i,:), rays.wavelength(i));
+%                     ray.direction = rays.direction(i,:);   %TODO: replace with real ray object
+%                     ray.origin = rays.origin(i,:);
+%                     ray.wavelength = rays.wavelength(i);
                     
                     %calculate intersection with spherical lens element
                     radicand = dot(ray.direction, ray.origin - curEl.sphereCenter)^2 - ...
@@ -218,15 +223,18 @@ classdef lensRealisticObject <  lensObject
                     newVec = newVec./norm(newVec); %normalize
                     
                     %update the direction of the ray
-                    rays.origin(i, : ) = intersectPosition;
-                    rays.direction(i, : ) = newVec;
+                    ray.origin = intersectPosition;
+                    ray.direction = newVec;
                     
+%                     tempRay = rayObject(rays.origin(i, : ) , rays.direction(i, : ), rays.wavelength(i));
                     % diffraction HURB calculation
-%                     if (obj.diffractionEnabled)
-                    obj.rayTraceHURB(ray, intersectPosition, curEl.aperture);
-%                      end
+                    if (obj.diffractionEnabled)
+                        obj.rayTraceHURB(ray, intersectPosition, curEl.aperture);
+                    end
                     
-                    
+                    %update the direction of the ray
+                    rays.origin(i, : ) = ray.origin;
+                    rays.direction(i, : ) = ray.direction;                    
                     
                 end
                 prevN = curN;

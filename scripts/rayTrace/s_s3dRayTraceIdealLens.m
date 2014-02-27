@@ -40,7 +40,7 @@ film = filmObject([0 0 50],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);
 
 diffractionEnabled = true;
 % lensObject('ideal')
-apertureRadiusMM = 0.1;  
+apertureRadiusMM = .1;  
 lens = lensIdealObject(apertureRadiusMM, 50, [0 0 0], diffractionEnabled);
 
 n = 40;

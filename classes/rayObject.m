@@ -142,7 +142,7 @@ classdef rayObject <  handle
                 repmat( film.resolution(1:2)./2, [size(imagePixel.position,1) 1]));   %
             %scale the position to a sensor position
             imagePixel.position(imagePixel.position < 1) = 1; %make sure pixel is in range
-            imagePixel.position = min(imagePixel.position, repmat(film.resolution(1:2), [size(imagePixel.position,1) 1]));
+            imagePixel.position = real(min(imagePixel.position, repmat(film.resolution(1:2), [size(imagePixel.position,1) 1])));
             imagePixel.wavelength = obj.wavelength;
             
             %add a value to the intersection position

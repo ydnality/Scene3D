@@ -7,7 +7,8 @@
 %  spread functions.
 %
 % AL Vistalab, 2014
-
+%% 
+s_initISET
 %% ray-tracing 
 
 % -New support: different wavelength support
@@ -26,32 +27,34 @@
 % [XGrid YGrid] = meshgrid(-15:5:15,-15:5:15);   %small distance test
 % pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distance ----ADJUST ME!!----
 
-pointSources = [ 0 0 -100];  %small distance - TURN THIS ON FOR ONLY 1
-
+% pointSources = [ 0 0 -100];  %small distance - TURN THIS ON FOR ONLY 1
+pointSources = [ 0 0 -20000];  %large distance test
 % wave = [400 550 700];  % in nm
 % wavelengthConversion = [400 3; 550 2; 700 1];
 
 %% film properties - 
-film = filmObject([], [2 2],  400:10:700, [(400:10:700)' (1:31)'], []);
-
+% film = filmObject([], [1 1],  400:10:700, [(400:10:700)' (1:31)'], []);  %small distance
+film = filmObject([0 0 50],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %% Should be a function for reading and writing lens files
 
 % declare lens that has 2 simple elements
 offset = [3, 0];
 radius = [-67 67];
-aperture = [3 3];
+aperture = [.1 10];
 n = [ 1 1.67];
 lensCenterPosition = [0 0 -1.5];  %eventually calculate this given the lens file
-lens = lensRealisticObject(offset,radius,aperture,n, 3, lensCenterPosition);
-lens.calculateApertureSample([50 50]);
+
+diffractionEnabled = true;
+% lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled)
+lens = lensRealisticObject(offset,radius,aperture,n, .1, lensCenterPosition, [], diffractionEnabled);
+lens.calculateApertureSample([30 30]);
 
 %% loop through all point sources
 vcNewGraphWin; %for illustration
 for curInd = 1:size(pointSources, 1);
     %calculate the origin and direction of the rays
-    rays = rayObject;
     %     rays.traceSourceToLens(pointSources(curInd, :), lens);
-    lens.rayTraceSourceToLens(pointSources(curInd, :), rays);
+    rays = lens.rayTraceSourceToLens(pointSources(curInd, :));
     
     %duplicate the existing rays, and creates one for each
     %wavelength
@@ -74,5 +77,13 @@ oi = initDefaultSpectrum(oi);
 oi = oiSet(oi, 'wave', film.wave);
 oi = oiSet(oi,'photons',film.image);
 vcAddAndSelectObject(oi); oiWindow;
+
+%TODO: fix oi optics FOV
+%TODO: allow for real lens aperture, not just a sampling function change
+%TODO: fix film recording action if it is out of bounds
+%TODO: try to figure out what is the deal with the non-real numbers
+%produced
+%TODO: see if we can create a more efficient aperture sampling procedure,
+%rather than sampling from the furthest most aperture
 
 %% End

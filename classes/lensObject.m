@@ -137,6 +137,9 @@ classdef lensObject <  handle
                 %calculate the distance of the intersect point to the center of the lens
                 curLensIntersectPosition = lensIntersectPosition(i, :);
                 
+                %we don't care about the z coordinate so we remove it
+                curLensIntersectPosition = curLensIntersectPosition(1:2);
+                
                 curRay.origin = rays.origin(i, :);
                 curRay.direction = rays.direction(i, :);
                 curRay.wavelength = rays.wavelength(i);
