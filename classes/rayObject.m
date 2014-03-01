@@ -130,28 +130,41 @@ classdef rayObject <  handle
         function obj = recordOnFilm(obj, film)
             %records the ray on the film
           
-            %calculate intersection point at sensor
-            intersectZ = repmat(film.position(3), [size(obj.origin, 1) 1]);
-            intersectT = (intersectZ - obj.origin(:, 3))./obj.direction(:, 3);
-            intersectPosition = obj.origin + obj.direction .* repmat(intersectT, [1 3]);
-            
-            %imagePixel is the pixel that will gain a photon due to the traced ray
-            imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
-            imagePixel.position = real(imagePixel.position); %add error handling for this
-            imagePixel.position = round(imagePixel.position * film.resolution(1)/film.size(1) + ...
-                repmat( film.resolution(1:2)./2, [size(imagePixel.position,1) 1]));   %
-            %scale the position to a sensor position
-            imagePixel.position(imagePixel.position < 1) = 1; %make sure pixel is in range
-            imagePixel.position = real(min(imagePixel.position, repmat(film.resolution(1:2), [size(imagePixel.position,1) 1])));
-            imagePixel.wavelength = obj.wavelength;
-            
-            %add a value to the intersection position
-            for i = 1:size(obj.origin , 1)
-%                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
-                wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
-                film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) =  film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
-                %illustrations for debugging
-                line([obj.origin(i, 3) intersectPosition(i, 3)] ,  [obj.origin(i, 2);  intersectPosition(i, 2)]);
+            %check if no rays - only record if there are any
+            if(~isempty(obj.origin))
+                
+                %calculate intersection point at sensor
+                intersectZ = repmat(film.position(3), [size(obj.origin, 1) 1]);
+                intersectT = (intersectZ - obj.origin(:, 3))./obj.direction(:, 3);
+                intersectPosition = obj.origin + obj.direction .* repmat(intersectT, [1 3]);
+                
+                %imagePixel is the pixel that will gain a photon due to the traced ray
+                imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
+                imagePixel.position = real(imagePixel.position); %add error handling for this
+                imagePixel.position = round(imagePixel.position * film.resolution(1)/film.size(1) + ...
+                    repmat( film.resolution(1:2)./2, [size(imagePixel.position,1) 1]));   %
+                
+                
+                %scale the position to a sensor position
+                %             imagePixel.position(imagePixel.position < 1) = 1; %make sure pixel is in range
+                %             imagePixel.position = real(min(imagePixel.position, repmat(film.resolution(1:2), [size(imagePixel.position,1) 1])));
+                
+                imagePixel.wavelength = obj.wavelength;
+                
+                %add a value to the intersection position
+                for i = 1:size(obj.origin , 1)
+                    %                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
+                    wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
+                    
+                    %check bounds - if out of bounds, do not display on film
+                    if (wantedPixel(1) >= 1 && wantedPixel(1) <= film.resolution(1) && wantedPixel(2) > 1 && wantedPixel(2) <= film.resolution(2))
+                        film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) =  film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
+                    end
+                    
+                    %illustrations for debugging (out of bounds rays will
+                    %still be displayed)
+                    line(real([obj.origin(i, 3) intersectPosition(i, 3)]) ,  real([obj.origin(i, 2);  intersectPosition(i, 2)]));
+                end
             end
         end
         

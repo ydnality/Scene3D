@@ -20,6 +20,7 @@ classdef lensObject <  handle
     
     properties
         apertureRadius;
+        firstApertureRadius;
         apertureSample;
         focalLength;
         centerPosition;
@@ -53,7 +54,7 @@ classdef lensObject <  handle
             else                           obj.diffractionEnabled = diffractionEnabled;
             end
             
-            obj.calculateApertureSample();
+%             obj.calculateApertureSample();
         end
         
         
@@ -86,8 +87,8 @@ classdef lensObject <  handle
             apertureMask = (X.^2 + Y.^2) <= 1;
             % vcNewGraphWin;  mesh(double(apertureMask))
 
-            obj.apertureSample.X = X(apertureMask) .* obj.apertureRadius;
-            obj.apertureSample.Y = Y(apertureMask) .* obj.apertureRadius;
+            obj.apertureSample.X = X(apertureMask) .* obj.firstApertureRadius;
+            obj.apertureSample.Y = Y(apertureMask) .* obj.firstApertureRadius;
             
             %             vcNewGraphWin;
             %             plot(obj.apertureSample.X(:),obj.apertureSample.Y(:),'o');
@@ -147,10 +148,19 @@ classdef lensObject <  handle
                 ipLength = norm(curLensIntersectPosition);
                 
                 %calculate directionS and orthogonal directionL
+                
                 directionS = [curLensIntersectPosition(1) curLensIntersectPosition(2) 0];
                 directionL = [-curLensIntersectPosition(2) curLensIntersectPosition(1) 0];
-                directionS = directionS./norm(directionS);
-                directionL = directionL./norm(directionL);
+                
+                if (norm(directionS)~= 0)
+                    directionS = directionS./norm(directionS);
+                    directionL = directionL./norm(directionL);
+                else
+                    %this is the case that the ray hits the absolute center
+                    %Then, there is a special case to avoid division by 0
+                    directionS = [1 0 0];
+                    directionL = [0 1 0];
+                end
                 
                 pointToEdgeS = curApertureRadius - ipLength;   %this is 'a' from paper  //pointToEdgeS stands for point to edge short
                 pointToEdgeL = sqrt((curApertureRadius* curApertureRadius) - ipLength * ipLength);  %pointToEdgeS stands for point to edge long

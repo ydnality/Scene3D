@@ -28,26 +28,29 @@ s_initISET
 % and pointing towards -z.  We are using a right-handed coordinate system.
 
 % [XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
-% pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
-pointSources = [0 0 -20000];
+[XGrid YGrid] = meshgrid(-2000:1000:2000,-2000:1000:2000);
+pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
+% pointSources = [0 0 -20000];
 
 
 %% camera and film properties 
 
 % Build a sensor (film) object
 % Position, size,  wave, waveConversion, resolution
-film = filmObject([0 0 50],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   
+film = filmObject([0 0 50],[7 7], 400:10:700, [(400:10:700)' (1:31)'], []);   
 
 diffractionEnabled = true;
 % lensObject('ideal')
 apertureRadiusMM = .1;  
 lens = lensIdealObject(apertureRadiusMM, 50, [0 0 0], diffractionEnabled);
 
-n = 40;
+n = 5;
 lens.calculateApertureSample([n n]);
 
 %% loop through all point sources
-vcNewGraphWin; 
+vcNewGraphWin;  %vcNewGraphWin causes a matlab seg fault, so using figure
+% for now
+% figure;
 
 for curInd = 1:size(pointSources, 1);
     

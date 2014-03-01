@@ -38,16 +38,16 @@ film = filmObject([0 0 50],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %l
 %% Should be a function for reading and writing lens files
 
 % declare lens that has 2 simple elements
-offset = [3, 0];
-radius = [-67 67];
-aperture = [.1 10];
-n = [ 1 1.67];
+offset = [1.5 1.5 0];
+radius = [-67 0 67];
+aperture = [5 1 5];
+n = [ 1 0 1.67];
 lensCenterPosition = [0 0 -1.5];  %eventually calculate this given the lens file
 
 diffractionEnabled = true;
 % lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled)
-lens = lensRealisticObject(offset,radius,aperture,n, .1, lensCenterPosition, [], diffractionEnabled);
-lens.calculateApertureSample([30 30]);
+lens = lensRealisticObject(offset,radius,aperture,n, .1, 50, lensCenterPosition, diffractionEnabled);
+lens.calculateApertureSample([31 31]);
 
 %% loop through all point sources
 vcNewGraphWin; %for illustration
@@ -76,14 +76,29 @@ oi = oiCreate;
 oi = initDefaultSpectrum(oi);
 oi = oiSet(oi, 'wave', film.wave);
 oi = oiSet(oi,'photons',film.image);
+
+
+optics = oiGet(oi,'optics');
+optics = opticsSet(optics,'focal length',lens.focalLength/1000);
+optics = opticsSet(optics,'fnumber', lens.focalLength/(2*1));
+oi = oiSet(oi,'optics',optics);
+hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
+oi = oiSet(oi,'hfov', hfov);
+
 vcAddAndSelectObject(oi); oiWindow;
 
-%TODO: fix oi optics FOV
+
 %TODO: allow for real lens aperture, not just a sampling function change
-%TODO: fix film recording action if it is out of bounds
-%TODO: try to figure out what is the deal with the non-real numbers
-%produced
+%(make rays terminate when they hit the black section of aperture
+
+%TODO: vectorize rays
 %TODO: see if we can create a more efficient aperture sampling procedure,
 %rather than sampling from the furthest most aperture
+
+%TODO: fix film recording action if it is out of bounds    v
+%TODO: try to figure out what is the deal with the non-real numbers
+%produced
+
+
 
 %% End

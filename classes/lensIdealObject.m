@@ -51,6 +51,7 @@ classdef lensIdealObject <  lensObject
             else                           obj.diffractionEnabled = diffractionEnabled;
             end 
             
+            obj.firstApertureRadius = obj.apertureRadius;
             obj.calculateApertureSample();
         end
 
@@ -94,7 +95,7 @@ classdef lensIdealObject <  lensObject
             
             % diffraction HURB calculation
             if (obj.diffractionEnabled)
-                obj.rayTraceHURB(rays, lensIntersectPosition, obj.apertureRadius)
+                obj.rayTraceHURB(rays, lensIntersectPosition, obj.apertureRadius);
             end
             %---------------- lens refraction code  -----
             

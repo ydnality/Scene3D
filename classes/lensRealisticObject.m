@@ -91,6 +91,8 @@ classdef lensRealisticObject <  lensObject
                 obj.elementArray(i) = lensElementObject(elOffset(i), elRadius(i), elAperture(i), elN(i));
             end
             
+            obj.firstApertureRadius = obj.elementArray(1).aperture;
+            
             obj.computeCenters();
             obj.calculateApertureSample();
         end
@@ -169,76 +171,133 @@ classdef lensRealisticObject <  lensObject
                 line(zPlot(withinRange), yPlot(withinRange));
                 line(zPlot(withinRange), yPlotN(withinRange));
                 
-                %vectorize this operation later
-                for i = 1:size(rays.origin, 1)
+                %ray trace through a single element
+                %TODO: vectorize this operation later
+                
+%                 newRays = rayObject(rays.origin, rays.direction, rays.wavelength);
+                i = 1;
+                while(i <= length(rays.origin))
                     %get the current ray
                     
                     ray = rayObject(rays.origin(i,:), rays.direction(i,:), rays.wavelength(i));
+                    
+                    if (isnan(ray.direction))
+                        disp('nan value');
+                     end
 %                     ray.direction = rays.direction(i,:);   %TODO: replace with real ray object
 %                     ray.origin = rays.origin(i,:);
 %                     ray.wavelength = rays.wavelength(i);
                     
-                    %calculate intersection with spherical lens element
-                    radicand = dot(ray.direction, ray.origin - curEl.sphereCenter)^2 - ...
-                        ( dot(ray.origin -curEl.sphereCenter, ray.origin -curEl.sphereCenter)) + curEl.radius^2;
-                    if (curEl.radius < 0)
-                        intersectT = (-dot(ray.direction, ray.origin - curEl.sphereCenter) + sqrt(radicand));
+                    %calculate intersection with lens element -
+                    %TODO: maybe put in function?
+                    if (curEl.radius ~= 0) %only do this for actual spherical elements, 
+                        radicand = dot(ray.direction, ray.origin - curEl.sphereCenter)^2 - ...
+                            ( dot(ray.origin -curEl.sphereCenter, ray.origin -curEl.sphereCenter)) + curEl.radius^2;
+                        if (curEl.radius < 0)
+                            intersectT = (-dot(ray.direction, ray.origin - curEl.sphereCenter) + sqrt(radicand));
+                        else
+                            intersectT = (-dot(ray.direction, ray.origin - curEl.sphereCenter) - sqrt(radicand));
+                        end
+                        
+                        %make sure that T is > 0
+                        if (intersectT < 0)
+                            disp('Warning: intersectT less than 0.  Something went wrong here...');
+                        end
+                        
+                        intersectPosition = ray.origin + intersectT * ray.direction;
+                        
+                        %illustrations for debugging
+                        %                     lensIllustration(max(round(intersectPosition(2) * 100 + 150),1), max(-round(intersectPosition(3) * 1000), 1)) = 1;  %show a lens illustration
+                        hold on;
+                        %TODO: potential problem with non-real answers here
+                        line(real([ray.origin(3) intersectPosition(3) ]), real([ray.origin(2) intersectPosition(2)]) ,'Color','b','LineWidth',1);
+                        
+                        if (isnan(intersectPosition))
+                            disp('nan value');
+                        end
+                    else       
+                        %plane intersection with lens aperture - TODO: maybe put
+                        %in function?
+                        intersectZ = curEl.sphereCenter(3); %assumes that aperture is perfectly perpendicular with optical axis
+                        intersectT = (intersectZ - ray.origin(:, 3))./ray.direction(:, 3);
+                        intersectPosition = ray.origin + ray.direction * intersectT;
+                        
+                        if (isnan(intersectPosition))
+                            disp('nan value');
+                        end
+                    end
+                    
+                    
+                    %check for bounds within aperture, 
+                    if(intersectPosition(1)^2 + intersectPosition(2)^2 > curEl.aperture^2)
+%                         ray.origin = [];  %not in bounds - remove
+%                         ray.direction = [];
+%                         ray.wavelength = [];
+                        %not in bounds - remove
+                        rays.origin(i, : ) = [];
+                        rays.direction(i, : ) = [];
+                        rays.wavelength(i) = [];
                     else
-                        intersectT = (-dot(ray.direction, ray.origin - curEl.sphereCenter) - sqrt(radicand));
+                        if(curEl.radius ~= 0) %only perform Snell's law if not the lens aperture
+                        
+                            %in bounds case - perform vector snell's law
+                            normalVec = intersectPosition - curEl.sphereCenter;  %does the polarity of this vector matter? YES
+                            normalVec = normalVec./norm(normalVec);
+                            
+                            if (curEl.radius < 0)  %which is the correct sign convention? This is correct
+                                normalVec = -normalVec;
+                            end
+                            
+                            %modify the index of refraction depending on wavelength
+                            %TODO: have this be one of the input parameters (N vs. wavelength)
+                            if (curEl.n ~= 1)
+                                curN = (ray.wavelength - 550) * -.04/(300) + curEl.n;
+                            else
+                                curN = 1;
+                            end
+                            ratio = prevN/curN;    %snell's law index of refraction
+                            
+                            %Vector form of Snell's Law
+                            c = -dot(normalVec, ray.direction);
+                            newVec = ratio *ray.direction + (ratio*c -sqrt(1 - ratio^2 * (1 - c^2)))  * normalVec;
+                            newVec = newVec./norm(newVec); %normalize
+                            
+                            %update the direction of the ray
+                            ray.origin = intersectPosition;
+                            ray.direction = newVec;
+                            
+                            if (isnan(ray.direction))
+                              disp('nan value');  
+                            end
+                        end
+                        
+                        
+                        
+                        
+                        %                     tempRay = rayObject(rays.origin(i, : ) , rays.direction(i, : ), rays.wavelength(i));
+                        % diffraction HURB calculation
+                        if (obj.diffractionEnabled)
+                            obj.rayTraceHURB(ray, intersectPosition, curEl.aperture);
+                            if (isnan(ray.direction))
+                              disp('nan value');  
+                            end
+                        end
+                        
+                        rays.origin(i, : ) = ray.origin;
+                        rays.direction(i, : ) = ray.direction;
+                        rays.wavelength(i) = ray.wavelength;
+                        i = i +1;
                     end
-                    
-                    %make sure that T is > 0
-                    if (intersectT < 0)
-                        disp('Warning: intersectT less than 0.  Something went wrong here...');
-                    end
-                    
-                    intersectPosition = ray.origin + intersectT * ray.direction;
-                    
-                    %illustrations for debugging
-%                     lensIllustration(max(round(intersectPosition(2) * 100 + 150),1), max(-round(intersectPosition(3) * 1000), 1)) = 1;  %show a lens illustration
-                    hold on;
-                    line([ray.origin(3) intersectPosition(3) ], [ray.origin(2) intersectPosition(2)] ,'Color','b','LineWidth',1);
-                    
-                    normalVec = intersectPosition - curEl.sphereCenter;  %does the polarity of this vector matter? YES
-                    normalVec = normalVec./norm(normalVec);
-                    
-                    if (curEl.radius < 0)  %which is the correct sign convention? This is correct
-                        normalVec = -normalVec;
-                    end
-                    
-                    %modify the index of refraction depending on wavelength
-                    %TODO: have this be one of the input parameters (N vs. wavelength)
-                    if (curEl.n ~= 1)
-                        curN = (ray.wavelength - 550) * -.04/(300) + curEl.n;
-                    else
-                        curN = 1;
-                    end
-                    
-
-                    ratio = prevN/curN;    %snell's law index of refraction
-                    
-                    %Vector form of Snell's Law
-                    c = -dot(normalVec, ray.direction);
-                    newVec = ratio *ray.direction + (ratio*c -sqrt(1 - ratio^2 * (1 - c^2)))  * normalVec;
-                    newVec = newVec./norm(newVec); %normalize
-                    
-                    %update the direction of the ray
-                    ray.origin = intersectPosition;
-                    ray.direction = newVec;
-                    
-%                     tempRay = rayObject(rays.origin(i, : ) , rays.direction(i, : ), rays.wavelength(i));
-                    % diffraction HURB calculation
-                    if (obj.diffractionEnabled)
-                        obj.rayTraceHURB(ray, intersectPosition, curEl.aperture);
-                    end
-                    
-                    %update the direction of the ray
-                    rays.origin(i, : ) = ray.origin;
-                    rays.direction(i, : ) = ray.direction;                    
-                    
+       
                 end
-                prevN = curN;
                 
+                %remove dead rays
+%                 rays.origin(rays.origin == -999) = [];
+%                 rays.direction(rays.direction == -999) = [];
+%                 rays.wavelength(rays.wavelength == -999) = [];
+                
+                %iterate index of refraction and previous z 
+                prevN = curN;
                 prevSurfaceZ = prevSurfaceZ + curEl.offset;
             end
         end     
