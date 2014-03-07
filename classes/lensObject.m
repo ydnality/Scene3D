@@ -128,7 +128,7 @@ classdef lensObject <  handle
         end
                       
 
-        function obj = rayTraceHURB(obj, rays, lensIntersectPosition, curApertureRadius)
+        function obj = rayTraceHURBNonVectorized(obj, rays, lensIntersectPosition, curApertureRadius)
             %Performs the Heisenburg Uncertainty Ray Bending method on the rays, given
             %a circular aperture radius, and lens intersection position
             %This function accepts both vector forms of inputs, or individual inputs
@@ -206,6 +206,100 @@ classdef lensObject <  handle
                 rays.wavelength(i,:) = curRay.wavelength;
             end
         end
+        
+        function obj = rayTraceHURB(obj, rays, lensIntersectPosition, curApertureRadius)
+            %Performs the Heisenburg Uncertainty Ray Bending method on the rays, given
+            %a circular aperture radius, and lens intersection position
+            %This function accepts both vector forms of inputs, or individual inputs
+            
+            %potentially vectorize later for speed
+%             for i = 1:size(rays.direction, 1)
+                %calculate the distance of the intersect point to the center of the lens
+                
+%                 curLensIntersectPosition = lensIntersectPosition(i, :);
+                
+                %we don't care about the z coordinate so we remove it
+%                 curLensIntersectPosition = curLensIntersectPosition(1:2);
+                
+%                 curRay.origin = rays.origin(i, :);
+%                 curRay.direction = rays.direction(i, :);
+%                 curRay.wavelength = rays.wavelength(i);
+                
+                ipLength = sqrt(sum(dot(lensIntersectPosition(:, (1:2)), lensIntersectPosition(:, (1:2)), 2), 2));
+                
+                %calculate directionS and orthogonal directionL
+                
+                directionS = [lensIntersectPosition(:, 1) lensIntersectPosition(:,2) zeros(length(lensIntersectPosition), 1)];
+                directionL = [-lensIntersectPosition(:,2) lensIntersectPosition(:,1) zeros(length(lensIntersectPosition), 1)];
+                
+                
+                
+                normS = repmat(sqrt(sum(dot(directionS, directionS, 2), 2)), [1 3]);
+                normL = repmat(sqrt(sum(dot(directionL, directionL, 2), 2)), [1 3]);
+                divideByZero = sum(normS,2) ==0;
+                
+                
+                directionS(~divideByZero, :) = directionS(~divideByZero, :)./normS(~divideByZero, :);
+                directionL(~divideByZero, :) = directionL(~divideByZero, :)./normL(~divideByZero, :);
+                directionS(divideByZero, :) = [ones(sum(divideByZero == 1), 1) zeros(sum(divideByZero == 1), 2)];
+                directionL(divideByZero, :) = [zeros(sum(divideByZero == 1), 1) ones(sum(divideByZero == 1), 1) zeros(sum(divideByZero == 1), 1)];
+                
+%                 if (norm(directionS)~= 0)
+%                     directionS = directionS./norm(directionS);
+%                     directionL = directionL./norm(directionL);
+%                 else
+%                     %this is the case that the ray hits the absolute center
+%                     %Then, there is a special case to avoid division by 0
+%                     directionS = [1 0 0];
+%                     directionL = [0 1 0];
+%                 end
+                
+                pointToEdgeS = curApertureRadius - ipLength;   %this is 'a' from paper  //pointToEdgeS stands for point to edge short
+                pointToEdgeL = sqrt((curApertureRadius* curApertureRadius) - ipLength .* ipLength);  %pointToEdgeS stands for point to edge long
+                
+                lambda = rays.wavelength * 1e-9;  %this converts lambda to meters
+                sigmaS = atan(1./(2 * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m
+                sigmaL = atan(1./(2 * pointToEdgeL * .001 * 2 * pi./lambda));
+                
+                %this function regenerates a 2D gaussian sample and
+                %returns it randOut
+                %gsl_ran_bivariate_gaussian (r, sigmaS, sigmaL, 0, noiseSPointer, noiseLPointer);    %experiment for now
+                [randOut] = randn(length(sigmaS),2) .* [sigmaS sigmaL];
+                
+                %calculate component of these vectors based on 2 random degrees
+                %assign noise in the s and l directions according to data at these pointers
+                noiseS = randOut(:,1);
+                noiseL = randOut(:,2);
+                
+                %project the original ray (in world coordinates) onto a new set of basis vectors in the s and l directions
+                projS = (rays.direction(: , 1) .* directionS(: ,1) + rays.direction(: , 2) .* directionS(:,2))./sqrt(directionS(:,1) .* directionS(:,1) + directionS(:,2) .* directionS(:,2));
+                projL = (rays.direction(: , 1) .* directionL(:, 1) + rays.direction(: , 2 ) .* directionL(:,2))./sqrt(directionL(:,1) .* directionL(:,1) + directionL(:,2) .* directionL(:,2));
+                thetaA = atan(projS./rays.direction(: , 3));   %azimuth - this corresponds to sigmaS
+                thetaE = atan(projL./sqrt(projS.*projS + rays.direction(:, 3).* rays.direction(: , 3)));   %elevation - this corresponds to sigmaL
+                
+                %add uncertainty
+                thetaA = thetaA + noiseS;
+                thetaE = thetaE + noiseL;
+                
+                %convert angles back into cartesian coordinates, but in s,l space
+                newprojL = sin(thetaE);
+                smallH = cos(thetaE);   %smallH corresponds to the projection of the ray onto the s-z plane
+                newprojS = smallH .* sin(thetaA);
+                rays.direction(:, 3) = smallH .* cos(thetaA);
+                
+                %convert from s-l space back to x-y space
+                rays.direction(:, 1) = (directionS(:, 1) .* newprojS + directionL(:, 1) .* newprojL)./sqrt(directionS(:,1) .* directionS(:,1) + directionL(:,1) .* directionL(:,1));
+                rays.direction(:, 2) = (directionS(:, 2) .* newprojS + directionL(:, 2) .* newprojL)./sqrt(directionS(:,2) .* directionS(:,2) + directionL(:,2) .* directionL(:,2));
+                normDirection = repmat(sqrt(sum(dot(rays.direction, rays.direction, 2),2)), [1 3]);
+                rays.direction = rays.direction./normDirection;
+                
+                %reassign ray
+%                 rays.origin(i,:) = curRay.origin;
+%                 rays.direction(i, :) = curRay.direction;
+%                 rays.wavelength(i,:) = curRay.wavelength;
+%             end
+        end
+        
     end
     
 end

@@ -143,14 +143,37 @@ classdef rayObject <  handle
                 imagePixel.position = real(imagePixel.position); %add error handling for this
                 imagePixel.position = round(imagePixel.position * film.resolution(1)/film.size(1) + ...
                     repmat( film.resolution(1:2)./2, [size(imagePixel.position,1) 1]));   %
-                
-                
+               
                 %scale the position to a sensor position
                 %             imagePixel.position(imagePixel.position < 1) = 1; %make sure pixel is in range
                 %             imagePixel.position = real(min(imagePixel.position, repmat(film.resolution(1:2), [size(imagePixel.position,1) 1])));
                 
                 imagePixel.wavelength = obj.wavelength;
                 
+                
+                %attempted vectorized version - runs out of memory
+%                 
+%                 %todo - somehow fix this
+%                 convertChannel = uint8((imagePixel.wavelength - 400)/10 + 1);
+%                 
+%                 wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];  %pixel to update
+%                 
+%                 recordablePixels =and(and(and(wantedPixel(:, 1) >= 1,  wantedPixel(:,1) <= film.resolution(1)), (wantedPixel(:, 2) > 1)), wantedPixel(:, 2) <= film.resolution(2));
+%                 
+%                 %remove the nonrecordablePixels
+%                 wantedPixel = wantedPixel(recordablePixels, :);
+%                 
+%                 
+%                 film.image(wantedPixel(:, 1), wantedPixel(:, 2), wantedPixel(:, 3)) =  film.image(wantedPixel(:, 1), wantedPixel(:, 2), wantedPixel(:, 3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
+
+%                 for i = 1:10:size(obj.origin , 1)
+%                     %illustrations for debugging (out of bounds rays will
+%                     %still be displayed)
+%                     line(real([obj.origin(i, 3) intersectPosition(i, 3)]) ,  real([obj.origin(i, 2);  intersectPosition(i, 2)]));
+%                 end
+
+                
+                %non-vectorized
                 %add a value to the intersection position
                 for i = 1:size(obj.origin , 1)
                     %                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update

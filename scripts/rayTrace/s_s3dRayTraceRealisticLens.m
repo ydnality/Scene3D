@@ -34,23 +34,25 @@ pointSources = [ 0 0 -20000];  %large distance test
 
 %% film properties - 
 % film = filmObject([], [1 1],  400:10:700, [(400:10:700)' (1:31)'], []);  %small distance
-film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 % film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+% film = filmObject([0 0 55],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+
+film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %% Should be a function for reading and writing lens files
 
 % declare lens that has 2 simple elements
 offset = [1.5 1.5 0];
 radius = [-67 0 67];
-aperture = [5 .5 .5];
+aperture = [5 1 4];
 % aperture = [5 .5 1];
 
 n = [ 1 0 1.67];
 lensCenterPosition = [0 0 -1.5];  %eventually calculate this given the lens file
 
-diffractionEnabled = false;
+diffractionEnabled = true;
 % lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled)
 lens = lensRealisticObject(offset,radius,aperture,n, .1, 50, lensCenterPosition, diffractionEnabled);
-lens.calculateApertureSample([11 11]);
+lens.calculateApertureSample([501 501]);
 
 %% loop through all point sources
 vcNewGraphWin; %for illustration
