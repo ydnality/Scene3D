@@ -145,35 +145,75 @@ classdef lensRealisticObject <  lensObject
 %         end
 
 
+        function obj =  drawLens(obj)
+        %draws the illustration of the lens on a figure
+        
+            vcNewGraphWin;
+            prevSurfaceZ = -obj.totalOffset;
+            prevAperture = 1;
+
+            for lensEl = obj.numEls:-1:1
+                curEl = obj.elementArray(lensEl);
+
+                %illustrations for debug
+                if (curEl.radius ~=0)
+                    %draw arcs if radius is nonzero
+                    zPlot = linspace(curEl.sphereCenter(3) - curEl.radius, curEl.sphereCenter(3) + curEl.radius, 10000);
+                    yPlot = sqrt(curEl.radius^2 - (zPlot - curEl.sphereCenter(3)) .^2);
+                    yPlotN = -sqrt(curEl.radius^2 - (zPlot - curEl.sphereCenter(3)) .^2);
+                    arcZone = 5;
+                    %TODO:find a better way to plot the arcs later - this one is prone to potential problem
+                    withinRange = and(and((yPlot < curEl.aperture),(zPlot < prevSurfaceZ + curEl.offset + arcZone)), (zPlot > prevSurfaceZ + curEl.offset - arcZone));
+                    line(zPlot(withinRange), yPlot(withinRange));
+                    line(zPlot(withinRange), yPlotN(withinRange));
+                else
+                    %draw the main aperture opening if radius = 0
+                    line(curEl.sphereCenter(3) * ones(2,1), [-prevAperture -curEl.aperture]);
+                    line(curEl.sphereCenter(3) * ones(2,1), [curEl.aperture prevAperture]);
+                end
+                
+                prevAperture = curEl.aperture;
+                prevSurfaceZ = prevSurfaceZ + curEl.offset;                
+                
+            end
+        end
+
+
         function obj =  rayTraceThroughLens(obj, rays)
         %performs ray-trace of the lens, given an input bundle or rays
         %outputs the rays that have been refracted by the lens
         %TODO: consdier moving this to the lens
-        
-            %initialize newRays to be the old ray.  We will update it later.
-%             newRays = rays;
-            
+
             prevSurfaceZ = -obj.totalOffset;
             prevN = 1;
+            
+            obj.drawLens();
+            
 %             
 %             prevN = ones(length(rays.origin), 1);  %assume that we start off in air
 %             
             for lensEl = obj.numEls:-1:1
                 curEl = obj.elementArray(lensEl);
-%                 curEl.center = [0 0 prevSurfaceZ + curEl.offset + curEl.radius];
+
+%                 %illustrations for debug
+%                 if (curEl.radius ~=0)
+%                     %draw arcs if radius is nonzero
+%                     zPlot = linspace(curEl.sphereCenter(3) - curEl.radius, curEl.sphereCenter(3) + curEl.radius, 10000);
+%                     yPlot = sqrt(curEl.radius^2 - (zPlot - curEl.sphereCenter(3)) .^2);
+%                     yPlotN = -sqrt(curEl.radius^2 - (zPlot - curEl.sphereCenter(3)) .^2);
+%                     arcZone = 5;
+%                     %TODO:find a better way to plot the arcs later - this one is prone to potential problem
+%                     withinRange = and(and((yPlot < curEl.aperture),(zPlot < prevSurfaceZ + curEl.offset + arcZone)), (zPlot > prevSurfaceZ + curEl.offset - arcZone));
+%                     line(zPlot(withinRange), yPlot(withinRange));
+%                     line(zPlot(withinRange), yPlotN(withinRange));
+%                 else
+%                     %draw the main aperture opening if radius = 0 
+%                     line(curEl.sphereCenter(3) * ones(2,1), [-prevAperture -curEl.aperture]);
+%                     line(curEl.sphereCenter(3) * ones(2,1), [curEl.aperture prevAperture]);
+%                 end
                 
-                %illustrations for debug
-                zPlot = linspace(curEl.sphereCenter(3) - curEl.radius, curEl.sphereCenter(3) + curEl.radius, 10000);
-                yPlot = sqrt(curEl.radius^2 - (zPlot - curEl.sphereCenter(3)) .^2);
-                yPlotN = -sqrt(curEl.radius^2 - (zPlot - curEl.sphereCenter(3)) .^2);
-                arcZone = 5;
-                %TODO:find a better way to plot the arcs later - this one is prone to potential problem
-                withinRange = and(and((yPlot < curEl.aperture),(zPlot < prevSurfaceZ + curEl.offset + arcZone)), (zPlot > prevSurfaceZ + curEl.offset - arcZone));
-                line(zPlot(withinRange), yPlot(withinRange));
-                line(zPlot(withinRange), yPlotN(withinRange));
                 
-                
-%  ----vectorized               
+                %  ----vectorized               
                 
                 %ray trace through a single element
                 %TODO: vectorize this operation later
@@ -191,22 +231,24 @@ classdef lensRealisticObject <  lensObject
                     end
 
                     %make sure that T is > 0
-%                         if (intersectT < 0)
-%                             disp('Warning: intersectT less than 0.  Something went wrong here...');
-%                         end
+                    %                         if (intersectT < 0)
+                    %                             disp('Warning: intersectT less than 0.  Something went wrong here...');
+                    %                         end
 
                     repIntersectT = repmat(intersectT, [1 3]);
                     intersectPosition = rays.origin + repIntersectT .* rays.direction;
 
-%                         %illustrations for debugging
-%                         %                     lensIllustration(max(round(intersectPosition(2) * 100 + 150),1), max(-round(intersectPosition(3) * 1000), 1)) = 1;  %show a lens illustration
-%                         hold on;
-%                         %TODO: potential problem with non-real answers here
-%                         line(real([ray.origin(3) intersectPosition(3) ]), real([ray.origin(2) intersectPosition(2)]) ,'Color','b','LineWidth',1);
-%                         
-%                         if (isnan(intersectPosition))
-%                             disp('nan value');
-%                         end
+                    %illustrations for debugging
+                    xCoordVector = [rays.origin(:,3) intersectPosition(:,3) repmat(NaN, [length(rays.origin) 1])]';
+                    yCoordVector = [rays.origin(:,2) intersectPosition(:,2) repmat(NaN, [length(rays.origin) 1])]';
+                    xCoordVector = real(xCoordVector(:));
+                    yCoordVector = real(yCoordVector(:));
+                    line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
+                    
+                        
+                    %                         if (isnan(intersectPosition))
+                    %                             disp('nan value');
+                    %                         end
                 else       
                     %plane intersection with lens aperture - TODO: maybe put
                     %in function?
@@ -215,9 +257,9 @@ classdef lensRealisticObject <  lensObject
                     repIntersectT = repmat(intersectT, [1 3]);
                     intersectPosition = rays.origin + rays.direction .* repIntersectT;
 
-%                         if (isnan(intersectPosition))
-%                             disp('nan value');
-%                         end
+                    %                         if (isnan(intersectPosition))
+                    %                             disp('nan value');
+                    %                         end
                 end
 
                 % remove rays that land outside of the aperture
@@ -259,23 +301,17 @@ classdef lensRealisticObject <  lensObject
                     rays.origin = intersectPosition;
                     rays.direction = newVec;
 
-%                         if (isnan(ray.direction))
-%                           disp('nan value');  
-%                         end
+                    %                         if (isnan(ray.direction))
+                    %                           disp('nan value');  
+                    %                         end
                 end
 
                 %HURB diffraction
                 if (obj.diffractionEnabled)
                     obj.rayTraceHURB(rays, intersectPosition, curEl.aperture);
-%                         obj.rayTraceHURBNonVectorized(rays, intersectPosition, curEl.aperture);
                 end
 
-                
-                %remove dead rays
-%                 rays.origin(rays.origin == -999) = [];
-%                 rays.direction(rays.direction == -999) = [];
-%                 rays.wavelength(rays.wavelength == -999) = [];
-                
+
                 %iterate index of refraction and previous z 
                 prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture
                 prevSurfaceZ = prevSurfaceZ + curEl.offset;
@@ -313,98 +349,7 @@ classdef lensRealisticObject <  lensObject
                 withinRange = and(and((yPlot < curEl.aperture),(zPlot < prevSurfaceZ + curEl.offset + arcZone)), (zPlot > prevSurfaceZ + curEl.offset - arcZone));
                 line(zPlot(withinRange), yPlot(withinRange));
                 line(zPlot(withinRange), yPlotN(withinRange));
-                
-                
-% %  ----vectorized               
-%                 
-%                 %ray trace through a single element
-%                 %TODO: vectorize this operation later
-%                 %calculate intersection with lens element -
-%                     %TODO: maybe put in function?
-%                     if (curEl.radius ~= 0) %only do this for actual spherical elements, 
-%                         
-%                         repCenter = repmat(curEl.sphereCenter, [length(rays.origin) 1]);
-%                         repRadius = repmat(curEl.radius, [length(rays.origin) 1]);
-%                         radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
-%                             ( dot(rays.origin - repCenter, rays.origin -repCenter, 2)) + repRadius.^2;
-%                         if (curEl.radius < 0)
-%                             intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) + sqrt(radicand));
-%                         else
-%                             intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) - sqrt(radicand));
-%                         end
-%                         
-%                         %make sure that T is > 0
-% %                         if (intersectT < 0)
-% %                             disp('Warning: intersectT less than 0.  Something went wrong here...');
-% %                         end
-%                         
-%                         repIntersectT = repmat(intersectT, [1 3]);
-%                         intersectPosition = rays.origin + repIntersectT .* rays.direction;
-%                         
-% %                         %illustrations for debugging
-% %                         %                     lensIllustration(max(round(intersectPosition(2) * 100 + 150),1), max(-round(intersectPosition(3) * 1000), 1)) = 1;  %show a lens illustration
-% %                         hold on;
-% %                         %TODO: potential problem with non-real answers here
-% %                         line(real([ray.origin(3) intersectPosition(3) ]), real([ray.origin(2) intersectPosition(2)]) ,'Color','b','LineWidth',1);
-% %                         
-% %                         if (isnan(intersectPosition))
-% %                             disp('nan value');
-% %                         end
-%                     else       
-%                         %plane intersection with lens aperture - TODO: maybe put
-%                         %in function?
-%                         intersectZ = repmat(curEl.sphereCenter(3), [length(rays.origin) 1]); %assumes that aperture is perfectly perpendicular with optical axis
-%                         intersectT = (intersectZ - rays.origin(:, 3))./rays.direction(:, 3);
-%                         repIntersectT = repmat(intersectT, [1 3]);
-%                         intersectPosition = rays.origin + rays.direction .* repIntersectT;
-%                         
-% %                         if (isnan(intersectPosition))
-% %                             disp('nan value');
-% %                         end
-%                     end
-%                     
-%                     % put aperture stuff in later... 
-%                     
-%                     if(curEl.radius ~= 0) %only perform Snell's law if not the lens aperture
-% 
-%                         %in bounds case - perform vector snell's law
-%                         repCenter = repmat(curEl.sphereCenter, [length(rays.origin) 1]);
-%                         normalVec = intersectPosition - repCenter;  %does the polarity of this vector matter? YES
-%                         normalVec = normalVec./repmat(sqrt(sum(normalVec.*normalVec, 2)),[1 3]); %normalizes each row 
-% 
-%                         if (curEl.radius < 0)  %which is the correct sign convention? This is correct
-%                             normalVec = -normalVec;
-%                         end
-% 
-%                         %modify the index of refraction depending on wavelength
-%                         %TODO: have this be one of the input parameters (N vs. wavelength)
-%                         if (curEl.n ~= 1)
-%                             curN = (rays.wavelength - 550) * -.04/(300) + curEl.n;
-%                         else
-%                             curN = ones(length(rays.wavelength), 1);
-%                         end
-%                         ratio = prevN./curN;    %snell's law index of refraction
-% 
-%                         %Vector form of Snell's Law
-%                         c = -dot(normalVec, rays.direction, 2);
-%                         repRatio = repmat(ratio, [1 3]);
-%                         newVec = repRatio .* rays.direction + repmat((ratio.*c -sqrt(1 - ratio.^2 .* (1 - c.^2))), [1 3])  .* normalVec;
-%                         newVec = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
-% 
-%                         %update the direction of the ray
-%                         rays.origin = intersectPosition;
-%                         rays.direction = newVec;
-% 
-% %                         if (isnan(ray.direction))
-% %                           disp('nan value');  
-% %                         end
-%                     end
-%                     
-%                     
-% %  -- end vectorized                   
-%                     
-%                     
-%                     
+
 %                   -nonvectorized loop ----   
                 
                 

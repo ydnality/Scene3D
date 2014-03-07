@@ -36,8 +36,8 @@ pointSources = [ 0 0 -20000];  %large distance test
 % film = filmObject([], [1 1],  400:10:700, [(400:10:700)' (1:31)'], []);  %small distance
 % film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 % film = filmObject([0 0 55],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-
 film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+
 %% Should be a function for reading and writing lens files
 
 % declare lens that has 2 simple elements
@@ -52,10 +52,10 @@ lensCenterPosition = [0 0 -1.5];  %eventually calculate this given the lens file
 diffractionEnabled = true;
 % lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled)
 lens = lensRealisticObject(offset,radius,aperture,n, .1, 50, lensCenterPosition, diffractionEnabled);
-lens.calculateApertureSample([501 501]);
+lens.calculateApertureSample([21 21]);
 
 %% loop through all point sources
-vcNewGraphWin; %for illustration
+% vcNewGraphWin; %for illustration
 for curInd = 1:size(pointSources, 1);
     %calculate the origin and direction of the rays
     %     rays.traceSourceToLens(pointSources(curInd, :), lens);
@@ -93,17 +93,16 @@ oi = oiSet(oi,'hfov', hfov);
 vcAddAndSelectObject(oi); oiWindow;
 
 
-%TODO: allow for real lens aperture, not just a sampling function change
+%TODO: allow for real lens aperture, not just a sampling function change V
 %(make rays terminate when they hit the black section of aperture
 
-%TODO: vectorize rays
+%TODO: vectorize rays  V
 %TODO: see if we can create a more efficient aperture sampling procedure,
 %rather than sampling from the furthest most aperture
 
 %TODO: fix film recording action if it is out of bounds    v
 %TODO: try to figure out what is the deal with the non-real numbers
-%produced
-
+%produced 
 
 
 %% End
