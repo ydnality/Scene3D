@@ -97,7 +97,15 @@ classdef lensRealisticObject <  lensObject
             obj.calculateApertureSample();
         end
         
-
+        function readLensFile(obj, fileName)
+        %reads Scene3D format lens files and converts this to our format in
+        %the lensRealistic object
+            
+        
+            
+        end
+        
+        
         function computeTotalOffset(obj)
         %Calculates the total offset of the lens by adding all existing
         %offsets

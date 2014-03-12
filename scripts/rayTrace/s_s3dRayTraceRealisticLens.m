@@ -36,8 +36,8 @@ pointSources = [ 0 0 -20000];  %large distance test
 % film = filmObject([], [1 1],  400:10:700, [(400:10:700)' (1:31)'], []);  %small distance
 % film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 % film = filmObject([0 0 55],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-
+% film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = filmObject([24 24 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %% Should be a function for reading and writing lens files
 
 % declare lens that has 2 simple elements

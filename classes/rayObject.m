@@ -128,7 +128,7 @@ classdef rayObject <  handle
         
         
         function obj = recordOnFilm(obj, film)
-            %records the ray on the film
+        %records the ray on the film
           
             %check if no rays - only record if there are any
             if(~isempty(obj.origin))
@@ -142,7 +142,7 @@ classdef rayObject <  handle
                 imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
                 imagePixel.position = real(imagePixel.position); %add error handling for this
                 imagePixel.position = round(imagePixel.position * film.resolution(1)/film.size(1) + ...
-                    repmat( film.resolution(1:2)./2, [size(imagePixel.position,1) 1]));   %
+                    repmat(-film.position(1:2) + film.resolution(1:2)./2, [size(imagePixel.position,1) 1]));   %
                
                 %scale the position to a sensor position
                 %             imagePixel.position(imagePixel.position < 1) = 1; %make sure pixel is in range
@@ -181,7 +181,7 @@ classdef rayObject <  handle
                     
                     %check bounds - if out of bounds, do not display on film
                     if (wantedPixel(1) >= 1 && wantedPixel(1) <= film.resolution(1) && wantedPixel(2) > 1 && wantedPixel(2) <= film.resolution(2))
-                        film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) =  film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
+                        film.image(film.resolution(1) + 1 - wantedPixel(2), wantedPixel(1), wantedPixel(3)) =  film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
                     end
                     
                     %illustrations for debugging (out of bounds rays will
