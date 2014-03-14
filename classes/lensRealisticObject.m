@@ -91,7 +91,7 @@ classdef lensRealisticObject <  lensObject
                 obj.elementArray(i) = lensElementObject(elOffset(i), elRadius(i), elAperture(i), elN(i));
             end
             
-            obj.firstApertureRadius = obj.elementArray(end).aperture;
+            obj.firstApertureRadius = obj.elementArray(1).aperture;
             
             obj.computeCenters();
             obj.calculateApertureSample();
@@ -122,7 +122,7 @@ classdef lensRealisticObject <  lensObject
         
             obj.computeTotalOffset();
             prevSurfaceZ = -obj.totalOffset;
-            for i = length(obj.elementArray):-1:1
+            for i = 1:length(obj.elementArray)
                 obj.elementArray(i).zIntercept = prevSurfaceZ + obj.elementArray(i).offset;  %TODO: these will change later with sets
                 obj.elementArray(i).sphereCenter = [0 0 obj.elementArray(i).zIntercept+ obj.elementArray(i).radius];
                 prevSurfaceZ = obj.elementArray(i).zIntercept;
@@ -160,7 +160,7 @@ classdef lensRealisticObject <  lensObject
             prevSurfaceZ = -obj.totalOffset;
             prevAperture = 1;
 
-            for lensEl = obj.numEls:-1:1
+            for lensEl = 1:obj.numEls
                 curEl = obj.elementArray(lensEl);
 
                 %illustrations for debug
@@ -176,8 +176,16 @@ classdef lensRealisticObject <  lensObject
                     line(zPlot(withinRange), yPlotN(withinRange));
                 else
                     %draw the main aperture opening if radius = 0
-                    line(curEl.sphereCenter(3) * ones(2,1), [-prevAperture -curEl.aperture]);
-                    line(curEl.sphereCenter(3) * ones(2,1), [curEl.aperture prevAperture]);
+                    
+                    %TODO: draw the difference between specified aperture
+                    %from file and specified aperture from object instance
+                    
+                    %right now: take the minimum value
+                    
+                    curAperture = min(curEl.aperture, obj.apertureRadius);
+                    
+                    line(curEl.sphereCenter(3) * ones(2,1), [-prevAperture -curAperture]);
+                    line(curEl.sphereCenter(3) * ones(2,1), [curAperture prevAperture]);
                 end
                 
                 prevAperture = curEl.aperture;
@@ -200,9 +208,9 @@ classdef lensRealisticObject <  lensObject
 %             
 %             prevN = ones(length(rays.origin), 1);  %assume that we start off in air
 %             
-            for lensEl = obj.numEls:-1:1
+            for lensEl = 1:obj.numEls
                 curEl = obj.elementArray(lensEl);
-
+                curAperture = curEl.aperture;
 %                 %illustrations for debug
 %                 if (curEl.radius ~=0)
 %                     %draw arcs if radius is nonzero
@@ -247,8 +255,8 @@ classdef lensRealisticObject <  lensObject
                     intersectPosition = rays.origin + repIntersectT .* rays.direction;
 
                     %illustrations for debugging
-                    xCoordVector = [rays.origin(:,3) intersectPosition(:,3) repmat(NaN, [length(rays.origin) 1])]';
-                    yCoordVector = [rays.origin(:,2) intersectPosition(:,2) repmat(NaN, [length(rays.origin) 1])]';
+                    xCoordVector = [rays.origin(:,3) intersectPosition(:,3) NaN([length(rays.origin) 1])]';
+                    yCoordVector = [rays.origin(:,2) intersectPosition(:,2) NaN([length(rays.origin) 1])]';
                     xCoordVector = real(xCoordVector(:));
                     yCoordVector = real(yCoordVector(:));
                     line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
@@ -264,14 +272,14 @@ classdef lensRealisticObject <  lensObject
                     intersectT = (intersectZ - rays.origin(:, 3))./rays.direction(:, 3);
                     repIntersectT = repmat(intersectT, [1 3]);
                     intersectPosition = rays.origin + rays.direction .* repIntersectT;
-
+                    curAperture = min(curEl.aperture, obj.apertureRadius);
                     %                         if (isnan(intersectPosition))
                     %                             disp('nan value');
                     %                         end
                 end
 
                 % remove rays that land outside of the aperture
-                outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 > curEl.aperture^2;
+                outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 > curAperture^2;
                 rays.origin(outsideAperture, : ) = [];
                 rays.direction(outsideAperture, : ) = [];
                 rays.wavelength(outsideAperture) = [];
@@ -297,6 +305,8 @@ classdef lensRealisticObject <  lensObject
                     else
                         curN = ones(length(rays.wavelength), 1);
                     end
+                    
+%                     curN = ones(length(rays.wavelength), 1) * curEl.n;
                     ratio = prevN./curN;    %snell's law index of refraction
 
                     %Vector form of Snell's Law
@@ -335,6 +345,12 @@ classdef lensRealisticObject <  lensObject
         %This function is here mostly for reference and debugging purposes
         %- it is now replaced by rayTraceThroughLens which is the
         %vectorized version
+        %the order of the lens elements has since been reversed - here is
+        %an example input
+        % % offset = [1.5 1.5 0];
+        % radius = [-67 0 67];
+        % aperture = [5 1 4];
+        %n = [ 1 0 1.67];
         
             %initialize newRays to be the old ray.  We will update it later.
 %             newRays = rays;
@@ -415,7 +431,7 @@ classdef lensRealisticObject <  lensObject
                     end
                     
                     
-                    %check for bounds within aperture, 
+%                     check for bounds within aperture, 
 %                     if(intersectPosition(1)^2 + intersectPosition(2)^2 > curEl.aperture^2)
 % %                         ray.origin = [];  %not in bounds - remove
 % %                         ray.direction = [];

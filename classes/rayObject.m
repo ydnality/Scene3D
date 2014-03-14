@@ -178,10 +178,12 @@ classdef rayObject <  handle
                 for i = 1:size(obj.origin , 1)
                     %                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
                     wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
+                    yPixel = film.resolution(1) + 1 - wantedPixel(2);
+                    xPixel = wantedPixel(1);
                     
                     %check bounds - if out of bounds, do not display on film
-                    if (wantedPixel(1) >= 1 && wantedPixel(1) <= film.resolution(1) && wantedPixel(2) > 1 && wantedPixel(2) <= film.resolution(2))
-                        film.image(film.resolution(1) + 1 - wantedPixel(2), wantedPixel(1), wantedPixel(3)) =  film.image(wantedPixel(1), wantedPixel(2), wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
+                    if (xPixel >= 1 && xPixel <= film.resolution(1) && yPixel > 1 && yPixel <= film.resolution(2))
+                        film.image(yPixel, xPixel, wantedPixel(3)) =  film.image(yPixel, xPixel, wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
                     end
                     
                     %illustrations for debugging (out of bounds rays will
