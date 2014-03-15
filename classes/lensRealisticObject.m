@@ -76,9 +76,15 @@ classdef lensRealisticObject <  lensObject
             if (ieNotDefined('diffractionEnabled')), obj.diffractionEnabled = false;
             else                           obj.diffractionEnabled = diffractionEnabled;
             end 
-                       
-            
-            
+                
+            obj.setElements(elOffset, elRadius, elAperture, elN);
+        end
+        
+        function setElements(obj, elOffset, elRadius, elAperture, elN)
+        %sets the lens elements of this realistic lens.  All inputs are
+        %vectors and should have equal elements, and be real numbers of
+        %type double.
+
             obj.numEls = length(elOffset); % we must update numEls each time we add a lens element
             
             %error checking
@@ -90,19 +96,52 @@ classdef lensRealisticObject <  lensObject
             for i = 1:length(elOffset)
                 obj.elementArray(i) = lensElementObject(elOffset(i), elRadius(i), elAperture(i), elN(i));
             end
-            
+
             obj.firstApertureRadius = obj.elementArray(1).aperture;
-            
             obj.computeCenters();
-            obj.calculateApertureSample();
+            obj.calculateApertureSample(); 
         end
         
-        function readLensFile(obj, fileName)
+        function readLensFile(obj, fullFileName)
         %reads Scene3D format lens files and converts this to our format in
         %the lensRealistic object
+
+            %fid = fopen(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'));
+            fid = fopen(fullFileName);
+            import = textscan(fid, '%s%s%s%s', 'delimiter' , '\t');
+            fclose(fid);
+
+            %first find the start of the lens line demarked by #   radius
+            firstColumn = import{1};
+
+            %read comment lines
+            continu = true;
+            i = 1;
+            while(continu && i <= length(firstColumn))
+                compare = regexp(firstColumn(i), 'radius');
+                if(~(isempty(compare{1})))
+                    continu = false;
+                end
+                i = i+1;
+            end
+
+            %put data into lens object
+            radius = str2double(import{1});
+            radius = radius(i:length(firstColumn));
+            offset = str2double(import{2});
+            offset = offset(i:length(firstColumn));
+            %change from pbrt Scene3D format to raytrace Scene3D format
+            offset = [0; offset(1:(end-1))];
+            N = str2double(import{3});
+            N = N(i:length(firstColumn));
+            aperture = str2double(import{4})/2;%radius supplied is the radius diameter, so divide it by 2
+            aperture = aperture(i:length(firstColumn));
             
-        
-            
+            %TODO: eventually calculate this given the lens file
+            obj.centerPosition = [0 0 -15.1550];  
+
+            %modify the object and reinitialize
+            obj.setElements(offset, radius, aperture, N);
         end
         
         

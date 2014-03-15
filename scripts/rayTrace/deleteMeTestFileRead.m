@@ -1,3 +1,11 @@
+%this file has fulfilled it's purpose and can now be deleted - this
+%functionality is now in s_s3dRayTraceRealisticLensFromFile.m
+
+
+lens.readLensFile(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
+
+%% put this into function
+
 fid = fopen(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'));
 import = textscan(fid, '%s%s%s%s', 'delimiter' , '\t');
 fclose(fid);
@@ -37,6 +45,8 @@ N = N(i:length(firstColumn));
 aperture = str2double(import{4})/2;%radius supplied is the radius diameter, so divide it by 2
 aperture = aperture(i:length(firstColumn));
 
+
+%% end function
 
 %% end read file
 
