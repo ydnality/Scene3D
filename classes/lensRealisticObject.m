@@ -235,18 +235,19 @@ classdef lensRealisticObject <  lensObject
 
 
         function obj =  rayTraceThroughLens(obj, rays)
-        %performs ray-trace of the lens, given an input bundle or rays
-        %outputs the rays that have been refracted by the lens
-        %TODO: consdier moving this to the lens
+            %Ray-trace of the lens
+            % The rays are input
+            % The rays are updated after refraction
 
+            % The order is from furthest from film to film, which is also
+            % how the rays pass through the optics.
+            
+            %
             prevSurfaceZ = -obj.totalOffset;
             prevN = 1;
             
             obj.drawLens();
-            
-%             
-%             prevN = ones(length(rays.origin), 1);  %assume that we start off in air
-%             
+                         
             for lensEl = 1:obj.numEls
                 curEl = obj.elementArray(lensEl);
                 curAperture = curEl.aperture;

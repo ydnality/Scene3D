@@ -102,7 +102,7 @@ oi = oiSet(oi,'optics',optics);
 hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
 oi = oiSet(oi,'hfov', hfov);
 
-vcAddAndSelectObject(oi); oiWindow;
+vcAddbject(oi); oiWindow;
 
 
 %TODO: allow for real lens aperture, not just a sampling function change V
