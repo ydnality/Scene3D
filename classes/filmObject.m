@@ -52,7 +52,7 @@ classdef filmObject <  handle
             end
             
             if (ieNotDefined('resolution')),     obj.resolution = [200 200 length(obj.wave)];
-            else                           obj.size = resolution;
+            else                           obj.resolution = resolution;
             end
             %TODO: error checking.  make sure all dimensions are good
             

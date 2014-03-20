@@ -28,7 +28,7 @@ classdef lensIdealObject <  lensObject
         
         %default constructor - TODO:  figure out some inheritance issues
         %for efficiency
-        function obj = lensIdealObject(aperture, focalLength, center, diffractionEnabled)
+        function obj = lensIdealObject(aperture, focalLength, center, diffractionEnabled, wave)
             
             % Units are mm
             if (ieNotDefined('aperture')), obj.apertureRadius = 3;
@@ -51,6 +51,12 @@ classdef lensIdealObject <  lensObject
             else                           obj.diffractionEnabled = diffractionEnabled;
             end 
             
+            %TODO: error checking
+            if (ieNotDefined('wave')), obj.wave = 400:10:700;
+            else                           obj.wave = wave;
+            end          
+            
+            obj.nWave = 1:length(obj.wave);
             obj.firstApertureRadius = obj.apertureRadius;
             obj.calculateApertureSample();
         end

@@ -25,11 +25,13 @@ classdef lensObject <  handle
         focalLength;
         centerPosition;
         diffractionEnabled;
+        wave;
+        nWave;
     end
     
     methods
         
-        function obj = lensObject( aperture, focalLength, center, diffractionEnabled)
+        function obj = lensObject( aperture, focalLength, center, diffractionEnabled, wave)
             %default lens constructor
 
             % Units are mm
@@ -54,6 +56,13 @@ classdef lensObject <  handle
             else                           obj.diffractionEnabled = diffractionEnabled;
             end
             
+            
+            %TODO: error checking
+            if (ieNotDefined('wave')), obj.wave = 400:10:700;
+            else                           obj.wave = wave;
+            end
+            
+            obj.nWave = 1:length(obj.wave);
 %             obj.calculateApertureSample();
         end
         

@@ -12,6 +12,7 @@ classdef rayObject <  handle
         origin;
         direction;
         wavelength;
+        waveIndex;
     end
     
     methods
@@ -141,8 +142,8 @@ classdef rayObject <  handle
                 %imagePixel is the pixel that will gain a photon due to the traced ray
                 imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
                 imagePixel.position = real(imagePixel.position); %add error handling for this
-                imagePixel.position = round(imagePixel.position * film.resolution(1)/film.size(1) + ...
-                    repmat(-film.position(1:2) + film.resolution(1:2)./2, [size(imagePixel.position,1) 1]));   %
+                imagePixel.position = round(imagePixel.position * film.resolution(2)/film.size(2) + ...
+                    repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + film.resolution(2:-1:1)./2, [size(imagePixel.position,1) 1]));   %
                
                 %scale the position to a sensor position
                 %             imagePixel.position(imagePixel.position < 1) = 1; %make sure pixel is in range
@@ -178,8 +179,8 @@ classdef rayObject <  handle
                 for i = 1:size(obj.origin , 1)
                     %                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
                     wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
-                    yPixel = film.resolution(1) + 1 - wantedPixel(2);
-                    xPixel = wantedPixel(1);
+                    yPixel = film.resolution(1) - wantedPixel(1);
+                    xPixel = wantedPixel(2);
                     
                     %check bounds - if out of bounds, do not display on film
                     if (xPixel >= 1 && xPixel <= film.resolution(1) && yPixel > 1 && yPixel <= film.resolution(2))
@@ -194,12 +195,20 @@ classdef rayObject <  handle
         end
         
         %replicates the ray bundle to cover a series of wavelengths
-        function obj = expandWavelengths(obj, wave)
+        function obj = expandWavelengths(obj, wave, waveIndex)
+            
+           if ieNotDefined('waveIndex'),  waveIndex = 1:length(wave);
+            end
             subLength = size(obj.origin, 1);
             obj.origin = repmat(obj.origin, [length(wave) 1]);
             obj.direction = repmat(obj.direction, [length(wave) 1]);
             tmp = (wave' * ones(1, subLength))'; %creates a vector representing wavelengths... for example: [400 400 400... 410 410 410... ..... 700]
             obj.wavelength = tmp(:);
+            
+            %assign the indices of this wavelength expansion - TODO: maybe
+            %make this cleaner somehow...
+            tmp = (waveIndex' * ones(1, subLength))';
+            obj.waveIndex = tmp(:);
         end
     end
 end

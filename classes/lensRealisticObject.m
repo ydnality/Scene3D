@@ -36,7 +36,7 @@ classdef lensRealisticObject <  lensObject
     methods
         
         
-        function obj = lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled)
+        function obj = lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled, wave)
         %default constructor
             
             % Units are mm
@@ -77,6 +77,12 @@ classdef lensRealisticObject <  lensObject
             else                           obj.diffractionEnabled = diffractionEnabled;
             end 
                 
+            %TODO: error checking
+            if (ieNotDefined('wave')), obj.wave = 400:10:700;
+            else                           obj.wave = wave;
+            end             
+            
+            obj.nWave = 1:length(obj.wave);
             obj.setElements(elOffset, elRadius, elAperture, elN);
         end
         
@@ -88,13 +94,13 @@ classdef lensRealisticObject <  lensObject
             obj.numEls = length(elOffset); % we must update numEls each time we add a lens element
             
             %error checking
-            if (obj.numEls~= length(elRadius) || obj.numEls~= length(elAperture) || obj.numEls ~= length(elN))
+            if (obj.numEls~= length(elRadius) || obj.numEls~= length(elAperture) || obj.numEls ~= size(elN,2))
                 error('input vectors must all be of the same lengths');
             end
             
             obj.elementArray = lensElementObject();
             for i = 1:length(elOffset)
-                obj.elementArray(i) = lensElementObject(elOffset(i), elRadius(i), elAperture(i), elN(i));
+                obj.elementArray(i) = lensElementObject(elOffset(i), elRadius(i), elAperture(i), elN(:, i));
             end
 
             obj.firstApertureRadius = obj.elementArray(1).aperture;
@@ -244,37 +250,18 @@ classdef lensRealisticObject <  lensObject
             
             %
             prevSurfaceZ = -obj.totalOffset;
-            prevN = 1;
+            prevN = ones(length(rays.origin), 1);
             
             obj.drawLens();
                          
             for lensEl = 1:obj.numEls
                 curEl = obj.elementArray(lensEl);
                 curAperture = curEl.aperture;
-%                 %illustrations for debug
-%                 if (curEl.radius ~=0)
-%                     %draw arcs if radius is nonzero
-%                     zPlot = linspace(curEl.sphereCenter(3) - curEl.radius, curEl.sphereCenter(3) + curEl.radius, 10000);
-%                     yPlot = sqrt(curEl.radius^2 - (zPlot - curEl.sphereCenter(3)) .^2);
-%                     yPlotN = -sqrt(curEl.radius^2 - (zPlot - curEl.sphereCenter(3)) .^2);
-%                     arcZone = 5;
-%                     %TODO:find a better way to plot the arcs later - this one is prone to potential problem
-%                     withinRange = and(and((yPlot < curEl.aperture),(zPlot < prevSurfaceZ + curEl.offset + arcZone)), (zPlot > prevSurfaceZ + curEl.offset - arcZone));
-%                     line(zPlot(withinRange), yPlot(withinRange));
-%                     line(zPlot(withinRange), yPlotN(withinRange));
-%                 else
-%                     %draw the main aperture opening if radius = 0 
-%                     line(curEl.sphereCenter(3) * ones(2,1), [-prevAperture -curEl.aperture]);
-%                     line(curEl.sphereCenter(3) * ones(2,1), [curEl.aperture prevAperture]);
-%                 end
-                
                 
                 %  ----vectorized               
                 
                 %ray trace through a single element
-                %TODO: vectorize this operation later
                 %calculate intersection with lens element -
-                %TODO: maybe put in function?
                 if (curEl.radius ~= 0) %only do this for actual spherical elements, 
                     repCenter = repmat(curEl.sphereCenter, [length(rays.origin) 1]);
                     repRadius = repmat(curEl.radius, [length(rays.origin) 1]);
@@ -317,15 +304,15 @@ classdef lensRealisticObject <  lensObject
                     %                             disp('nan value');
                     %                         end
                 end
-
+ 
                 % remove rays that land outside of the aperture
                 outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 > curAperture^2;
                 rays.origin(outsideAperture, : ) = [];
                 rays.direction(outsideAperture, : ) = [];
                 rays.wavelength(outsideAperture) = [];
+                rays.waveIndex(outsideAperture) = [];
                 intersectPosition(outsideAperture, :) = [];
                 prevN(outsideAperture) = [];
-                curN(outsideAperture) = [];
                 
                 % snell's law
                 if(curEl.radius ~= 0)
@@ -340,11 +327,19 @@ classdef lensRealisticObject <  lensObject
 
                     %modify the index of refraction depending on wavelength
                     %TODO: have this be one of the input parameters (N vs. wavelength)
-                    if (curEl.n ~= 1)
-                        curN = (rays.wavelength - 550) * -.04/(300) + curEl.n;
-                    else
-                        curN = ones(length(rays.wavelength), 1);
-                    end
+%                     if (curEl.n ~= 1)
+%                         curN = (rays.wavelength - 550) * -.04/(300) + curEl.n;
+%                     else
+%                         curN = ones(length(rays.wavelength), 1);
+%                     end
+                    
+%                     waveIndex = find([obj.wave' obj.nWave']== rays.wavelength);  %this doesn't work yet
+                    %this was supposed to conver wavelength to waveIndex -
+                    %but I coudln't find a way to vectorize it, so instead
+                    %we precompute it
+                    
+                    curN = curEl.n(rays.waveIndex);
+                    
                     
 %                     curN = ones(length(rays.wavelength), 1) * curEl.n;
                     ratio = prevN./curN;    %snell's law index of refraction
@@ -358,10 +353,7 @@ classdef lensRealisticObject <  lensObject
                     %update the direction of the ray
                     rays.origin = intersectPosition;
                     rays.direction = newVec;
-
-                    %                         if (isnan(ray.direction))
-                    %                           disp('nan value');  
-                    %                         end
+                    prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture
                 end
 
                 %HURB diffraction
@@ -370,8 +362,7 @@ classdef lensRealisticObject <  lensObject
                 end
 
 
-                %iterate index of refraction and previous z 
-                prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture
+                %iterate previous z 
                 prevSurfaceZ = prevSurfaceZ + curEl.offset;
             end
         end     
