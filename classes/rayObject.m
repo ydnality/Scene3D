@@ -143,7 +143,7 @@ classdef rayObject <  handle
                 imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
                 imagePixel.position = real(imagePixel.position); %add error handling for this
                 imagePixel.position = round(imagePixel.position * film.resolution(2)/film.size(2) + ...
-                    repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + film.resolution(2:-1:1)./2, [size(imagePixel.position,1) 1]));   %
+                    repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + (film.resolution(2:-1:1) + 1)./2, [size(imagePixel.position,1) 1]));   %
                
                 %scale the position to a sensor position
                 %             imagePixel.position(imagePixel.position < 1) = 1; %make sure pixel is in range
@@ -179,7 +179,7 @@ classdef rayObject <  handle
                 for i = 1:size(obj.origin , 1)
                     %                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
                     wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
-                    yPixel = film.resolution(1) - wantedPixel(1);
+                    yPixel = film.resolution(1)+1 - wantedPixel(1);
                     xPixel = wantedPixel(2);
                     
                     %check bounds - if out of bounds, do not display on film
