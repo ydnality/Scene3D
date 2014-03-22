@@ -92,9 +92,9 @@ classdef rayObject <  handle
                     
                     %illustrations for debugging
 %                     lensIllustration(max(round(intersectPosition(2) * 100 + 150),1), max(-round(intersectPosition(3) * 1000), 1)) = 1;  %show a lens illustration
-                    hold on;
-                    line([ray.origin(3) intersectPosition(3) ], [ray.origin(2) intersectPosition(2)] ,'Color','b','LineWidth',1);
-                    
+%                     hold on;
+%                     line([ray.origin(3) intersectPosition(3) ], [ray.origin(2) intersectPosition(2)] ,'Color','b','LineWidth',1);
+%                     
                     normalVec = intersectPosition - curEl.sphereCenter;  %does the polarity of this vector matter? YES
                     normalVec = normalVec./norm(normalVec);
                     if (curEl.radius < 0)  %which is the correct sign convention? This is correct

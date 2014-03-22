@@ -68,7 +68,7 @@ classdef lensObject <  handle
         
         
         
-        function obj = calculateApertureSample(obj, sampleResolution)
+        function obj = calculateApertureSample(obj, sampleResolution, randJitter)
             % Creates a uniform sampling patern on the circular aperture.
             %
             % We first build the samples on a unit radius disk, and then
@@ -84,11 +84,24 @@ classdef lensObject <  handle
             
             if (ieNotDefined('sampleResolution')), sampleResolution = [3 3];
             end
+            if (ieNotDefined('randJitter')), randJitter = false;
+            end
+            
             
             % First make the rectangular samples.
             xSamples = linspace(-1, 1, sampleResolution(1));
             ySamples = linspace(-1, 1, sampleResolution(2));
+            
+            
             [X, Y] = meshgrid(xSamples,ySamples); 
+            
+                        
+            %add a random jitter
+            if(randJitter)
+                X = X + (rand(size(X)) - .5) * 2/sampleResolution(1);
+                Y = Y + (rand(size(Y)) - .5) * 2/sampleResolution(2);
+            end
+            
             
             %We assume a circular aperture
             % This is a mask that is 1 when the pixel is within a circle of radius 1

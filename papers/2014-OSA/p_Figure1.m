@@ -16,12 +16,13 @@ s_initISET
 % We will loop through the lens positions
 % pX = 0; pY = 0; pZ = -20000;   % millimeters
 pX = 0:-400:-800; pY = 0; pZ = [-10000 -8000];   % millimeters
+% pX = 0; pY = 0; pZ = [-8000];   % millimeters
 [X, Y, Z] = meshgrid(pX,pY,pZ);
 pointSources = [X(:), Y(:), Z(:)];
 
 numDepths = length(pZ);
 numFieldHeights = length(pX) * length(pY);
-psfsPerDepth = length(pointSources)/numDepths;
+psfsPerDepth = size(pointSources, 1)/numDepths;
 
 % pointSources = [pX pY pZ];     % large distance test
 
@@ -34,8 +35,8 @@ fX = 0; fY = 0; fZ = 51.5;       % mm
 fW = 20;  % mm
 fH = 20;  % mm
 
-numPixelsW = 201;
-numPixelsH = 201;
+numPixelsW = 151;
+numPixelsH = 151;
 %for now - the width of the new sensor is set manually - this should be
 %somewhat automated in the future
 newWidth = .3;    %%mm
@@ -59,7 +60,7 @@ firstN = (wave - 550) * -.04/(300) + 1.65; %linearly changes the 1.65 material
 n = [firstN' zeros(4, 1) ones(4,1)]; %index of refraction (wavelength x element)
 
 nSamples = 51;           % On the first aperture. x,y, before cropping
-nSamplesHQ = 101;
+nSamplesHQ = 701;
 % May not be needed ... AL
 lX = 0; lY = 0; lZ = -1.5;
 lensCenterPosition = [lX lY lZ];  % Eventually calculate this given the lens file
@@ -102,10 +103,11 @@ for curInd = 1:size(pointSources, 1)
     %---re-render
     film = filmObject([centroidX centroidY fZ],[newWidth newWidth], wave, [wave(:) wList(:)], [numPixelsW numPixelsH length(wave)]);   %large distance
     %use more samples this time for a high quality render
-    lens.calculateApertureSample([nSamplesHQ nSamplesHQ]);
+    lens.calculateApertureSample([nSamplesHQ nSamplesHQ], true);
     psfCamera = psfCameraObject(lens, film, pointSources(curInd, :));
     oiList{curInd} = psfCamera.estimatePSF();
     vcAddObject(oiList{curInd}); oiWindow;
+    close;
 end
 
 %% Show PSFs for figure
@@ -126,15 +128,24 @@ end
 
 %make figure
 for waveInd = wList 
+    PSFMosaic = [];
     for depthInd = 1:numDepths
-        PSFMosaic = [];
+        rowMosaic = [];
         for fHIndex= 1:psfsPerDepth
             curPSF = PSF(:,:, waveInd, depthInd, fHIndex);
-            PSFMosaic = [PSFMosaic curPSF];  %concatenate PSFs for visualization
+            rowMosaic = [rowMosaic curPSF];  %concatenate PSFs for visualization
         end
-        figure; imshow(PSFMosaic/max(PSFMosaic(:))); 
-        title(['Depth:' num2str(pZ(depthInd)) '; Wavelength: ' num2str(wave(waveInd)) ]); 
+        PSFMosaic = [PSFMosaic; rowMosaic];
     end
+    
+    PSFMosaic = PSFMosaic/max(PSFMosaic(:));
+    figure; imshow(PSFMosaic);
+    
+%     test = hdrRender(PSFMosaic);
+%     figure; imshow(test)
+    description = ['Depth:' num2str(pZ) '_Wavelength:' num2str(wave(waveInd)) ];
+    imwrite(PSFMosaic, fullfile(s3dRootPath, 'papers', '2014-OSA', [description '.png']));    
+    title(description); 
 end
 %%
 
