@@ -4,11 +4,10 @@
 
 %% Specify HURB ray tracing location and specification
 
-chdir(PSFValidationPath);
-chdir('pointTest');
+chdir(fullfile(s3dRootPath, 'papers', '2014-OSA'));
 sampleArray = cell(1, 1);
 
-sampleArray{1}.rayTraceFile = '50mm_2m_65res_f22.pbrt.mat'%'25mm_1m_65res.pbrt.mat' %'rayTrace25mm32res.mat' 
+sampleArray{1}.rayTraceFile = 'PSFCenter_50mm_2m_f22_n401.mat'%'25mm_1m_65res.pbrt.mat' %'rayTrace25mm32res.mat' 
 sampleArray{1}.focalLength = 50
 sampleArray{1}.apertureDiameter = 2.2727
 sampleArray{1}.filmDistance = 51.2821	
@@ -31,6 +30,8 @@ sampleArray{1}.targetDistance = 2
 % sampleArray{4}.apertureDiameter = 6.2500
 % sampleArray{4}.filmDistance = 51.2821
 % sampleArray{4}.targetDistance = 2
+
+
 
 
 
@@ -142,8 +143,34 @@ for index = 1:length(sampleArray)
     oiT = oiCompute(scene,oiT);
     vcAddAndSelectObject(oiT); oiWindow;
 
+    %% plot line vs. wavelength plots (linespread)
+    
+    oiPhotons = oiGet(oi, 'photons');
+%     PSFLineSpectral = oiPhotons(round(size(oiPhotons,1)/2), :, :); 
+    PSFLineSpectral = sum(oiPhotons, 1);
+    PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) 31]);
+    scalingFactor = sum(PSFLineSpectral,1) * .1172/.1415;
+    PSFLineSpectral = PSFLineSpectral/scalingFactor(31);
+    
+    
+    PSFLineSpectral = PSFLineSpectral(size(oiPhotons,1)/2-32:size(oiPhotons,1)/2+32, :);
+    plotBound = 32/(size(oiPhotons,1)/2) * sensorWidth/2 * 10^3;
+    
+    [X Y] = meshgrid(400:10:700, linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
+    figure; mesh(X, Y, PSFLineSpectral);
+    xlabel('Wavelength (nm)')
+    ylabel('Position (um)')
+    zlabel('Intensity (rel.)');
+    
     %% plot both PSFs on 1 figure
     oiIlluminanceT = oiGet(oiT, 'illuminance');
+    
+%     oiPhotonsT = oiGet(oiT, 'photons');
+%     PSFLineSpectralT = oiPhotonsT(round(size(oiPhotonsT,1)/2), :, :); 
+%     PSFLineSpectralT = reshape(PSFLineSpectralT, [640 31]);
+%     figure; mesh(PSFLineSpectralT);
+   
+    
     PSFLineT = oiIlluminanceT(size(oiIlluminanceT,1)/2, :);
 %     PSFLineTS = PSFLineT * max(PSFLine(:))/max(PSFLineT(:));
     PSFLineTS = PSFLineT /max(PSFLineT(:));
@@ -155,6 +182,7 @@ for index = 1:length(sampleArray)
         num2str(sampleArray{index}.focalLength/(sampleArray{index}.apertureDiameter), 2) ';' ...
         num2str(sampleArray{index}.targetDistance) 'm Target Distance' ]);
     xlabel('um');
+    axis([-40 40 0 1]);  %don't show the bad part of the theoretical plot
     ylabel('Relative illuminance');
     legend Ray-tracing Theoretical
     

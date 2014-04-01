@@ -146,23 +146,27 @@ classdef pbrtObject <  handle
             returnVal = 1; %1 for success, 0 for failure
         end
         
-        %adds a light source to the light source array
+        %TODO: error checking
         function addLightSource(obj,newLightSource)
+             %adds a light source to the light source array
             obj.lightSourceArray{end+1} = newLightSource; 
         end
         
-        %adds a material to the material array
+        %TODO: error checking
         function addMaterial(obj, newMaterial)
+            %adds a material to the material array
             obj.materialArray{end+1} = newMaterial;
         end
             
-        %adds geoemtery to the geometry array
+        %TODO: error checking
         function addGeometry(obj, newGeometry)
+            %adds geoemtery to the geometry array
             obj.geometryArray{end+1} = newGeometry;
         end        
         
         %removes the geometry corresponding to the specified index
         %if deleteIndex is undefined, remove from the end
+        %TODO: error checking
         function removeGeometry(obj, deleteIndex)
             if (ieNotDefined('deleteIndex'))
                 obj.geometryArray(end) = [];
@@ -171,10 +175,11 @@ classdef pbrtObject <  handle
             end
         end
         
-        %removes the light source corresponding to the specified index
-        %if deleteIndex is undefined, remove from the end
-        %returns the deleted value
+
         function returnVal = removeLight(obj, deleteIndex)
+            %removes the light source corresponding to the specified index
+            %if deleteIndex is undefined, remove from the end
+            %returns the deleted value
             if (ieNotDefined('deleteIndex'))
                 returnVal = obj.lightSourceArray(end);
                 obj.lightSourceArray(end) = [];
@@ -184,10 +189,10 @@ classdef pbrtObject <  handle
             end
         end
         
-        %removes the light source corresponding to the specified index
-        %if deleteIndex is undefined, remove from the end
-        %returns the deleted value
         function returnVal = removeMaterial(obj, deleteIndex)
+            %removes the light source corresponding to the specified index
+            %if deleteIndex is undefined, remove from the end
+            %returns the deleted value
             if (ieNotDefined('deleteIndex'))
                 returnVal = obj.materialArray(end);
                 obj.materialArray(end) = [];

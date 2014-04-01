@@ -24,7 +24,7 @@ classdef cameraObject <  handle
             if (ieNotDefined('inLens'))
                 % Example lens
 %                 obj.lens = 'idealLens-50mm.pbrt';
-                obj.lens = lensPinholeObject();
+                obj.lens = pbrtLensPinholeObject();
             else
                 validateattributes(inLens, {'lensObject'}, {'nonempty'});
                 obj.lens = inLens;
@@ -43,6 +43,7 @@ classdef cameraObject <  handle
         
         %TODO: error checking
         function setPosition(obj, inPos)
+            %setPosition(obj, inPos)
             obj.position = inPos;
         end
         
@@ -54,7 +55,7 @@ classdef cameraObject <  handle
         
         %sets the lens to inLens
         function setLens(obj, inLens)
-            validateattributes(inLens, {'lensObject', 'char'}, {'nonempty'});
+            validateattributes(inLens, {'pbrtLensObject', 'char'}, {'nonempty'});
             obj.lens = inLens;
         end
  

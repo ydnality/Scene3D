@@ -37,8 +37,8 @@ for i = 1:size(matList, 1)
    newGeometry = geometryObject('newGeom', ['mat' int2str(i)], [], [], newTransform);  
    curPbrt.addGeometry(newGeometry);
    
-%    tmpFileName = ['deleteMe' int2str(i) '.pbrt'];
-%    curPbrt.writeFile(tmpFileName);
+   tmpFileName = ['deleteMe' int2str(i) '.pbrt'];
+   curPbrt.writeFile(tmpFileName);
    oi = s3dRenderOI(curPbrt, 50, tmpFileName);
 end
 

@@ -20,8 +20,15 @@ function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
     end
 
     fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
-    inputPbrt.writeFile(fullfname);
     
+    if(isa(inputPbrt, 'pbrtObject'))
+        inputPbrt.writeFile(fullfname);
+    elseif (ischar(inputPbrt))
+        %if inputPbrt is a char, then it becomes the input file
+        fullfname = inputPbrt;  
+    else
+        error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
+    end
     
     generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
     if exist(generatedDir,'dir')

@@ -114,6 +114,8 @@ vcAddAndSelectObject(image); vcimageWindow;
 %%  generate and read and output depth map
 % ** make sure the rendering file has a small initial aperture, and only 1
 % sample per pixel!
-chdir(TwoFlashDepthPath);
-depthMap = s3dRenderDepthMap('50mmDepthMap.pbrt', 11);
+
+%currently broken - TODO: fix this
+chdir(fullfile(datapath, 'twoFlashDepth', 'depthTargetDepths'));
+depthMap = s3dRenderDepthMap('50mmDepthMap.pbrt', 1);
 figure; imagesc(depthMap);

@@ -9,10 +9,12 @@ classdef lightSpotObject <  lightObject
     end
     methods
         
-        %default constructor.  The input variables may be omitted or left
-        %with empty arguments if the user does not wish to specify them.  A
-        %default value will be assumed.  
         function obj = lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
+            %obj = lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
+            %default constructor.  The input variables may be omitted or left
+            %with empty arguments if the user does not wish to specify them.  A
+            %default value will be assumed.
+        
             %superclass properties
             obj@lightObject();
             obj.setType('spot');

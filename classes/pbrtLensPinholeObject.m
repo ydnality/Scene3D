@@ -1,17 +1,33 @@
 % this is a pinhole "lens object.  The only 2 parameters are film distance
 % and film diagonal. 
-classdef lensPinholeObject <  lensObject
+classdef pbrtLensPinholeObject <  pbrtLensObject
     properties 
         %additional properties go here
     end
     methods
         
         %default constructor
-        function obj = lensPinholeObject(varargin)
+        function obj = pbrtLensPinholeObject(inFilmDistance, inFilmDiag)
 %         function obj = lensPinholeObject(inFilmDistance, inFilmDiag)
             %call the superclass lensObject constructor
-%             obj = obj@lensObject(inFilmDistance, inFilmDiag);
-            obj = obj@lensObject(varargin);
+            
+            
+            if (ieNotDefined('inFilmDistance'))
+                % Example lens
+                obj.filmDistance = 140;
+            else
+                obj.filmDistance = inFilmDistance;
+            end
+            if (ieNotDefined('inFilmDiag'))
+                % Example lens
+                obj.filmDiag = 43.267;
+            else
+                obj.filmDiag = inFilmDiag;
+            end
+%             obj = obj@pbrtLensObject(inFilmDistance, inFilmDiag);
+
+
+%             obj = obj@pbrtLensObject(varargin);
         end
         
         %writes the section of text corresponding to this object

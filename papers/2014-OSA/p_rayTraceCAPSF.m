@@ -1,21 +1,8 @@
-%% p_Figure1 for 2014 OSA Conference
-%
-%  In the ray trace calculation imagine the z-axis is positive on the right
-%  and negative on the left.  The scene is located on the left.  The lens
-%  is placed near zero (and has some thickness).  The film is on the right
-%  (z is positive).
-%
-%  
-% AL
-
-%%
-s_initISET
-
 %% Initialize scene, lens and film properties
 
 % We will loop through the lens positions
 % pX = 0; pY = 0; pZ = -20000;   % millimeters
-pX = 0:-400:-800; pY = 0; pZ =[-16000 -8000 -4000 -2000 ];% millimeters
+pX = 0; pY = 0; pZ =[-2000];% millimeters
 % pX = 0; pY = 0; pZ = [-8000];   % millimeters
 [X, Y, Z] = meshgrid(pX,pY,pZ);
 %adjust for approximate difference in field position when Z changes
@@ -23,15 +10,13 @@ for i = 2:length(pZ)
     X(:,:,i) = X(:,:,i) *  pZ(i)/pZ(1); 
 end
 pointSources = [X(:), Y(:), Z(:)];
-
 numDepths = length(pZ);
 numFieldHeights = length(pX) * length(pY);
 psfsPerDepth = size(pointSources, 1)/numDepths;
-
 % pointSources = [pX pY pZ];     % large distance test
 
 % Create the film plane
-wave = 400:100:700;            % Wavelength
+wave = 400:10:700;            % Wavelength
 wList = 1:length(wave);
 fX = 0; fY = 0; fZ = 51.8145;       % mm
 
@@ -76,7 +61,6 @@ nSamplesHQ = 201;
 lX = 0; lY = 0; lZ = -1.5;
 lensCenterPosition = [lX lY lZ];  % Eventually calculate this given the lens file
 
-
 idx = find(radius==0);  % This is the middle of the lens aperture size
 fLength = 50;           % mm.  We should derive this using the lensmaker's equation
 % For multiple lenses, we add up the power using something from the web
@@ -120,75 +104,3 @@ for curInd = 1:size(pointSources, 1)
     vcAddObject(oiList{curInd}); oiWindow;
     close; close;
 end
-
-%% Show PSFs for figure
-
-%form PSF matrix
-PSF = zeros(numPixelsWHQ, numPixelsHHQ, length(wave), numDepths, numFieldHeights);
-for waveInd = wList 
-    for depthInd = 1:numDepths
-        for fHIndex = 1:psfsPerDepth
-            longInd = (depthInd - 1) * psfsPerDepth + fHIndex;
-            curOi = oiList{longInd};
-            curPhotons = oiGet(curOi, 'photons');
-            curPSF = curPhotons(:,:, waveInd);
-            PSF(:,:,waveInd,depthInd, fHIndex) = curPSF; %put PSF for current depth and wavelength in the matrix;
-        end
-    end
-end
-
-
-
-% make figure
-%Different field heights on 1 plot. Each depth will have an image stack of 
-%different wavelengths.
-
-
-colorCode = [1 0 1;   %this determines the color of the slice images
-             0 0 1;
-             0 1 0
-             1 0 0];
-         
-         
-for waveInd = wList 
-    PSFMosaic = [];
-    for depthInd = 1:numDepths
-        rowMosaic = [];
-        for fHIndex= 1:psfsPerDepth
-            curPSF = PSF(:,:, waveInd, depthInd, fHIndex);
-            rowMosaic = [rowMosaic curPSF];  %concatenate PSFs for visualization
-        end
-        PSFMosaic = rowMosaic/(max(rowMosaic(:)) * .75);
-        PSFMosaic = repmat(PSFMosaic, [1 1 3]) .* repmat(reshape(colorCode(waveInd,:), [1 1 3]), size(PSFMosaic));
-        
-        figure; imshow(PSFMosaic);
-        description = ['Depth:' num2str(pZ(depthInd)) ';Wavelength:' num2str(wave(waveInd)) ];
-        imwrite(PSFMosaic, fullfile(s3dRootPath, 'papers', '2014-OSA', [description '.png']));    
-        title(description); 
-    end
-end
-
-
-
-%% old figure where field height and depth were on 1 image
-for waveInd = wList 
-    PSFMosaic = [];
-    for depthInd = 1:numDepths
-        rowMosaic = [];
-        for fHIndex= 1:psfsPerDepth
-            curPSF = PSF(:,:, waveInd, depthInd, fHIndex);
-            rowMosaic = [rowMosaic curPSF];  %concatenate PSFs for visualization
-        end
-        PSFMosaic = [PSFMosaic; rowMosaic];
-    end
-    
-    PSFMosaic = PSFMosaic/max(PSFMosaic(:));
-    figure; imshow(PSFMosaic);
-    
-%     test = hdrRender(PSFMosaic);
-%     figure; imshow(test)
-    description = ['Depth:' num2str(pZ) '_Wavelength:' num2str(wave(waveInd)) ];
-    imwrite(PSFMosaic, fullfile(s3dRootPath, 'papers', '2014-OSA', [description '.png']));    
-    title(description); 
-end
-%%

@@ -32,7 +32,7 @@ end
 % Make a tempPBRT directory where the output files will go
 generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
 if exist(generatedDir,'dir')
-    unix(['rm ' generatedDir]);
+    unix(['rm ' fullfile(generatedDir, '*')]);
 else
     mkdir(generatedDir);
 end

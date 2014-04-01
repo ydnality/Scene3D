@@ -3,10 +3,13 @@
 
 Scale -1 1 1  # account for fixed lookat bug...
 
-LookAt -56.914787 -105.385544 35.0148    #straight position
-       -56.487434 -104.481461 34.8 
-       -0.000013 -0.000031 1.000000
+#LookAt -56.914787 -105.385544 35.0148    #straight position
+#       -56.487434 -104.481461 34.8 
+#       -0.000013 -0.000031 1.000000
 
+LookAt -48.3677  -87.3039   30.7188    #straight position
+       -47.9404  -86.3998   30.5040 
+       -0.000013 -0.000031 1.000000
 
 Include "50mmDepthMap-idealLens.pbrt"
 
@@ -15,8 +18,13 @@ Film "image"
    "integer yresolution" [200]
 
 
-Sampler "lowdiscrepancy"
-   "integer pixelsamples" [1]
+#Sampler "lowdiscrepancy"
+#   "integer pixelsamples" [1]
+
+Sampler "stratified"
+	"integer xsamples" [1]
+	"integer ysamples" [1]
+	"bool jitter" "false"
 
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [0]

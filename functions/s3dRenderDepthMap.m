@@ -28,17 +28,18 @@ function output = s3dRenderDepthMap(fullfname, numRenders)
     % Make a tempPBRT directory where the output files will go
     generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
     if exist(generatedDir,'dir')
-        unix(['rm ' generatedDir]);
+        unix(['rm ' generatedDir '/*']);
     else
         mkdir(generatedDir);
     end
-    outfile  = fullfile(generatedDir, 'temp_out.dat');
+    outfile  = fullfile(generatedDir, 'depthRender_out.dat');
+    dMapFile  = fullfile(generatedDir, 'depthRender_out_DM.dat');
 %     mkdir('tempOutput');
 %     chdir('tempOutput');
     
     
-    outfile = 'tempPBRT/depthRender_out.dat';
-    dMapFile = 'tempPBRT/depthRender_out_DM.dat';
+%     outfile = 'tempPBRT/depthRender_out.dat';
+%     dMapFile = 'tempPBRT/depthRender_out_DM.dat';
 
     for i = 1:numRenders
         cmd = sprintf('%s %s --outfile %s',pbrtExe,fullfname,outfile);

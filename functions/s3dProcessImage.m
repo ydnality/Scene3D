@@ -17,8 +17,8 @@ function [vci, transformMatrices ] = s3dProcessImage(sensor, wantedTransformatio
     % balancing.  The sensor RGB values are simply set to the display RGB
     % values.
     
-    vci = imageSet(vci,'color balance method','None');
-    vci = imageSet(vci,'color conversion method','None');
+    vci = imageSet(vci,'illuminant correction method','None');
+    vci = imageSet(vci,'illuminant correction matrix','None');
     vci = imageSet(vci,'internal color space','Sensor');
 
 
