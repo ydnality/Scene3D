@@ -28,8 +28,11 @@ s_initISET
 % and pointing towards -z.  We are using a right-handed coordinate system.
 
 % [XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
-[XGrid YGrid] = meshgrid(-2000:1000:2000,-2000:1000:2000);
+[XGrid YGrid] = meshgrid(-2000:1000:2000,-2000:1000:2000);  %large
+% distance points
+% [XGrid YGrid] = meshgrid(-10:100:10,-10:10:10);  %small distance points
 pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
+% pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];
 % pointSources = [0 0 -20000];
 
 
@@ -41,8 +44,10 @@ film = filmObject([0 0 50],[7 7], 400:10:700, [(400:10:700)' (1:31)'], []);
 
 diffractionEnabled = true;
 % lensObject('ideal')
-apertureRadiusMM = .1;  
-lens = lensIdealObject(apertureRadiusMM, 50, [0 0 0], diffractionEnabled);
+% apertureRadiusMM = .1; %diffraction case
+apertureRadiusMM = 10;
+sensorDistance = 50;  %mm
+lens = lensIdealObject(apertureRadiusMM, sensorDistance, [0 0 0], diffractionEnabled);
 
 n = 5;
 lens.calculateApertureSample([n n]);

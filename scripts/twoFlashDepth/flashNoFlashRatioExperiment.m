@@ -7,39 +7,65 @@
 % to correct for the effects of lambertian surface reflectance, 
 % providing a more accurate depth map.  
 %
-% TODO: fix paths
+% **This script requires renderTwoFlashDepthScenePbrtObject.m to be run
+% first.**  Either that, or the proper images loaded in
 
 
+%% load 1st image - uncomment this section if you wish to load saved vcimages
+% %fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
+% fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
+% % fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
+% 
+% load([s3dRootPath '/data/' fullName],'vci');
+% vciFlash = vci;
+% vcAddAndSelectObject('vcimage',vciFlash);
+% vcimageWindow;
+% 
+% %% load 2nd flash image (flash now placed in back)
+% %fullName = '2FlashDepth/indObject/idealDownBackFlashImage.mat';
+% fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
+% % fullName = 'twoFlashDepth/depthTargetDepths/50mmBack10s.pbrt.image.mat';  
+% 
+% multiplicationFactor = 1;  %to account for differences in exposure
+% load([s3dRootPath '/data/' fullName],'vci');
+% vciFlashBack = vci;
+% vcAddAndSelectObject('vcimage',vciFlashBack);
+% vcimageWindow;
+
+%% load depth map - uncomment if you wish to load a depth map from file
 %GTDepthMap = '2FlashDepth/indObject/depthMaps/groundTruthDepthMapDown.mat';
-GTDepthMap = 'twoFlashDepth/depthTargetDepths/GTDepthMap.mat';
+% GTDepthMap = 'twoFlashDepth/depthTargetDepths/GTDepthMap.mat';
+% import = load(GTDepthMap);
+% groundTruthDepthMap = import.depthMap; %ProcessedMedian;
 
+%% Assign camera parameters
 
-%% load 1st image
-%fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
-fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
-% fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
+%if we are running this script right after
+%renderTwoFlashDepthScenePbrtObject.m, it will look at the camera
+%parameters from there - if not, assign these values.
 
-load([s3dRootPath '/data/' fullName],'vci');
-vciFlash = vci;
-vcAddAndSelectObject('vcimage',vciFlash);
-vcimageWindow;
-
-%% load 2nd flash image (flash now placed in back)
-%fullName = '2FlashDepth/indObject/idealDownBackFlashImage.mat';
-fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
-% fullName = 'twoFlashDepth/depthTargetDepths/50mmBack10s.pbrt.image.mat';  
-
-multiplicationFactor = 1;  %to account for differences in exposure
-load([s3dRootPath '/data/' fullName],'vci');
-vciFlashBack = vci;
-vcAddAndSelectObject('vcimage',vciFlashBack);
-vcimageWindow;
+if(~exist('curPbrt', 'var'))
+    sensorWidth = 36;
+    sensorHeight  = 36; %24;
+    sensorDistance = 140; %get this from the render file
+    f = 50;  % f signifies distance between 2 flashes    
+else    
+    sensorDistance = curPbrt.camera.lens.filmDistance;
+    %height has a ratio of 1
+    aspectRatio = curPbrt.camera.film.yresolution/curPbrt.camera.film.xresolution;
+    hypotneuseRatio = sqrt(1^2 + aspectRatio^2);
+    sensorHeight = (curPbrt.camera.lens.filmDiag/hypotneuseRatio);
+    sensorWidth = (curPbrt.camera.lens.filmDiag/hypotneuseRatio) * aspectRatio;
+    f = norm( curPbrt.camera.position(1,:) - curPbrt.lightSourceArray{1}.from, 2); %distance between 2 flashes
+end
+fieldOfView = atan(sensorWidth/2/sensorDistance) * 2 * 180/pi;  %this does not need to be changed
 
 %% Process images and obtain ratio image
 % The ratio image consists of the image with the front flash divided by the
 % image with the back flash.  
 flashImage = imadjust(imageGet(vciFlash, 'results'), [], [], imageGet(vciFlash, 'gamma'));
 flashImageBack = imadjust(imageGet(vciFlashBack, 'results'), [], [], imageGet(vciFlash, 'gamma'));
+multiplicationFactor = 1;  %to account for differences in exposure
 
 % calculate ratio image
 HSVFlashImage = rgb2hsv(flashImage);
@@ -58,27 +84,19 @@ ratioImage = linearIntensityFlash./linearIntensityFlashBack;
 
 % figure; imagesc(ratioImage);
 
+% ------- stuff used for an ideal lens ---------
 % we are using the magnification ratio to calculate field of view since
 % this is a macro photography case.  See
 % http://en.wikipedia.org/wiki/Angle_of_view for details.  
 % alpha = 2 * arctan (d/(2 * F * (1 + m/P))
 % here P = 1 since we are using an ideal lens, and m = S2/S1 = 133.33/80
-fieldOfView = 15.4150; % this FOV takes into account magnification in a macro sense (does this work better?)
-
+%TODO: allow this to be calculated automatically
+% fieldOfView = 15.4150; % this FOV takes into account magnification in a macro sense (does this work better?)
 
 % fieldOfView = 25; % used for front back 100 experiment
-
-
 % fieldOfView = 26.9915; % used for front back 100 experiment  %vertical
 % fieldOfView = 39.5978;   %horizontal field of view
-
-sensorWidth = 36;
-sensorHeight  = 24;
-sensorDistance = sensorWidth/2 / tan(fieldOfView/2 * pi/180);
-% sensorDistance = 133.33;
-
-f = 50;  % f signifies distance between 2 flashes
-% f = 10;  % f signifies distance between 2 flashes
+% ------- stuff used for an ideal lens ---------
 
 % calculate alpha and phi for each pixel
 xMatrix = linspace(-sensorWidth/2, sensorWidth/2, size(ratioImage,2));
@@ -99,7 +117,6 @@ d1Test = (2.*f.^2)./(-2.*cos(alpha).*sin(phi).*f + radical);
 
 figure; imagesc(d1Test);
 colorbar; title('Calculated Depth (1st pass)'); caxis([80 150]);
-
 %% First filter the depth map using a separable median, and bilateral filter
 %This will provide better data for calculating the normal map later
 pixelUnit = sensorWidth / size(ratioImage,2);
@@ -116,11 +133,9 @@ colorbar; title('Filtered Depth'); caxis([80 150]);
 % perpendicular vectors on the surface.  This vector is averaged amongst
 % the 4 pairs of vectors around 1 point of the surface.
 
-
 % test case - use GT depth map to calculate depth map
 % this allows us to decouple the effect of a bad depth map calculation
 % method with the 2flashdepth algorithm
-
 
 % d1TestFiltered = imresize(groundTruthDepthMap, [400 600]);
 
@@ -163,7 +178,6 @@ for i = 2:(size(d1TestFiltered, 2) - 1)
         normalMap(j, i,:) = reshape(averageNormal, [1 1 3]);
     end
 end
-
 scaledNormalMap = normalMap./2 + .5;
 
 figure; imshow(scaledNormalMap);
@@ -173,7 +187,6 @@ title('Calculated Normal Map');
 % the intensity is attenuated according to the dot product (proportional to
 % the cosine of the angle between the 2 vectors).  This effect was not
 % taken into account during the initial calculation. 
-
 linearIntensityFlashCorrected = linearIntensityFlash;
 linearIntensityFlashBCorrected = linearIntensityFlashBack;
 
@@ -190,8 +203,7 @@ numWidth = size(d1Test,2);
 numHeight = size(d1Test,1);
 
 for i = 1:(size(d1TestFiltered, 2))
-    for j = 1:(size(d1TestFiltered,1)) 
-        
+    for j = 1:(size(d1TestFiltered,1))      
         % calculate normal vector from front light
         fakeX = pixelUnit * (i - numWidth/2);
         fakeY = pixelUnit * (j - numHeight/2);
@@ -258,10 +270,9 @@ figure; imagesc(d1TestFiltered);
 colorbar; title('Filtered Depth (2nd pass)'); caxis([80 150]);
 
 %% Compare the depth map to the ground truth
-import = load(GTDepthMap);
-groundTruthDepthMap = import.depthMap; %ProcessedMedian;
 figure; imagesc(groundTruthDepthMap);
-colorbar; title('Ground Truth Depth Map'); caxis([60 120]);
+colorbar; title('Ground Truth Depth Map'); caxis([80 150]);
+
 %% Summary
 % We were able to calculate a reasonable depth map from the 2-flash
 % algorithm.  Benefits of this algorithm compared to traditional 2-camera

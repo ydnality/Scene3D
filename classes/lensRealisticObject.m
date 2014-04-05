@@ -98,6 +98,13 @@ classdef lensRealisticObject <  lensObject
                 error('input vectors must all be of the same lengths');
             end
             
+            %if no wavelength dependence of index of refraction specified,
+            %(only one column of data, supply one)
+            if (size(elN, 1) == 1)
+                numWave = length(obj.wave);
+                elN = repmat(elN, [numWave 1]);
+            end
+           
             obj.elementArray = lensElementObject();
             for i = 1:length(elOffset)
                 obj.elementArray(i) = lensElementObject(elOffset(i), elRadius(i), elAperture(i), elN(:, i));
@@ -147,7 +154,7 @@ classdef lensRealisticObject <  lensObject
             obj.centerPosition = [0 0 -15.1550];  
 
             %modify the object and reinitialize
-            obj.setElements(offset, radius, aperture, N);
+            obj.setElements(offset, radius, aperture, N');
         end
         
         
@@ -199,9 +206,9 @@ classdef lensRealisticObject <  lensObject
 
 
         function obj =  drawLens(obj)
-        %draws the illustration of the lens on a figure
+        %draws the illustration of the lens on a figure - you must declare
+        %a new graphwin first!
         
-            vcNewGraphWin;
             prevSurfaceZ = -obj.totalOffset;
             prevAperture = 1;
 

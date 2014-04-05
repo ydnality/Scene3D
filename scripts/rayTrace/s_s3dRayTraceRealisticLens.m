@@ -24,23 +24,15 @@ s_initISET
 % pointSources = [ 0 0 -20000];  %large distance 
 
 %Small Distance Test
-% [XGrid YGrid] = meshgrid(-15:5:15,-15:5:15);   %small distance test
-% pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distance ----ADJUST ME!!----
-
+[XGrid YGrid] = meshgrid(-15:5:15,-15:5:15);   %small distance test
+pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distance ----ADJUST ME!!----
 % pointSources = [ 0 0 -100];  %small distance - TURN THIS ON FOR ONLY 1
-pointSources = [ 0 0 -20000];  %large distance test
-% wave = [400 550 700];  % in nm
-% wavelengthConversion = [400 3; 550 2; 700 1];
+
 
 %% film properties - 
-% film = filmObject([], [1 1],  400:10:700, [(400:10:700)' (1:31)'], []);  %small distance
-% film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-% film = filmObject([0 0 55],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-% film = filmObject([0 0 50.75],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = filmObject([], [1 1],  400:10:700, [(400:10:700)' (1:31)'], []);  %small distance
 
-% film = filmObject([24 24 50.75],[1 1], 400:10:700, [(400:10:700)'
-% (1:31)'], []);   %large distance   %reenable
-film = filmObject([24 24 53],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+% film = filmObject([24 24 53],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %% Should be a function for reading and writing lens files
 
 % declare lens that has 2 simple elements
@@ -51,7 +43,7 @@ film = filmObject([24 24 53],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   
 
 offset = [0 1.5 1.5];
 radius = [67 0 -67];
-aperture = [4 1 5];
+aperture = [4 4 5];
 % aperture = [5 .5 1];
 
 n = [ 1.67 0 1];
@@ -64,10 +56,10 @@ diffractionEnabled = false;
 % lens = lensRealisticObject(offset,radius,aperture,n, .1, 50,
 % lensCenterPosition, diffractionEnabled);   %reenable
 lens = lensRealisticObject(offset,radius,aperture,n, 8, 50, lensCenterPosition, diffractionEnabled);
-lens.calculateApertureSample([101 101]);
+lens.calculateApertureSample([7 7]);
 
 %% loop through all point sources
-% vcNewGraphWin; %for illustration
+vcNewGraphWin; %for illustration
 for curInd = 1:size(pointSources, 1);
     %calculate the origin and direction of the rays
     %     rays.traceSourceToLens(pointSources(curInd, :), lens);
@@ -102,7 +94,7 @@ oi = oiSet(oi,'optics',optics);
 hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
 oi = oiSet(oi,'hfov', hfov);
 
-vcAddbject(oi); oiWindow;
+vcAddObject(oi); oiWindow;
 
 
 %TODO: allow for real lens aperture, not just a sampling function change V

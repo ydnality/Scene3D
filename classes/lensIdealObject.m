@@ -64,7 +64,9 @@ classdef lensIdealObject <  lensObject
         
         
         function obj =  rayTraceThroughLens(obj, rays, curPointSource)
-            % --------center ray calculation ---- should go in function-----
+        %traces rays through the lens
+            
+            % --- center ray calculation-------------
             %trace ray from point source to lens center, to image.  This helps
             %determine the point of focus
             centerRay.origin = curPointSource;
@@ -78,7 +80,7 @@ classdef lensIdealObject <  lensObject
             %intersection of the in-focus plane and the center-ray
             inFocusT = (inFocusDistance - centerRay.origin(3))/centerRay.direction(3);
             inFocusPosition = centerRay.origin + inFocusT .* centerRay.direction;
-            % --------center ray calculation ---- should go in function-----
+            % --------center ray calculation -------
             
             
             %---------------- lens refraction code  -----

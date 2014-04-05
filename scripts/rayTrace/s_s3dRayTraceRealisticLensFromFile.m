@@ -11,6 +11,7 @@
 s_initISET
 %% point sources
 pointSources = [ 0 0 -20000];  %large distance test
+% pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties - 
 film = filmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
@@ -19,13 +20,14 @@ film = filmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   
 diffractionEnabled = false;
 
 %initialize to default
-lens = lensRealisticObject([],[],[],[], 2, 50, [], diffractionEnabled);
+%lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled, wave)
+lens = lensRealisticObject([],[],[],[], 8, 50, [], diffractionEnabled);
 
 %read lens from file
 lens.readLensFile(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
 
 %intialize ray=tracing
-lens.calculateApertureSample([101 101]);
+lens.calculateApertureSample([9 9]);
 
 %lens illustration
 lens.drawLens();
