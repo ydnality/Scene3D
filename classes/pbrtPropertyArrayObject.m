@@ -1,5 +1,5 @@
 % a class that is meant to be inherited that handles the propertyArray
-classdef propertyArrayObject <  handle
+classdef pbrtPropertyArrayObject <  handle
     properties (SetAccess = private)
         propertyArray;
     end
@@ -7,10 +7,10 @@ classdef propertyArrayObject <  handle
         
         %default constructor
         %TODO: doccument
-        function obj = propertyHandlerObject(inProperty)
+        function obj = pbrtPropertyArrayObject(inProperty)
             obj.propertyArray = cell(1,1);
             if (ieNotDefined('inProperty'))  %default property
-                obj.propertyArray{1} = propertyObject('color Kd', [0 0.374624 0]);
+                obj.propertyArray{1} = pbrtPropertyObject('color Kd', [0 0.374624 0]);
             else
                 obj.propertyArray{1} = inProperty;
             end
@@ -19,7 +19,7 @@ classdef propertyArrayObject <  handle
         
         %TODO: error checking
         function addProperty(obj, inProperty)
-            validateattributes(inProperty, {'propertyObject'}, {'nonempty'});
+            validateattributes(inProperty, {'pbrtPropertyObject'}, {'nonempty'});
             obj.propertyArray{end+1} = inProperty;
         end
  

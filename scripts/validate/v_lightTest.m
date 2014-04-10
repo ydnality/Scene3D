@@ -20,10 +20,11 @@ lightList = ...
 for i = 1:size(lightList, 1)
    clear curPbrt;
    curPbrt = pbrtObject();
-   curPbrt.lightSourceArray{1}.setSpectrum(spectrumObject('rgb I', lightList(i, :))); %sets the spectrum to the one in teh list
+   curPbrt.lightSourceArray{1}.setSpectrum(pbrtSpectrumObject('rgb I', lightList(i, :))); %sets the spectrum to the one in teh list
    tmpFileName = ['deleteMe' int2str(i) '.pbrt']; %the pbrt file name
    curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
+%    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
+   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/']);   %renders scene and displays as oi
 end
 
 chdir('..');
@@ -62,7 +63,8 @@ for i = 1:size(lightOffsetList, 1)
    curPbrt.lightSourceArray{1}.move(lightOffsetList(i, :));
    tmpFileName = ['deleteMe' int2str(i) '.pbrt']; %the pbrt file name
    curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
+%    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
+    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/']);   %renders scene and displays as oi
 end
 
 chdir('..');

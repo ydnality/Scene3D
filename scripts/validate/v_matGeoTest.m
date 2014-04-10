@@ -24,17 +24,17 @@ for i = 1:size(matList, 1)
    clear curPbrt;
    curPbrt = pbrtObject();
    %add a new material
-   newMaterial = materialObject(['mat' int2str(i)], 'matte', propertyObject('color Kd', matList(i,:)));
+   newMaterial = pbrtMaterialObject(['mat' int2str(i)], 'matte', pbrtPropertyObject('color Kd', matList(i,:)));
    curPbrt.addMaterial(newMaterial); 
    
    %add new geoemtry
-   %geometryObject(inName, inMaterial, inTriMesh, inPoints, inTransform)
+   %pbrtGeometryObject(inName, inMaterial, inTriMesh, inPoints, inTransform)
    %the plane is shifted in the x direction depending on the job number
    newTransform = [0 0 -1 0;
                     1 0 0 0 ;
                     0 -1 0 0;
                     geoList(i) 0 3  1]; %8.87306690216     %x direction is to the right, y is into the screen, z is up
-   newGeometry = geometryObject('newGeom', ['mat' int2str(i)], [], [], newTransform);  
+   newGeometry = pbrtGeometryObject('newGeom', ['mat' int2str(i)], [], [], newTransform);  
    curPbrt.addGeometry(newGeometry);
    
    tmpFileName = ['deleteMe' int2str(i) '.pbrt'];

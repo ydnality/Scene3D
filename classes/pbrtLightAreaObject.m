@@ -1,5 +1,5 @@
 % arealightObject contains the subclass that makes pbrt arealightObject
-classdef lightAreaObject <  lightObject
+classdef pbrtLightAreaObject <  pbrtLightObject
     
     properties (SetAccess = private)
         transformArray;   
@@ -10,9 +10,9 @@ classdef lightAreaObject <  lightObject
         %default constructor.  The input variables may be omitted or left
         %with empty arguments if the user does not wish to specify them.  A
         %default value will be assumed.  
-        function obj = lightAreaObject(inName, inSpectrum)
+        function obj = pbrtLightAreaObject(inName, inSpectrum)
             %superclass properties
-            obj@lightObject();
+            obj@pbrtLightObject();
             obj.setType('diffuse');  %this is the only option for area lights right now in pbrt
             
             if (~ieNotDefined('inName'))
@@ -23,20 +23,20 @@ classdef lightAreaObject <  lightObject
             end
             
             %obj.transformArray = cell(1,1);
-            obj.addTransform(transformObject());
+            obj.addTransform(pbrtTransformObject());
             %obj.shapeArray = cell(1,1);
-            obj.addShape(shapeObject('sphere', 'radius', 1));  %default shape is a tiny sphere
+            obj.addShape(pbrtShapeObject('sphere', 'radius', 1));  %default shape is a tiny sphere
         end
 
         %adds a transform to the transformArray
         function addTransform(obj,inTransform)
-            validateattributes(inTransform, {'transformObject'}, {'nonempty'});
+            validateattributes(inTransform, {'pbrtTransformObject'}, {'nonempty'});
             obj.transformArray{length(obj.transformArray) + 1} = inTransform;
         end
         
         %adds a shape to the shapeArray
         function addShape(obj, inShape)
-            validateattributes(inShape, {'shapeObject'}, {'nonempty'});
+            validateattributes(inShape, {'pbrtShapeObject'}, {'nonempty'});
             obj.shapeArray{length(obj.shapeArray) + 1} = inShape;
         end       
 
@@ -48,7 +48,7 @@ classdef lightAreaObject <  lightObject
                 returnVal = obj.shapeArray{end};
                 obj.shapeArray(end)= [];
             else
-                validateattributes(inShape, {'shapeObject'}, {'nonempty'});
+                validateattributes(inShape, {'pbrtShapeObject'}, {'nonempty'});
                 returnVal = obj.shapeArray{removeIndex};
                 obj.shapeArray(removeIndex)= [];
             end
@@ -62,7 +62,7 @@ classdef lightAreaObject <  lightObject
                 returnVal = obj.transformArray{end};
                 obj.transformArray(end)= [];
             else
-                validateattributes(inShape, {'shapeObject'}, {'nonempty'});
+                validateattributes(inShape, {'pbrtShapeObject'}, {'nonempty'});
                 returnVal = obj.transformArray{removeIndex};
                 obj.transformArray(removeIndex)= [];
             end

@@ -1,5 +1,5 @@
 % spotlightObject contains the subclass that makes pbrt spotlights
-classdef lightSpotObject <  lightObject
+classdef pbrtLightSpotObject <  pbrtLightObject
     
     properties (SetAccess = private)
         coneAngle;
@@ -9,14 +9,14 @@ classdef lightSpotObject <  lightObject
     end
     methods
         
-        function obj = lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
-            %obj = lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
+        function obj = pbrtLightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
+            %obj = pbrtLightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
             %default constructor.  The input variables may be omitted or left
             %with empty arguments if the user does not wish to specify them.  A
             %default value will be assumed.
         
             %superclass properties
-            obj@lightObject();
+            obj@pbrtLightObject();
             obj.setType('spot');
             
             if (~ieNotDefined('inName'))
@@ -95,7 +95,7 @@ classdef lightSpotObject <  lightObject
         %writes the pbrt file corresponding to this object
         function writeFile(obj, fid)
            %call superclass function 
-           writeFile@lightObject(obj, fid);
+           writeFile@pbrtLightObject(obj, fid);
            
            fprintf(fid,'\t\t"float coneangle" %f\n', obj.coneAngle);
            fprintf(fid,'\t\t"float conedeltaangle" %f\n', obj.coneDeltaAngle);

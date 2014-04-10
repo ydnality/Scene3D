@@ -15,9 +15,9 @@ scene = s3dRenderScene(fullfname, sceneName);
 %the lens must be a pinhole camera, or a lens with a pinhole aperture
 inputPbrt.sampler.setType('stratified');
 inputPbrt.sampler.removeProperty();
-inputPbrt.sampler.addProperty(propertyObject('bool jitter', '"false"'));
-inputPbrt.sampler.addProperty(propertyObject('integer xsamples', 1));
-inputPbrt.sampler.addProperty(propertyObject('integer ysamples', 1));
+inputPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
+inputPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', 1));
+inputPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', 1));
 
 fullfnameDM = fullfile(dataPath, 'generatedPbrtFiles', [sceneName 'DM.pbrt']);
 inputPbrt.writeFile(fullfnameDM);

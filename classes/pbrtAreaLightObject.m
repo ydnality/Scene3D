@@ -1,5 +1,5 @@
-% arealightObject contains the subclass that makes pbrt arealightObject
-classdef areaLightObject <  lightObject
+% pbrtAreaLightObject contains the subclass that makes pbrt pbrtAreaLightObject
+classdef pbrtAreaLightObject <  pbrtLightObject
     
     properties (SetAccess = private)
         transformArray;   
@@ -10,9 +10,9 @@ classdef areaLightObject <  lightObject
         %default constructor.  The input variables may be omitted or left
         %with empty arguments if the user does not wish to specify them.  A
         %default value will be assumed.  
-        function obj = areaLightObject(inName, inSpectrum)
+        function obj = pbrtAreaLightObject(inName, inSpectrum)
             %superclass properties
-            obj@lightObject();
+            obj@pbrtLightObject();
             obj.setType('arealight');
             
             if (~ieNotDefined('inName'))
@@ -23,18 +23,18 @@ classdef areaLightObject <  lightObject
             end
             
             obj.transformArray = cell(1,1);
-            obj.addTransform(transformObject());
+            obj.addTransform(pbrtTransformObject());
             obj.shapeArray = cell(1,1);
         
         end
 
         function addTransform(obj,inTransform)
-            validateattributes(inTransform, {'transformObject'}, {'nonempty'});
+            validateattributes(inTransform, {'pbrtTransformObject'}, {'nonempty'});
             obj.transformArray{length(obj.transformArray) + 1} = inTransform;
         end
         
         function addShape(obj, inShape)
-            validateattributes(inShape, {'shapeObject'}, {'nonempty'});
+            validateattributes(inShape, {'pbrtShapeObject'}, {'nonempty'});
             obj.shapeArray{length(obj.shapeArray) + 1} = inShape;
         end       
 
@@ -43,7 +43,7 @@ classdef areaLightObject <  lightObject
         %direction stays the same
         function move(obj, offset)
             %TODO: error check
-            obj.addTransform(obj, transformObject('translate', offset));
+            obj.addTransform(obj, pbrtTransformObject('translate', offset));
            return;
         end        
         

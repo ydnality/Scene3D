@@ -1,7 +1,7 @@
 % propertyObject - contains the type and value of each property.  This is
 % meant to be put in array for general properties.
 % TODO: document what this does
-classdef propertyObject <  handle
+classdef pbrtPropertyObject <  handle
     properties 
         type;
         value;
@@ -9,7 +9,7 @@ classdef propertyObject <  handle
     methods
         
         %default constructor
-        function obj = propertyObject(inType, inValue)
+        function obj = pbrtPropertyObject(inType, inValue)
             %sampler type
             if (ieNotDefined('inType'))
                 obj.type = 'color Kd';

@@ -1,5 +1,5 @@
 % wrapper class for a transform
-classdef transformObject <  handle
+classdef pbrtTransformObject <  handle
 %     enumeration
 %        Translate ('Translate', [1 1 1])
 %        Scale ('Scale', [1 1 1])
@@ -13,7 +13,7 @@ classdef transformObject <  handle
         %default constructor.  The input variables may be omitted or left
         %with empty arguments if the user does not wish to specify them.  A
         %default value will be assumed.  
-        function obj = transformObject(inType, inData)
+        function obj = pbrtTransformObject(inType, inData)
 
             if(ieNotDefined('inType'))
                 obj.setType('Translate');

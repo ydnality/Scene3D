@@ -1,5 +1,5 @@
-% lightObject contains the superclass that makes 
-classdef lightObject <  handle
+% pbrtLightObject contains the superclass that makes 
+classdef pbrtLightObject <  handle
     
     properties (SetAccess = private)
         name;
@@ -12,7 +12,7 @@ classdef lightObject <  handle
         %default constructor.  The input variables may be omitted or left
         %with empty arguments if the user does not wish to specify them.  A
         %default value will be assumed.  
-        function obj = lightObject(inName, inType, inSpectrum)
+        function obj = pbrtLightObject(inName, inType, inSpectrum)
             if(ieNotDefined('inName'))
                 obj.setName('defaultLight');
             else
@@ -24,19 +24,19 @@ classdef lightObject <  handle
                 obj.setType(inType);
             end
             if(ieNotDefined('inSpectrum'))
-                obj.setSpectrum(spectrumObject());
+                obj.setSpectrum(pbrtSpectrumObject());
             else
                 obj.setSpectrum(inSpectrum);
             end       
         end
         
         %sets the spectrum of the light.  inSpectrum must be of type
-        %spectrumObject
+        %pbrtSpectrumObject
         function setSpectrum(obj, inSpectrum)
-           if (isa(inSpectrum, 'spectrumObject'))
+           if (isa(inSpectrum, 'pbrtSpectrumObject'))
                 obj.spectrum = inSpectrum; 
            else
-                error('**Warning: must be of type spectrumObject!!');
+                error('**Warning: must be of type pbrtSpectrumObject!!');
            end
            return;
         end

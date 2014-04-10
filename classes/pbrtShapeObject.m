@@ -1,7 +1,7 @@
 % basic pbrt shapes such as spheres, cylinders etc.  Currently, only a
 % sphere is supported
-% TODO: use propertyArrayObject instead
-classdef shapeObject <  handle
+% TODO: use pbrtPropertyArrayObject instead
+classdef pbrtShapeObject <  handle
 
     properties (SetAccess = private)
         type;   %TODO: add enumeration for type
@@ -10,6 +10,7 @@ classdef shapeObject <  handle
     end
     methods
         
+        function obj = pbrtShapeObject(inType, inParameter, inData)
         %default constructor.  The input variables may be omitted or left
         %with empty arguments if the user does not wish to specify them.  A
         %default value will be assumed.  
@@ -19,8 +20,6 @@ classdef shapeObject <  handle
         %array
         %inData: one data value corresponding to that parameter
         %TODO: support for multiple parameters or data
-        function obj = shapeObject(inType, inParameter, inData)
-
             if(ieNotDefined('inType'))
                 obj.setType('sphere');
             else

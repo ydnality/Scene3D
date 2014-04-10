@@ -1,5 +1,5 @@
 % surfaceIntegratorObject sets up the surface integrator
-classdef surfaceIntegratorObject <  handle
+classdef pbrtSurfaceIntegratorObject <  handle
     %     obj.surfaceIntegrator.type  = 'surfaceIntegrator';
     %     obj.surfaceIntegrator.surfIntType = 'directlighting';
     %     obj.surfaceIntegrator.maxdepth = 0;
@@ -10,7 +10,7 @@ classdef surfaceIntegratorObject <  handle
     methods
         
         %default constructor
-        function obj = surfaceIntegratorObject(inType, inMaxDepth)
+        function obj = pbrtSurfaceIntegratorObject(inType, inMaxDepth)
             %sampler type
             if (ieNotDefined('inType'))
                 obj.type = 'directlighting';

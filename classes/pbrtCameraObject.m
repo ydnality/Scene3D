@@ -1,5 +1,5 @@
-% cameraObject contains the camera position, lens, sensor
-classdef cameraObject <  handle
+% pbrtCameraObject contains the camera position, lens, sensor
+classdef pbrtCameraObject <  handle
     
     properties (SetAccess = private)
         position;
@@ -9,7 +9,7 @@ classdef cameraObject <  handle
     methods
         
         %default constructor
-        function obj = cameraObject(inPos, inLens, inFilm)
+        function obj = pbrtCameraObject(inPos, inLens, inFilm)
             % Placement of the camera.  Defined by a vector that looks in a certain
             % direction, and then tells you which way is up.
             if (ieNotDefined('inPos'))

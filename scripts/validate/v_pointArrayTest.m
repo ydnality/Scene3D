@@ -17,7 +17,10 @@ curPbrt.camera.setLens('idealLensDiffraction-50mm.pbrt');
 curPbrt.removeLight();   %remove existing lights and geometry
 curPbrt.removeGeometry();
 curPbrt.removeMaterial();
-curPbrt.sampler.setPixelSamples(64);  %curPbrt.sampler.setPixelSamples(131070);
+curPbrt.sampler.removeProperty();
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', 64));
+
+% curPbrt.sampler.setPixelSamples(64);  %curPbrt.sampler.setPixelSamples(131070);
 curPbrt.camera.setResolution(201, 201);
 
 %add a grid of point light sources
@@ -26,10 +29,10 @@ yPos = -8:2:8;
 for i = xPos
     for j = yPos
         clear pointSource;
-        pointSource = lightAreaObject();
-        pointSource.addTransform(transformObject('Translate', [4.5 + i 0 7 + j]));
+        pointSource = pbrtLightAreaObject();
+        pointSource.addTransform(pbrtTransformObject('Translate', [4.5 + i 0 7 + j]));
         pointSource.removeShape();
-        pointSource.addShape(shapeObject('sphere', 'radius', .02));   %add a tiny spherical area light
+        pointSource.addShape(pbrtShapeObject('sphere', 'radius', .02));   %add a tiny spherical area light
         curPbrt.addLightSource(pointSource);
     end
 end
@@ -44,7 +47,7 @@ for depth = 50:10:130
     %run pbrt
     tmpFileName = ['pointArrayDepth' int2str(depth) '.pbrt'];
     curPbrt.writeFile(tmpFileName);
-    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
+    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/']);
 end
 
 

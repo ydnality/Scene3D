@@ -24,16 +24,16 @@ classdef pbrtObject <  handle
             
             % This is some blender to pbrt coordinate frames (AL)
             obj.scale = [-1 1 1];
-            obj.camera = cameraObject(); %assign the default camera
+            obj.camera = pbrtCameraObject(); %assign the default camera
             
             % Sampler
-            obj.sampler = samplerObject('lowdiscrepancy', propertyObject('integer pixelsamples', 128)); 
+            obj.sampler = pbrtSamplerObject('lowdiscrepancy', pbrtPropertyObject('integer pixelsamples', 128)); 
             
             % SurfaceIntegrator
             %             obj.surfaceIntegrator.type  = 'surfaceIntegrator';
             %             obj.surfaceIntegrator.surfIntType = 'directlighting';
             %             obj.surfaceIntegrator.maxdepth = 0;
-            obj.surfaceIntegrator = surfaceIntegratorObject(); 
+            obj.surfaceIntegrator = pbrtSurfaceIntegratorObject(); 
 
             % Renderer
             obj.renderer = 'sample';
@@ -43,7 +43,7 @@ classdef pbrtObject <  handle
             %  Attribute Begin
             %   Light source
             obj.lightSourceArray = cell(1,1);
-            whiteLight = lightSpotObject();
+            whiteLight = pbrtLightSpotObject();
             obj.lightSourceArray{1} = whiteLight;
             %  Attribute End
             
@@ -52,14 +52,14 @@ classdef pbrtObject <  handle
             obj.materialArray{1} = fullfile(datapath,'validate', 'pbrtObject', 'depthTargetSpheres-mat.pbrt');
             
             %example materials object
-            %             tempProperty = propertyObject('color Kd', [0 0.374624 0]);  %TODO: the user shouldn't need to know pbrt syntax...
-            %             greenLambertian = materialObject('greenLambertian', 'matte', tempProperty);
+            %             tempProperty = pbrtPropertyObject('color Kd', [0 0.374624 0]);  %TODO: the user shouldn't need to know pbrt syntax...
+            %             greenLambertian = pbrtMaterialObject('greenLambertian', 'matte', tempProperty);
             %             obj.addMaterial(greenLambertian);
              
             % Geometry file
             obj.geometryArray = cell(1,1);
             obj.geometryArray{1} = fullfile(datapath,'validate', 'pbrtObject', 'depthTargetSpheres-geom.pbrt');
-            %             examplePlane = geometryObject();
+            %             examplePlane = pbrtGeometryObject();
             %             obj.addGeometry = examplePlane;
             
             % WorldEnd
@@ -105,7 +105,7 @@ classdef pbrtObject <  handle
                     end
                 else
                     %this is the case where the lightsource is explicitly declared
-                    if (isa(obj.lightSourceArray{i}, 'lightObject'))
+                    if (isa(obj.lightSourceArray{i}, 'pbrtLightObject'))
                         fprintf(fid,'\n\nAttributeBegin\n');
                         obj.lightSourceArray{i}.writeFile(fid);
                         fprintf(fid,'\nAttributeEnd\n');
@@ -117,7 +117,7 @@ classdef pbrtObject <  handle
             
             %% Materials File
             for i = 1:length(obj.materialArray)
-                if (isa(obj.materialArray{i},'materialObject')); 
+                if (isa(obj.materialArray{i},'pbrtMaterialObject')); 
                     obj.materialArray{i}.writeFile(fid);
                     %                     if (strcmp(obj.materialArray{i}.matType, 'matte'))
                     %                         fprintf(fid,'\t"%s" [', obj.materialArray{i}.kd.kdType);
@@ -131,7 +131,7 @@ classdef pbrtObject <  handle
             %% Geometry File
             for i = 1:length(obj.geometryArray)
                 curGeometry =obj.geometryArray{i}; 
-                if (isa(curGeometry,'geometryObject')); 
+                if (isa(curGeometry,'pbrtGeometryObject')); 
                     curGeometry.writeFile(fid);
                 else
                     fprintf(fid,'\n\nInclude "%s"\n', curGeometry);

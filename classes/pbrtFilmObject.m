@@ -1,7 +1,7 @@
-classdef filmObject <  handle
-    % Create a film object
+classdef pbrtFilmObject <  handle
+    % Create a pbrtFilmObject
     %
-    %   film = filmObject(position,size,wave,waveConversion,resolution);
+    %   film = pbrtFilmObject(position,size,wave,waveConversion,resolution);
     %
     % Spatial units throughout are mm
     %
@@ -32,7 +32,7 @@ classdef filmObject <  handle
     methods
         
         %default constructor
-        function obj = filmObject(position, size,  wave, waveConversion, resolution)
+        function obj = pbrtFilmObject(position, size,  wave, waveConversion, resolution)
             
             if (ieNotDefined('position')), obj.position = [0 0 100];
             else                           obj.position = position;

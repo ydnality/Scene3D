@@ -35,7 +35,8 @@ for i = 1:size(cameraOffsetList, 1)
    
    tmpFileName = ['deleteMe' int2str(i) '.pbrt'];
    curPbrt.writeFile(tmpFileName);
-   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
+%    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);
+   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/']);
 end
 
 chdir('..');

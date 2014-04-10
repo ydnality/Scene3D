@@ -1,5 +1,5 @@
 % a simple pbrt geometry
-classdef geometryObject <  handle
+classdef pbrtGeometryObject <  handle
     properties (SetAccess = private)
         name;
         material;
@@ -10,7 +10,7 @@ classdef geometryObject <  handle
     methods
         
         %default constructor
-        function obj = geometryObject(inName, inMaterial, inTriMesh, inPoints, inTransform)
+        function obj = pbrtGeometryObject(inName, inMaterial, inTriMesh, inPoints, inTransform)
             if (ieNotDefined('inName'))
                 obj.name = 'defaultGeometry';
             else

@@ -1,5 +1,5 @@
-% cameraObject contains the camera position, lens, sensor
-classdef samplerObject <  propertyArrayObject
+% samplerObject contains the camera position, lens, sensor
+classdef pbrtSamplerObject <  pbrtPropertyArrayObject
     %     obj.sampler.type = 'sampler';
     %     obj.sampler.samplerType = 'lowdiscrepancy';
     %     obj.sampler.pixelsamples = 512;
@@ -10,7 +10,7 @@ classdef samplerObject <  propertyArrayObject
     methods
         
         %default constructor
-        function obj = samplerObject(inType, inProperty)
+        function obj = pbrtSamplerObject(inType, inProperty)
             %sampler type
             if (ieNotDefined('inType'))
                 obj.type = 'lowdiscrepancy';
@@ -25,7 +25,8 @@ classdef samplerObject <  propertyArrayObject
 %                 obj.pixelSamples = inPixelSamples;
 %             end
 %           
-            validateattributes(inProperty, {'propertyObject'}, {'nonempty'});  
+            validateattributes(inProperty, {'pbrtPropertyObject'}, {'nonempty'});  
+            obj.removeProperty();
             obj.addProperty(inProperty);
         end
         

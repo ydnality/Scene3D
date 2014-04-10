@@ -1,5 +1,5 @@
 % a simple pbrt material
-classdef materialObject <  handle
+classdef pbrtMaterialObject <  handle
     
 %     greenLambertian.type = 'material';
 %     greenLambertian.name = 'greenLambertian';
@@ -17,7 +17,7 @@ classdef materialObject <  handle
         
         %default constructor
         %TODO: doccument
-        function obj = materialObject(inName, inType, inProperty)
+        function obj = pbrtMaterialObject(inName, inType, inProperty)
             if (ieNotDefined('inName'))
                 obj.name = 'defaultMaterial';
             else
@@ -33,7 +33,7 @@ classdef materialObject <  handle
             
             obj.propertyArray = cell(1,1);
             if (ieNotDefined('inProperty'))
-                obj.propertyArray{1} = propertyObject('color Kd', [0 0.374624 0]);
+                obj.propertyArray{1} = pbrtPropertyObject('color Kd', [0 0.374624 0]);
             else
                 obj.propertyArray{1} = inProperty;
             end

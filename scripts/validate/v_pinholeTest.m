@@ -7,7 +7,7 @@ clear curPbrt;
 curPbrt = pbrtObject();
 % curPbrt.camera.setLens('pinhole-test.pbrt');
 curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(propertyObject('integer pixelsamples', 256));
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', 256));
 % curPbrt.sampler.setPixelSamples(256);  % curPbrt.sampler.setPixelSamples(131070);
 curPbrt.camera.setResolution(201, 201);
 
@@ -28,9 +28,9 @@ sceneWindow;
 % %the lens must be a pinhole camera, or a lens with a pinhole aperture
 % curPbrt.sampler.setType('stratified');
 % curPbrt.sampler.removeProperty();
-% curPbrt.sampler.addProperty(propertyObject('bool jitter', '"false"'));
-% curPbrt.sampler.addProperty(propertyObject('integer xsamples', 1));
-% curPbrt.sampler.addProperty(propertyObject('integer ysamples', 1));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', 1));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', 1));
 % 
 % tmpFileName = ['pinholeDepthMap'  '.pbrt'];
 % curPbrt.writeFile(tmpFileName);
