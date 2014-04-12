@@ -18,8 +18,9 @@ classdef pbrtObject <  handle
         geometryArray;   %we will use .fileName for now to avoid declaring all the geometry stuff
     end
     methods
-        % default constructor
+        
         function obj = pbrtObject()
+        % default constructor
             obj.name = 'default';
             
             % This is some blender to pbrt coordinate frames (AL)
@@ -65,8 +66,10 @@ classdef pbrtObject <  handle
             % WorldEnd
         end
         
-        % Write a text file from a pbrt structure
+       
         function returnVal = writeFile(obj, fname)
+        %writeFile(obj, fname)
+        %Write a text file from a pbrt structure
             fid = fopen(fname,'w');
             fprintf(fid,'# PBRT v2.0 Blender Scene file (written from Scene3D)\n#\n\n');
             
@@ -145,41 +148,56 @@ classdef pbrtObject <  handle
             
             returnVal = 1; %1 for success, 0 for failure
         end
-        
-        %TODO: error checking
+
         function addLightSource(obj,newLightSource)
-             %adds a light source to the light source array
+        %addLightSource(obj,newLightSource)
+        %
+        %adds a light source to the light source array
+        %
+        %newLightSource: must be of type pbrtLightObject 
+        %TODO: error checking
             obj.lightSourceArray{end+1} = newLightSource; 
         end
-        
-        %TODO: error checking
+
         function addMaterial(obj, newMaterial)
-            %adds a material to the material array
+        %addMaterial(obj, newMaterial)
+        %
+        %adds a material to the material array
+        %
+        %newMateria: must be of type pbrtMaterialObject
+        %TODO: error checking
             obj.materialArray{end+1} = newMaterial;
         end
             
-        %TODO: error checking
         function addGeometry(obj, newGeometry)
-            %adds geoemtery to the geometry array
+        %addGeometry(obj, newGeometry)
+        %
+        %%adds geoemtery to the geometry array
+        %
+        %newGeometry: must be of type pbrtGeometryObject
+        %TODO: error checking     
             obj.geometryArray{end+1} = newGeometry;
         end        
         
+        function removeGeometry(obj, deleteIndex)
+        %removeGeometry(obj, deleteIndex)
+        %
         %removes the geometry corresponding to the specified index
         %if deleteIndex is undefined, remove from the end
         %TODO: error checking
-        function removeGeometry(obj, deleteIndex)
             if (ieNotDefined('deleteIndex'))
                 obj.geometryArray(end) = [];
             else
                 obj.geometryArray(deleteIndex) = [];
             end
         end
-        
 
         function returnVal = removeLight(obj, deleteIndex)
-            %removes the light source corresponding to the specified index
-            %if deleteIndex is undefined, remove from the end
-            %returns the deleted value
+        %removeLight(obj, deleteIndex)
+        %
+        %removes the light source corresponding to the specified index
+        %if deleteIndex is undefined, remove from the end
+        %returns the deleted value
             if (ieNotDefined('deleteIndex'))
                 returnVal = obj.lightSourceArray(end);
                 obj.lightSourceArray(end) = [];
@@ -190,9 +208,11 @@ classdef pbrtObject <  handle
         end
         
         function returnVal = removeMaterial(obj, deleteIndex)
-            %removes the light source corresponding to the specified index
-            %if deleteIndex is undefined, remove from the end
-            %returns the deleted value
+        %removeMaterial(obj, deleteIndex)
+        %
+        %removes the light source corresponding to the specified index
+        %if deleteIndex is undefined, remove from the end
+        %returns the deleted value
             if (ieNotDefined('deleteIndex'))
                 returnVal = obj.materialArray(end);
                 obj.materialArray(end) = [];

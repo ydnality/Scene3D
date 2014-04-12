@@ -3,17 +3,17 @@
 % diffraction is turned off in this example!
 
 %initialization and directory organization
-filePath = [datapath '/validate/pbrtObject/']
-chdir(filePath);
-mkdir('batchPbrtFiles');
-unix('rm batchPbrtFiles/*');
-unix('cp * ./batchPbrtFiles/');
-chdir('batchPbrtFiles');
+% filePath = [datapath '/validate/pbrtObject/']
+% chdir(filePath);
+% mkdir('batchPbrtFiles');
+% unix('rm batchPbrtFiles/*');
+% unix('cp * ./batchPbrtFiles/');
+% chdir('batchPbrtFiles');
 
 %make a new pbrt object
 clear curPbrt;
 curPbrt = pbrtObject();
-curPbrt.camera.setLens('idealLensDiffraction-50mm.pbrt');
+curPbrt.camera.setLens(fullfile(dataPath, 'validate', 'pbrtObject', 'idealLensDiffraction-50mm.pbrt'));
 curPbrt.removeLight();   %remove existing lights and geometry
 curPbrt.removeGeometry();
 curPbrt.removeMaterial();
@@ -45,13 +45,14 @@ for depth = 50:10:130
                     0 0 1]);
 
     %run pbrt
-    tmpFileName = ['pointArrayDepth' int2str(depth) '.pbrt'];
+    tmpFileName = fullfile(dataPath, 'generatedPbrtFiles', ['deleteMe' int2str(depth) '.pbrt']);
     curPbrt.writeFile(tmpFileName);
-    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/']);
+%     oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/']);
+    oi = s3dRenderOI(tmpFileName, .050, tmpFileName);
 end
 
 
-chdir('..');
+% chdir('..');
 %the result should be a grid of points
 
 

@@ -19,9 +19,8 @@ function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
         focalLength = .050;
     end
 
-    fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
-    
     if(isa(inputPbrt, 'pbrtObject'))
+        fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
         inputPbrt.writeFile(fullfname);
     elseif (ischar(inputPbrt))
         %if inputPbrt is a char, then it becomes the input file
@@ -47,6 +46,7 @@ function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
     if (~ieNotDefined('oiName'))
         oi = oiSet(oi, 'name', oiName);
     end
+    oi = oiSet(oi, 'name', sceneName);
     oi = s3dFixOi(oi, focalLength);
 %     chdir('..');
 end

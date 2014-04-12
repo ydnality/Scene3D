@@ -2,12 +2,13 @@
 %makes a new tempPbrtFiles directory and puts all the files for the batch
 %job in there.  Note that we must copy all the pbrt files in the current
 %directory due to the way that s3dRenderOI is configured. 
-filePath = [datapath '/validate/pbrtObject/']
-chdir(filePath);
-mkdir('batchPbrtFiles');
-unix('rm batchPbrtFiles/*');
-unix('cp * ./batchPbrtFiles/');
-chdir('batchPbrtFiles');
+
+% filePath = [datapath '/validate/pbrtObject/']
+% chdir(filePath);
+% mkdir('batchPbrtFiles');
+% unix('rm batchPbrtFiles/*');
+% unix('cp * ./batchPbrtFiles/');
+% chdir('batchPbrtFiles');
 
 % spectrum list
 lightList = ...
@@ -24,10 +25,9 @@ for i = 1:size(lightList, 1)
    tmpFileName = ['deleteMe' int2str(i) '.pbrt']; %the pbrt file name
    curPbrt.writeFile(tmpFileName);
 %    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
-   oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/']);   %renders scene and displays as oi
+   oi = s3dRenderOI(tmpFileName, 50, tmpFileName);   %renders scene and displays as oi
 end
 
-chdir('..');
 %the result should be the depthTargeSpheres scene with an additional green
 %plane in the front.  The lighting should change between a series of
 %different specifies lights.
@@ -37,12 +37,14 @@ chdir('..');
 %makes a new tempPbrtFiles directory and puts all the files for the batch
 %job in there.  Note that we must copy all the pbrt files in the current
 %directory due to the way that s3dRenderOI is configured. 
-filePath = [datapath '/validate/pbrtObject/']
-chdir(filePath);
-mkdir('batchPbrtFiles');
-unix('rm batchPbrtFiles/*');
-unix('cp * ./batchPbrtFiles/');
-chdir('batchPbrtFiles');
+
+
+% filePath = [datapath '/validate/pbrtObject/']
+% chdir(filePath);
+% mkdir('batchPbrtFiles');
+% unix('rm batchPbrtFiles/*');
+% unix('cp * ./batchPbrtFiles/');
+% chdir('batchPbrtFiles');
 
 % direction list
 lightOffsetList = ...
@@ -64,10 +66,9 @@ for i = 1:size(lightOffsetList, 1)
    tmpFileName = ['deleteMe' int2str(i) '.pbrt']; %the pbrt file name
    curPbrt.writeFile(tmpFileName);
 %    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/'], tmpFileName);   %renders scene and displays as oi
-    oi = s3dRenderOI(tmpFileName, 50, [filePath '/batchPbrtFiles/']);   %renders scene and displays as oi
+    oi = s3dRenderOI(tmpFileName, 50, tmpFileName);   %renders scene and displays as oi
 end
 
-chdir('..');
 %the result should be the depthTargeSpheres scene with each one exhibiting
 %slightly different lighting conditions.  The lights are moved around in a
 %grid pattern.

@@ -2,6 +2,7 @@
 %makes a new tempPbrtFiles directory and puts all the files for the batch
 %job in there.  Note that we must copy all the pbrt files in the current
 %directory due to the way that s3dRenderOI is configured. 
+
 % filePath = [datapath '/validate/pbrtObject/']
 % chdir(filePath);
 % mkdir('batchPbrtFiles');

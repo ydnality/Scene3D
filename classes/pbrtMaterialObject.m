@@ -1,4 +1,4 @@
-% a simple pbrt material
+% A pbrt material.
 classdef pbrtMaterialObject <  handle
     
 %     greenLambertian.type = 'material';
@@ -14,10 +14,14 @@ classdef pbrtMaterialObject <  handle
         propertyArray;
     end
     methods
-        
-        %default constructor
-        %TODO: doccument
+       
         function obj = pbrtMaterialObject(inName, inType, inProperty)
+        %obj = pbrtMaterialObject(inName, inType, inProperty)
+        %inName: name of the material (default: 'defaultMaterial')
+        %inType: type of material (default: 'color Kd')
+        %inProperty: material property (default: pbrtPropertyObject('color
+        %Kd', [0 0.374624 0]))
+        
             if (ieNotDefined('inName'))
                 obj.name = 'defaultMaterial';
             else
@@ -39,26 +43,38 @@ classdef pbrtMaterialObject <  handle
             end
         end
         
-        %TODO: error checking
         function setName(obj, inName)
+        %setName(obj, inName)
+        %sets the name of the material
+        %
+        %inName: Name to set the material as.  Must be a string.
+        %TODO: error checking
             obj.name = inName;
         end
         
-        %TODO: error checking
         function setType(obj, inType)
+        %setType(obj, inType)
+        %sets the type of the material
+        %
+        %inName: Type to set the material as.  Must be a string.
+        %TODO: error checking
             obj.type = inType;
         end
         
-        %TODO: error checking
         function addProperty(obj, inProperty)
+        %addProperty(obj, inProperty)
+        %adds a material property
+        %
+        %inProperty: the added property.  Must be a pbrtPropertyObject.   
+        %TODO: error checking
+        %TODO: add a pop method? or some other array manipulation
             aLength = length(obj.propertyArray);
             obj.propertyArray{aLength+1} = inProperty;
         end
         
-        %TODO: add a pop method? or some other array manipulation
-        
-        %prints the pbrt representation to file object fid
         function returnVal = writeFile(obj, fid)
+        %returnVal = writeFile(obj, fid)
+        %prints the pbrt representation to file object fid
             fprintf(fid,'\n\nMakeNamedMaterial "%s"\n', obj.name);
             fprintf(fid,'\t"string type" ["%s"]\n', obj.type);
             

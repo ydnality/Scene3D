@@ -11,6 +11,8 @@ classdef pbrtShapeObject <  handle
     methods
         
         function obj = pbrtShapeObject(inType, inParameter, inData)
+        %obj = pbrtShapeObject(inType, inParameter, inData)
+        %
         %default constructor.  The input variables may be omitted or left
         %with empty arguments if the user does not wish to specify them.  A
         %default value will be assumed.  
@@ -33,25 +35,36 @@ classdef pbrtShapeObject <  handle
             end
         end
 
-        %TODO: add error checking!
         function setType(obj, inType)
+        %setType(obj, inType)
+        %
+        %sets the type of pbrtShape
+        %
+        %inType: must be of type character array (string)
            validateattributes(inType, {'char'}, {'nonempty'});
            obj.type = inType; 
            return;
         end
         
-        %TODO: error check for types
         function addParameter(obj, inParameter, inData)
+        %addParameter(obj, inParameter, inData)
+        %
+        %inParameter: must be a character array (string).
+        %inData: the input data.
+        %TODO: error check for types
            validateattributes(inParameter, {'char'}, {'nonempty'});
            obj.parameterArray{length(obj.parameterArray) + 1} = inParameter; 
            
-           validateattributes(inData, {'double'}, {'nonempty'});
+%            validateattributes(inData, {'double'}, {'nonempty'});
+           validateattributes(inData, {'nonempty'});
            obj.dataArray{length(obj.dataArray) + 1} = inData; 
            return;
         end
-        
-        %write the pbrt output to file
+
         function writeFile(obj, fid)
+        %writeFile(obj, fid)
+        %
+        %write the pbrt output to file
             fprintf(fid,'\tShape "%s" "', obj.type);
             
             for i = 1:length(obj.parameterArray)
