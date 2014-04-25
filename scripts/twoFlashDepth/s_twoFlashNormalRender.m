@@ -8,7 +8,7 @@
 
 
 s_initISET
-
+%%
 clear curPbrt;
 curPbrt = pbrtObject();
 
@@ -46,10 +46,13 @@ rotationTransform = [cos(theta) 0 sin(theta) 0;  %rotation about the y axis
 totalTransform = rotationTransform * translateTransform;
 
 
-% [0 0 -1 0;
-%                     1 0 0 0 ;
-%                     0 -1 0 0;
-%                     0 0 0  1]
+lightLeft = pbrtLightSpotObject('leftLight', [], [], [], [-50 0 80], [-50 0 79]);
+lightRight = pbrtLightSpotObject('rightLight', [], [], [], [50 0 80], [50 0 79]);
+% lightRight = pbrtLightSpotObject('rightLight', [], [], [], inFrom, inTo);
+curPbrt.removeLight();
+% curPbrt.addLightSource(lightLeft);
+curPbrt.addLightSource(lightRight);
+
 newGeometry = pbrtGeometryObject('newGeom', 'grayMat', [], [], totalTransform);
 
 % newGeometry.setTransform(eye(4));
@@ -58,5 +61,5 @@ curPbrt.addGeometry(newGeometry);
 
 tmpFileName = ['deleteMe' '.pbrt'];
 curPbrt.writeFile(tmpFileName);
-oi = s3dRenderOI(curPbrt, 50, tmpFileName);
+oi = s3dRenderOI(curPbrt, .050, tmpFileName);
 % end

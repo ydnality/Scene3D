@@ -247,7 +247,7 @@ classdef lensRealisticObject <  lensObject
         end
 
 
-        function obj =  rayTraceThroughLens(obj, rays)
+        function obj =  rayTraceThroughLens(obj, rays, debugLines)
             %Ray-trace of the lens
             % The rays are input
             % The rays are updated after refraction
@@ -256,6 +256,11 @@ classdef lensRealisticObject <  lensObject
             % how the rays pass through the optics.
             
             %
+            
+            if (ieNotDefined('debugLines'))
+                debugLines = false;
+            end
+            
             prevSurfaceZ = -obj.totalOffset;
             prevN = ones(length(rays.origin), 1);
             
@@ -289,12 +294,13 @@ classdef lensRealisticObject <  lensObject
                     intersectPosition = rays.origin + repIntersectT .* rays.direction;
 
                     %illustrations for debugging
-                    xCoordVector = [rays.origin(:,3) intersectPosition(:,3) NaN([length(rays.origin) 1])]';
-                    yCoordVector = [rays.origin(:,2) intersectPosition(:,2) NaN([length(rays.origin) 1])]';
-                    xCoordVector = real(xCoordVector(:));
-                    yCoordVector = real(yCoordVector(:));
-                    line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
-                    
+                    if (debugLines)
+                        xCoordVector = [rays.origin(:,3) intersectPosition(:,3) NaN([length(rays.origin) 1])]';
+                        yCoordVector = [rays.origin(:,2) intersectPosition(:,2) NaN([length(rays.origin) 1])]';
+                        xCoordVector = real(xCoordVector(:));
+                        yCoordVector = real(yCoordVector(:));
+                        line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
+                    end
                         
                     %                         if (isnan(intersectPosition))
                     %                             disp('nan value');

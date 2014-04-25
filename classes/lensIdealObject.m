@@ -63,8 +63,12 @@ classdef lensIdealObject <  lensObject
 
         
         
-        function obj =  rayTraceThroughLens(obj, rays, curPointSource)
+        function obj =  rayTraceThroughLens(obj, rays, curPointSource, debugLines)
         %traces rays through the lens
+            
+            if (ieNotDefined('debugLines'))
+                debugLines = false;
+            end
             
             % --- center ray calculation-------------
             %trace ray from point source to lens center, to image.  This helps
@@ -90,9 +94,11 @@ classdef lensIdealObject <  lensObject
             lensIntersectPosition = rays.origin +  repmat(lensIntersectT, [1 3]) .* rays.direction;
             
             %debug visualization
-            for i = 1:size(rays.direction,1)
-                hold on;
-                line([rays.origin(i,3) lensIntersectPosition(i,3) ], [rays.origin(i,2) lensIntersectPosition(i,2)] ,'Color','b','LineWidth',1);
+            if (debugLines)
+                for i = 1:size(rays.direction,1)
+                    hold on;
+                    line([rays.origin(i,3) lensIntersectPosition(i,3) ], [rays.origin(i,2) lensIntersectPosition(i,2)] ,'Color','b','LineWidth',1);
+                end
             end
             
             %calculate new direction

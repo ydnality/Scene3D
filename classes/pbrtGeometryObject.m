@@ -5,11 +5,15 @@ classdef pbrtGeometryObject <  handle
         material;
         triangleMesh;
         points;
+        shape;
         transform;
+    end
+    properties (SetAccess = private, GetAccess = private)
+        shapeInput; 
     end
     methods
 
-        function obj = pbrtGeometryObject(inName, inMaterial, inTriMesh, inPoints, inTransform)
+        function obj = pbrtGeometryObject(inName, inMaterial, inGeometry, inPoints, inTransform)
         %obj = pbrtGeometryObject(inName, inMaterial, inTriMesh, inPoints, inTransform)
         %default
         %
@@ -17,9 +21,13 @@ classdef pbrtGeometryObject <  handle
         %be a string.
         %inMaterial: name of the material to use for this geometry
         %(default: 'greenLambertian').  Must be a string.
-        %inTriMesh: the triangle mesh that comprises the geometry (default: 
-        %[0 1 2; 0 2 3];).  
-        %inPoints: the points in space that correspond to the triangle mesh
+        %inGeometry: There are 2 different potential inputs for a pbrtGeometry:
+        % - Input type #1: the triangle mesh that comprises the geometry (default: 
+        %[0 1 2; 0 2 3];).
+        % - Input type #2: a pbrtGeometry object(default: a sphere)
+        %
+        %inPoints: the points in space that correspond to the triangle
+        %mesh.  This is only required for a triangle mesh input.
         %alias numbers (default: [1.000000 1.000000 0.000000;
         %            -1.000000 1.000000 0.000000;
         %            -1.000000 -1.000000 0.000000;
@@ -44,10 +52,18 @@ classdef pbrtGeometryObject <  handle
             end
             
             %TODO:error checking
-            if (ieNotDefined('inTriMesh'))
+            if (ieNotDefined('inGeometry'))
                 obj.triangleMesh = [0 1 2; 0 2 3];
             else
-                obj.triangleMesh = inTriMesh;
+                if (isa(inGeometry, 'pbrtShapeObject'))
+                    obj.shapeInput = true;
+                    obj.shape = inGeometry;
+                    obj.triangleMesh = [];
+                    obj.points = [];
+                else
+                    obj.shapeInput = false;
+                    obj.triangleMesh = inGeometry;
+                end
             end
             
             %TODO:error checking
@@ -129,9 +145,13 @@ classdef pbrtGeometryObject <  handle
             
             fprintf(fid,'\tNamedMaterial "%s"\n', obj.material);
             
-            fprintf(fid,'\tShape "trianglemesh" "integer indices" \n\t[\n');
-            fprintf(fid,'\t%i %i %i\n', obj.triangleMesh');
-            fprintf(fid,'\t]\n');
+            if(obj.shapeInput)
+                obj.shape.writeFile(fid);
+            else
+                fprintf(fid,'\tShape "trianglemesh" "integer indices" \n\t[\n');
+                fprintf(fid,'\t%i %i %i\n', obj.triangleMesh');
+                fprintf(fid,'\t]\n');
+            end
             
             fprintf(fid,'\t"point P" \n\t[\n');
             fprintf(fid,'\t%f %f %f\n', obj.points');

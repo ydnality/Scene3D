@@ -16,11 +16,14 @@ classdef pbrtObject <  handle
         lightSourceArray;
         materialArray;  %we will use .fileName for now to avoid declaring all the materials stuff
         geometryArray;   %we will use .fileName for now to avoid declaring all the geometry stuff
+%         shapeArray; %built in shapes
     end
     methods
         
         function obj = pbrtObject()
-        % default constructor
+        % Default constructor. Creates default camera, sampler, surface
+        % integrator, light sources, materials, and geometries for the pbrt
+        % scene.
             obj.name = 'default';
             
             % This is some blender to pbrt coordinate frames (AL)
@@ -63,6 +66,10 @@ classdef pbrtObject <  handle
             %             examplePlane = pbrtGeometryObject();
             %             obj.addGeometry = examplePlane;
             
+            % Shapes
+%             obj.shapeArray = cell(1,1);
+%             obj.shapeArray{1}.shape = pbrtShapeObject();
+%             obj.shapeArray{1}.transform = pbrtTransformObject('translate', [4 0 3]);
             % WorldEnd
         end
         
@@ -140,6 +147,7 @@ classdef pbrtObject <  handle
                     fprintf(fid,'\n\nInclude "%s"\n', curGeometry);
                 end
             end
+
             %% World End
             fprintf(fid,'\n\nWorldEnd\n');
             
@@ -178,6 +186,18 @@ classdef pbrtObject <  handle
         %TODO: error checking     
             obj.geometryArray{end+1} = newGeometry;
         end        
+        
+%         function addShape(obj, newShape, newTransform)
+%         %addShape(obj, newShape, newTransform)
+%         %
+%         %%adds shape to the shape array
+%         %
+%         %newShape: must be of type pbrtGeometryObject
+%         %newTransform: must be of type pbrtTransformObject
+%         %TODO: error checking     
+%             obj.shapeArray{end+1} = newShape;
+%             obj.shapeArray{end+1} = newTransform;
+%         end    
         
         function removeGeometry(obj, deleteIndex)
         %removeGeometry(obj, deleteIndex)

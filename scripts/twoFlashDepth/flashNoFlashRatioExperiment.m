@@ -45,8 +45,10 @@
 %parameters from there - if not, assign these values.
 
 if(~exist('curPbrt', 'var'))
-    sensorWidth = 36;
-    sensorHeight  = 36; %24;
+    sensorWidth = 30.59;  %36; (used for indObject)
+    sensorHeight  = 30.59;  %36; %24;
+    
+    
     sensorDistance = 140; %get this from the render file
     f = 50;  % f signifies distance between 2 flashes    
 else    

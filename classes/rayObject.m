@@ -154,17 +154,57 @@ classdef rayObject <  handle
                 
                 %attempted vectorized version - runs out of memory
 %                 
-%                 %todo - somehow fix this
-%                 convertChannel = uint8((imagePixel.wavelength - 400)/10 + 1);
-%                 
-%                 wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];  %pixel to update
-%                 
-%                 recordablePixels =and(and(and(wantedPixel(:, 1) >= 1,  wantedPixel(:,1) <= film.resolution(1)), (wantedPixel(:, 2) > 1)), wantedPixel(:, 2) <= film.resolution(2));
-%                 
-%                 %remove the nonrecordablePixels
-%                 wantedPixel = wantedPixel(recordablePixels, :);
-%                 
-%                 
+%                 %todo - somehow fix this - it is not general enough
+                convertChannel = uint8((imagePixel.wavelength - 400)/10 + 1);
+                wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];  %pixel to update
+                
+                recordablePixels =and(and(and(wantedPixel(:, 1) >= 1,  wantedPixel(:,1) <= film.resolution(1)), (wantedPixel(:, 2) > 1)), wantedPixel(:, 2) <= film.resolution(2));
+                
+                %remove the nonrecordablePixels
+                wantedPixel = wantedPixel(recordablePixels, :);
+                
+                %correct for y coordinates
+                wantedPixel(:, 1) =  film.resolution(1) + 1 - wantedPixel( :, 1);
+                
+                %make a histogram of wantedPixel in anticipation of adding
+                %to film
+%                 [count bins] = hist(single(wantedPixel)); 
+%                  [count bins] = hist(single(wantedPixel), unique(single(wantedPixel), 'rows')); 
+                
+                uniqueEntries =  unique(single(wantedPixel), 'rows');
+                
+                %serializes the unique entries
+                serialUniqueIndex = sub2ind(size(film.image), uniqueEntries(:,1), uniqueEntries(:,2), uniqueEntries(:,3));
+                
+                serialUniqueIndex = sort(serialUniqueIndex);
+                
+                serialWantedPixel = sub2ind(size(film.image), single(wantedPixel(:,1)), single(wantedPixel(:,2)), single(wantedPixel(:,3)));
+                
+                
+                [countEntries] = hist(serialWantedPixel, serialUniqueIndex);
+
+                %old slower code
+%                 countEntries = zeros(length(uniqueEntries), 1);
+                %count the entries - see if there's a better way to do
+                %this...
+%                 for ii = 1:length(uniqueEntries)
+%                     countEntries(ii) = sum(sum(wantedPixel == repmat(uniqueEntries(ii,:), [length(wantedPixel) 1]), 2) == 3);
+%                 end
+                
+                
+                %serialize the film, then the indices, then add by
+                %countEntries
+                serializeFilm = film.image(:);
+                serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';
+                
+                film.image = reshape(serializeFilm, size(film.image));
+                
+%                 film.image(wantedPixel(:, 1), wantedPixel(:, 2), wantedPixel(:, 3)) =  film.image(wantedPixel(:, 1), wantedPixel(:, 2), wantedPixel(:, 3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
+
+                
+                
+                %this line doesn't work - wrong indexing, and cannot count
+                %mroe than 1
 %                 film.image(wantedPixel(:, 1), wantedPixel(:, 2), wantedPixel(:, 3)) =  film.image(wantedPixel(:, 1), wantedPixel(:, 2), wantedPixel(:, 3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
 
 %                 for i = 1:10:size(obj.origin , 1)
@@ -174,23 +214,23 @@ classdef rayObject <  handle
 %                 end
 
                 
-                %non-vectorized
-                %add a value to the intersection position
-                for i = 1:size(obj.origin , 1)
-                    %                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
-                    wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
-                    yPixel = film.resolution(1)+1 - wantedPixel(1);
-                    xPixel = wantedPixel(2);
-                    
-                    %check bounds - if out of bounds, do not display on film
-                    if (xPixel >= 1 && xPixel <= film.resolution(1) && yPixel > 1 && yPixel <= film.resolution(2))
-                        film.image(yPixel, xPixel, wantedPixel(3)) =  film.image(yPixel, xPixel, wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
-                    end
-                    
-                    %illustrations for debugging (out of bounds rays will
-                    %still be displayed)
-                    line(real([obj.origin(i, 3) intersectPosition(i, 3)]) ,  real([obj.origin(i, 2);  intersectPosition(i, 2)]));
-                end
+%                 %non-vectorized
+%                 %add a value to the intersection position
+%                 for i = 1:size(obj.origin , 1)
+%                     %                 wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
+%                     wantedPixel = [imagePixel.position(i,1) imagePixel.position(i,2) find(film.waveConversion == imagePixel.wavelength(i))];  %pixel to update
+%                     yPixel = film.resolution(1)+1 - wantedPixel(1);
+%                     xPixel = wantedPixel(2);
+%                     
+%                     %check bounds - if out of bounds, do not display on film
+%                     if (xPixel >= 1 && xPixel <= film.resolution(1) && yPixel > 1 && yPixel <= film.resolution(2))
+%                         film.image(yPixel, xPixel, wantedPixel(3)) =  film.image(yPixel, xPixel, wantedPixel(3)) + 1;  %sensor.image(imagePixel(:,1), imagePixel(:,2)) + 1;
+%                     end
+%                     
+%                     %illustrations for debugging (out of bounds rays will
+%                     %still be displayed)
+%                     line(real([obj.origin(i, 3) intersectPosition(i, 3)]) ,  real([obj.origin(i, 2);  intersectPosition(i, 2)]));
+%                 end
             end
         end
         

@@ -1,4 +1,4 @@
- %% ray-tracing for realistic lens
+%% ray-tracing for realistic lens
 %
 %  This uses Snell's law and a lens prescription to create a tray trace.
 %  The script is too long, and we need to start writing functions so that
@@ -7,17 +7,17 @@
 %  spread functions.
 %
 % AL Vistalab, 2014
-%% 
+%%
 s_initISET
 %% point sources
 pointSources = [ 0 0 -20000];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
-%% film properties - 
-film = filmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+%% film properties -
+film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
-diffractionEnabled = false;
+diffractionEnabled = true;
 
 %initialize to default
 %lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled, wave)
@@ -27,7 +27,7 @@ lens = lensRealisticObject([],[],[],[], 8, 50, [], diffractionEnabled);
 lens.readLensFile(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
 
 %intialize ray=tracing
-lens.calculateApertureSample([9 9]);
+lens.calculateApertureSample([201 201]);
 
 %lens illustration
 lens.drawLens();
@@ -38,17 +38,30 @@ lens.drawLens();
 for curInd = 1:size(pointSources, 1);
     %calculate the origin and direction of the rays
     %     rays.traceSourceToLens(pointSources(curInd, :), lens);
+    
+    disp('-----trace source to lens-----');
+    tic
     rays = lens.rayTraceSourceToLens(pointSources(curInd, :));
+    toc
     
     %duplicate the existing rays, and creates one for each
     %wavelength
+    disp('-----expand wavelenghts-----');
+    tic
     rays.expandWavelengths(film.wave);
+    toc
     
     %lens intersection and raytrace
+    disp('-----rays trace through lens-----');
+    tic
     lens.rayTraceThroughLens(rays);
-
+    toc
+    
     %intersect with "film" and add to film
+    disp('-----record on film-----');
+    tic
     rays.recordOnFilm(film);
+    toc
 end
 
 %% Show the image

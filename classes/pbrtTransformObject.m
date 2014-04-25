@@ -10,11 +10,12 @@ classdef pbrtTransformObject <  handle
     end
     methods
         
+        function obj = pbrtTransformObject(inType, inData)
+        %obj = pbrtTransformObject(inType, inData)
+        %
         %default constructor.  The input variables may be omitted or left
         %with empty arguments if the user does not wish to specify them.  A
         %default value will be assumed.  
-        function obj = pbrtTransformObject(inType, inData)
-
             if(ieNotDefined('inType'))
                 obj.setType('Translate');
             else

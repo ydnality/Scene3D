@@ -56,7 +56,7 @@ classdef pbrtShapeObject <  handle
            obj.parameterArray{length(obj.parameterArray) + 1} = inParameter; 
            
 %            validateattributes(inData, {'double'}, {'nonempty'});
-           validateattributes(inData, {'nonempty'});
+           validateattributes(inData, {'numeric'}, {'nonempty'});
            obj.dataArray{length(obj.dataArray) + 1} = inData; 
            return;
         end

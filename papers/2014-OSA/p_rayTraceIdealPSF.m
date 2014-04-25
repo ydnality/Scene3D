@@ -7,7 +7,7 @@
 % center of the lens.  The intersection of this ray and the focal-plane as
 % defined by the thin lens equation determines the point of focus of the
 % lens.  All other rays that are shot at the edge of the aperture will then
-% intersect this ideal focal point.  
+% intersect this ideal focal point.
 % All units are in mm.
 %
 %  TODO:
@@ -21,10 +21,11 @@
 % For Figure PSF comparison
 % AL Vistalab 2014
 
-%% 
+%%
 s_initISET
 
 %% point sources
+% tic
 % declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
 
@@ -34,11 +35,11 @@ pointSources = [0 0 -2000];
 % pointSources = [0 0 -20000];
 
 
-%% camera and film properties 
+%% camera and film properties
 
 % Build a sensor (film) object
 % Position, size,  wave, waveConversion, resolution
-film = filmObject([0 0 51.2821	],[.2/sqrt(2) .2/sqrt(2)], 400:10:700, [(400:10:700)' (1:31)'], [50 50 31]);   
+film = pbrtFilmObject([0 0 51.2821	],[.2/sqrt(2) .2/sqrt(2)], 400:10:700, [(400:10:700)' (1:31)'], [50 50 31]);
 
 
 diffractionEnabled = true;
@@ -57,19 +58,32 @@ vcNewGraphWin;  %vcNewGraphWin causes a matlab seg fault, so using figure
 % figure;
 
 for curInd = 1:size(pointSources, 1);
-    
+
     %calculate the origin and direction of the rays
+    disp('-----trace source to lens-----');
+    tic
     rays = lens.rayTraceSourceToLens(pointSources(curInd, :));
+    toc
     
     %duplicate the existing rays, and creates one for each
     %wavelength
+    disp('-----expand wavelenghts-----');
+    tic
     rays.expandWavelengths(film.wave);
-
+    toc
+    disp('-----rays trace through lens-----');
+    tic
+    
     %lens intersection and raytrace
-    lens.rayTraceThroughLens(rays, pointSources(curInd, :));
-
+    debugLines = false;
+    lens.rayTraceThroughLens(rays, pointSources(curInd, :), debugLines);
+    toc
+    
     % intersect with "film" and add to film
+    disp('-----record on film-----');
+    tic
     rays.recordOnFilm(film);
+    toc
 end
 
 %% Assign to optical image
@@ -93,3 +107,4 @@ oi = oiSet(oi,'hfov', hfov);
 vcAddObject(oi); oiWindow;
 
 %%
+% toc
