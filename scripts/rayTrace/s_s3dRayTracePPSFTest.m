@@ -1,10 +1,20 @@
-%% ray-tracing for realistic lens
+%% ray-tracing for realistic lens - PPSF
 %
 %  This uses Snell's law and a lens prescription to create a tray trace.
 %  The script is too long, and we need to start writing functions so that
 %  the length is shortened and the clarity increased.
 %  We are only ray-tracing ideal point sources in order to extract out point
 %  spread functions.
+%
+%  We are also experimenting with the plenoptic point spread function
+%  (PPSF).  this is a very early experiment, where we are splitting the
+%  calculation into 2 steps.  The first step traces the rays from a single 
+%  point in the scene towards the lens.  Ray-tracing is performed through
+%  the lens, and out the back aperture.  At this point, the rays may be
+%  saved as data.  Next, the rays are traced from the end of the lens to
+%  the sensor (this process is reasonably efficient and doesn't take much
+%  time).  Using this format, differrent sensor depths may be used to
+%  access the PSF.  
 %
 % AL Vistalab, 2014
 %%
