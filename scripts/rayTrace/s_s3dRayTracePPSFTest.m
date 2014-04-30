@@ -20,7 +20,9 @@
 %%
 s_initISET
 %% point sources
-pointSources = [ 0 0 -20000];  %large distance test
+pointSourceDepth = 20000;
+pointSourceFieldHeight = 0;
+pointSources = [ 0 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
@@ -51,19 +53,20 @@ lens.drawLens();
 disp('-----trace source to lens-----');
 tic
 rays = lens.rayTraceSourceToLens(pointSources(1, :));
+ppsfRays = ppsfObject(rays.origin, rays.direction, rays.wavelength, pointSourceDepth, pointSourceFieldHeight);
 toc
 
 %duplicate the existing rays, and creates one for each
 %wavelength
 disp('-----expand wavelenghts-----');
 tic
-rays.expandWavelengths(film.wave);
+ppsfRays.expandWavelengths(film.wave);
 toc
 
 %lens intersection and raytrace
 disp('-----rays trace through lens-----');
 tic
-lens.rayTraceThroughLens(rays);
+lens.rayTraceThroughLens(ppsfRays);
 toc
 
 %% The rays at this point can then be saved to file and stored as precomputed rays
@@ -73,7 +76,16 @@ toc
 %% ray-trace the last bit - from lens to sensor
 %modify the film and see the consequences on the PSF - these computations
 %should be very fast
+newRadius = 1;
+outsideAperture = ppsfRays.apertureLocation(:,1).^2 + ppsfRays.apertureLocation(:,2).^2 > newRadius^2;
 
+%remove outside of aperture elements
+%TODO: make this into a function
+ppsfRays.origin(outsideAperture, : ) = [];
+ppsfRays.direction(outsideAperture, : ) = [];
+ppsfRays.wavelength(outsideAperture) = [];
+ppsfRays.waveIndex(outsideAperture) = [];
+ppsfRays.apertureLocation(outsideAperture, :) = [];
 
 film = cell(1,3);
 %first try at 36.4 sensor distance
@@ -81,7 +93,7 @@ film{1} = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], 
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic
-rays.recordOnFilm(film{1});
+ppsfRays.recordOnFilm(film{1});
 toc
 
 %38 sensor distance
@@ -89,7 +101,7 @@ film{2} = pbrtFilmObject([0 0 38],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic
-rays.recordOnFilm(film{2});
+ppsfRays.recordOnFilm(film{2});
 toc
 
 %35 sensor distance
@@ -97,7 +109,7 @@ film{3} = pbrtFilmObject([0 0 35],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic
-rays.recordOnFilm(film{3});
+ppsfRays.recordOnFilm(film{3});
 toc
 
 %% Show the images

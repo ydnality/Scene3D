@@ -19,7 +19,7 @@ newCamPos =    [0  0 80.0000;
 curPbrt.camera.setPosition(newCamPos);
 
 %depths
-sphereDepths = 0;  %negative is into the screen
+sphereDepths = 30;  %negative is into the screen
 
 %flash separation
 flashSeparation = 50;

@@ -257,6 +257,7 @@ classdef lensRealisticObject <  lensObject
             
             %
             
+            passedCenterAperture = false;  %true if rays are traced through lens aperture
             if (ieNotDefined('debugLines'))
                 debugLines = false;
             end
@@ -313,12 +314,19 @@ classdef lensRealisticObject <  lensObject
                     repIntersectT = repmat(intersectT, [1 3]);
                     intersectPosition = rays.origin + rays.direction .* repIntersectT;
                     curAperture = min(curEl.aperture, obj.apertureRadius);
+                    
+                    %added for ppsfObject apertureTracking
+                    if(isa(rays, 'ppsfObject'))
+                        rays.setApertureLocation(intersectPosition);
+                        passedCenterAperture = true;
+                    end
                     %                         if (isnan(intersectPosition))
                     %                             disp('nan value');
                     %                         end
                 end
  
                 % remove rays that land outside of the aperture
+                %TODO: consider making these set functions later
                 outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 > curAperture^2;
                 rays.origin(outsideAperture, : ) = [];
                 rays.direction(outsideAperture, : ) = [];
@@ -326,6 +334,11 @@ classdef lensRealisticObject <  lensObject
                 rays.waveIndex(outsideAperture) = [];
                 intersectPosition(outsideAperture, :) = [];
                 prevN(outsideAperture) = [];
+                
+                %special case with ppsfObjects
+                if(isa(rays,'ppsfObject') && passedCenterAperture)
+                    rays.apertureLocation(outsideAperture, :) = [];   
+                end
                 
                 % snell's law
                 if(curEl.radius ~= 0)
