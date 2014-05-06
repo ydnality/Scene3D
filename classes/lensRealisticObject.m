@@ -317,7 +317,7 @@ classdef lensRealisticObject <  lensObject
                     
                     %added for ppsfObject apertureTracking
                     if(isa(rays, 'ppsfObject'))
-                        rays.setApertureLocation(intersectPosition);
+                        rays.apertureLocation = intersectPosition;
                         passedCenterAperture = true;
                     end
                     %                         if (isnan(intersectPosition))
@@ -332,8 +332,11 @@ classdef lensRealisticObject <  lensObject
                 rays.direction(outsideAperture, : ) = [];
                 rays.wavelength(outsideAperture) = [];
                 rays.waveIndex(outsideAperture) = [];
+                rays.apertureSamples.X(outsideAperture) = []; 
+                rays.apertureSamples.Y(outsideAperture) = []; 
                 intersectPosition(outsideAperture, :) = [];
                 prevN(outsideAperture) = [];
+                
                 
                 %special case with ppsfObjects
                 if(isa(rays,'ppsfObject') && passedCenterAperture)

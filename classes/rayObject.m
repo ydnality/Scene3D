@@ -1,4 +1,4 @@
-classdef rayObject <  handle
+classdef rayObject <  clonableHandleObject
     % Create a ray object
     %
     % ray = rayObject(origin,direction,wavelength)
