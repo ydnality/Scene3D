@@ -16,6 +16,10 @@
 %  time).  Using this format, differrent sensor depths may be used to
 %  access the PSF.  
 %
+%  This specific script renders 2 PPSFs at a set distance, but with
+%  different field positions.  We attempt to interpolate a PPSF for a
+%  position half-way between these 2, and check the results with the ground
+%  truth.
 % AL Vistalab, 2014
 %%
 s_initISET
@@ -25,11 +29,13 @@ s_initISET
 %% point sources
 pointSourceDepth = 20000;
 pointSourceFieldHeight = 0;
-pointSources = [ 0 0 -pointSourceDepth];  %large distance test
+pointSources = [ 3000 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+
+%36.4
+film = pbrtFilmObject([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -60,11 +66,11 @@ firstRays.makeDeepCopy(modifyRays);
 %% point sources
 pointSourceDepth = 20000;
 pointSourceFieldHeight = 0;
-pointSources = [ 10 0 -pointSourceDepth];  %large distance test
+pointSources = [ 6000 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = pbrtFilmObject([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -97,11 +103,11 @@ secondRays.makeDeepCopy(modifyRays);
 %% point sources
 pointSourceDepth = 20000;
 pointSourceFieldHeight = 0;
-pointSources = [ 5 0 -pointSourceDepth];  %large distance test
+pointSources = [ 4500 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = pbrtFilmObject([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -129,3 +135,71 @@ middleRays.makeDeepCopy(modifyRays);
 
 
 %% Interpolate between 1st and 2nd PPSF to try to produce 3rd one
+averageRays = ppsfObject();
+averageRays.makeDeepCopy(firstRays);
+%average between the first 2 ppsfs
+averageRays.origin = (firstRays.origin + secondRays.origin)./2;
+averageRays.direction = (firstRays.direction + secondRays.direction)./2;
+averageRays.apertureLocation = (firstRays.apertureLocation + secondRays.apertureLocation)./2;
+
+% ray-trace the last bit - from lens to sensor
+%modify the film and see the consequences on the PSF - these computations
+%should be very fast
+modifyRays = ppsfObject();
+modifyRays.makeDeepCopy(averageRays);
+% 
+% newRadius = 2;
+outsideAperture = [];
+% outsideAperture = modifyRays.apertureLocation(:,1).^2 + modifyRays.apertureLocation(:,2).^2 > newRadius^2;
+
+%modify so only x >0 shows up
+% outsideAperture = modifyRays.apertureSamples.X > 0; 
+
+%remove outside of aperture elements
+%TODO: make this into a function
+modifyRays.origin(outsideAperture, : ) = [];   %this needs to be fixed later
+modifyRays.direction(outsideAperture, : ) = [];
+modifyRays.wavelength(outsideAperture) = [];
+modifyRays.waveIndex(outsideAperture) = [];
+modifyRays.apertureLocation(outsideAperture, :) = [];
+modifyRays.apertureSamples.X(outsideAperture) = []; 
+modifyRays.apertureSamples.Y(outsideAperture) = [];
+
+filmCell = cell(1,1);
+%first try at 36.4 sensor distance
+filmCell{1} = pbrtFilmObject([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+%intersect with "film" and add to film
+disp('-----record on film-----');
+tic
+modifyRays.recordOnFilm(filmCell{1});
+toc
+
+
+% Show the images
+
+
+% vcNewGraphWin;
+% imshow(film.image/ max(film.image(:)));
+
+for i = 1:length(film)
+
+    oi = oiCreate;
+    oi = initDefaultSpectrum(oi);
+    oi = oiSet(oi, 'wave', filmCell{i}.wave);
+    oi = oiSet(oi,'photons',filmCell{i}.image);
+
+
+    optics = oiGet(oi,'optics');
+    optics = opticsSet(optics,'focal length',lens.focalLength/1000);
+    optics = opticsSet(optics,'fnumber', lens.focalLength/(2*1));
+    oi = oiSet(oi,'optics',optics);
+    hfov = rad2deg(2*atan2(filmCell{i}.size(1)/2,lens.focalLength));
+    oi = oiSet(oi,'hfov', hfov);
+    
+    temp = filmCell{i}.position;
+    filmDistance = temp(3);
+    oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
+    vcAddAndSelectObject(oi); oiWindow;
+end
+
+

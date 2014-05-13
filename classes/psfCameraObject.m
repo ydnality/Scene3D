@@ -72,6 +72,25 @@ classdef psfCameraObject <  handle
             oi = oiSet(oi,'hfov', hfov);
         end
         
+        
+        function showFilm(obj)
+            oi = oiCreate;
+            oi = initDefaultSpectrum(oi);
+            oi = oiSet(oi, 'wave', obj.film.wave);
+            oi = oiSet(oi,'photons',obj.film.image);
+
+            optics = oiGet(oi,'optics');
+            optics = opticsSet(optics,'focal length',obj.lens.focalLength/1000);
+            optics = opticsSet(optics,'fnumber', obj.lens.focalLength/(2*1));
+            oi = oiSet(oi,'optics',optics);
+            hfov = rad2deg(2*atan2(obj.film.size(1)/2,obj.lens.focalLength));
+            oi = oiSet(oi,'hfov', hfov);
+
+            temp = obj.film.position;
+            filmDistance = temp(3);
+            oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
+            vcAddAndSelectObject(oi); oiWindow; 
+        end
     end
     
 end

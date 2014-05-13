@@ -1,10 +1,10 @@
 classdef ppsfObject < rayObject
     % Create a ray object
     %
-    % ray = rayObject(origin,direction,wavelength)
+    % ppsf = ppsfObject(origin,direction,wavelength)
     %
     % Example:
-    %   rayObject
+    %   ppsf
     %
     % AL Vistasoft Copyright 2014
     

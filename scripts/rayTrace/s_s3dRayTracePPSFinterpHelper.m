@@ -46,7 +46,7 @@ outsideAperture = [];
 
 %remove outside of aperture elements
 %TODO: make this into a function
-modifyRays.origin(outsideAperture, : ) = [];
+modifyRays.origin(outsideAperture, : ) = [];   %this needs to be fixed later
 modifyRays.direction(outsideAperture, : ) = [];
 modifyRays.wavelength(outsideAperture) = [];
 modifyRays.waveIndex(outsideAperture) = [];
@@ -54,13 +54,13 @@ modifyRays.apertureLocation(outsideAperture, :) = [];
 modifyRays.apertureSamples.X(outsideAperture) = []; 
 modifyRays.apertureSamples.Y(outsideAperture) = [];
 
-film = cell(1,1);
+filmCell = cell(1,1);
 %first try at 36.4 sensor distance
-film{1} = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+filmCell{1} = film; %pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic
-modifyRays.recordOnFilm(film{1});
+modifyRays.recordOnFilm(filmCell{1});
 toc
 
 
@@ -74,18 +74,18 @@ for i = 1:length(film)
 
     oi = oiCreate;
     oi = initDefaultSpectrum(oi);
-    oi = oiSet(oi, 'wave', film{i}.wave);
-    oi = oiSet(oi,'photons',film{i}.image);
+    oi = oiSet(oi, 'wave', filmCell{i}.wave);
+    oi = oiSet(oi,'photons',filmCell{i}.image);
 
 
     optics = oiGet(oi,'optics');
     optics = opticsSet(optics,'focal length',lens.focalLength/1000);
     optics = opticsSet(optics,'fnumber', lens.focalLength/(2*1));
     oi = oiSet(oi,'optics',optics);
-    hfov = rad2deg(2*atan2(film{i}.size(1)/2,lens.focalLength));
+    hfov = rad2deg(2*atan2(filmCell{i}.size(1)/2,lens.focalLength));
     oi = oiSet(oi,'hfov', hfov);
     
-    temp = film{i}.position;
+    temp = filmCell{i}.position;
     filmDistance = temp(3);
     oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
     vcAddAndSelectObject(oi); oiWindow;

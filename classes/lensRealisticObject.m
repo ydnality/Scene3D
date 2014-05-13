@@ -273,7 +273,22 @@ classdef lensRealisticObject <  lensObject
                 
                 %  ----vectorized               
                 
+                %remove the dead rays and use tmp data structure, liveRays
+%                 liveRays = rayObject();
+%                 liveRays.makeDeepCopy(rays);
+%                 deadIndices = isnan(rays.origin);
+%                 
+%                 liveRays.origin(deadIndices, : ) = [];
+%                 liveRays.direction(deadIndices, : ) = [];
+%                 liveRays.wavelength(deadIndices) = [];
+%                 liveRays.waveIndex(deadIndices) = [];
+%                 liveRays.apertureSamples.X(deadIndices) = []; 
+%                 liveRays.apertureSamples.Y(deadIndices) = []; 
+%                 liveRays.apertureLocation(deadIndices, :) = [];  
+                
+                
                 %ray trace through a single element
+                
                 %calculate intersection with lens element -
                 if (curEl.radius ~= 0) %only do this for actual spherical elements, 
                     repCenter = repmat(curEl.sphereCenter, [length(rays.origin) 1]);
@@ -328,19 +343,19 @@ classdef lensRealisticObject <  lensObject
                 % remove rays that land outside of the aperture
                 %TODO: consider making these set functions later
                 outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 > curAperture^2;
-                rays.origin(outsideAperture, : ) = [];
-                rays.direction(outsideAperture, : ) = [];
-                rays.wavelength(outsideAperture) = [];
-                rays.waveIndex(outsideAperture) = [];
-                rays.apertureSamples.X(outsideAperture) = []; 
-                rays.apertureSamples.Y(outsideAperture) = []; 
-                intersectPosition(outsideAperture, :) = [];
-                prevN(outsideAperture) = [];
+                rays.origin(outsideAperture, : ) = NaN;
+                rays.direction(outsideAperture, : ) = NaN;
+                rays.wavelength(outsideAperture) = NaN;
+                rays.waveIndex(outsideAperture) = NaN;
+                rays.apertureSamples.X(outsideAperture) = NaN; 
+                rays.apertureSamples.Y(outsideAperture) = NaN; 
+                intersectPosition(outsideAperture, :) = NaN;
+                prevN(outsideAperture) = NaN;
                 
                 
                 %special case with ppsfObjects
                 if(isa(rays,'ppsfObject') && passedCenterAperture)
-                    rays.apertureLocation(outsideAperture, :) = [];   
+                    rays.apertureLocation(outsideAperture, :) = NaN;   
                 end
                 
                 % snell's law
@@ -367,8 +382,10 @@ classdef lensRealisticObject <  lensObject
                     %but I coudln't find a way to vectorize it, so instead
                     %we precompute it
                     
-                    curN = curEl.n(rays.waveIndex);
-                    
+                    liveIndices = ~isnan(rays.wavelength);
+                    curN = ones(size(prevN));
+                    curN(liveIndices) = curEl.n(rays.waveIndex(liveIndices));  %deal with nans
+                    curN(~liveIndices) = nan;
                     
 %                     curN = ones(length(rays.wavelength), 1) * curEl.n;
                     ratio = prevN./curN;    %snell's law index of refraction

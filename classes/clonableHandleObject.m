@@ -18,8 +18,9 @@ classdef clonableHandleObject < handle
             
              
 
-            
-            props = properties(oldObj);
+            %only look at the current object for properties - this deals
+            %with inheritance cases
+            props = properties(obj);
             for i = 1:length(props)
                 % Use Dynamic Expressions to copy the required property.
                 % For more info on usage of Dynamic Expressions, refer to

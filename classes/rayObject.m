@@ -131,13 +131,37 @@ classdef rayObject <  clonableHandleObject
         function obj = recordOnFilm(obj, film)
         %records the ray on the film
           
+        
+            %make a clone
+            liveRays = rayObject();
+            liveRays.makeDeepCopy(obj);
+            
+            %remove dead rays
+            deadIndices = isnan(obj.waveIndex);      
+            
+%             props = properties(liveRays);
+%             for i = 1:length(props)
+%                 liveRays.(props{i})(deadIndices) = [];
+                
+                liveRays.origin(deadIndices, : ) = [];
+                liveRays.direction(deadIndices, : ) = [];
+                liveRays.wavelength(deadIndices) = [];
+                liveRays.waveIndex(deadIndices) = [];
+%                 liveRays.apertureSamples.X(deadIndices) = [];   %THIS
+%                 NEEDS TO BE FIXED!!! the difference between rayobject
+%                 andd ppsfObject
+%                 liveRays.apertureSamples.Y(deadIndices) = [];
+%                 liveRays.apertureLocation(deadIndices, :) = [];
+%             end
+            
+            
             %check if no rays - only record if there are any
-            if(~isempty(obj.origin))
+            if(~isempty(liveRays.origin))
                 
                 %calculate intersection point at sensor
-                intersectZ = repmat(film.position(3), [size(obj.origin, 1) 1]);
-                intersectT = (intersectZ - obj.origin(:, 3))./obj.direction(:, 3);
-                intersectPosition = obj.origin + obj.direction .* repmat(intersectT, [1 3]);
+                intersectZ = repmat(film.position(3), [size(liveRays.origin, 1) 1]);
+                intersectT = (intersectZ - liveRays.origin(:, 3))./liveRays.direction(:, 3);
+                intersectPosition = liveRays.origin + liveRays.direction .* repmat(intersectT, [1 3]);
                 
                 %imagePixel is the pixel that will gain a photon due to the traced ray
                 imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
@@ -149,7 +173,7 @@ classdef rayObject <  clonableHandleObject
                 %             imagePixel.position(imagePixel.position < 1) = 1; %make sure pixel is in range
                 %             imagePixel.position = real(min(imagePixel.position, repmat(film.resolution(1:2), [size(imagePixel.position,1) 1])));
                 
-                imagePixel.wavelength = obj.wavelength;
+                imagePixel.wavelength = liveRays.wavelength;
                 
                 
                 %attempted vectorized version - runs out of memory
