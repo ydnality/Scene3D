@@ -46,7 +46,9 @@ classdef ppsfCameraObject <  psfCameraObject
             tic
             obj.ppsfRays = obj.lens.rayTraceSourceToLens(obj.pointSource(1, :));
             apertureSamples = obj.lens.apertureSample;
-            obj.ppsfRays = ppsfObject(obj.ppsfRays.origin, obj.ppsfRays.direction, obj.ppsfRays.wavelength, 0, 0, apertureSamples);  %think of a best way to put in aperture sample location
+            
+            %think of a best way to put in aperture sample location
+            obj.ppsfRays = ppsfObject(obj.ppsfRays.origin, obj.ppsfRays.direction, obj.ppsfRays.wavelength, 0, 0, apertureSamples);  
             toc
 
             %duplicate the existing rays, and creates one for each
