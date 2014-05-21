@@ -33,32 +33,12 @@ s_initISET
     upperRightPosition = [40 50 -pointSourceDepth];   %upper right
     upperLeftPosition = [50 50 -pointSourceDepth];   %upper left
     
-    secondSeriesPSDepth = 1200;
-    lowerRightBackPosition = [40 40 -secondSeriesPSDepth];   %lower right
-    lowerLeftBackPosition =  [50 40 -secondSeriesPSDepth];   %lower left
-    upperRightBackPosition = [40 50 -secondSeriesPSDepth];   %upper right
-    upperLeftBackPosition = [50 50 -secondSeriesPSDepth];   %upper left    
-    
     distance = 10;
-    zDistance = secondSeriesPSDepth - pointSourceDepth;
-%     newPosition = [45 45 -pointSourceDepth * .5 - secondSeriesPSDepth * .5 ];
-    newPosition = [45 45 -pointSourceDepth * .5 - secondSeriesPSDepth * .5 ];
-    
-    zWeight = (zDistance - -(newPosition(3) - lowerRightPosition(3)))/zDistance;
-    
-    lowerRightWeight = (distance - (newPosition(1) - lowerRightPosition(1)))/distance * (distance - (newPosition(2) - lowerRightPosition(2)))/distance * zWeight;
-    lowerLeftWeight = (distance - -(newPosition(1) - lowerLeftPosition(1)))/distance * (distance - (newPosition(2) - lowerLeftPosition(2)))/distance * zWeight;
-    upperRightWeight = (distance - (newPosition(1) - upperRightPosition(1)))/distance * (distance - -(newPosition(2) - upperRightPosition(2)))/distance * zWeight;
-    upperLeftWeight = (distance - -(newPosition(1) - upperLeftPosition(1)))/distance * (distance - -(newPosition(2) - upperLeftPosition(2)))/distance * zWeight;
-    
-    backZWeight = 1 - zWeight;
-    
-    lowerRightBackWeight = (distance - (newPosition(1) - lowerRightPosition(1)))/distance * (distance - (newPosition(2) - lowerRightPosition(2)))/distance * backZWeight;
-    lowerLeftBackWeight = (distance - -(newPosition(1) - lowerLeftPosition(1)))/distance * (distance - (newPosition(2) - lowerLeftPosition(2)))/distance * backZWeight;
-    upperRightBackWeight = (distance - (newPosition(1) - upperRightPosition(1)))/distance * (distance - -(newPosition(2) - upperRightPosition(2)))/distance * backZWeight;
-    upperLeftBackWeight = (distance - -(newPosition(1) - upperLeftPosition(1)))/distance * (distance - -(newPosition(2) - upperLeftPosition(2)))/distance * backZWeight;   
-    
-    
+    newPosition = [42.5 42.5 -pointSourceDepth];
+    lowerRightWeight = (distance - (newPosition(1) - lowerRightPosition(1)))/distance * (distance - (newPosition(2) - lowerRightPosition(2)))/distance
+    lowerLeftWeight = (distance - -(newPosition(1) - lowerLeftPosition(1)))/distance * (distance - (newPosition(2) - lowerLeftPosition(2)))/distance
+    upperRightWeight = (distance - (newPosition(1) - upperRightPosition(1)))/distance * (distance - -(newPosition(2) - upperRightPosition(2)))/distance
+    upperLeftWeight = (distance - -(newPosition(1) - upperLeftPosition(1)))/distance * (distance - -(newPosition(2) - upperLeftPosition(2)))/distance
     
 %% --first PPSF bottom right--
     %% point sources
@@ -234,191 +214,7 @@ s_initISET
     % save ppsf
     upperLeftRays = ppsfObject();
     upperLeftRays.makeDeepCopy(modifyRays);
-
-    
-%% --5th PPSF bottom right, 2nd depth--
-    %% point sources
-    pointSources = lowerRightBackPosition;  %large distance test
-    % pointSources = [ 0 0 -60];  %short distance test
-
-    %% film properties
-    %36.4
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-
-    %% lens properties
-    diffractionEnabled = false;   
-    %turning on diffraction does NOT make sense yet since we have not modeled 
-    %the transformation of uncertainty from the middle aperture to the end of the lens
-
-    %initialize to default
-    %lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled, wave)
-    lens = lensRealisticObject([],[],[],[], 8, 50, [], diffractionEnabled);
-
-    %read lens from file
-    lens.readLensFile(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
-
-    %intialize ray=tracing
-    randJitter = false;
-    lens.calculateApertureSample([301 301], randJitter);
-
-    %lens illustration
-    lens.drawLens();
-
-    %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
-    ppsfRays = ppsfCamera.estimatePPSF();
-
-    %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
-    modifyRays.makeDeepCopy(ppsfRays);
-
-    %trace from end of lens to sensor
-    modifyRays.recordOnFilm(ppsfCamera.film);
-
-    %show image
-    ppsfCamera.showFilm();
-
-    % save ppsf
-    lowerRightBackRays = ppsfObject();
-    lowerRightBackRays.makeDeepCopy(modifyRays);
-
-%% --6th PPSF lower left, 2nd depth --
-    %% point sources
-    pointSources = lowerLeftBackPosition;  %large distance test
-    % pointSources = [ 0 0 -60];  %short distance test
-
-    %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-
-    %% lens properties
-    diffractionEnabled = false;   
-    %turning on diffraction does NOT make sense yet since we have not modeled 
-    %the transformation of uncertainty from the middle aperture to the end of the lens
-
-    %initialize to default
-    lens = lensRealisticObject([],[],[],[], 8, 50, [], diffractionEnabled);
-
-    %read lens from file
-    lens.readLensFile(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
-
-    %intialize ray=tracing
-    randJitter = false;
-    lens.calculateApertureSample([301 301], randJitter);
-
-    %lens illustration
-    lens.drawLens();
-    %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
-    ppsfRays = ppsfCamera.estimatePPSF();
-
-    %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
-    modifyRays.makeDeepCopy(ppsfRays);
-
-    %trace from end of lens to sensor
-    modifyRays.recordOnFilm(ppsfCamera.film);
-
-    %show image
-    ppsfCamera.showFilm();
-
-    % save ppsf
-    lowerLeftBackRays = ppsfObject();
-    lowerLeftBackRays.makeDeepCopy(modifyRays);
-
-%% --7th PPSF upper right, second depth--
-    %% point sources
-    pointSources = upperRightBackPosition;  %large distance test
-    % pointSources = [ 0 0 -60];  %short distance test
-
-    %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-
-    %% lens properties
-    diffractionEnabled = false;   
-    %turning on diffraction does NOT make sense yet since we have not modeled 
-    %the transformation of uncertainty from the middle aperture to the end of the lens
-
-    %initialize to default
-    lens = lensRealisticObject([],[],[],[], 8, 50, [], diffractionEnabled);
-
-    %read lens from file
-    lens.readLensFile(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
-
-    %intialize ray=tracing
-    randJitter = false;
-    lens.calculateApertureSample([301 301], randJitter);
-
-    %lens illustration
-    lens.drawLens();
-    %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
-    ppsfRays = ppsfCamera.estimatePPSF();
-
-    %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
-    modifyRays.makeDeepCopy(ppsfRays);
-
-    %trace from end of lens tmato sensor
-    modifyRays.recordOnFilm(ppsfCamera.film);
-
-    %show image
-    ppsfCamera.showFilm();
-
-    % save ppsf
-    upperRightBackRays = ppsfObject();
-    upperRightBackRays.makeDeepCopy(modifyRays);
-    
-%% --8th PPSF upper left, second depth--
-    %% point sources
-    pointSources = upperLeftBackPosition;  %large distance test
-    % pointSources = [ 0 0 -60];  %short distance test
-
-    %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
-
-    %% lens properties
-    diffractionEnabled = false;   
-    %turning on diffraction does NOT make sense yet since we have not modeled 
-    %the transformation of uncertainty from the middle aperture to the end of the lens
-
-    %initialize to default
-    lens = lensRealisticObject([],[],[],[], 8, 50, [], diffractionEnabled);
-
-    %read lens from file
-    lens.readLensFile(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
-
-    %intialize ray=tracing
-    randJitter = false;
-    lens.calculateApertureSample([301 301], randJitter);
-
-    %lens illustration
-    lens.drawLens();
-    %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
-    ppsfRays = ppsfCamera.estimatePPSF();
-
-    %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
-    modifyRays.makeDeepCopy(ppsfRays);
-
-    %trace from end of lens tmato sensor
-    modifyRays.recordOnFilm(ppsfCamera.film);
-
-    %show image
-    ppsfCamera.showFilm();
-
-    % save ppsf
-    upperLeftBackRays = ppsfObject();
-    upperLeftBackRays.makeDeepCopy(modifyRays);
-    
-    
-    
-    
-    
-    
-    
-    
-%% --9th PPSF middle--
+%% --5th PPSF middle--
     %% point sources
     pointSources = newPosition;  %large distance test
     % pointSources = [ 0 0 -60];  %short distance test
@@ -461,17 +257,14 @@ s_initISET
     middleRays = ppsfObject();
     middleRays.makeDeepCopy(modifyRays);
     
-%% --Interpolate between 8 PPSFs to try to produce 5th one--
-    %% Average between 8 sets of rays
+%% --Interpolate between 4 PPSFs to try to produce 5th one--
+    %% Average between 4 sets of rays
     averageRays = ppsfObject();
     averageRays.makeDeepCopy(lowerRightRays);
     %average between the first 2 ppsfs
-    averageRays.origin = (lowerRightWeight * lowerRightRays.origin + lowerLeftWeight* lowerLeftRays.origin + upperLeftWeight * upperLeftRays.origin + upperRightWeight * upperRightRays.origin) + ...
-        (lowerRightBackWeight * lowerRightBackRays.origin + lowerLeftBackWeight* lowerLeftBackRays.origin + upperLeftBackWeight * upperLeftBackRays.origin + upperRightBackWeight * upperRightBackRays.origin);
-    averageRays.direction = (lowerRightWeight * lowerRightRays.direction + lowerLeftWeight* lowerLeftRays.direction + upperLeftWeight* upperLeftRays.direction + upperRightWeight*upperRightRays.direction) + ...
-        (lowerRightBackWeight * lowerRightBackRays.direction + lowerLeftBackWeight* lowerLeftBackRays.direction + upperLeftBackWeight* upperLeftBackRays.direction + upperRightBackWeight*upperRightBackRays.direction);
-    averageRays.apertureLocation = (lowerRightWeight * lowerRightRays.apertureLocation + lowerLeftWeight * lowerLeftRays.apertureLocation + upperLeftWeight * upperLeftRays.apertureLocation + upperRightWeight* upperRightRays.apertureLocation) + ...
-        (lowerRightBackWeight * lowerRightBackRays.apertureLocation + lowerLeftBackWeight * lowerLeftBackRays.apertureLocation + upperLeftBackWeight * upperLeftBackRays.apertureLocation + upperRightBackWeight* upperRightBackRays.apertureLocation);
+    averageRays.origin = (lowerRightWeight * lowerRightRays.origin + lowerLeftWeight* lowerLeftRays.origin + upperLeftWeight * upperLeftRays.origin + upperRightWeight * upperRightRays.origin);
+    averageRays.direction = (lowerRightWeight * lowerRightRays.direction + lowerLeftWeight* lowerLeftRays.direction + upperLeftWeight* upperLeftRays.direction + upperRightWeight*upperRightRays.direction);
+    averageRays.apertureLocation = (lowerRightWeight * lowerRightRays.apertureLocation + lowerLeftWeight * lowerLeftRays.apertureLocation + upperLeftWeight * upperLeftRays.apertureLocation + upperRightWeight* upperRightRays.apertureLocation);
 
     % ray-trace the last bit - from lens to sensor
     %% modify the film and see the consequences on the PSF - these computations

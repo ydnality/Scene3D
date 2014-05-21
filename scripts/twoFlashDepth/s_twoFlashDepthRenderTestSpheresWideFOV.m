@@ -1,13 +1,17 @@
+%% Renders a test scene consisting of hemispheres with a plane to reduce shadows
+%
+% Andy L. Lin
+%
 % This script renders the basic setup of 2 side-by-side light sources and a
 % simple surface in between them.  There will be 2 captures.  One with each
 % light source.  The hope is that we can derive some information on the
 % normal vectors using this setup.  These captures are rendered using
-% pbrtObjects. 
+% pbrtObjects.  This particular script renders it using a reasonably wide
+% field of view (~50 degrees) to simulate capture by a typical wide-angle
+% camera.
 
 
-
-
-% s_initISET
+s_initISET
 %% Render FrontOi
 clear curPbrt;
 curPbrt = pbrtObject();
@@ -17,6 +21,10 @@ newCamPos =    [0  0 80.0000;
     0   0 79.0000;
     0 1.00000 0];
 curPbrt.camera.setPosition(newCamPos);
+filmDistance = 35;  %this allows for a reassonably wide field of view ~50dFOV
+filmDiag = 43.26;
+pinholeLens = pbrtLensPinholeObject(filmDistance, filmDiag) ;
+curPbrt.camera.setLens(pinholeLens)
 
 %depths
 sphereDepths = -170;  %negative is into the screen
@@ -25,15 +33,15 @@ sphereDepths = -170;  %negative is into the screen
 flashSeparation = 50;
 
 %scaleFactor
-scaleFactor = (-sphereDepths + 80)/(80);
+scaleFactor = (-sphereDepths + 80)/(80) * 4;
 
 %backdrop Depth
 % backDropDepth = -100 * scaleFactor;  %backdrop distance increases with depth of spheres
 backDropDepth = sphereDepths;  %backdrop distance increases with depth of spheres
 
 %calculate sphere offsets
-xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
-yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
+xValues = linspace(-6 * scaleFactor, 6 * scaleFactor, 5);
+yValues = linspace(-6 * scaleFactor, 6 * scaleFactor, 5);
 [xOffsets yOffsets] = meshgrid(xValues, yValues); 
 
 %light sources
@@ -120,18 +128,15 @@ curPbrt = pbrtObject();
 
 %new camera position
 curPbrt.camera.setPosition(newCamPos);
+curPbrt.camera.setLens(pinholeLens)
 
 %calculate sphere offsets
-xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
-yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
-[xOffsets yOffsets] = meshgrid(xValues, yValues); 
+% xValues = linspace(-24*scaleFactor, 24*scaleFactor, 5);
+% yValues = linspace(-24*scaleFactor, 24*scaleFactor, 5);
+% [xOffsets yOffsets] = meshgrid(xValues, yValues); 
 
 %light sources
-
-% lightRight = pbrtLightSpotObject('rightLight', [], [], [], inFrom, inTo);
 curPbrt.removeLight();
-
-
 if (lightCluster)
     for i = 1:length(lightXCoord)
         lightBack = pbrtLightSpotObject('lightFront', [], [], [], [lightXCoord(i) lightYCoord(i) lightLocation + flashSeparation], [lightXCoord(i) lightYCoord(i) (lightLocation + flashSeparation - 1)]);
@@ -141,8 +146,6 @@ else
     lightBack = pbrtLightSpotObject('lightBack', [], [], [], [0 0 lightLocation + flashSeparation], [0 0 lightLocation + flashSeparation - 1]);
     curPbrt.addLightSource(lightBack);
 end
-
-% curPbrt.addLightSource(lightFront);
 
 %add a new material
 matRGB= [1 1 1];
@@ -176,7 +179,6 @@ end
 tmpFileName = ['deleteMe' '.pbrt'];
 curPbrt.writeFile(tmpFileName);
 backOi = s3dRenderOI(curPbrt, .050, tmpFileName);
-
 
 %% render depth map
 
