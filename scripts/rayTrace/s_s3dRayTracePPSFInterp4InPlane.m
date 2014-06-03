@@ -461,7 +461,7 @@ s_initISET
     middleRays = ppsfObject();
     middleRays.makeDeepCopy(modifyRays);
     
-%% --Interpolate between 8 PPSFs to try to produce 5th one--
+%% --Interpolate between 8 PPSFs to try to produce 9th one--
     %% Average between 8 sets of rays
     averageRays = ppsfObject();
     averageRays.makeDeepCopy(lowerRightRays);
