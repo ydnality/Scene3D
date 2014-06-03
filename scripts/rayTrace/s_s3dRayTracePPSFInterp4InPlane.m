@@ -1,29 +1,31 @@
-%% ray-tracing for realistic lens - PPSF
+%% Experimenting with plenoptic PSF (pPSF)
 %
-%  This uses Snell's law and a lens prescription to create a tray trace.
+%  This uses Snell's law and a lens prescription to create a ray trace of
+%  four principal points and then to try to use the pPSFs of these points
+%  to interpolate the pPSF of a fifth point within the region spanned by
+%  the first four.
+%
+%  We split the calculation of the PSF into 2 steps.
+%
+%    1. The first step traces the rays from a single point in the scene
+%    through the lens, to the basck surface of the multiple lens optics.
+%    At this point, the rays may be saved as data.
+%
+%    2. Next, the rays are traced from the back surface of the final lens
+%    to the sensor (this process is reasonably efficient and doesn't take
+%    much time). Using the pPSF format, the PSF at the sensor surface for
+%    different sensor depths may be calculated.
+%
+%  PROGRAMMING:
 %  The script is too long, and we need to start writing functions so that
 %  the length is shortened and the clarity increased.
-%  We are only ray-tracing ideal point sources in order to extract out point
-%  spread functions.
+%  Wavelength is used, but no chromatic aberration yet.
 %
-%  We are also experimenting with the plenoptic point spread function
-%  (PPSF).  this is a very early experiment, where we are splitting the
-%  calculation into 2 steps.  The first step traces the rays from a single 
-%  point in the scene towards the lens.  Ray-tracing is performed through
-%  the lens, and out the back aperture.  At this point, the rays may be
-%  saved as data.  Next, the rays are traced from the end of the lens to
-%  the sensor (this process is reasonably efficient and doesn't take much
-%  time).  Using this format, differrent sensor depths may be used to
-%  access the PSF.  
 %
-%  This specific script renders 2 PPSFs at a set field position , but with
-%  different depths.  We attempt to interpolate a PPSF for a
-%  position half-way between these 2, and check the results with the ground
-%  truth.
+%
 % AL Vistalab, 2014
 %%
 s_initISET
-
 
 
 %% --Specify PPSF Point Locations---
@@ -60,7 +62,7 @@ s_initISET
     
     
     
-%% --first PPSF bottom right--
+%% --first PPSF lower right--
     %% point sources
     pointSources = lowerRightPosition;  %large distance test
     % pointSources = [ 0 0 -60];  %short distance test
