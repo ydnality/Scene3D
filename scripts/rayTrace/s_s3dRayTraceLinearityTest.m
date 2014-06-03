@@ -56,7 +56,6 @@ s_initISET
 
     %% ray trace and save ppsf
     ppsfCamera = ppsfCameraObject(lens, film, pointSources);
-    ne
     ppsfRays = ppsfCamera.estimatePPSF();
     
     %project onto a plane
