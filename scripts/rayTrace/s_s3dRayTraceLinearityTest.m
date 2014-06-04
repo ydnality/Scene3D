@@ -1,5 +1,8 @@
 %% ray-tracing for realistic lens - PPSF
 %
+% Lens element positions are all negative, and the final exit plan can be
+% considered as z = 0
+%
 %  This uses Snell's law and a lens prescription to create a tray trace.
 %  The script is too long, and we need to start writing functions so that
 %  the length is shortened and the clarity increased.
@@ -20,6 +23,7 @@
 %  different depths.  We attempt to interpolate a PPSF for a
 %  position half-way between these 2, and check the results with the ground
 %  truth.
+%
 % AL Vistalab, 2014
 %%
 s_initISET
@@ -27,12 +31,16 @@ s_initISET
 %% --first PPSF at the center--
     %% point sources
     pointSourceDepth = 1000;
-    pointSourceFieldHeight = 0;
     pointSources = [ 0 0 -pointSourceDepth];  %large distance test
+    pointSourceFieldHeight = 0;
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties
-    %36.4
+    % filmPosition = [ 0 0 40];
+    % filmSize = [10 10]; % mm
+    % wave = 400:50:700;
+    % next will go
+    % don't remember
     film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
@@ -54,24 +62,33 @@ s_initISET
     %lens illustration
     lens.drawLens();
 
-    %% ray trace and save ppsf
+    %% ray trace and save ppsf - Not sure camera should have pointSources
     ppsfCamera = ppsfCameraObject(lens, film, pointSources);
-    ppsfRays = ppsfCamera.estimatePPSF();
+    ppsf = ppsfCamera.estimatePPSF();
     
-    %project onto a plane
-    ppsfRays.projectOnPlane(0);
+    %project the rays from the final lens onto the exit pupil plane at the
+    %z = 0 (end of lens elements).
+    ppsf.projectOnPlane(0);
     
-    %calculate initial light field
-    initialOrigin = ppsfRays.apertureSamples;
+    %% Calculate light field at the entrance pupil plane
+    
+    % These are the X,Y samples in the entrance pupil, which corresponds to
+    % the most negative point(first surface) of the lens elements
+    initialOrigin = ppsf.apertureSamples;   % Only has X and Y
+    
+    % The vector that connects the point on the pupil plane to the point
+    % source 
     initialDirection = zeros(size(initialOrigin.X), 3);
-    initialDirection(:,1) = initialOrigin.X;
-    initialDirection(:,2) = initialOrigin.Y;
-    initialDirection(:,3) = -pointSourceDepth;
+    initialDirection(:,1) = initialOrigin.X - pointSources(1);
+    initialDirection(:,2) = initialOrigin.Y - pointSources(2);
+    initialDirection(:,3) = lens.get('first surface z') - pointSources(3);
+    
+    % Make this a make unit length function
     initialDirection = initialDirection./repmat(sum(initialDirection,2), [1 3]);
     
     %exit lightField
-    exitOrigin = ppsfRays.origin;
-    exitDirection = ppsfRays.direction;
+    exitOrigin = ppsf.origin;
+    exitDirection = ppsf.direction;
     
     
     % do we need to put this in terms of angles? or are direction using
@@ -94,7 +111,7 @@ s_initISET
     
     %modify the rays for any aperture changes here
     modifyRays = ppsfObject();
-    modifyRays.makeDeepCopy(ppsfRays);
+    modifyRays.makeDeepCopy(ppsf);
 
     %trace from end of lens to sensor
     modifyRays.recordOnFilm(ppsfCamera.film);
