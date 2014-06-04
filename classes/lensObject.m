@@ -170,7 +170,7 @@ classdef lensObject <  handle
         end
                       
         
-        function obj = rtHURB(obj, rays, lensIntersectPosition, curApertureRadius)
+        function obj = rtHURB(obj, rays, lensIntersectPosition)
             %Performs the Heisenburg Uncertainty Ray Bending method on the
             %rays, given a circular aperture radius, and lens intersection
             %position This function accepts both vector forms of inputs, or
@@ -218,8 +218,8 @@ classdef lensObject <  handle
 %                     directionL = [0 1 0];
 %                 end
                 
-                pointToEdgeS = curApertureRadius - ipLength;   %this is 'a' from paper  //pointToEdgeS stands for point to edge short
-                pointToEdgeL = sqrt((curApertureRadius* curApertureRadius) - ipLength .* ipLength);  %pointToEdgeS stands for point to edge long
+                pointToEdgeS = obj.apertureRadius - ipLength;   %this is 'a' from paper  //pointToEdgeS stands for point to edge short
+                pointToEdgeL = sqrt((obj.apertureRadius* obj.apertureRadius) - ipLength .* ipLength);  %pointToEdgeS stands for point to edge long
                 
                 lambda = rays.wavelength * 1e-9;  %this converts lambda to meters
                 sigmaS = atan(1./(2 * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m
