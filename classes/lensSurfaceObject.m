@@ -1,7 +1,7 @@
-classdef lensObject <  handle
+classdef lensSurfaceObject <  handle
     % Create a lens object
     %
-    %   lens = lensObject( parameter, value, ....);
+    %   lens = lensSurfaceObject( parameter, value, ....);
     %
     % Presently we only represent spherical lenses and apertures.
     %
@@ -14,16 +14,16 @@ classdef lensObject <  handle
     % TODO: determine which aperture is it best to sample?
     %
     % Is it possible to write this in the form
-    %  lensObject(lensType, relevant parameter list ... )
+    %  lensSurfaceObject(lensType, relevant parameter list ... )
     %
     % Examples:
-    %   lens = lensObject; lens.apertureSample = [51,51];
-    %   fGrid = lens.fullGrid;
-    %   aMask = lens.apertureMask; vcNewGraphWin; imagesc(aMask)
-    %   aGrid = lens.apertureGrid; vcNewGraphWin; plot(aGrid.X(:),aGrid.Y(:),'o')
+    %   lSurf = lensObject; lens.apertureSample = [51,51];
+    %   fGrid = lSurf.fullGrid;
+    %   aMask = lSurf.apertureMask; vcNewGraphWin; imagesc(aMask)
+    %   aGrid = lSurf.apertureGrid; vcNewGraphWin; plot(aGrid.X(:),aGrid.Y(:),'o')
     %
     %   pointSource = [0 0 -50];
-    %   rays = lens.rtSourceToEntrance(pointSource);
+    %   rays = lSurf.rtSourceToEntrance(pointSource);
     %   ro =  rays.origin;
     %   rd =  rays.origin + rays.direction;
     %   vcNewGraphWin; hold on;
@@ -39,13 +39,15 @@ classdef lensObject <  handle
     % AL Vistasoft Copyright 2014
     
     properties
+        
+        % These are surfaces of spherical lenses for now
         name = 'default';
-        type = 'lens';
+        type = 'surface';
         
-        apertureRadius = 1;        % mm
-        apertureSample = [11 11];  % Number of spatial samples in the aperture.  Use odd number
-        focalLength = 50;          % mm
+        sRadius;      % Sphere's radius
+        sCenter;      % Sphere's center position
         
+        apertureD = 1;        % mm diameter
         centerPosition = [0 0 0];  % almost always on axis
         
         diffractionEnabled = false;% On/off
@@ -55,17 +57,14 @@ classdef lensObject <  handle
     
     methods
         
-        % %%%%% Lens object constructor %%%%%%%
-        function obj = lensObject(varargin)
+        % %%%%% Lens surface object constructor %%%%%%%
+        function obj = lensSurfaceObject(varargin)
 
             for ii=1:2:length(varargin)
                 switch varargin{ii}
-                    case 'apertureRadius'
+                    case 'apertureD'
                         % Units are mm
-                        obj.apertureRadius = varargin{ii+1};
-
-                    case 'focalLength'
-                        obj.focalLength = varargin{ii+1};
+                        obj.apertureD = varargin{ii+1};
                         
                     case 'centerPosition'
                         obj.centerPosition = varargin{ii+1};
@@ -73,8 +72,17 @@ classdef lensObject <  handle
                     case 'diffractionEnabled'
                         obj.diffractionEnabled = varargin{ii+1};
                         
+                    case 'sRadius'
+                        obj.sRadius = varargin{ii+1};
+                        
+                    case 'sCenter'
+                        obj.sCenter = varargin{ii+1};
+                        
                     case 'wave'
                         obj.wave = varargin{ii+1};
+                        
+                    case 'n' % Index of refraction
+                        obj.n = varargin{ii+1};
                         
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
