@@ -50,19 +50,23 @@ s_initISET
 
     %initialize to default
     %lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled, wave)
-    lens = lensRealisticObject([],[],[],[], 8, 50, [], diffractionEnabled);
+    lens = lensMEObject('apertureSample', [51 51]);
 
     %read lens from file
-    lens.readLensFile(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
-
-    %intialize ray=tracing
-    randJitter = false;
-    lens.calculateApertureSample([301 301], randJitter);
+    lens.fileRead(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
 
     %lens illustration
     lens.drawLens();
 
     %% ray trace and save ppsf - Not sure camera should have pointSources
+    
+    %test code
+    ppsfRays = lens.rtSourceToEntrance(pointSources);
+    
+    
+    
+    
+    % -----------after this point does not work yet-----------------
     ppsfCamera = ppsfCameraObject(lens, film, pointSources);
     ppsf = ppsfCamera.estimatePPSF();
     
