@@ -32,6 +32,8 @@ classdef lensMEObject <  lensObject
         elementArray;
         totalOffset;
         numEls;
+        apertureSample = [11 11];  % Number of spatial samples in the aperture.  Use odd number
+        focalLength;
     end
     
     methods
