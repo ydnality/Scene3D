@@ -31,10 +31,7 @@ classdef lensMEObject <  handle
     properties
         name = 'default';
         type = 'multi element lens';
-        surfaceArray;
-%         totalOffset;
-%         numEls;
-        
+        surfaceArray;        
         diffractionEnabled = false;% On/off
         wave = 400:50:700;         % nm
         focalLength = 50;          % mm
