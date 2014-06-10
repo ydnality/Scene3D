@@ -21,6 +21,7 @@ classdef ppsfObject < rayObject
           aEntranceInt = 0;  %apertureSamples;    %where rays intersect the front most aperture
           aMiddleInt = 0;   %apertureLocation;     %where rays intersect the actual lens aperture (in the middle usually)
           aExitInt = 0;
+          aExitDir = 0;   %exit direction of light field
     end
     
     methods
@@ -134,6 +135,7 @@ classdef ppsfObject < rayObject
             %special case for z = 0 plane
             if (planeLocation == 0)
                 obj.aExitInt = obj.origin;
+                obj.aExitDir = obj.direction;
             end
             
         end

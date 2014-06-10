@@ -61,54 +61,32 @@ s_initISET
     lens.drawLens();
 
     %% ray trace and save ppsf - Not sure camera should have pointSources
-    
-    %test code
-%     ppsfObjectFlag = true;
-%     ppsfRays = lens.rtSourceToEntrance(pointSources, ppsfObjectFlag);
-% 
-%     %duplicate the existing rays, and creates one for each
-%     %wavelength
-%     disp('-----expand wavelenghts-----');
-%     tic
-%     ppsfRays.expandWavelengths(lens.wave);
-%     toc
-%     
-% %     %convert to ppsfRays
-% %     obj.ppsfRays = ppsfObject(ppsfRays.origin, ppsfRays.direction, ppsfRays.wavelength, 0, 0, []);  
-% 
-%     %lens intersection and raytrace
-%     disp('-----rays trace through lens-----');
-%     tic
-%     lens.rtThroughLens(ppsfRays);
-%     toc
-%     
-
     ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
     ppsf = ppsfCamera.estimatePPSF();
-%     
-%     %project the rays from the final lens onto the exit pupil plane at the
-%     %z = 0 (end of lens elements).
+    
+    %     %project the rays from the final lens onto the exit pupil plane at the
+    %     %z = 0 (exit pupil plane).
     ppsf.projectOnPlane(0);
     
-    %% Calculate light field at the entrance pupil plane
+    %% Calculate light field at the entrance pupil plane and exit pupil - estimate the linear transform
     
 %     % These are the X,Y samples in the entrance pupil, which corresponds to
 %     % the most negative point(first surface) of the lens elements
-%     initialOrigin = ppsf.apertureSamples;   % Only has X and Y
+%     initialOrigin = ppsf.aEntranceInt;   % Only has X and Y
 %     
 %     % The vector that connects the point on the pupil plane to the point
-%     % source 
+%     % source
 %     initialDirection = zeros(size(initialOrigin.X), 3);
 %     initialDirection(:,1) = initialOrigin.X - pointSources(1);
 %     initialDirection(:,2) = initialOrigin.Y - pointSources(2);
-%     initialDirection(:,3) = lens.get('first surface z') - pointSources(3);
+%     initialDirection(:,3) = -lens.get('totaloffset') - pointSources(3);
 %     
 %     % Make this a make unit length function
 %     initialDirection = initialDirection./repmat(sum(initialDirection,2), [1 3]);
 %     
 %     %exit lightField
-%     exitOrigin = ppsf.origin;
-%     exitDirection = ppsf.direction;
+%     exitOrigin = ppsf.aExitInt;
+%     exitDirection = ppsf.aExitDir;
 %     
 %     
 %     % do we need to put this in terms of angles? or are direction using
@@ -124,7 +102,7 @@ s_initISET
 %     % how to solve for A?  pseudo-inverse? SVD?
     
     
-    %%record on film
+    %% record on film
     
 
     %modify the rays for any aperture changes here
@@ -136,16 +114,12 @@ s_initISET
     %show image
     ppsfCamera.showFilm();
 
-
-
     % save ppsf
 %     firstRays = ppsfObject();
 %     firstRays.makeDeepCopy(modifyRays);
 
 
-
     %% Show the images
-    
     
     % vcNewGraphWin;
     % imshow(film.image/ max(film.image(:)));
