@@ -16,12 +16,15 @@ classdef ppsfObject < rayObject
           pointSourceDepth;          %depth of the originating point source
           pointSourceFieldHeight;    %field height of the originating point source
 %           outsideApertureLocation;   %where rays intersect further most lens surface
-          apertureSamples;    %where rays intersect the front most aperture
-          apertureLocation;     %where rays intersect the actual lens aperture (in the middle usually)
+          
+
+          aEntranceInt;  %apertureSamples;    %where rays intersect the front most aperture
+          aMiddleInt;   %apertureLocation;     %where rays intersect the actual lens aperture (in the middle usually)
+          aExitInt;
     end
     
     methods
-        function obj = ppsfObject(origin, direction, wavelength, pointSourceDepth, pointSourceFieldHeight, apertureSamples)
+        function obj = ppsfObject(origin, direction, wavelength, pointSourceDepth, pointSourceFieldHeight, aEntranceInt)
             %default constructor
             
             % rayObject properties
@@ -46,8 +49,8 @@ classdef ppsfObject < rayObject
             else                            obj.pointSourceFieldHeight = pointSourceFieldHeight;
             end
             
-            if ieNotDefined('apertureSamples'),  obj.apertureSamples = 0;
-            else                            obj.apertureSamples = apertureSamples;
+            if ieNotDefined('aEntranceInt'),  obj.aEntranceInt = 0;
+            else                            obj.aEntranceInt = aEntranceInt;
             end
         end
         
@@ -87,8 +90,8 @@ classdef ppsfObject < rayObject
             
             obj = expandWavelengths@rayObject(obj, wave, waveIndex);
             
-            obj.apertureSamples.X = repmat(obj.apertureSamples.X, [length(wave) 1]);  %added for ppsfObject
-            obj.apertureSamples.Y = repmat(obj.apertureSamples.Y, [length(wave) 1]);  %added for ppsfObject
+            obj.aEntranceInt.X = repmat(obj.aEntranceInt.X, [length(wave) 1]);  %added for ppsfObject
+            obj.aEntranceInt.Y = repmat(obj.aEntranceInt.Y, [length(wave) 1]);  %added for ppsfObject
         end
     end
     

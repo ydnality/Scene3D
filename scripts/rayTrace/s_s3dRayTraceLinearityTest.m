@@ -41,7 +41,9 @@ s_initISET
     % wave = 400:50:700;
     % next will go
     % don't remember
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    
+    %40
+    film = pbrtFilmObject([0 0 60 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -50,7 +52,7 @@ s_initISET
 
     %initialize to default
     %lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled, wave)
-    lens = lensMEObject('apertureSample', [51 51]);
+    lens = lensMEObject('apertureSample', [201 201]);
 
     %read lens from file
     lens.fileRead(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
@@ -61,95 +63,114 @@ s_initISET
     %% ray trace and save ppsf - Not sure camera should have pointSources
     
     %test code
-    ppsfRays = lens.rtSourceToEntrance(pointSources);
+    ppsfObjectFlag = true;
+    ppsfRays = lens.rtSourceToEntrance(pointSources, ppsfObjectFlag);
+
+    %duplicate the existing rays, and creates one for each
+    %wavelength
+    disp('-----expand wavelenghts-----');
+    tic
+    ppsfRays.expandWavelengths(lens.wave);
+    toc
+    
+%     %convert to ppsfRays
+%     obj.ppsfRays = ppsfObject(ppsfRays.origin, ppsfRays.direction, ppsfRays.wavelength, 0, 0, []);  
+
+    %lens intersection and raytrace
+    disp('-----rays trace through lens-----');
+    tic
+    lens.rtThroughLens(ppsfRays);
+    toc
     
     
     
     
-    % -----------after this point does not work yet-----------------
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
-    ppsf = ppsfCamera.estimatePPSF();
     
-    %project the rays from the final lens onto the exit pupil plane at the
-    %z = 0 (end of lens elements).
-    ppsf.projectOnPlane(0);
+    
+    
+%     ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+%     ppsf = ppsfCamera.estimatePPSF();
+%     
+%     %project the rays from the final lens onto the exit pupil plane at the
+%     %z = 0 (end of lens elements).
+%     ppsf.projectOnPlane(0);
     
     %% Calculate light field at the entrance pupil plane
     
-    % These are the X,Y samples in the entrance pupil, which corresponds to
-    % the most negative point(first surface) of the lens elements
-    initialOrigin = ppsf.apertureSamples;   % Only has X and Y
-    
-    % The vector that connects the point on the pupil plane to the point
-    % source 
-    initialDirection = zeros(size(initialOrigin.X), 3);
-    initialDirection(:,1) = initialOrigin.X - pointSources(1);
-    initialDirection(:,2) = initialOrigin.Y - pointSources(2);
-    initialDirection(:,3) = lens.get('first surface z') - pointSources(3);
-    
-    % Make this a make unit length function
-    initialDirection = initialDirection./repmat(sum(initialDirection,2), [1 3]);
-    
-    %exit lightField
-    exitOrigin = ppsf.origin;
-    exitDirection = ppsf.direction;
-    
-    
-    % do we need to put this in terms of angles? or are direction using
-    % cartesian coordinates good enough?
-    
-    % put this into Ax = b form
-    % A matrix will be a 4x4 matrix?   is it still 4x4 for 3d? maybe 5x5?
-    % 6x6?
-    % x will be a 4 x numSamples matrix containing the input lightfield
-    % b will be a 4 x numSamples matrix containing the output lightfield
-    % A will be the 4 x 4 least squares fit for this transformation
-    
-    % how to solve for A?  pseudo-inverse? SVD?
-    
-    
+%     % These are the X,Y samples in the entrance pupil, which corresponds to
+%     % the most negative point(first surface) of the lens elements
+%     initialOrigin = ppsf.apertureSamples;   % Only has X and Y
+%     
+%     % The vector that connects the point on the pupil plane to the point
+%     % source 
+%     initialDirection = zeros(size(initialOrigin.X), 3);
+%     initialDirection(:,1) = initialOrigin.X - pointSources(1);
+%     initialDirection(:,2) = initialOrigin.Y - pointSources(2);
+%     initialDirection(:,3) = lens.get('first surface z') - pointSources(3);
+%     
+%     % Make this a make unit length function
+%     initialDirection = initialDirection./repmat(sum(initialDirection,2), [1 3]);
+%     
+%     %exit lightField
+%     exitOrigin = ppsf.origin;
+%     exitDirection = ppsf.direction;
+%     
+%     
+%     % do we need to put this in terms of angles? or are direction using
+%     % cartesian coordinates good enough?
+%     
+%     % put this into Ax = b form
+%     % A matrix will be a 4x4 matrix?   is it still 4x4 for 3d? maybe 5x5?
+%     % 6x6?
+%     % x will be a 4 x numSamples matrix containing the input lightfield
+%     % b will be a 4 x numSamples matrix containing the output lightfield
+%     % A will be the 4 x 4 least squares fit for this transformation
+%     
+%     % how to solve for A?  pseudo-inverse? SVD?
     
     
+    %%record on film
     
-    
-    
+
     %modify the rays for any aperture changes here
     modifyRays = ppsfObject();
-    modifyRays.makeDeepCopy(ppsf);
+    modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
-    modifyRays.recordOnFilm(ppsfCamera.film);
-
+    modifyRays.recordOnFilm(film);
     %show image
-    ppsfCamera.showFilm();
+%     ppsfCamera.showFilm();
+
+
 
     % save ppsf
-    firstRays = ppsfObject();
-    firstRays.makeDeepCopy(modifyRays);
+%     firstRays = ppsfObject();
+%     firstRays.makeDeepCopy(modifyRays);
 
 
 
     %% Show the images
+    
+    
     % vcNewGraphWin;
     % imshow(film.image/ max(film.image(:)));
-    for i = 1:length(film)
+   
         oi = oiCreate;
         oi = initDefaultSpectrum(oi);
-        oi = oiSet(oi, 'wave', filmCell{i}.wave);
-        oi = oiSet(oi,'photons',filmCell{i}.image);
+        oi = oiSet(oi, 'wave', film.wave);
+        oi = oiSet(oi,'photons',film.image);
 
 
         optics = oiGet(oi,'optics');
         optics = opticsSet(optics,'focal length',lens.focalLength/1000);
         optics = opticsSet(optics,'fnumber', lens.focalLength/(2*1));
         oi = oiSet(oi,'optics',optics);
-        hfov = rad2deg(2*atan2(filmCell{i}.size(1)/2,lens.focalLength));
+        hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
         oi = oiSet(oi,'hfov', hfov);
 
-        temp = filmCell{i}.position;
+        temp = film.position;
         filmDistance = temp(3);
         oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
         vcAddAndSelectObject(oi); oiWindow;
-    end
 
 

@@ -301,14 +301,14 @@ classdef lensMEObject <  handle
                 debugLines = false;
             end
             
-            prevSurfaceZ = -obj.get('totalOffset');
+%             prevSurfaceZ = -obj.get('totalOffset');
             prevN = ones(length(rays.origin), 1);
             
             obj.drawLens();
                          
             for lensEl = 1:obj.numEls
-                curEl = obj.elementArray(lensEl);
-                curAperture = curEl.aperture;
+                curEl = obj.surfaceArray(lensEl);
+                curAperture = curEl.apertureD/2;
                 
                 %  ----vectorized               
                 
@@ -328,12 +328,12 @@ classdef lensMEObject <  handle
                 %ray trace through a single element
                 
                 %calculate intersection with lens element -
-                if (curEl.radius ~= 0) %only do this for actual spherical elements, 
-                    repCenter = repmat(curEl.sphereCenter, [length(rays.origin) 1]);
-                    repRadius = repmat(curEl.radius, [length(rays.origin) 1]);
+                if (curEl.sRadius ~= 0) %only do this for actual spherical elements, 
+                    repCenter = repmat(curEl.sCenter, [length(rays.origin) 1]);
+                    repRadius = repmat(curEl.sRadius, [length(rays.origin) 1]);
                     radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
                         ( dot(rays.origin - repCenter, rays.origin -repCenter, 2)) + repRadius.^2;
-                    if (curEl.radius < 0)
+                    if (curEl.sRadius < 0)
                         intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) + sqrt(radicand));
                     else
                         intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) - sqrt(radicand));
@@ -362,15 +362,15 @@ classdef lensMEObject <  handle
                 else       
                     %plane intersection with lens aperture - TODO: maybe put
                     %in function?
-                    intersectZ = repmat(curEl.sphereCenter(3), [length(rays.origin) 1]); %assumes that aperture is perfectly perpendicular with optical axis
+                    intersectZ = repmat(curEl.sCenter(3), [length(rays.origin) 1]); %assumes that aperture is perfectly perpendicular with optical axis
                     intersectT = (intersectZ - rays.origin(:, 3))./rays.direction(:, 3);
                     repIntersectT = repmat(intersectT, [1 3]);
                     intersectPosition = rays.origin + rays.direction .* repIntersectT;
-                    curAperture = min(curEl.aperture, obj.apertureRadius);
+                    curAperture = min(curEl.apertureD, obj.apertureMiddleD)/2;
                     
                     %added for ppsfObject apertureTracking
                     if(isa(rays, 'ppsfObject'))
-                        rays.apertureLocation = intersectPosition;
+                        rays.aMiddleInt = intersectPosition;
                         passedCenterAperture = true;
                     end
                     %                         if (isnan(intersectPosition))
@@ -385,25 +385,25 @@ classdef lensMEObject <  handle
                 rays.direction(outsideAperture, : ) = NaN;
                 rays.wavelength(outsideAperture) = NaN;
                 rays.waveIndex(outsideAperture) = NaN;
-                rays.apertureSamples.X(outsideAperture) = NaN; 
-                rays.apertureSamples.Y(outsideAperture) = NaN; 
                 intersectPosition(outsideAperture, :) = NaN;
                 prevN(outsideAperture) = NaN;
                 
                 
                 %special case with ppsfObjects
                 if(isa(rays,'ppsfObject') && passedCenterAperture)
-                    rays.apertureLocation(outsideAperture, :) = NaN;   
+                    rays.aEntranceInt.X(outsideAperture) = NaN;
+                    rays.aEntranceInt.Y(outsideAperture) = NaN;
+                    rays.aMiddleInt(outsideAperture, :) = NaN;   
                 end
                 
                 % snell's law
-                if(curEl.radius ~= 0)
+                if(curEl.sRadius ~= 0)
                     %in bounds case - perform vector snell's law
-                    repCenter = repmat(curEl.sphereCenter, [length(rays.origin) 1]);
+                    repCenter = repmat(curEl.sCenter, [length(rays.origin) 1]);
                     normalVec = intersectPosition - repCenter;  %does the polarity of this vector matter? YES
                     normalVec = normalVec./repmat(sqrt(sum(normalVec.*normalVec, 2)),[1 3]); %normalizes each row 
 
-                    if (curEl.radius < 0)  %which is the correct sign convention? This is correct
+                    if (curEl.sRadius < 0)  %which is the correct sign convention? This is correct
                         normalVec = -normalVec;
                     end
 
@@ -447,29 +447,43 @@ classdef lensMEObject <  handle
 
 
                 %iterate previous z 
-                prevSurfaceZ = prevSurfaceZ + curEl.offset;
+%                 prevSurfaceZ = prevSurfaceZ + curEl.offset;
             end
         end     
 
-        function rays = rtSourceToEntrance(obj, pointSource)
+        function rays = rtSourceToEntrance(obj, pointSource, ppsfObjectFlag)
             % Ray trace from a point to the aperture grid 
             % 
             % See also: rtEntranceToExit in meLens
             
+            if (ieNotDefined('ppsfObjectFlag'))
+                ppsfObjectFlag = false;
+            end
+            
             % Define rays object
-            rays = rayObject;
+            if (~ppsfObjectFlag)
+                rays = rayObject;
+            else
+                rays = ppsfObject;
+            end
             
             % Create rays from the point source to each aperture grid point
             %the new origin is the position of the current point source
             aGrid = obj.apertureGrid(false);   %TODO: set randJitter somehow
             nPts  = numel(aGrid.X(:));
             aGrid.Z = repmat(-obj.get('totalOffset'),[nPts,1]);
-            ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];
+            ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];  %e stands for end... endPoionts
             
             % Computes the directions between the origin and the end points
             rays.origin = repmat(pointSource, [nPts, 1, 1] );
             rays.direction = rayDirection(rays.origin,ePoints);
-                        
+            
+            if(isa(rays,'ppsfObject'))
+                rays.aEntranceInt.X = aGrid.X(:)
+                rays.aEntranceInt.Y = aGrid.Y(:)
+            end
+            
+            
             % rays.direction = [(aGrid.X(:) -  rays.origin(:,1)) (aGrid.Y(:) -  rays.origin(:,2)) (obj.centerPosition(3) - rays.origin (:,3)) .* ones(size(obj.apertureSample.Y(:)))];
             % rays.direction = rays.direction./repmat( sqrt(rays.direction(:, 1).^2 + rays.direction(:, 2).^2 + rays.direction(:,3).^2), [1 3]); %normalize direction
         end                    
