@@ -63,33 +63,33 @@ s_initISET
     %% ray trace and save ppsf - Not sure camera should have pointSources
     
     %test code
-    ppsfObjectFlag = true;
-    ppsfRays = lens.rtSourceToEntrance(pointSources, ppsfObjectFlag);
-
-    %duplicate the existing rays, and creates one for each
-    %wavelength
-    disp('-----expand wavelenghts-----');
-    tic
-    ppsfRays.expandWavelengths(lens.wave);
-    toc
-    
-%     %convert to ppsfRays
-%     obj.ppsfRays = ppsfObject(ppsfRays.origin, ppsfRays.direction, ppsfRays.wavelength, 0, 0, []);  
-
-    %lens intersection and raytrace
-    disp('-----rays trace through lens-----');
-    tic
-    lens.rtThroughLens(ppsfRays);
-    toc
-    
-    
-    
+%     ppsfObjectFlag = true;
+%     ppsfRays = lens.rtSourceToEntrance(pointSources, ppsfObjectFlag);
+% 
+%     %duplicate the existing rays, and creates one for each
+%     %wavelength
+%     disp('-----expand wavelenghts-----');
+%     tic
+%     ppsfRays.expandWavelengths(lens.wave);
+%     toc
+%     
+% %     %convert to ppsfRays
+% %     obj.ppsfRays = ppsfObject(ppsfRays.origin, ppsfRays.direction, ppsfRays.wavelength, 0, 0, []);  
+% 
+%     %lens intersection and raytrace
+%     disp('-----rays trace through lens-----');
+%     tic
+%     lens.rtThroughLens(ppsfRays);
+%     toc
+%     
     
     
     
     
-%     ppsfCamera = ppsfCameraObject(lens, film, pointSources);
-%     ppsf = ppsfCamera.estimatePPSF();
+    
+    
+    ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
+    ppsf = ppsfCamera.estimatePPSF();
 %     
 %     %project the rays from the final lens onto the exit pupil plane at the
 %     %z = 0 (end of lens elements).
@@ -134,12 +134,12 @@ s_initISET
 
     %modify the rays for any aperture changes here
     modifyRays = ppsfObject();
-    modifyRays.makeDeepCopy(ppsfRays);
+    modifyRays.makeDeepCopy(ppsfCamera.ppsfRays);
 
     %trace from end of lens to sensor
-    modifyRays.recordOnFilm(film);
+    modifyRays.recordOnFilm(ppsfCamera.film);
     %show image
-%     ppsfCamera.showFilm();
+    ppsfCamera.showFilm();
 
 
 
@@ -155,22 +155,22 @@ s_initISET
     % vcNewGraphWin;
     % imshow(film.image/ max(film.image(:)));
    
-        oi = oiCreate;
-        oi = initDefaultSpectrum(oi);
-        oi = oiSet(oi, 'wave', film.wave);
-        oi = oiSet(oi,'photons',film.image);
-
-
-        optics = oiGet(oi,'optics');
-        optics = opticsSet(optics,'focal length',lens.focalLength/1000);
-        optics = opticsSet(optics,'fnumber', lens.focalLength/(2*1));
-        oi = oiSet(oi,'optics',optics);
-        hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
-        oi = oiSet(oi,'hfov', hfov);
-
-        temp = film.position;
-        filmDistance = temp(3);
-        oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
-        vcAddAndSelectObject(oi); oiWindow;
+%         oi = oiCreate;
+%         oi = initDefaultSpectrum(oi);
+%         oi = oiSet(oi, 'wave', film.wave);
+%         oi = oiSet(oi,'photons',film.image);
+% 
+% 
+%         optics = oiGet(oi,'optics');
+%         optics = opticsSet(optics,'focal length',lens.focalLength/1000);
+%         optics = opticsSet(optics,'fnumber', lens.focalLength/(2*1));
+%         oi = oiSet(oi,'optics',optics);
+%         hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
+%         oi = oiSet(oi,'hfov', hfov);
+% 
+%         temp = film.position;
+%         filmDistance = temp(3);
+%         oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
+%         vcAddAndSelectObject(oi); oiWindow;
 
 

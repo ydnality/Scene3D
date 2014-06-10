@@ -18,19 +18,35 @@ classdef rayObject <  clonableHandleObject
     methods
         
         
-        function obj = rayObject(origin, direction, wavelength)
+        function obj = rayObject(varargin)
+            
+%             (origin, direction, wavelength)
             %default constructor
-            if (ieNotDefined('origin')),   obj.origin = [0,0,0];
-            else                           obj.origin = origin;
-            end
-            
-            if (ieNotDefined('direction')), obj.direction = [0,0,1]; 
-            else                            obj.direction = direction;
-            end
-            
-            if ieNotDefined('wavelength'),  obj.wavelength = 550;
-            else                            obj.wavelength = wavelength;
-            end
+%             if (ieNotDefined('origin')),   obj.origin = [0,0,0];
+%             else                           obj.origin = origin;
+%             end
+%             
+%             if (ieNotDefined('direction')), obj.direction = [0,0,1]; 
+%             else                            obj.direction = direction;
+%             end
+%             
+%             if ieNotDefined('wavelength'),  obj.wavelength = 550;
+%             else                            obj.wavelength = wavelength;
+%             end
+
+           for ii=1:2:length(varargin)
+                p = ieParamFormat(varargin{ii});
+                switch p
+                    case 'origin'
+                        obj.origin = varargin{ii+1};
+                    case 'direction'
+                        obj.direction = varargin{ii+1};  %must be a 2 element vector
+                    case 'wavelength'
+                        obj.wavelength = varargin{ii+1};
+                    otherwise
+                        error('Unknown parameter %s\n',varargin{ii});
+                end
+           end
         end
         
         

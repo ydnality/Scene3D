@@ -13,45 +13,70 @@ classdef ppsfObject < rayObject
 %         direction;
 %         wavelength;
 %         waveIndex;
-          pointSourceDepth;          %depth of the originating point source
-          pointSourceFieldHeight;    %field height of the originating point source
+          pointSourceDepth = 100;          %depth of the originating point source
+          pointSourceFieldHeight = 0;    %field height of the originating point source
 %           outsideApertureLocation;   %where rays intersect further most lens surface
           
 
-          aEntranceInt;  %apertureSamples;    %where rays intersect the front most aperture
-          aMiddleInt;   %apertureLocation;     %where rays intersect the actual lens aperture (in the middle usually)
-          aExitInt;
+          aEntranceInt = 0;  %apertureSamples;    %where rays intersect the front most aperture
+          aMiddleInt = 0;   %apertureLocation;     %where rays intersect the actual lens aperture (in the middle usually)
+          aExitInt = 0;
     end
     
     methods
-        function obj = ppsfObject(origin, direction, wavelength, pointSourceDepth, pointSourceFieldHeight, aEntranceInt)
+        function obj = ppsfObject(varargin)
+            
+%             (origin, direction, wavelength, pointSourceDepth, pointSourceFieldHeight, aEntranceInt)
             %default constructor
             
+           for ii=1:2:length(varargin)
+                p = ieParamFormat(varargin{ii});
+                switch p
+                    case 'origin'
+                        obj.origin = varargin{ii+1};
+                    case 'direction'
+                        obj.direction = varargin{ii+1};  %must be a 2 element vector
+                    case 'wavelength'
+                        obj.wavelength = varargin{ii+1};
+                    case 'pointsourcedepth'
+                         obj.pointSourceDepth = varargin{ii+1};
+                    case 'pointsourcefieldheight'
+                         obj.pointSourceFieldHeight = varargin{ii+1};
+                    case 'aentranceint'
+                        obj.aEntranceInt = varargin{ii+1};
+                    otherwise
+                        error('Unknown parameter %s\n',varargin{ii});
+                end
+           end 
+            
+                        
+            
+            
             % rayObject properties
-            if (ieNotDefined('origin')),   obj.origin = [0,0,0];
-            else                           obj.origin = origin;
-            end
-            
-            if (ieNotDefined('direction')), obj.direction = [0,0,1]; 
-            else                            obj.direction = direction;
-            end
-            
-            if ieNotDefined('wavelength'),  obj.wavelength = 550;
-            else                            obj.wavelength = wavelength;
-            end
-            
-            %new properties
-            if ieNotDefined('pointSourceDepth'),  obj.pointSourceDepth = 100;
-            else                            obj.pointSourceDepth = pointSourceDepth;
-            end
-            
-            if ieNotDefined('pointSourceFieldHeight'),  obj.pointSourceFieldHeight = 0;
-            else                            obj.pointSourceFieldHeight = pointSourceFieldHeight;
-            end
-            
-            if ieNotDefined('aEntranceInt'),  obj.aEntranceInt = 0;
-            else                            obj.aEntranceInt = aEntranceInt;
-            end
+%             if (ieNotDefined('origin')),   obj.origin = [0,0,0];
+%             else                           obj.origin = origin;
+%             end
+%             
+%             if (ieNotDefined('direction')), obj.direction = [0,0,1]; 
+%             else                            obj.direction = direction;
+%             end
+%             
+%             if ieNotDefined('wavelength'),  obj.wavelength = 550;
+%             else                            obj.wavelength = wavelength;
+%             end
+%             
+%             %new properties
+%             if ieNotDefined('pointSourceDepth'),  obj.pointSourceDepth = 100;
+%             else                            obj.pointSourceDepth = pointSourceDepth;
+%             end
+%             
+%             if ieNotDefined('pointSourceFieldHeight'),  obj.pointSourceFieldHeight = 0;
+%             else                            obj.pointSourceFieldHeight = pointSourceFieldHeight;
+%             end
+%             
+%             if ieNotDefined('aEntranceInt'),  obj.aEntranceInt = 0;
+%             else                            obj.aEntranceInt = aEntranceInt;
+%             end
         end
         
 %         function setApertureSamples(obj, apertureSamples)

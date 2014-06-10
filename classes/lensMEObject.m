@@ -98,7 +98,7 @@ classdef lensMEObject <  handle
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
                 switch p
-                    case 'surfaceArray'
+                    case 'surfacearray'
                         obj.surfaceArray = varargin{ii+1};
                     case 'aperturesample'
                         obj.apertureSample = varargin{ii+1};  %must be a 2 element vector
@@ -459,9 +459,9 @@ classdef lensMEObject <  handle
             
             % Define rays object
             if (~ppsfObjectFlag)
-                rays = rayObject;
+                rays = rayObject();
             else
-                rays = ppsfObject;
+                rays = ppsfObject();
             end
             
             % Create rays from the point source to each aperture grid point

@@ -28,41 +28,81 @@ classdef ppsfCameraObject <  psfCameraObject
     end
     
     methods
-         function obj = ppsfCameraObject( lens, film, pointSource)
+         function obj = ppsfCameraObject(varargin)
+             
+             
+%              ( lens, film, pointSource)
              %deals with omitted inputs - super class decides the default
              %values
-             if (ieNotDefined('lens')), lens = []; end
-             if (ieNotDefined('film')), film = []; end
-             if (ieNotDefined('pointSource')), pointSource = []; end
              
-             obj = obj@psfCameraObject(lens,film, pointSource);
+             for ii=1:2:length(varargin)
+                p = ieParamFormat(varargin{ii});
+                switch p
+                    case 'lens'
+                        lens = varargin{ii+1};
+                    case 'film'
+                        film = varargin{ii+1};  %must be a 2 element vector
+                    case 'pointsource'
+                        pointSource = varargin{ii+1};
+                    otherwise
+                        error('Unknown parameter %s\n',varargin{ii});
+                end
+             end
+             
+%              if (ieNotDefined('lens')), lens = []; end
+%              if (ieNotDefined('film')), film = []; end
+%              if (ieNotDefined('pointSource')), pointSource = []; end
+             obj = obj@psfCameraObject(lens,film, pointSource);  %this lets the psfCameraObject do error handling
          end
          
          function ppsfReturn = estimatePPSF(obj)
             %calculate the origin and direction of the rays
             %     rays.traceSourceToLens(pointSources(curInd, :), lens);
-
+            
             disp('-----trace source to lens-----');
             tic
-            obj.ppsfRays = obj.lens.rayTraceSourceToLens(obj.pointSource(1, :));
-            apertureSamples = obj.lens.apertureSample;
-            
-            %think of a best way to put in aperture sample location
-            obj.ppsfRays = ppsfObject(obj.ppsfRays.origin, obj.ppsfRays.direction, obj.ppsfRays.wavelength, 0, 0, apertureSamples);  
+            ppsfObjectFlag = true;
+            obj.ppsfRays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag);
             toc
-
+            
             %duplicate the existing rays, and creates one for each
             %wavelength
             disp('-----expand wavelenghts-----');
             tic
-            obj.ppsfRays.expandWavelengths(obj.film.wave);
+            obj.ppsfRays.expandWavelengths(obj.lens.wave);
             toc
 
             %lens intersection and raytrace
             disp('-----rays trace through lens-----');
             tic
-            obj.lens.rayTraceThroughLens(obj.ppsfRays);
+            obj.lens.rtThroughLens(obj.ppsfRays);
             toc
+            
+            
+            
+            
+            
+%             disp('-----trace source to lens-----');
+%             tic
+%             obj.ppsfRays = obj.lens.rayTraceSourceToLens(obj.pointSource(1, :));
+%             apertureSamples = obj.lens.apertureSample;
+%             
+%             %think of a best way to put in aperture sample location
+%             obj.ppsfRays = ppsfObject(obj.ppsfRays.origin, obj.ppsfRays.direction, obj.ppsfRays.wavelength, 0, 0, apertureSamples);  
+%             toc
+% 
+%             %duplicate the existing rays, and creates one for each
+%             %wavelength
+%             disp('-----expand wavelenghts-----');
+%             tic
+%             obj.ppsfRays.expandWavelengths(obj.film.wave);
+%             toc
+% 
+%             %lens intersection and raytrace
+%             disp('-----rays trace through lens-----');
+%             tic
+%             obj.lens.rayTraceThroughLens(obj.ppsfRays);
+%             toc
             
             ppsfReturn = obj.ppsfRays;
          end
