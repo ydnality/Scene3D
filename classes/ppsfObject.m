@@ -118,6 +118,25 @@ classdef ppsfObject < rayObject
             obj.aEntranceInt.X = repmat(obj.aEntranceInt.X, [length(wave) 1]);  %added for ppsfObject
             obj.aEntranceInt.Y = repmat(obj.aEntranceInt.Y, [length(wave) 1]);  %added for ppsfObject
         end
+        
+        
+        function obj = projectOnPlane(obj, planeLocation)
+            %projectOnPlane(obj, planeLocation)
+            %planeLocation: the z coordinate of a plane that is parallel to the
+            %x-y plane.
+            %intersects the rays with a plane at a specified location.
+            %This is meant to make it easier to analyze the lightfield function.
+            
+            %if we are projecting onto the z = 0 plane, assign the exit
+            %pupil intersection data member
+            projectOnPlane@rayObject(obj, planeLocation);
+            
+            %special case for z = 0 plane
+            if (planeLocation == 0)
+                obj.aExitInt = obj.origin;
+            end
+            
+        end
     end
     
 end

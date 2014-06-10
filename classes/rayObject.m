@@ -159,6 +159,7 @@ classdef rayObject <  clonableHandleObject
             intersectPosition = obj.origin(liveIndices, :) + obj.direction(liveIndices, :) .* repmat(intersectT, [1 3]);
             
             obj.origin(liveIndices, :) = intersectPosition;
+            
         end
         
         function obj = recordOnFilm(obj, film)

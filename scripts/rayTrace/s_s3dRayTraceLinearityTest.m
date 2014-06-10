@@ -82,18 +82,13 @@ s_initISET
 %     lens.rtThroughLens(ppsfRays);
 %     toc
 %     
-    
-    
-    
-    
-    
-    
+
     ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
     ppsf = ppsfCamera.estimatePPSF();
 %     
 %     %project the rays from the final lens onto the exit pupil plane at the
 %     %z = 0 (end of lens elements).
-%     ppsf.projectOnPlane(0);
+    ppsf.projectOnPlane(0);
     
     %% Calculate light field at the entrance pupil plane
     
