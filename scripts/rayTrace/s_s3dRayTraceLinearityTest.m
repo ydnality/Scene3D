@@ -42,16 +42,18 @@ s_initISET
     % next will go
     % don't remember
     
-    %40
+    % To do ...
     film = pbrtFilmObject([0 0 60 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
-    diffractionEnabled = false;   
+    % diffractionEnabled = false;   
     %turning on diffraction does NOT make sense yet since we have not modeled 
     %the transformation of uncertainty from the middle aperture to the end of the lens
 
     %initialize to default
-    %lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled, wave)
+    %Note:
+    %  Could be:  lensMEObject('readfile',fname,'aperture sample',[201 201]);
+    %
     lens = lensMEObject('apertureSample', [201 201]);
 
     %read lens from file
@@ -61,14 +63,29 @@ s_initISET
     lens.drawLens();
 
     %% ray trace and save ppsf - Not sure camera should have pointSources
+    
+    % Use the multi element lens and film and point.  Combine into a camera
+    % that will calculate the point spread functions from the point, lens,
+    % and so forth.
     ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
     ppsf = ppsfCamera.estimatePPSF();
     
-    %     %project the rays from the final lens onto the exit pupil plane at the
-    %     %z = 0 (exit pupil plane).
+    % project the rays from the final lens onto the exit pupil plane at the
+    % z = 0 (exit pupil plane).
+    % Maybe this should always be done in the estimatePPSF() step.
     ppsf.projectOnPlane(0);
+
     
-    %% Calculate light field at the entrance pupil plane and exit pupil - estimate the linear transform
+    
+    %% record on film
+ 
+    % Maybe this should be ppsfCamera.recordOnFilm
+    % Though maybe you want this in the ppsf.
+    ppsf.recordOnFilm(ppsfCamera.film);   % Could be on the camera, not the ppsf
+    ppsfCamera.showFilm();
+
+   
+%% Calculate light field at the entrance pupil plane and exit pupil - estimate the linear transform
     
 %     % These are the X,Y samples in the entrance pupil, which corresponds to
 %     % the most negative point(first surface) of the lens elements
@@ -100,24 +117,19 @@ s_initISET
 %     % A will be the 4 x 4 least squares fit for this transformation
 %     
 %     % how to solve for A?  pseudo-inverse? SVD?
+
+%% Future development for modifying the rays.
     
-    
-    %% record on film
-    
 
-    %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
-    modifyRays.makeDeepCopy(ppsfCamera.ppsfRays);
-
-    %trace from end of lens to sensor
-    modifyRays.recordOnFilm(ppsfCamera.film);
-    %show image
-    ppsfCamera.showFilm();
-
-    % save ppsf
-%     firstRays = ppsfObject();
-%     firstRays.makeDeepCopy(modifyRays);
-
+    % Make a second ppsf object
+%     modifyRays = ppsfObject();
+%     
+%     % Take the ppsfRays from the first object, copy the properties of the
+%     % ppsfRays into real data, not just a pointer to the data.
+%     modifyRays.makeDeepCopy(ppsfCamera.ppsfRays);
+% 
+%     % Trace the rays lens to sensor
+%     modifyRays.recordOnFilm(ppsfCamera.film);
 
     %% Show the images
     

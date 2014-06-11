@@ -31,60 +31,78 @@ classdef lensMEObject <  handle
     properties
         name = 'default';
         type = 'multi element lens';
-        surfaceArray;        
-        diffractionEnabled = false;% On/off
+        surfaceArray;              % Set of spherical surfaces and apertures
+        diffractionEnabled = false;% Not implemented yet
         wave = 400:50:700;         % nm
-        focalLength = 50;          % mm
-        apertureMiddleD = 1;         % mm
+        focalLength = 50;          % mm, focal length of multi-element lens
+        apertureMiddleD = 1;       % mm, diameter of the middle aperture
         apertureSample = [11 11];  % Number of spatial samples in the aperture.  Use odd number
     end
     
-    methods (Access = private) 
-        function centers = centersCompute(obj, elOffset, elRadius)
-        %computes the spherical centers of each element given an offset and
-        %radius arrays
-            totalOffset = sum(elOffset);
-            prevSurfaceZ = -totalOffset;
-            
-            centers = zeros(length(elOffset), 3);
-            for i = 1:length(elOffset)
-                zIntercept = prevSurfaceZ + elOffset(i);  %TODO: these will change later with sets
-                centers(i,:)= [0 0 zIntercept + elRadius(i)];
-                prevSurfaceZ = zIntercept;
-            end
+    % Private functions only called within this class
+    methods (Access = private)
+        
+        function centers = centersCompute(obj, sOffset, sRadius)
+        % Used when we read a lens file. The function computes the center
+        % position of each spherical lens element from the array of element
+        % offsets and radii.  
+        
+        nSurfaces = length(sOffset);
+        
+        % The lens file includes the offsets between each surface and its
+        % previous one (millimeters).  The location of the first surface is
+        % at negative of the total offset.
+        zIntercept = zeros(nSurfaces,1);
+        zIntercept(1) = -sum(sOffset);
+        
+        % Cumulte the offsets to find the intercept of the following
+        % surface
+        for ii=2:length(sOffset)
+            zIntercept(ii) = zIntercept(ii-1) + sOffset(ii);
         end
         
-         function elementsSet(obj, elOffset, elRadius, elAperture, elN)
-        %sets the lens elements of this realistic lens.  All inputs are
-        %vectors and should have equal elements, and be real numbers of
-        %type double.
-
-%             obj.numEls = length(elOffset); % we must update numEls each time we add a lens element
-            
-            %error checking
-            if (length(elOffset)~= length(elRadius) || length(elOffset)~= length(elAperture) || length(elOffset) ~= size(elN,2))
-                error('input vectors must all be of the same lengths');
-            end
-            
-            %if no wavelength dependence of index of refraction specified,
-            %(only one column of data, supply one)
-            if (size(elN, 1) == 1)
-                numWave = length(obj.wave);
-                elN = repmat(elN, [numWave 1]);
-            end
-           
-            %compute centers
-            centers = obj.centersCompute(elOffset, elRadius);
-            
-            %create array of surfaces
-            obj.surfaceArray = lensSurfaceObject();
-            for i = 1:length(elOffset)
-                obj.surfaceArray(i) = lensSurfaceObject('sCenter', centers(i, :), 'sRadius', elRadius(i), 'apertureD', elAperture(i), 'n', elN(:, i));
-            end
-
-%             obj.firstApertureRadius = obj.surfaceArray(1).aperture;
-%             obj.computeCenters();
-%             obj.calculateApertureSample(); 
+        % Centers of the spherical surfaces are stored in this matrix
+        % (nSurfaces x 3)
+        z = zeros(nSurfaces,1);
+        centers = [z z zIntercept + sRadius];
+                
+        end
+        
+        function elementsSet(obj, sOffset, sRadius, sAperture, sN)
+        %Copies the lens elements into the surfaceArray slot of the
+        %multielement lens object.
+        %
+        %The input vectors and should have equal length, and be of type
+        %double. 
+        
+        
+        % Check argument size
+        if (length(sOffset)     ~= length(sRadius) || ...
+                length(sOffset) ~= length(sAperture) || ...
+                length(sOffset) ~= size(sN,1))
+            error('Input vectors must be of equal length');
+        end
+        
+        % If no wavelength dependence of index of refraction specified,
+        % we assume constant across all measurement wavelengths
+        % sN is nSurfaces x nWave
+        if (size(sN,2) == 1)
+            sN = repmat(sN, [1 length(obj.wave)]);
+        end
+        
+        %compute surface array centers
+        centers = obj.centersCompute(sOffset, sRadius);
+        
+        %create array of surfaces
+        obj.surfaceArray = lensSurfaceObject();
+        
+        for i = 1:length(sOffset)
+            obj.surfaceArray(i) = ...
+                lensSurfaceObject('sCenter', centers(i, :), ...
+                'sRadius', sRadius(i), ...
+                'apertureD', sAperture(i), 'n', sN(i, :));
+        end
+        
         end
     end
     
@@ -140,53 +158,81 @@ classdef lensMEObject <  handle
             end
         end
         
-        
+        %%
         function fileRead(obj, fullFileName)
-        %reads Scene3D format lens files and converts this to our format in
-        %the lensRealistic object
-
-            %fid = fopen(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'));
-            fid = fopen(fullFileName);
-            import = textscan(fid, '%s%s%s%s', 'delimiter' , '\t');
-            fclose(fid);
-
-            %first find the start of the lens line demarked by #   radius
-            firstColumn = import{1};
-
-            %read comment lines
-            continu = true;
-            i = 1;
-            while(continu && i <= length(firstColumn))
-                compare = regexp(firstColumn(i), 'radius');
-                if(~(isempty(compare{1})))
-                    continu = false;
-                end
-                i = i+1;
+        % Reads PBRT lens file matrix of data
+        % The file has focal length information added to the header
+        % This function converts the PBRT matrix of data into the format
+        % that we use for setting up the multielement lens.
+        
+        % Open the lens file
+        %fid = fopen(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'));
+        fid = fopen(fullFileName);
+        
+        % Read each of the lens and close the file
+        import = textscan(fid, '%s%s%s%s', 'delimiter' , '\t');
+        fclose(fid);
+        
+        %first find the start of the lens line demarked by #   radius
+        firstColumn = import{1};
+        
+        %Scan past the comment lines, looking for the data 
+        % Check the first entry in each line for #
+        % When it is not, read the rest of the file as a
+        % d = fread(mumble,double)
+        % d= reshape(d,X,4);
+        %
+        % radius axpos N aperture
+        % The current test is just to see if the word radius is on the
+        % line.  This might be improved.
+        continu = true;
+        i = 1;
+        while(continu && i <= length(firstColumn))
+            compare = regexp(firstColumn(i), 'radius');
+            if(~(isempty(compare{1})))
+                continu = false;
             end
-
-            %put data into lens object
-            radius = str2double(import{1});
-            radius = radius(i:length(firstColumn));
-            offset = str2double(import{2});
-            offset = offset(i:length(firstColumn));
-            %change from pbrt Scene3D format to raytrace Scene3D format
-            offset = [0; offset(1:(end-1))];
-            N = str2double(import{3});
-            N = N(i:length(firstColumn));
-            aperture = str2double(import{4});
-            aperture = aperture(i:length(firstColumn));
-            
-            %TODO: eventually calculate this given the lens file
-%             obj.centerPosition = [0 0 -15.1550];  
-
-            %modify the object and reinitialize
-            obj.elementsSet(offset, radius, aperture, N');
+            i = i+1;
+        end
+        % i is the row where the data begin
+        
+        % The next lens are the matrix data
+        % put data into lens object
+        radius = str2double(import{1});
+        radius = radius(i:length(firstColumn));
+        
+                
+        % Change from pbrt Scene3D format to raytrace Scene3D format
+        % In PBRT, the row has the offset from the previous surface.  In
+        % PBRT the data are read from the bottom up.  The last row has no
+        % offset.
+        % In PBRT, we trace from the sensor to the scene.
+        % In Scene3D we trace from the scene to the sensor.
+        % So, the offsets are shifted down.  This means:
+        %
+        offset = str2double(import{2});
+        offset = offset(i:length(firstColumn));
+        offset = [0; offset(1:(end-1))];
+        
+        % Index of refraction in the 3rd column
+        N = str2double(import{3});
+        N = N(i:length(firstColumn));
+        
+        % Diameter of the aperture (or maybe radius.  Must determine).
+        aperture = str2double(import{4});
+        aperture = aperture(i:length(firstColumn));
+               
+        %modify the object and reinitialize
+        obj.elementsSet(offset, radius, aperture, N);
+        
         end
         
+        %%
         function numEls = numEls(obj)
            numEls = length(obj.surfaceArray); 
         end
        
+        %%
         function obj =  drawLens(obj)
         %draws the illustration of the lens on a figure - you must declare
         %a new graphwin first!
