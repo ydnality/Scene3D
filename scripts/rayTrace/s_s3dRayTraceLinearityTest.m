@@ -43,7 +43,7 @@ s_initISET
     % don't remember
     
     % To do ...
-    film = pbrtFilmObject([0 0 60 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:10:700);   %large distance
 
     %% lens properties
     % diffractionEnabled = false;   
@@ -69,13 +69,6 @@ s_initISET
     % and so forth.
     ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
     ppsf = ppsfCamera.estimatePPSF();
-    
-    % project the rays from the final lens onto the exit pupil plane at the
-    % z = 0 (exit pupil plane).
-    % Maybe this should always be done in the estimatePPSF() step.
-    ppsf.projectOnPlane(0);
-
-    
     
     %% record on film
  

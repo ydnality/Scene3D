@@ -52,7 +52,7 @@ classdef ppsfCameraObject <  psfCameraObject
 %              if (ieNotDefined('lens')), lens = []; end
 %              if (ieNotDefined('film')), film = []; end
 %              if (ieNotDefined('pointSource')), pointSource = []; end
-             obj = obj@psfCameraObject(lens,film, pointSource);  %this lets the psfCameraObject do error handling
+             obj = obj@psfCameraObject('lens', lens,'film', film, 'pointSource', pointSource);  %this lets the psfCameraObject do error handling
          end
          
          function ppsfReturn = estimatePPSF(obj)
@@ -104,6 +104,9 @@ classdef ppsfCameraObject <  psfCameraObject
 %             obj.lens.rayTraceThroughLens(obj.ppsfRays);
 %             toc
             
+            %project rays onto the z = 0 plane for a proper light field
+            obj.ppsfRays.projectOnPlane(0);
+
             ppsfReturn = obj.ppsfRays;
          end
     end

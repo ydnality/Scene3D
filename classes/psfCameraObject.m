@@ -30,20 +30,36 @@ classdef psfCameraObject <  handle
     methods
         
         %default constructor
-        function obj = psfCameraObject( lens, film, pointSource)
+        function obj = psfCameraObject(varargin)
             
+%             ( lens, film, pointSource)
             
-            if (ieNotDefined('lens')),     error('Input lens are required');
-            else                           obj.lens = lens;
+            for ii=1:2:length(varargin)
+                p = ieParamFormat(varargin{ii});
+                switch p
+                    case 'lens'
+                        obj.lens = varargin{ii+1};
+                    case 'film'
+                        obj.film = varargin{ii+1};  %must be a 2 element vector
+                    case 'pointsource'
+                        obj.pointSource = varargin{ii+1};
+                    otherwise
+                        error('Unknown parameter %s\n',varargin{ii});
+                end
             end
+             
             
-            if (ieNotDefined('film')),     error('Input film are required');
-            else                           obj.film = film;
-            end
-
-            if (ieNotDefined('pointSource')),     obj.pointSource = [0 0 -20000]; %default point source at -20m
-            else                           obj.pointSource = pointSource;  %units in mm
-            end
+%             if (ieNotDefined('lens')),     error('Input lens are required');
+%             else                           obj.lens = lens;
+%             end
+%             
+%             if (ieNotDefined('film')),     error('Input film are required');
+%             else                           obj.film = film;
+%             end
+% 
+%             if (ieNotDefined('pointSource')),     obj.pointSource = [0 0 -20000]; %default point source at -20m
+%             else                           obj.pointSource = pointSource;  %units in mm
+%             end
         end
         
         function oi = estimatePSF(obj)

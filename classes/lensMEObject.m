@@ -247,15 +247,42 @@ classdef lensMEObject <  handle
                 %illustrations for debug
                 if (curEl.sRadius ~=0)
                     %draw arcs if radius is nonzero
-                    zPlot = linspace(curEl.sCenter(3) - curEl.sRadius, curEl.sCenter(3) + curEl.sRadius, 10000);
+%                     zPlot = linspace(curEl.sCenter(3) - curEl.sRadius, curEl.sCenter(3) + curEl.sRadius, 100000);
+                    
+                    nextEl = obj.surfaceArray(min(lensEl+1, end));
+                    prevEl = obj.surfaceArray(max(lensEl-1, 1));
+                    %lens elements do NOT always end when the neighboring
+                    %element begins.  this allows for a fudge factor.  This
+                    %won't matter too much because the aperture radius will
+                    %be the limiting factor.
+                    delta = 10;  
+                    
+                    if (curEl.sRadius > 0 )
+                        leftBoundary = curEl.get('zIntercept');
+                        rightBoundary = nextEl.get('zIntercept') + delta;
+                    else
+                        leftBoundary = prevEl.get('zIntercept') - delta;
+                        rightBoundary = curEl.get('zIntercept');
+                    end
+                    zPlot = linspace(leftBoundary, rightBoundary, 1000);
+                    
                     yPlot = sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
                     yPlotN = -sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
-                    arcZone = 2;
+                    
                     
                     %TODO:find a better way to plot the arcs later - this one is prone to potential problem
 %                     withinRange = and(and((yPlot < curEl.apertureD),(zPlot < prevSurfaceZ + curEl.offset + arcZone)), (zPlot > prevSurfaceZ + curEl.offset - arcZone));
+                    % withinRange = and(and((yPlot < curEl.apertureD/2),(zPlot <curEl.get('zIntercept') + arcZone)), (zPlot > curEl.get('zIntercept') - arcZone));
                     
-                    withinRange = and(and((yPlot < curEl.apertureD),(zPlot <curEl.get('zIntercept') + arcZone)), (zPlot > curEl.get('zIntercept') - arcZone));
+                    %may have problems with a concave lens - but these are
+                    %rare
+                    withinRange = (yPlot < curEl.apertureD/2);
+                    
+%                     if (curEl.sRadius > 0 )
+%                         withinRange = and(and((yPlot <= curEl.apertureD/2),(zPlot >= curEl.get('zIntercept'))), (zPlot <= nextEl.get('zIntercept')));
+%                     else
+%                         withinRange = and(and((yPlot <= curEl.apertureD/2),(zPlot >= prevEl.get('zIntercept'))), (zPlot <= curEl.get('zIntercept')));
+%                     end
                     
                     line(zPlot(withinRange), yPlot(withinRange));
                     line(zPlot(withinRange), yPlotN(withinRange));
@@ -266,14 +293,15 @@ classdef lensMEObject <  handle
                     %from file and specified aperture from object instance
                     
                     %right now: take the minimum value
-                    curAperture = min(curEl.apertureD, obj.apertureMiddleD);
+                    curAperture = min(curEl.apertureD/2, obj.apertureMiddleD/2);
                     
-                    line(curEl.sCenter(3) * ones(2,1), [-prevAperture -curAperture]);
-                    line(curEl.sCenter(3) * ones(2,1), [curAperture prevAperture]);
+                    line(curEl.sCenter(3) * ones(2,1), [-curEl.apertureD/2 -curAperture]);
+                    line(curEl.sCenter(3) * ones(2,1), [curAperture curEl.apertureD/2]);
                 end
                 
-                prevAperture = curEl.apertureD;
-                prevSurfaceZ = obj.surfaceArray(lensEl).get('zIntercept');
+%                 prevAperture = curEl.apertureD;
+%                 prevSurfaceZ = obj.surfaceArray(lensEl).get('zIntercept');
+
 %                 prevSurfaceZ = prevSurfaceZ + curEl.offset;                
                 
             end
