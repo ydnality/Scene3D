@@ -6,6 +6,11 @@ classdef ppsfObject < rayObject
     % Example:
     %   ppsf
     %
+    % TODO: in order to save memory, we anticipate that all the
+    % intersection data members will contain a Z intercept separately, and
+    % also an X,Y intercept.  This is because all the intercepts will
+    % contain the identical Z intercept.
+    %
     % AL Vistasoft Copyright 2014
     
     properties
@@ -13,14 +18,13 @@ classdef ppsfObject < rayObject
 %         direction;
 %         wavelength;
 %         waveIndex;
-          pointSourceDepth = 100;          %depth of the originating point source
-          pointSourceFieldHeight = 0;    %field height of the originating point source
+          pointSourceLocation = [ 0 0 -100];          %location of the originating point source scene is -Z direction
+%           pointSourceFieldHeight = 0;    %field height of the originating point source
 %           outsideApertureLocation;   %where rays intersect further most lens surface
-          
 
-          aEntranceInt = 0;  %apertureSamples;    %where rays intersect the front most aperture
-          aMiddleInt = 0;   %apertureLocation;     %where rays intersect the actual lens aperture (in the middle usually)
-          aExitInt = 0;
+          aEntranceInt = struct('XY', [0 0], 'Z', 0);  %apertureSamples;    %where rays intersect the front most aperture
+          aMiddleInt = struct('XY', [0 0], 'Z', 0);   %apertureLocation;     %where rays intersect the actual lens aperture (in the middle usually)
+          aExitInt = struct('XY', [0 0], 'Z', 0);
           aExitDir = 0;   %exit direction of light field
     end
     
@@ -116,8 +120,11 @@ classdef ppsfObject < rayObject
             
             obj = expandWavelengths@rayObject(obj, wave, waveIndex);
             
-            obj.aEntranceInt.X = repmat(obj.aEntranceInt.X, [length(wave) 1]);  %added for ppsfObject
-            obj.aEntranceInt.Y = repmat(obj.aEntranceInt.Y, [length(wave) 1]);  %added for ppsfObject
+%             obj.aEntranceInt.X = repmat(obj.aEntranceInt.X, [length(wave) 1]);  %added for ppsfObject
+%             obj.aEntranceInt.Y = repmat(obj.aEntranceInt.Y, [length(wave) 1]);  %added for ppsfObject
+            
+            obj.aEntranceInt.XY = repmat(obj.aEntranceInt.XY, [length(wave) 1]);  %added for ppsfObject
+%             obj.aEntranceInt.Y = repmat(obj.aEntranceInt.Y, [length(wave) 1]);  %added for ppsfObject
         end
         
         
@@ -132,9 +139,12 @@ classdef ppsfObject < rayObject
             %pupil intersection data member
             projectOnPlane@rayObject(obj, planeLocation);
             
-            %special case for z = 0 plane
+            %special case for z = 0 plane - then we modify the ppsf
+            %structure for exit aperture intersection position
             if (planeLocation == 0)
-                obj.aExitInt = obj.origin;
+                obj.aExitInt.XY = 0;
+                obj.aExitInt.XY = obj.origin(:,1:2);    %take the XY coords
+                obj.aExitInt.Z = 0;  %only 1 scalar here
                 obj.aExitDir = obj.direction;
             end
             

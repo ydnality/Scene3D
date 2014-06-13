@@ -106,8 +106,18 @@ classdef ppsfCameraObject <  psfCameraObject
             
             %project rays onto the z = 0 plane for a proper light field
             obj.ppsfRays.projectOnPlane(0);
-
+            obj.ppsfRays.pointSourceLocation = obj.pointSource;
             ppsfReturn = obj.ppsfRays;
+         end
+         
+         
+         function obj = recordOnFilm(obj)
+             %records the psf onto film of the current ppsfRays and the
+             %film
+             %obj = recordOnFilm(obj)
+             %
+             
+            obj.ppsfRays.recordOnFilm(obj.film); 
          end
     end
     

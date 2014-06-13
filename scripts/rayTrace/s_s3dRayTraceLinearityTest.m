@@ -28,7 +28,7 @@
 %%
 s_initISET
 
-%% --first PPSF at the center--
+%% --Generate PPSF with a field height of 0--
     %% point sources
     pointSourceDepth = 1000;
     pointSources = [ 0 0 -pointSourceDepth];  %large distance test
@@ -36,34 +36,22 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties
-    % filmPosition = [ 0 0 40];
-    % filmSize = [10 10]; % mm
-    % wave = 400:50:700;
-    % next will go
-    % don't remember
-    
-    % To do ...
     film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:10:700);   %large distance
 
     %% lens properties
     % diffractionEnabled = false;   
     %turning on diffraction does NOT make sense yet since we have not modeled 
     %the transformation of uncertainty from the middle aperture to the end of the lens
-
-    %initialize to default
-    %Note:
-    %  Could be:  lensMEObject('readfile',fname,'aperture sample',[201 201]);
-    %
-    lens = lensMEObject('apertureSample', [201 201]);
-
-    %read lens from file
-    lens.fileRead(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'))
+    %TODO: add diffraction into this somehow
+    
+    %initialize and read multi-element lens from file
+    lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
+    lens = lensMEObject('apertureSample', [201 201], 'fileName', lensFileName);
 
     %lens illustration
-    lens.drawLens();
-
-    %% ray trace and save ppsf - Not sure camera should have pointSources
+    lens.draw();
     
+    %% ray trace and save ppsf - Not sure camera should have pointSources
     % Use the multi element lens and film and point.  Combine into a camera
     % that will calculate the point spread functions from the point, lens,
     % and so forth.
@@ -71,12 +59,8 @@ s_initISET
     ppsf = ppsfCamera.estimatePPSF();
     
     %% record on film
- 
-    % Maybe this should be ppsfCamera.recordOnFilm
-    % Though maybe you want this in the ppsf.
-    ppsf.recordOnFilm(ppsfCamera.film);   % Could be on the camera, not the ppsf
+    ppsfCamera.recordOnFilm();   % Could be on the camera, not the ppsf
     ppsfCamera.showFilm();
-
    
 %% Calculate light field at the entrance pupil plane and exit pupil - estimate the linear transform
     

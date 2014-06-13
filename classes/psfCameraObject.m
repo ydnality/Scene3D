@@ -107,6 +107,15 @@ classdef psfCameraObject <  handle
             oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
             vcAddAndSelectObject(oi); oiWindow; 
         end
+        
+        function obj = recordOnFilm(obj)
+             %records the psf onto film of the current ppsfRays and the
+             %film
+             %obj = recordOnFilm(obj)
+             %
+             
+            obj.rays.recordOnFilm(obj.film); 
+         end
     end
     
 end
