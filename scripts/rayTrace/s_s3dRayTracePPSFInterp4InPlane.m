@@ -135,12 +135,26 @@ s_initISET
     
 %% --Interpolate between 4 PPSFs to try to produce 5th one--
     %% Average between 4 sets of rays
+    
+    %perhaps make this into a function for ppsfrays....
+    %ppsfRays.interpolate(point1, ppsf1, point2, ppsf2, point3, ppsf3, point4, ppsf4);
+    
     averageRays = ppsfObject();
     averageRays.makeDeepCopy(lowerRightRays);
     %average between the first 2 ppsfs
     averageRays.origin = (lowerRightWeight * lowerRightRays.origin + lowerLeftWeight* lowerLeftRays.origin + upperLeftWeight * upperLeftRays.origin + upperRightWeight * upperRightRays.origin);
     averageRays.direction = (lowerRightWeight * lowerRightRays.direction + lowerLeftWeight* lowerLeftRays.direction + upperLeftWeight* upperLeftRays.direction + upperRightWeight*upperRightRays.direction);
-%     averageRays.apertureLocation = (lowerRightWeight * lowerRightRays.apertureLocation + lowerLeftWeight * lowerLeftRays.apertureLocation + upperLeftWeight * upperLeftRays.apertureLocation + upperRightWeight* upperRightRays.apertureLocation);
+
+    
+    %other properties that must be interpolated...
+    averageRays.aEntranceInt;
+    averageRays.aMiddleInt;
+    averageRays.aExitInt;
+    averageRays.aExitDir;
+    
+    
+    
+    %     averageRays.apertureLocation = (lowerRightWeight * lowerRightRays.apertureLocation + lowerLeftWeight * lowerLeftRays.apertureLocation + upperLeftWeight * upperLeftRays.apertureLocation + upperRightWeight* upperRightRays.apertureLocation);
 
     % ray-trace the last bit - from lens to sensor
     %% modify the film and see the consequences on the PSF - these computations

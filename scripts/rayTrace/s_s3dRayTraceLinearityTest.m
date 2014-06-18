@@ -95,6 +95,42 @@ s_initISET
 %     
 %     % how to solve for A?  pseudo-inverse? SVD?
 
+
+
+%compute entrance lightfield
+cAEntranceXY = ppsf.aEntranceInt.XY';
+survivedRays = ~isnan(cAEntranceXY(1,:));
+cAEntranceXY = cAEntranceXY(:, survivedRays);
+
+%matrix of directions at entrance pupil
+entDirMatrix = [cAEntranceXY(1, :) - ppsf.pointSourceLocation(1);
+            cAEntranceXY(2, :) - ppsf.pointSourceLocation(2);
+            ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:))) - ppsf.pointSourceLocation(3)];
+
+dirMatrix = normvec(entDirMatrix, 'dim', 1);       
+            
+x = [cAEntranceXY(1,:); 
+cAEntranceXY(2,:);
+ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:)));
+entDirMatrix(1, :);
+entDirMatrix(2,:)];
+
+%compute exit lightfield
+cAExitXY = ppsf.aExitInt.XY';
+cAExitXY = cAExitXY(:, survivedRays);
+
+exitDirMatrix = ppsf.aExitDir';
+exitDirMatrix = exitDirMatrix(:, survivedRays);
+
+b = [cAExitXY(1,:); 
+cAExitXY(2,:);
+ppsf.aExitInt.Z * ones(size(cAExitXY(1,:)));
+exitDirMatrix(1, :);
+exitDirMatrix(2,:)];
+
+%compute linear transformation
+%SVD? pInverse?
+
 %% Future development for modifying the rays.
     
 
