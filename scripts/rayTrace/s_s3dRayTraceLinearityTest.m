@@ -45,8 +45,9 @@ film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:10:700)
 
 %initialize and read multi-element lens from file
 lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
-nSamples = 101;
-lens = lensMEObject('apertureSample', [nSamples nSamples], 'fileName', lensFileName);
+nSamples = 151;
+apertureMiddleD = 1;
+lens = lensMEObject('apertureSample', [nSamples nSamples], 'fileName', lensFileName, 'apertureMiddleD', apertureMiddleD);
 
 %lens illustration - very small aperture in the middle
 % lens.draw();
@@ -55,7 +56,7 @@ lens = lensMEObject('apertureSample', [nSamples nSamples], 'fileName', lensFileN
 
 % Millimeters from last surface.  Always at least the lens thickness
 % away.
-pointSourceDepth = max(10000,-(lens.get('totaloffset')+1));
+pointSourceDepth = max(1000,-(lens.get('totaloffset')+1));
 pointSources = [ 0 0 -pointSourceDepth];  %large distance test
 pointSourceFieldHeight = 0;
 % pointSources = [ 0 0 -60];  %short distance test
@@ -111,9 +112,15 @@ entDirMatrix = normvec(entDirMatrix, 'dim', 1);
 % Here we have (x,y,z) positions in the entrace aperture.
 % We also have the first two entries of the unit length vector direction of
 % the ray.  Maybe we want the two angles of that ray.
+% x = [cAEntranceXY(1,:);
+%     cAEntranceXY(2,:);
+%     ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:)));
+%     entDirMatrix(1, :);
+%     entDirMatrix(2,:)];
+
+
 x = [cAEntranceXY(1,:);
     cAEntranceXY(2,:);
-    ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:)));
     entDirMatrix(1, :);
     entDirMatrix(2,:)];
 % We would like to have a look at this
@@ -122,12 +129,12 @@ x = [cAEntranceXY(1,:);
 % point is close, they should be diverging.
 
 % All the directions from a common point
-vcNewGraphWin;
-nPoints = size(x,2);
-z = zeros(1,nPoints);
-line([z;x(1,:)+x(4,:)],[z;x(2,:)+x(5,:)],[z;x(3,:)+entDirMatrix(3,:)])
-view([1 58])
-title(sprintf('%i distance %i samples',pointSourceDepth,nSamples))
+% vcNewGraphWin;
+% nPoints = size(x,2);
+% z = zeros(1,nPoints);
+% line([z;x(1,:)+x(4,:)],[z;x(2,:)+x(5,:)],[z;x(3,:)+entDirMatrix(3,:)])
+% view([1 58])
+% title(sprintf('%i distance %i samples',pointSourceDepth,nSamples))
 % The directions from the actual aperture position
 % vcNewGraphWin;
 % line([x(1,:);x(1,:)+x(4,:)],[x(2,:);x(2,:)+x(5,:)],[x(3,:);x(3,:)+entDirMatrix(3,:)])
@@ -143,17 +150,27 @@ cAExitXY = cAExitXY(:, survivedRays);
 exitDirMatrix = ppsf.aExitDir';
 exitDirMatrix = exitDirMatrix(:, survivedRays);
 
+% b = [cAExitXY(1,:);
+%     cAExitXY(2,:);
+%     ppsf.aExitInt.Z * ones(size(cAExitXY(1,:)));
+%     exitDirMatrix(1, :);
+%     exitDirMatrix(2,:)];
+
 b = [cAExitXY(1,:);
     cAExitXY(2,:);
-    ppsf.aExitInt.Z * ones(size(cAExitXY(1,:)));
     exitDirMatrix(1, :);
     exitDirMatrix(2,:)];
-
-% We wonder about the linear relationship
+%%  We wonder about the linear relationship
 %  b = Ax
 % To solve, we would compute
-% b\x = A
+% A = b\x
 
+A = (x'\b')';
+bEst = A * x;
+A = b/x;
+bEst = A * x;
+error = (bEst - x);
+MSE = mean(error(:).^2)
 %compute linear transformation
 %SVD? pInverse?
 
