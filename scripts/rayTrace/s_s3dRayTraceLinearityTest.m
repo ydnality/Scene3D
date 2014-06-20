@@ -165,8 +165,9 @@ b = [cAExitXY(1,:);
 % To solve, we would compute
 % A = b\x
 
-A = (x'\b')';
-bEst = A * x;
+% A = (x'\b')';
+% bEst = A * x;
+
 A = b/x;
 bEst = A * x;
 error = (bEst - x);
