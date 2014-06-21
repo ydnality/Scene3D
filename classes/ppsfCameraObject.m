@@ -49,15 +49,20 @@ classdef ppsfCameraObject <  psfCameraObject
                 end
              end
              
-%              if (ieNotDefined('lens')), lens = []; end
-%              if (ieNotDefined('film')), film = []; end
-%              if (ieNotDefined('pointSource')), pointSource = []; end
+             %              if (ieNotDefined('lens')), lens = []; end
+             %              if (ieNotDefined('film')), film = []; end
+             %              if (ieNotDefined('pointSource')), pointSource = []; end
              obj = obj@psfCameraObject('lens', lens,'film', film, 'pointSource', pointSource);  %this lets the psfCameraObject do error handling
          end
          
-         function ppsfReturn = estimatePPSF(obj)
-            %calculate the origin and direction of the rays
-            %     rays.traceSourceToLens(pointSources(curInd, :), lens);
+         function ppsfReturn = estimatePPSF(obj,nLines)
+            % calculate the origin and direction of the exiting rays
+            %
+            % nLines is the number of lines to draw on the diagram.
+            % For no diagram set nLines to 0 (false).  This is the default.
+            % ppsfCamera.estimatePPSF(nLines)    
+            
+            if ieNotDefined('nLines'), nLines = false; end
             
             disp('-----trace source to lens-----');
             tic
@@ -75,39 +80,14 @@ classdef ppsfCameraObject <  psfCameraObject
             %lens intersection and raytrace
             disp('-----rays trace through lens-----');
             tic
-            obj.lens.rtThroughLens(obj.ppsfRays);
+            obj.lens.rtThroughLens(obj.ppsfRays,nLines);
             toc
-            
-            
-            
-            
-            
-%             disp('-----trace source to lens-----');
-%             tic
-%             obj.ppsfRays = obj.lens.rayTraceSourceToLens(obj.pointSource(1, :));
-%             apertureSamples = obj.lens.apertureSample;
-%             
-%             %think of a best way to put in aperture sample location
-%             obj.ppsfRays = ppsfObject(obj.ppsfRays.origin, obj.ppsfRays.direction, obj.ppsfRays.wavelength, 0, 0, apertureSamples);  
-%             toc
-% 
-%             %duplicate the existing rays, and creates one for each
-%             %wavelength
-%             disp('-----expand wavelenghts-----');
-%             tic
-%             obj.ppsfRays.expandWavelengths(obj.film.wave);
-%             toc
-% 
-%             %lens intersection and raytrace
-%             disp('-----rays trace through lens-----');
-%             tic
-%             obj.lens.rayTraceThroughLens(obj.ppsfRays);
-%             toc
             
             %project rays onto the z = 0 plane for a proper light field
             obj.ppsfRays.projectOnPlane(0);
             obj.ppsfRays.pointSourceLocation = obj.pointSource;
             ppsfReturn = obj.ppsfRays;
+            
          end
          
          

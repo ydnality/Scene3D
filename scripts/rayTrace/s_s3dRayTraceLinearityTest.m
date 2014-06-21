@@ -46,8 +46,10 @@ film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:10:700)
 %initialize and read multi-element lens from file
 lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
 nSamples = 151;
-apertureMiddleD = 1;
-lens = lensMEObject('apertureSample', [nSamples nSamples], 'fileName', lensFileName, 'apertureMiddleD', apertureMiddleD);
+apertureMiddleD = 4;   % mm
+lens = lensMEObject('apertureSample', [nSamples nSamples], ...
+    'fileName', lensFileName, ...
+    'apertureMiddleD', apertureMiddleD);
 
 %lens illustration - very small aperture in the middle
 % lens.draw();
@@ -56,7 +58,8 @@ lens = lensMEObject('apertureSample', [nSamples nSamples], 'fileName', lensFileN
 
 % Millimeters from last surface.  Always at least the lens thickness
 % away.
-pointSourceDepth = max(1000,-(lens.get('totaloffset')+1));
+pointSourceDepth = 100;   % What is happening when 10,000?
+pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
 pointSources = [ 0 0 -pointSourceDepth];  %large distance test
 pointSourceFieldHeight = 0;
 % pointSources = [ 0 0 -60];  %short distance test
@@ -67,7 +70,9 @@ pointSourceFieldHeight = 0;
 % Use the multi element lens and film and a point source.  Combine into
 % a camera that calculates the point spread function.
 ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
-ppsf = ppsfCamera.estimatePPSF();
+
+nLines = 500;  % Draw the ray trace if nLines > 0
+ppsf = ppsfCamera.estimatePPSF(nLines);
 
 %% Record on film
 ppsfCamera.recordOnFilm();
@@ -96,15 +101,20 @@ cAEntranceXY = ppsf.aEntranceInt.XY';   % 2 x nSamples_in_aperture x nWave
 % Eliminate nans
 survivedRays = ~isnan(cAEntranceXY(1,:));
 cAEntranceXY = cAEntranceXY(:, survivedRays);
-% vcNewGraphWin;
-% r = lens.get('sradius',1); [x,y] = circlePoints([],r); plot(x,y,'.');
-% hold on; plot(cAEntranceXY(1,:),cAEntranceXY(2,:),'o'); axis equal
 
+% This is the effective aperture
+vcNewGraphWin;
+whichElement = 1;
+r = lens.get('sradius',whichElement); [x,y] = circlePoints([],r); plot(x,y,'.');
+hold on; plot(cAEntranceXY(1,:),cAEntranceXY(2,:),'o'); axis equal
+grid on
+title(sprintf('Entrance points that make it to the exit'));
 % Matrix of directions at entrance pupil.  This is 3 x nExitRays
 % Write this: lf = ppsf.get('entrance lf')
 %
 % This direction is an (x,y,z) vector
-entDirMatrix = [cAEntranceXY(1, :) - ppsf.pointSourceLocation(1);
+entDirMatrix = ...
+    [cAEntranceXY(1, :) - ppsf.pointSourceLocation(1);
     cAEntranceXY(2, :) - ppsf.pointSourceLocation(2);
     ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:))) - ppsf.pointSourceLocation(3)];
 entDirMatrix = normvec(entDirMatrix, 'dim', 1);
@@ -117,33 +127,34 @@ entDirMatrix = normvec(entDirMatrix, 'dim', 1);
 %     ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:)));
 %     entDirMatrix(1, :);
 %     entDirMatrix(2,:)];
-
-
 x = [cAEntranceXY(1,:);
     cAEntranceXY(2,:);
     entDirMatrix(1, :);
     entDirMatrix(2,:)];
-% We would like to have a look at this
-% Here is a way to plot the rays at the entrance pupil.
-% When the point is very far away, these will appear parallel.  WHen the
-% point is close, they should be diverging.
 
-% All the directions from a common point
-% vcNewGraphWin;
-% nPoints = size(x,2);
-% z = zeros(1,nPoints);
-% line([z;x(1,:)+x(4,:)],[z;x(2,:)+x(5,:)],[z;x(3,:)+entDirMatrix(3,:)])
-% view([1 58])
-% title(sprintf('%i distance %i samples',pointSourceDepth,nSamples))
+% Distribution of one of the angles 
+vcNewGraphWin;
+hist(entDirMatrix(1,:),100);
+
+%% All the ray directions from a common point
+vcNewGraphWin;
+nPoints = size(x,2);
+if nPoints > 1000, s = randi(nPoints,[500,1]);
+else              s = 1:nPoints;
+end
+z = zeros(1,length(s));
+line([z;x(1,s)+x(3,s)],[z;x(2,s)+x(4,s)],[z;x(3,s)+entDirMatrix(3,s)])
+view([20 58])
+title(sprintf('%i distance\n%i samples\n%.1f aperture',pointSourceDepth,nSamples,apertureMiddleD))
+set(gca,'xlim',[-10 10],'ylim',[-10,10],'zlim',[0 1.5]);
+
 % The directions from the actual aperture position
 % vcNewGraphWin;
 % line([x(1,:);x(1,:)+x(4,:)],[x(2,:);x(2,:)+x(5,:)],[x(3,:);x(3,:)+entDirMatrix(3,:)])
 % view([1 58])
 
 
-%%
-
-% Compute exit lightfield
+%% Compute exit lightfield
 cAExitXY = ppsf.aExitInt.XY';
 cAExitXY = cAExitXY(:, survivedRays);
 
@@ -155,7 +166,6 @@ exitDirMatrix = exitDirMatrix(:, survivedRays);
 %     ppsf.aExitInt.Z * ones(size(cAExitXY(1,:)));
 %     exitDirMatrix(1, :);
 %     exitDirMatrix(2,:)];
-
 b = [cAExitXY(1,:);
     cAExitXY(2,:);
     exitDirMatrix(1, :);
@@ -170,10 +180,15 @@ b = [cAExitXY(1,:);
 
 A = b/x;
 bEst = A * x;
-error = (bEst - x);
-MSE = mean(error(:).^2)
-%compute linear transformation
-%SVD? pInverse?
+
+% Scatter plot of positions
+for ii=1:4
+    vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
+    grid on;
+end
+
+% Can we interpret A?  Does it agree with MP's predict calculation from the
+% method he uses?
 
 %% Future development for modifying the rays.
 
