@@ -58,7 +58,7 @@ lens = lensMEObject('apertureSample', [nSamples nSamples], ...
 
 % Millimeters from last surface.  Always at least the lens thickness
 % away.
-pointSourceDepth = 100;   % What is happening when 10,000?
+pointSourceDepth = 10000;   % What is happening when 10,000?
 pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
 pointSources = [ 0 0 -pointSourceDepth];  %large distance test
 pointSourceFieldHeight = 0;
@@ -71,7 +71,7 @@ pointSourceFieldHeight = 0;
 % a camera that calculates the point spread function.
 ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
 
-nLines = 500;  % Draw the ray trace if nLines > 0
+nLines =  500;  % Draw the ray trace if nLines > 0
 ppsf = ppsfCamera.estimatePPSF(nLines);
 
 %% Record on film
@@ -105,10 +105,11 @@ cAEntranceXY = cAEntranceXY(:, survivedRays);
 % This is the effective aperture
 vcNewGraphWin;
 whichElement = 1;
-r = lens.get('sradius',whichElement); [x,y] = circlePoints([],r); plot(x,y,'.');
+r = lens.get('sdiameter',whichElement)/2; [x,y] = circlePoints([],r); plot(x,y,'.');
 hold on; plot(cAEntranceXY(1,:),cAEntranceXY(2,:),'o'); axis equal
 grid on
 title(sprintf('Entrance points that make it to the exit'));
+
 % Matrix of directions at entrance pupil.  This is 3 x nExitRays
 % Write this: lf = ppsf.get('entrance lf')
 %

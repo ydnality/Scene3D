@@ -156,12 +156,19 @@ classdef lensMEObject <  handle
                 case 'surfacearray'
                     res = obj.surfaceArray;
                 case 'sradius'
-                    % Aperture of this surface.
+                    % spherical radius of curvature of this surface.
                     % lens.get('sradius',whichSurface)
                     if isempty(varargin), this = 1;
                     else this = varargin{1};
                     end
-                    res = obj.surfaceArray(this).sRadius;
+                    res = obj.surfaceArray(this).sRadius; 
+               case 'sdiameter'
+                    % Aperture diameter of this surface.
+                    % lens.get('sradius',whichSurface)
+                    if isempty(varargin), this = 1;
+                    else this = varargin{1};
+                    end
+                    res = obj.surfaceArray(this).apertureD;
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end
@@ -431,6 +438,8 @@ classdef lensMEObject <  handle
                             % Find some samples.  Let's get smarter at how
                             % we find them.  For now, pick 20 random
                             % values.
+%                             samps = 1:size(rays.origin,1);
+%                             nLines = length(samps);
                             samps = randi(size(rays.origin,1),[nLines,1]);
                         end
                         xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines 1])]';
@@ -468,7 +477,7 @@ classdef lensMEObject <  handle
                 
                 % remove rays that land outside of the aperture
                 %TODO: consider making these set functions later
-                outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 > curAperture^2;
+                outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 >= curAperture^2;
                 rays.origin(outsideAperture, : ) = NaN;
                 rays.direction(outsideAperture, : ) = NaN;
                 rays.wavelength(outsideAperture) = NaN;
@@ -478,9 +487,10 @@ classdef lensMEObject <  handle
                 
                 
                 %special case with ppsfObjects
-                if(isa(rays,'ppsfObject') && passedCenterAperture)
+                if(isa(rays,'ppsfObject'))
                     rays.aEntranceInt.XY(outsideAperture, :) = NaN;
-                    rays.aMiddleInt.XY(outsideAperture, :) = NaN;
+                    rays.aMiddleInt.XY(outsideAperture, :) = NaN;                
+                    rays.aExitInt.XY(outsideAperture, :) = NaN;    
                 end
                 
                 % Spherical surface so apply Snell's law
@@ -574,6 +584,12 @@ classdef lensMEObject <  handle
                 rays.aEntranceInt.XY(:,1) = aGrid.X(:);
                 rays.aEntranceInt.XY(:,2) = aGrid.Y(:);
                 rays.aEntranceInt.Z = aGrid.Z(1);
+                
+                %initialization of these various intersection parameters
+                %consider putting in function
+                rays.aMiddleInt.XY = zeros(length(aGrid.X), 2);
+                rays.aExitInt.XY = zeros(length(aGrid.X), 2);
+                
                 %                 rays.aEntranceInt.X = aGrid.X(:);
                 %                 rays.aEntranceInt.Y = aGrid.Y(:);
             end
