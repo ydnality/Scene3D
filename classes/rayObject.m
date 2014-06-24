@@ -177,10 +177,21 @@ classdef rayObject <  clonableHandleObject
 %             for i = 1:length(props)
 %                 liveRays.(props{i})(deadIndices) = [];
                 
+
+
+
+                %***TODO - perhaps remove all NANs..... for all data
+                %members
                 liveRays.origin(deadIndices, : ) = [];
                 liveRays.direction(deadIndices, : ) = [];
                 liveRays.wavelength(deadIndices) = [];
                 liveRays.waveIndex(deadIndices) = [];
+                
+                
+                
+                
+                
+                
 %                 liveRays.apertureSamples.X(deadIndices) = [];   %THIS
 %                 NEEDS TO BE FIXED!!! the difference between rayobject
 %                 andd ppsfObject
@@ -213,7 +224,10 @@ classdef rayObject <  clonableHandleObject
                 %attempted vectorized version - runs out of memory
 %                 
 %                 %todo - somehow fix this - it is not general enough
-                convertChannel = uint8((imagePixel.wavelength - 400)/10 + 1);
+%                 convertChannel = uint8((imagePixel.wavelength - 400)/10 + 1);  %THIS LINE IS PROBLEMATIC!!!!!
+                
+                
+                convertChannel = liveRays.waveIndex;
                 wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];  %pixel to update
                 
                 recordablePixels =and(and(and(wantedPixel(:, 1) >= 1,  wantedPixel(:,1) <= film.resolution(1)), (wantedPixel(:, 2) > 1)), wantedPixel(:, 2) <= film.resolution(2));

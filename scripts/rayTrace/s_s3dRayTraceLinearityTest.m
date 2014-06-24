@@ -32,7 +32,7 @@ s_initISET
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
-film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:10:700);
+film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:50:700);
 
 %% lens properties
 % diffractionEnabled = false;
@@ -46,7 +46,7 @@ film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:10:700)
 %initialize and read multi-element lens from file
 lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
 nSamples = 151;
-apertureMiddleD = 4;   % mm
+apertureMiddleD = 10;   % mm
 lens = lensMEObject('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
@@ -58,9 +58,9 @@ lens = lensMEObject('apertureSample', [nSamples nSamples], ...
 
 % Millimeters from last surface.  Always at least the lens thickness
 % away.
-pointSourceDepth = 10000;   % What is happening when 10,000?
+pointSourceDepth = 100;   % What is happening when 10,000?
 pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
-pointSources = [ 0 0 -pointSourceDepth];  %large distance test
+pointSources = [ 0 5 -pointSourceDepth];  %large distance test
 pointSourceFieldHeight = 0;
 % pointSources = [ 0 0 -60];  %short distance test
 
@@ -186,6 +186,10 @@ bEst = A * x;
 for ii=1:4
     vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
     grid on;
+    
+    meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
+    averageAmp = mean(abs(b(ii,:)));
+    meanPercentError = meanAbsError/averageAmp * 100
 end
 
 % Can we interpret A?  Does it agree with MP's predict calculation from the
