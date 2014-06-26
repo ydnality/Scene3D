@@ -1,0 +1,90 @@
+	# Material 'occhio'
+Texture "occhio::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["//textures//occhio.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "occhio::Kd.scale" "color" "scale" "texture tex1" ["occhio::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+Texture "occhio::bumpmap:amount" "float" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["//textures//occhio.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "occhio::bumpmap" "float" "mix" "texture amount" ["occhio::bumpmap:amount"] "float tex1" [0.0] "float tex2" [0.0015000000596]
+MakeNamedMaterial "occhio"
+   "string type" ["uber"] "texture Kd" ["occhio::Kd.scale"]
+   "color Ks" [0.047366 0.047366 0.047366]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000] "texture bumpmap" ["occhio::bumpmap"]
+
+	# Material 'ottone'
+MakeNamedMaterial "ottone"
+   "string type" ["matte"]
+   "color Kd" [1.000000 1.000000 1.000000]
+
+	# Material 'barra'
+MakeNamedMaterial "barra"
+   "string type" ["mix"]
+
+	# Material 'ciliegio'
+Texture "ciliegio::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["//textures/ciliegio_diff.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [0.000000]
+Texture "ciliegio::bumpmap" "float" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["//textures/ciliegio_nor.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [0.000000]
+MakeNamedMaterial "ciliegio"
+   "string type" ["matte"] "texture Kd" ["ciliegio::Kd"] "texture bumpmap" ["ciliegio::bumpmap"]
+
+	# Material 'legno nero'
+Texture "legno nero::Kd:tex2" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["//textures//legno nero.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "legno nero::Kd" "color" "mix" "float amount" [0.600000023842] "color tex1" [0.059955 0.059955 0.059955] "texture tex2" ["legno nero::Kd:tex2"]
+Texture "legno nero::Kd.scale" "color" "scale" "texture tex1" ["legno nero::Kd"] "color tex2" [0.800000 0.800000 0.800000]
+Texture "legno nero::bumpmap:amount" "float" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["/home\\riccardo\\Scrivania\\man ray-indestructible object\\legno nero.jpg"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [1.000000]
+   "float vscale" [-1.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [-0.000000]
+Texture "legno nero::bumpmap" "float" "mix" "texture amount" ["legno nero::bumpmap:amount"] "float tex1" [0.0] "float tex2" [0.03]
+MakeNamedMaterial "legno nero"
+   "string type" ["uber"] "texture Kd" ["legno nero::Kd.scale"]
+   "color Ks" [0.005696 0.005696 0.005696]
+   "color Kr" [0.000000 0.000000 0.000000] "float roughness" [0.002000] "texture bumpmap" ["legno nero::bumpmap"]
+

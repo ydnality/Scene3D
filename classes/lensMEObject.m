@@ -152,7 +152,7 @@ classdef lensMEObject <  handle
                     % Should be nsurfaces
                     res = length(obj.surfaceArray);
                 case 'totaloffset'
-                    res = obj.surfaceArray(1).sCenter(3) - obj.surfaceArray(1).sRadius;
+                    res = -(obj.surfaceArray(1).sCenter(3) - obj.surfaceArray(1).sRadius);
                 case 'surfacearray'
                     res = obj.surfaceArray;
                 case 'sradius'
