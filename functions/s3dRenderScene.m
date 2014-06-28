@@ -1,5 +1,6 @@
 function scene = s3dRenderScene(fullfname, sceneName)
-% Use a pinhole camera model to calculate scene radiance
+% scene = s3dRenderScene(fullfname, sceneName)
+% Uses a pinhole camera model to calculate scene radiance
 %
 % fullfname: full path (file name) of the pbrt file that we render
 % path:  

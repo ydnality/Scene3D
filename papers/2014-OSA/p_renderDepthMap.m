@@ -1,5 +1,14 @@
+%% 2014 OSA Conference
+%
+% This script generates the depth maps for 2 scenes.  The first scene is a
+% test scene featuring many depth targets.  The second scene is the
+% indestructible Object scene.
+%
+% AL
+
 %%  generate and read and output depth map for depth target
 % ** make sure the rendering file has a small initial aperture, and only 1
+% sample per pixel rendering.
 
 chdir(fullfile(datapath, 'twoFlashDepth', 'depthTargetDepths'));
 depthMap = s3dRenderDepthMap('50mmDepthMap.pbrt', 1);
@@ -9,6 +18,7 @@ colorbar;
 
 %%  generate and read and output depth map for indestructibleObject
 % ** make sure the rendering file has a small initial aperture, and only 1
+% sample per pixel rendering.
 
 chdir(fullfile(datapath, 'twoFlashDepth', 'indObject', 'pbrt'));
 depthMap = s3dRenderDepthMap('50mmDepthMap.pbrt', 1);

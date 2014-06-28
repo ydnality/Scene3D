@@ -1,5 +1,8 @@
-%% p_Figure1 for 2014 OSA Conference
+%% 2014 OSA Conference
 %
+%  This script renders the PSFs in the block diagram in Figure 1 using a 3
+%  element lens (including a middle aperture).
+% 
 %  In the ray trace calculation imagine the z-axis is positive on the right
 %  and negative on the left.  The scene is located on the left.  The lens
 %  is placed near zero (and has some thickness).  The film is on the right
@@ -8,10 +11,10 @@
 %  
 % AL
 
-%%
+%% Initialize ISET
 s_initISET
 
-%% Initialize scene, lens and film properties
+%% Describe the point sources 
 
 % We will loop through the lens positions
 % pX = 0; pY = 0; pZ = -20000;   % millimeters
@@ -27,24 +30,20 @@ pointSources = [X(:), Y(:), Z(:)];
 numDepths = length(pZ);
 numFieldHeights = length(pX) * length(pY);
 psfsPerDepth = size(pointSources, 1)/numDepths;
+jitterFlag = true;   %enable jitter for lens front element aperture samples
+nLines = false;  %number of lines to draw for debug illustrations.  
 
-% pointSources = [pX pY pZ];     % large distance test
-
-% Create the film plane
+%%  Declare film properties
 wave = 400:100:700;            % Wavelength
 wList = 1:length(wave);
 fX = 0; fY = 0; fZ = 51.8145;       % mm
-
 % Film width and height
 fW = 20;  % mm
 fH = 20;  % mm
-
 % Film resolution (preview)
 numPixelsW = 151;
 numPixelsH = 151;
-
 % Film resolution (final render)
-
 numPixelsWHQ = 75;
 numPixelsHHQ = 75;
 
@@ -52,50 +51,49 @@ numPixelsHHQ = 75;
 %somewhat automated in the future
 newWidth = .3;    %%mm
 
-%declare film - put later for the loop
-
 %% Describe the lens
 
-% At some point, we will read in a lens description file
-
 % Multicomponent lens properties
-% This goes from the light through the lens to the film++++++
-offset   = [0 1.5 1.5];   % Distances between surfaces (deltas) 
+% This goes from the light through the lens to the film
+zPos   = [-3 -1.5 0];   % Z intercept positions of lens surfaces
 radius   = [67 0 -67];    % Radius of curvature, 0 means aperture
-aperture = [3 2 3];       % Circular apertures, these are the radii in mm
+aperture = [6 4 6];       % Circular apertures, these are the radii in mm
 
 % Index of refraction to the right of each surface
 %(ray.wavelength - 550) * -.04/(300) + curEl.n;
-
 firstN = (wave - 550) * -.04/(300) + 1.65; %linearly changes the 1.65 material
 n = [firstN' zeros(length(wave), 1) ones(length(wave),1)]; %index of refraction (wavelength x element)
 
-nSamples = 26;           % On the first aperture. x,y, before cropping
-nSamplesHQ = 201;
-% May not be needed ... AL
-lX = 0; lY = 0; lZ = -1.5;
-lensCenterPosition = [lX lY lZ];  % Eventually calculate this given the lens file
-
-
-idx = find(radius==0);  % This is the middle of the lens aperture size
-fLength = 50;           % mm.  We should derive this using the lensmaker's equation
+nSamples = 25;           % On the first aperture. x,y, before cropping
+nSamplesHQ = 801;        % Number of samples for the HQ render
+diffractionEnabled = false;    %disable diffraction for this example
+idx = find(radius==0);  % This is the middle of the lens aperture size mm
+fLength = 50;           % Todo: We should derive this using the lensmaker's equation
 % For multiple lenses, we add up the power using something from the web
 
-diffractionEnabled = false;
-lens = lensRealisticObject(offset,radius,aperture, n, aperture(idx), fLength, lensCenterPosition, diffractionEnabled, wave);
-lens.calculateApertureSample([nSamples nSamples]);
+% Populate lens surface array ussing given property arrays
+lensSurfaceArray = lensSurfaceObject();
+for i = 1:length(zPos)
+    lensSurfaceArray(i) = lensSurfaceObject('sRadius', radius(i), 'apertureD', aperture(i), 'zPos', zPos(i), 'n', n(:, i));
+end
+
+% Declare lens
+lens = lensMEObject('surfaceArray', lensSurfaceArray, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
+lens.apertureMiddleD = 4;
+% lens.calculateApertureSample([nSamples nSamples]);
 
 %% Loop on wavelength and depth to create PSFs 
 % These psfs will be for different field heights, depths, and wavelengths
 oiList = cell(1,size(pointSources, 1))
 for curInd = 1:size(pointSources, 1)
+% for curInd = 1:1
     %---initial low quality render
-    film = filmObject([fX fY fZ],[fW fH], wave, [wave(:) wList(:)], [numPixelsW numPixelsH length(wave)]);
-    psfCamera = psfCameraObject(lens, film, pointSources(curInd, :));
+    film = pbrtFilmObject('position', [fX fY fZ], 'size', [fW fH], 'wave', wave, 'resolution', [numPixelsW numPixelsH length(wave)]);
+    psfCamera = psfCameraObject('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
     oi = psfCamera.estimatePSF();
     vcAddObject(oi); oiWindow;
     
-    %---figure out center position
+    %---figure out center pos by calculating the centroid of gray image
     %convert the oi image to grayscale
     rgbImage = oiGet(oi, 'rgbImage');
     grayImage = rgb2gray(rgbImage);
@@ -111,14 +109,13 @@ for curInd = 1:size(pointSources, 1)
     centroidX = sum(sum(flippedGrayImage .* filmDistanceX)); 
     centroidY = sum(sum(flippedGrayImage .* filmDistanceY));
 
-    %---re-render
-    film = filmObject([centroidX centroidY fZ],[newWidth newWidth], wave, [wave(:) wList(:)], [numPixelsWHQ numPixelsHHQ length(wave)]);   %large distance
+    %---re-render image under new center position and width
+    film = pbrtFilmObject('position', [centroidX centroidY fZ], 'size', [newWidth newWidth], 'wave', wave, 'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
     %use more samples this time for a high quality render
-    lens.calculateApertureSample([nSamplesHQ nSamplesHQ], true);
-    psfCamera = psfCameraObject(lens, film, pointSources(curInd, :));
-    oiList{curInd} = psfCamera.estimatePSF()
+    lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
+    psfCamera = psfCameraObject('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
+    oiList{curInd} = psfCamera.estimatePSF(nLines, jitterFlag);
     vcAddObject(oiList{curInd}); oiWindow;
-    close; close;
 end
 
 %% Show PSFs for figure
@@ -138,17 +135,13 @@ for waveInd = wList
 end
 
 
-
 % make figure
 %Different field heights on 1 plot. Each depth will have an image stack of 
 %different wavelengths.
-
-
 colorCode = [1 0 1;   %this determines the color of the slice images
              0 0 1;
              0 1 0
              1 0 0];
-         
          
 for waveInd = wList 
     PSFMosaic = [];
@@ -163,14 +156,12 @@ for waveInd = wList
         
         figure; imshow(PSFMosaic);
         description = ['Depth:' num2str(pZ(depthInd)) ';Wavelength:' num2str(wave(waveInd)) ];
-        imwrite(PSFMosaic, fullfile(s3dRootPath, 'papers', '2014-OSA', [description '.png']));    
+%         imwrite(PSFMosaic, fullfile(s3dRootPath, 'papers', '2014-OSA', [description '.png']));    
         title(description); 
     end
 end
 
-
-
-%% old figure where field height and depth were on 1 image
+%% Old figure where field height and depth were on 1 image
 for waveInd = wList 
     PSFMosaic = [];
     for depthInd = 1:numDepths
@@ -191,4 +182,3 @@ for waveInd = wList
     imwrite(PSFMosaic, fullfile(s3dRootPath, 'papers', '2014-OSA', [description '.png']));    
     title(description); 
 end
-%%

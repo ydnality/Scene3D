@@ -1,9 +1,16 @@
-% Use the point test file, blur it in 2 different ways.  The first way is
-% to use the new ray tracing method which uses Heisenburg Uncertainty Ray
-% Bending (HURB).  The second way is the classical way, using theoretical PSF's.  
+%% 2014 OSA Conference
+%
+% This script uses the point test file, blur it in 2 different ways.  The
+% first way is to use the new ray tracing method which uses Heisenburg
+% Uncertainty Ray Bending (HURB).  The second way is the classical way,
+% using theoretical PSF's.
+%
+% AL
+
+%% Initialize ISET
+s_initISET
 
 %% Specify HURB ray tracing location and specification
-
 chdir(fullfile(s3dRootPath, 'papers', '2014-OSA'));
 sampleArray = cell(1, 1);
 
@@ -13,6 +20,7 @@ sampleArray{1}.apertureDiameter = 2.2727
 sampleArray{1}.filmDistance = 51.2821	
 sampleArray{1}.targetDistance = 2
 
+%various test files that are not used in the demo
 % sampleArray{2}.rayTraceFile = '50mm_2m_65res_f16.pbrt.mat' 
 % sampleArray{2}.focalLength = 50
 % sampleArray{2}.filmDistance = 51.2821
@@ -30,10 +38,6 @@ sampleArray{1}.targetDistance = 2
 % sampleArray{4}.apertureDiameter = 6.2500
 % sampleArray{4}.filmDistance = 51.2821
 % sampleArray{4}.targetDistance = 2
-
-
-
-
 
 % sampleArray{1}.rayTraceFile = '25mm_2m_65res.pbrt.mat'%'25mm_1m_65res.pbrt.mat' %'rayTrace25mm32res.mat' 
 % sampleArray{1}.focalLength = 25
@@ -110,12 +114,11 @@ for index = 1:length(sampleArray)
     oi = oiSet (oi, 'horizontalfieldofview', horFieldofView);
     vcAddAndSelectObject(oi);
     position = linspace(-sensorWidth/2 *1000 , sensorWidth/2 *1000 , length(PSFLine));  % the range is different from theoretical because the theoretical result is a square image
-%     figure;
-%     plot(position, PSFLine);
-%     title('Raytracing PSF');
-%     xlabel('um');
-%     ylabel('Illuminance');
-
+    %     figure;
+    %     plot(position, PSFLine);
+    %     title('Raytracing PSF');
+    %     xlabel('um');
+    %     ylabel('Illuminance');
 
     %% Produce Theoretical results
     %scene = sceneCreate('point array',256,128);
@@ -144,9 +147,8 @@ for index = 1:length(sampleArray)
     vcAddAndSelectObject(oiT); oiWindow;
 
     %% plot line vs. wavelength plots (linespread)
-    
     oiPhotons = oiGet(oi, 'photons');
-%     PSFLineSpectral = oiPhotons(round(size(oiPhotons,1)/2), :, :); 
+    %     PSFLineSpectral = oiPhotons(round(size(oiPhotons,1)/2), :, :); 
     PSFLineSpectral = sum(oiPhotons, 1);
     PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) 31]);
     scalingFactor = sum(PSFLineSpectral,1) * .1172/.1415;
@@ -165,14 +167,13 @@ for index = 1:length(sampleArray)
     %% plot both PSFs on 1 figure
     oiIlluminanceT = oiGet(oiT, 'illuminance');
     
-%     oiPhotonsT = oiGet(oiT, 'photons');
-%     PSFLineSpectralT = oiPhotonsT(round(size(oiPhotonsT,1)/2), :, :); 
-%     PSFLineSpectralT = reshape(PSFLineSpectralT, [640 31]);
-%     figure; mesh(PSFLineSpectralT);
+    %     oiPhotonsT = oiGet(oiT, 'photons');
+    %     PSFLineSpectralT = oiPhotonsT(round(size(oiPhotonsT,1)/2), :, :); 
+    %     PSFLineSpectralT = reshape(PSFLineSpectralT, [640 31]);
+    %     figure; mesh(PSFLineSpectralT);
    
-    
     PSFLineT = oiIlluminanceT(size(oiIlluminanceT,1)/2, :);
-%     PSFLineTS = PSFLineT * max(PSFLine(:))/max(PSFLineT(:));
+    %     PSFLineTS = PSFLineT * max(PSFLine(:))/max(PSFLineT(:));
     PSFLineTS = PSFLineT /max(PSFLineT(:));
     PSFLineS = PSFLine / max(PSFLine(:));
     positionT = linspace(-sensorWidth/2 *1000, sensorWidth/2 *1000, length(PSFLineT));

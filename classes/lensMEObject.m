@@ -15,6 +15,10 @@ classdef lensMEObject <  handle
     % parameters (a single number is a diameter in mm). index of refraction
     % (n) for the material to the left of the surface.
     %
+    % Lens files and surface arrays are specified from the front most
+    % element (closest to the scene), to the back-most element (closest to
+    % the sensor)
+    %
     % pinhole cameras have no aperture and the pinhole lens will inherit
     % this superclas. This will be a superclass that will be inherited by
     % other classes in the future
@@ -25,25 +29,84 @@ classdef lensMEObject <  handle
     % This could become a camera, or we could make a camera object that has
     % a lens and film.
     %
+    % Todo: consider a set function for better error handling.
+    %
     % Example:
-    %   lensRealisticObject()
-    %   lensObject(2, 67, 3, 1, 3, 50, 0)
+    %   lensMEObject()
     %
     % AL Vistasoft Copyright 2014
     
     properties
         name = 'default';
-        type = 'multi element lens';
-        surfaceArray;              % Set of spherical surfaces and apertures
+        type = 'multi element lens';   %we might be removing this soon
+        surfaceArray = lensSurfaceObject();              % Set of spherical surfaces and apertures
         diffractionEnabled = false;% Not implemented yet
         wave = 400:50:700;         % nm
         focalLength = 50;          % mm, focal length of multi-element lens
         apertureMiddleD = 1;       % mm, diameter of the middle aperture
         apertureSample = [11 11];  % Number of spatial samples in the aperture.  Use odd number
+        centerZ = 0;    %theoretical center of lens (length-wise) in the z coordinate
+        
+        centerRay = [];   %for use for ideal Lens
+        inFocusPosition = [0 0 0];  
     end
+    
     
     % Private functions only called within this class
     methods (Access = private)
+        
+        function apertureMask = apertureMask(obj)
+            % Identify the grid points on the circular aperture.
+            %
+            
+            % Here is the full sampling grid for the resolution and
+            % aperture radius
+            aGrid = obj.fullGrid;
+            
+            % We assume a circular aperture. This mask is 1 for the sample
+            % points within a circle of the aperture radius
+            firstApertureRadius = obj.surfaceArray(1).apertureD/2;
+            apertureMask = (aGrid.X.^2 + aGrid.Y.^2) <= firstApertureRadius^2;
+            % vcNewGraphWin;  mesh(double(apertureMask))
+            
+        end
+        
+        function aGrid = fullGrid(obj,randJitter)
+            % Build the full sampling grid, possibly adding a little jitter
+            % to avoid aliasing artifacts
+            
+            if (ieNotDefined('randJitter')), randJitter = false; end
+            
+            % First make the rectangular samples.
+            firstApertureRadius = obj.surfaceArray(1).apertureD/2;
+            xSamples = linspace(-firstApertureRadius, firstApertureRadius, obj.apertureSample(1));
+            ySamples = linspace(-firstApertureRadius, firstApertureRadius, obj.apertureSample(2));
+            [X, Y] = meshgrid(xSamples,ySamples);
+            
+            %Add a random jitter.  Uniform distribution.  Scales to plus or
+            %minus half the sample width
+            if(randJitter)
+                X = X + (rand(size(X)) - .5) * (xSamples(2) - xSamples(1));
+                Y = Y + (rand(size(Y)) - .5) * (ySamples(2) - ySamples(1));
+            end
+            aGrid.X = X; aGrid.Y = Y;
+            
+        end
+        
+        function aGrid = apertureGrid(obj,randJitter)
+            % Find the full grid, mask it and return only the (X,Y)
+            % positions inside the masked region.  This is the usual set of
+            % positions that we use for calculating light fields.
+            if ieNotDefined('randJitter'), randJitter = false; end
+            
+            aGrid = fullGrid(obj,randJitter);
+            aMask = apertureMask(obj);
+            aGrid.X = aGrid.X(aMask);
+            aGrid.Y = aGrid.Y(aMask);
+            
+            %debug check
+            % figure; plot(aGrid.X, aGrid.Y, 'o');
+        end
         
         function centers = centersCompute(obj, sOffset, sRadius)
             % Used when we read a lens file. The function computes the center
@@ -67,8 +130,7 @@ classdef lensMEObject <  handle
             % Centers of the spherical surfaces are stored in this matrix
             % (nSurfaces x 3)
             z = zeros(nSurfaces,1);
-            centers = [z z zIntercept + sRadius];
-            
+            centers = [z z zIntercept + sRadius];  
         end
         
         function elementsSet(obj, sOffset, sRadius, sAperture, sN)
@@ -92,12 +154,13 @@ classdef lensMEObject <  handle
             if (size(sN,2) == 1)
                 sN = repmat(sN, [1 length(obj.wave)]);
             end
-            
-            %compute surface array centers
-            centers = obj.centersCompute(sOffset, sRadius);
+
             
             %create array of surfaces
             obj.surfaceArray = lensSurfaceObject();
+            
+            %compute surface array centers
+            centers = obj.centersCompute(sOffset, sRadius);
             
             for i = 1:length(sOffset)
                 obj.surfaceArray(i) = ...
@@ -105,6 +168,235 @@ classdef lensMEObject <  handle
                     'sRadius', sRadius(i), ...
                     'apertureD', sAperture(i), 'n', sN(i, :));
             end
+            
+        end
+        
+        function obj = rtRealisticThroughLens(obj, rays, nLines)
+            % lens.rtThroughLens(rays,true/false)
+            % 
+            % Inputs:  lens object,rays at the entrance aperture,
+            % calculates the rays at the exit aperture.  The exiting rays
+            % are represented by the 
+            %
+            % On return, the input variable rays, which starts out
+            % representing the rays at the entrance aperture, is changed to
+            % be the position and direction of the rays at the exit
+            % aperture.
+            
+            % The order is from furthest from film to film, which is also
+            % how the rays pass through the optics.    
+            
+            passedCenterAperture = false;  %true if rays are traced through lens aperture
+             
+            % prevSurfaceZ = -obj.get('totalOffset');
+            prevN = ones(length(rays.origin), 1);
+            
+            % For each surface element
+            for lensEl = 1:obj.numEls
+                
+                % Get the surface data
+                curEl = obj.surfaceArray(lensEl);
+                curAperture = curEl.apertureD/2;
+                
+                %  ----vectorized
+                
+                %remove the dead rays and use tmp data structure, liveRays
+                %                 liveRays = rayObject();
+                %                 liveRays.makeDeepCopy(rays);
+                %                 deadIndices = isnan(rays.origin);
+                %
+                %                 liveRays.origin(deadIndices, : ) = [];
+                %                 liveRays.direction(deadIndices, : ) = [];
+                %                 liveRays.wavelength(deadIndices) = [];
+                %                 liveRays.waveIndex(deadIndices) = [];
+                %                 liveRays.apertureSamples.X(deadIndices) = [];
+                %                 liveRays.apertureSamples.Y(deadIndices) = [];
+                %                 liveRays.apertureLocation(deadIndices, :) = [];
+                
+                %ray trace through a single element
+                
+                % If spherical, calculate ray intersection with lens element 
+                if (curEl.sRadius ~= 0)
+                    
+                    repCenter = repmat(curEl.sCenter, [length(rays.origin) 1]);
+                    repRadius = repmat(curEl.sRadius, [length(rays.origin) 1]);
+                    radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
+                        ( dot(rays.origin - repCenter, rays.origin -repCenter, 2)) + repRadius.^2;
+                    
+                    % Calculate something about the ray angle with respect
+                    % to the current surface.  AL to figure this one out
+                    % and put in a book reference.
+                    if (curEl.sRadius < 0)
+                        intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) + sqrt(radicand));
+                    else
+                        intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) - sqrt(radicand));
+                    end
+                    
+                    %make sure that intersectT is > 0
+                    if (min(intersectT(:)) < 0)
+                        disp('intersectT less than 0 for lens %d',lensEl);
+                    end
+                    
+                    repIntersectT = repmat(intersectT, [1 3]);
+                    intersectPosition = rays.origin + repIntersectT .* rays.direction;
+                    
+                    %illustrations for debugging
+                    % Let's try to make the lines 3D.  That would be cool!
+                    if (nLines)
+                        if lensEl == 1
+                            vcNewGraphWin; obj.draw();
+                            % Find some samples.  Let's get smarter at how
+                            % we find them.  For now, pick 20 random
+                            % values.
+%                             samps = 1:size(rays.origin,1);
+%                             nLines = length(samps);
+                            samps = randi(size(rays.origin,1),[nLines,1]);
+                        end
+                        xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines 1])]';
+                        yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines 1])]';
+                        xCoordVector = real(xCoordVector(:));
+                        yCoordVector = real(yCoordVector(:));
+                        line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
+                        pause(0.2);
+                    end
+                    
+                    %                         if (isnan(intersectPosition))
+                    %                             disp('nan value');
+                    %                         end
+                else
+                    %plane intersection with lens aperture - TODO: maybe put
+                    %in function?
+                    %assumes that aperture is perfectly perpendicular with optical axis
+                    intersectZ = repmat(curEl.sCenter(3), [length(rays.origin) 1]); 
+                    intersectT = (intersectZ - rays.origin(:, 3))./rays.direction(:, 3);
+                    repIntersectT = repmat(intersectT, [1 3]);
+                    intersectPosition = rays.origin + rays.direction .* repIntersectT;
+                    curAperture = min(curEl.apertureD, obj.apertureMiddleD)/2;
+                    
+                    %added for ppsfObject apertureTracking
+                    if(isa(rays, 'ppsfObject'))
+                        rays.aMiddleInt.XY = 0;
+                        rays.aMiddleInt.XY = intersectPosition(:,1:2);  %only X-Y coords
+                        rays.aMiddleInt.Z = intersectZ;    %aperture Z
+                        passedCenterAperture = true;
+                    end
+                    %                         if (isnan(intersectPosition))
+                    %                             disp('nan value');
+                    %                         end
+                end
+                
+                % remove rays that land outside of the aperture
+                %TODO: consider making these set functions later
+                outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 >= curAperture^2;
+                rays.origin(outsideAperture, : ) = NaN;
+                rays.direction(outsideAperture, : ) = NaN;
+                rays.wavelength(outsideAperture) = NaN;
+                rays.waveIndex(outsideAperture) = NaN;
+                intersectPosition(outsideAperture, :) = NaN;
+                prevN(outsideAperture) = NaN;
+                
+                
+                %special case with ppsfObjects
+                if(isa(rays,'ppsfObject'))
+                    rays.aEntranceInt.XY(outsideAperture, :) = NaN;
+                    rays.aMiddleInt.XY(outsideAperture, :) = NaN;                
+                    rays.aExitInt.XY(outsideAperture, :) = NaN;    
+                end
+                
+                % Spherical surface so apply Snell's law
+                if(curEl.sRadius ~= 0)
+                    
+                    %in bounds case - perform vector Snell's law
+                    repCenter = repmat(curEl.sCenter, [length(rays.origin) 1]);
+                    normalVec = intersectPosition - repCenter;  %does the polarity of this vector matter? YES
+                    normalVec = normalVec./repmat(sqrt(sum(normalVec.*normalVec, 2)),[1 3]); %normalizes each row
+                    
+                    if (curEl.sRadius < 0)  %which is the correct sign convention? This is correct
+                        normalVec = -normalVec;
+                    end
+                    
+                    %modify the index of refraction depending on wavelength
+                    %TODO: have this be one of the input parameters (N vs. wavelength)
+                    %                     if (curEl.n ~= 1)
+                    %                         curN = (rays.wavelength - 550) * -.04/(300) + curEl.n;
+                    %                     else
+                    %                         curN = ones(length(rays.wavelength), 1);
+                    %                     end
+                    
+                    %                     waveIndex = find([obj.wave' obj.nWave']== rays.wavelength);  %this doesn't work yet
+                    %this was supposed to conver wavelength to waveIndex -
+                    %but I coudln't find a way to vectorize it, so instead
+                    %we precompute it
+                    
+                    liveIndices = ~isnan(rays.wavelength);
+                    curN = ones(size(prevN));
+                    curN(liveIndices) = curEl.n(rays.waveIndex(liveIndices));  %deal with nans
+                    curN(~liveIndices) = nan;
+                    
+                    %                     curN = ones(length(rays.wavelength), 1) * curEl.n;
+                    ratio = prevN./curN;    %snell's law index of refraction
+                    
+                    %Vector form of Snell's Law
+                    c = -dot(normalVec, rays.direction, 2);
+                    repRatio = repmat(ratio, [1 3]);
+                    newVec = repRatio .* rays.direction + repmat((ratio.*c -sqrt(1 - ratio.^2 .* (1 - c.^2))), [1 3])  .* normalVec;
+                    newVec = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
+                    
+                    %update the direction of the ray
+                    rays.origin = intersectPosition;
+                    rays.direction = newVec;
+                    prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture
+                end
+                
+                % HURB diffraction calculation
+                if (obj.diffractionEnabled)
+                    obj.rtHURB(rays, intersectPosition, curEl.apertureD/2);  
+                end
+                
+                
+                % iterate previous z
+                % prevSurfaceZ = prevSurfaceZ + curEl.offset;
+            end
+        end
+        
+        function obj = rtIdealThroughLens(obj, rays, nLines)
+            %traces rays through the lens
+
+ 
+            %---------------- lens refraction code  -----
+            %when intersecting ideal lens, change the direction to intersect the
+            %inFocusPosition, and update the origin
+            lensIntersectT = (obj.centerZ - rays.origin(:,3))./ rays.direction(:,3);
+            lensIntersectPosition = rays.origin +  repmat(lensIntersectT, [1 3]) .* rays.direction;
+            
+            %debug visualization
+            if (nLines)
+                
+                samps = randi(size(rays.origin,1),[nLines,1]);
+                
+                xCoordVector = [rays.origin(samps,3) lensIntersectPosition(samps,3) NaN([nLines 1])]';
+                yCoordVector = [rays.origin(samps,2) lensIntersectPosition(samps,2) NaN([nLines 1])]';
+                xCoordVector = real(xCoordVector(:));
+                yCoordVector = real(yCoordVector(:));
+                line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
+                pause(0.2);
+%                 for i = 1:size(rays.direction,1)
+%                     hold on;
+%                     line([rays.origin(i,3) lensIntersectPosition(i,3) ], [rays.origin(i,2) lensIntersectPosition(i,2)] ,'Color','b','LineWidth',1);
+%                 end
+            end
+            
+            %calculate new direction
+            %             newRays = rayObject(); % added
+            rays.origin = lensIntersectPosition;
+            rays.direction = repmat(obj.inFocusPosition , [size(rays.origin,1) 1 ]) - rays.origin;
+            rays.wavelength = rays.wavelength;
+            
+            % diffraction HURB calculation
+            if (obj.diffractionEnabled)
+                obj.rtHURB(rays, lensIntersectPosition, obj.apertureMiddleD/2);
+            end
+            %---------------- lens refraction code  -----
             
         end
     end
@@ -119,6 +411,10 @@ classdef lensMEObject <  handle
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
                 switch p
+                    case 'name'
+                        obj.name = varargin{ii+1};
+                    case 'type'
+                        obj.type = varargin{ii+1};
                     case 'surfacearray'
                         obj.surfaceArray = varargin{ii+1};
                     case 'aperturesample'
@@ -306,62 +602,14 @@ classdef lensMEObject <  handle
                     line(curEl.sCenter(3) * ones(2,1), [-curEl.apertureD/2 -curAperture]);
                     line(curEl.sCenter(3) * ones(2,1), [curAperture curEl.apertureD/2]);
                 end
-                
-                
+
             end
         end
         
-        function apertureMask = apertureMask(obj)
-            % Identify the grid points on the circular aperture.
-            %
-            
-            % Here is the full sampling grid for the resolution and
-            % aperture radius
-            aGrid = obj.fullGrid;
-            
-            % We assume a circular aperture. This mask is 1 for the sample
-            % points within a circle of the aperture radius
-            firstApertureRadius = obj.surfaceArray(1).apertureD/2;
-            apertureMask = (aGrid.X.^2 + aGrid.Y.^2) <= firstApertureRadius^2;
-            % vcNewGraphWin;  mesh(double(apertureMask))
-            
-        end
+
         
-        function aGrid = fullGrid(obj,randJitter)
-            % Build the full sampling grid, possibly adding a little jitter
-            % to avoid aliasing artifacts
-            
-            if (ieNotDefined('randJitter')), randJitter = false; end
-            
-            % First make the rectangular samples.
-            firstApertureRadius = obj.surfaceArray(1).apertureD/2;
-            xSamples = linspace(-firstApertureRadius, firstApertureRadius, obj.apertureSample(1));
-            ySamples = linspace(-firstApertureRadius, firstApertureRadius, obj.apertureSample(2));
-            [X, Y] = meshgrid(xSamples,ySamples);
-            
-            %Add a random jitter.  Uniform distribution.  Scales to plus or
-            %minus half the sample width
-            if(randJitter)
-                X = X + (rand(size(X)) - .5) * (xSamples(2) - xSamples(1));
-                Y = Y + (rand(size(Y)) - .5) * (ySamples(2) - ySamples(2));
-            end
-            aGrid.X = X; aGrid.Y = Y;
-            
-        end
         
-        function aGrid = apertureGrid(obj,randJitter)
-            % Find the full grid, mask it and return only the (X,Y)
-            % positions inside the masked region.  This is the usual set of
-            % positions that we use for calculating light fields.
-            if ieNotDefined('randJitter'), randJitter = false; end
-            
-            aGrid = fullGrid(obj,randJitter);
-            aMask = apertureMask(obj);
-            aGrid.X = aGrid.X(aMask);
-            aGrid.Y = aGrid.Y(aMask);
-        end
-        
-        function obj = rtThroughLens(obj, rays, nLines)
+        function obj = rtThroughLens(obj, rays, nLines, rtType)
             % lens.rtThroughLens(rays,true/false)
             % 
             % Inputs:  lens object,rays at the entrance aperture,
@@ -375,191 +623,43 @@ classdef lensMEObject <  handle
             
             % The order is from furthest from film to film, which is also
             % how the rays pass through the optics.
-            passedCenterAperture = false;  %true if rays are traced through lens aperture
+            
             if (ieNotDefined('nLines')), nLines = false; end
-            
-            % prevSurfaceZ = -obj.get('totalOffset');
-            prevN = ones(length(rays.origin), 1);
-            
-            % For each surface element
-            for lensEl = 1:obj.numEls
-                
-                % Get the surface data
-                curEl = obj.surfaceArray(lensEl);
-                curAperture = curEl.apertureD/2;
-                
-                %  ----vectorized
-                
-                %remove the dead rays and use tmp data structure, liveRays
-                %                 liveRays = rayObject();
-                %                 liveRays.makeDeepCopy(rays);
-                %                 deadIndices = isnan(rays.origin);
-                %
-                %                 liveRays.origin(deadIndices, : ) = [];
-                %                 liveRays.direction(deadIndices, : ) = [];
-                %                 liveRays.wavelength(deadIndices) = [];
-                %                 liveRays.waveIndex(deadIndices) = [];
-                %                 liveRays.apertureSamples.X(deadIndices) = [];
-                %                 liveRays.apertureSamples.Y(deadIndices) = [];
-                %                 liveRays.apertureLocation(deadIndices, :) = [];
-                
-                %ray trace through a single element
-                
-                % If spherical, calculate ray intersection with lens element 
-                if (curEl.sRadius ~= 0)
-                    
-                    repCenter = repmat(curEl.sCenter, [length(rays.origin) 1]);
-                    repRadius = repmat(curEl.sRadius, [length(rays.origin) 1]);
-                    radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
-                        ( dot(rays.origin - repCenter, rays.origin -repCenter, 2)) + repRadius.^2;
-                    
-                    % Calculate something about the ray angle with respect
-                    % to the current surface.  AL to figure this one out
-                    % and put in a book reference.
-                    if (curEl.sRadius < 0)
-                        intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) + sqrt(radicand));
-                    else
-                        intersectT = (-dot(rays.direction, rays.origin - repCenter, 2) - sqrt(radicand));
-                    end
-                    
-                    %make sure that intersectT is > 0
-                    if (min(intersectT(:)) < 0)
-                        disp('intersectT less than 0 for lens %d',lensEl);
-                    end
-                    
-                    repIntersectT = repmat(intersectT, [1 3]);
-                    intersectPosition = rays.origin + repIntersectT .* rays.direction;
-                    
-                    %illustrations for debugging
-                    % Let's try to make the lines 3D.  That would be cool!
-                    if (nLines)
-                        if lensEl == 1
-                            vcNewGraphWin; obj.draw();
-                            % Find some samples.  Let's get smarter at how
-                            % we find them.  For now, pick 20 random
-                            % values.
-%                             samps = 1:size(rays.origin,1);
-%                             nLines = length(samps);
-                            samps = randi(size(rays.origin,1),[nLines,1]);
-                        end
-                        xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines 1])]';
-                        yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines 1])]';
-                        xCoordVector = real(xCoordVector(:));
-                        yCoordVector = real(yCoordVector(:));
-                        line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
-                        pause(0.2);
-                    end
-                    
-                    %                         if (isnan(intersectPosition))
-                    %                             disp('nan value');
-                    %                         end
-                else
-                    %plane intersection with lens aperture - TODO: maybe put
-                    %in function?
-                    %assumes that aperture is perfectly perpendicular with optical axis
-                    intersectZ = repmat(curEl.sCenter(3), [length(rays.origin) 1]); 
-                    intersectT = (intersectZ - rays.origin(:, 3))./rays.direction(:, 3);
-                    repIntersectT = repmat(intersectT, [1 3]);
-                    intersectPosition = rays.origin + rays.direction .* repIntersectT;
-                    curAperture = min(curEl.apertureD, obj.apertureMiddleD)/2;
-                    
-                    %added for ppsfObject apertureTracking
-                    if(isa(rays, 'ppsfObject'))
-                        rays.aMiddleInt.XY = 0;
-                        rays.aMiddleInt.XY = intersectPosition(:,1:2);  %only X-Y coords
-                        rays.aMiddleInt.Z = intersectZ;    %aperture Z
-                        passedCenterAperture = true;
-                    end
-                    %                         if (isnan(intersectPosition))
-                    %                             disp('nan value');
-                    %                         end
-                end
-                
-                % remove rays that land outside of the aperture
-                %TODO: consider making these set functions later
-                outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 >= curAperture^2;
-                rays.origin(outsideAperture, : ) = NaN;
-                rays.direction(outsideAperture, : ) = NaN;
-                rays.wavelength(outsideAperture) = NaN;
-                rays.waveIndex(outsideAperture) = NaN;
-                intersectPosition(outsideAperture, :) = NaN;
-                prevN(outsideAperture) = NaN;
-                
-                
-                %special case with ppsfObjects
-                if(isa(rays,'ppsfObject'))
-                    rays.aEntranceInt.XY(outsideAperture, :) = NaN;
-                    rays.aMiddleInt.XY(outsideAperture, :) = NaN;                
-                    rays.aExitInt.XY(outsideAperture, :) = NaN;    
-                end
-                
-                % Spherical surface so apply Snell's law
-                if(curEl.sRadius ~= 0)
-                    
-                    %in bounds case - perform vector Snell's law
-                    repCenter = repmat(curEl.sCenter, [length(rays.origin) 1]);
-                    normalVec = intersectPosition - repCenter;  %does the polarity of this vector matter? YES
-                    normalVec = normalVec./repmat(sqrt(sum(normalVec.*normalVec, 2)),[1 3]); %normalizes each row
-                    
-                    if (curEl.sRadius < 0)  %which is the correct sign convention? This is correct
-                        normalVec = -normalVec;
-                    end
-                    
-                    %modify the index of refraction depending on wavelength
-                    %TODO: have this be one of the input parameters (N vs. wavelength)
-                    %                     if (curEl.n ~= 1)
-                    %                         curN = (rays.wavelength - 550) * -.04/(300) + curEl.n;
-                    %                     else
-                    %                         curN = ones(length(rays.wavelength), 1);
-                    %                     end
-                    
-                    %                     waveIndex = find([obj.wave' obj.nWave']== rays.wavelength);  %this doesn't work yet
-                    %this was supposed to conver wavelength to waveIndex -
-                    %but I coudln't find a way to vectorize it, so instead
-                    %we precompute it
-                    
-                    liveIndices = ~isnan(rays.wavelength);
-                    curN = ones(size(prevN));
-                    curN(liveIndices) = curEl.n(rays.waveIndex(liveIndices));  %deal with nans
-                    curN(~liveIndices) = nan;
-                    
-                    %                     curN = ones(length(rays.wavelength), 1) * curEl.n;
-                    ratio = prevN./curN;    %snell's law index of refraction
-                    
-                    %Vector form of Snell's Law
-                    c = -dot(normalVec, rays.direction, 2);
-                    repRatio = repmat(ratio, [1 3]);
-                    newVec = repRatio .* rays.direction + repmat((ratio.*c -sqrt(1 - ratio.^2 .* (1 - c.^2))), [1 3])  .* normalVec;
-                    newVec = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
-                    
-                    %update the direction of the ray
-                    rays.origin = intersectPosition;
-                    rays.direction = newVec;
-                    prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture
-                end
-                
-                % HURB diffraction calculation
-                if (obj.diffractionEnabled)
-                    obj.rtHURB(rays, intersectPosition, curEl.aperture);
-                end
-                
-                
-                % iterate previous z
-                % prevSurfaceZ = prevSurfaceZ + curEl.offset;
-            end
+            if (ieNotDefined('rtType')), rtType = 'realistic'; end
+             rtType = ieParamFormat(rtType);
+             switch rtType
+                 case 'ideal'
+                     obj = obj.rtIdealThroughLens(rays, nLines);
+                 case 'realistic'
+                     obj = obj.rtRealisticThroughLens( rays, nLines);
+                 case 'linear'
+                     error ('not implemented yet');
+                 otherwise
+                     error ('unknown ray trace type');
+             end
         end
-        
-        function rays = rtSourceToEntrance(obj, pointSource, ppsfObjectFlag)
-            % Ray trace from a point to the aperture grid
+            
+
+        function rays = rtSourceToEntrance(obj, pointSource, ppsfObjectFlag, jitterFlag, rtType)
+            % Ray trace from a point to the aperture grid on the first lens
+            % surface (the one furthest from the sensor).  Rays at this
+            % point will only have 1 wavelength assigned to them, for they
+            % will be "expanded" out later to save on computations.  
             %
-            % A couple of more comments.  THis is from the source to the
-            % first surface, right?
+            % ppsfObjectFlag: specifies whether we are computing the pPSF
+            % or not.  Default: false (only for PSF)
+            % 
             %
             % See also: rtEntranceToExit in meLens
             
             if (ieNotDefined('ppsfObjectFlag'))
                 ppsfObjectFlag = false;
             end
+            if (ieNotDefined('jitterFlag'))
+                jitterFlag = false;
+            end
+            if (ieNotDefined('rtType')), rtType = 'realistic'; end
+            rtType = ieParamFormat(rtType);
             
             % Define rays object
             if (~ppsfObjectFlag)
@@ -568,11 +668,43 @@ classdef lensMEObject <  handle
                 rays = ppsfObject();
             end
             
+            
+            %deal with different ray trace types
+            switch rtType
+                case 'realistic'
+                    frontRTSurface = -obj.get('totalOffset');
+                case 'ideal'
+                    frontRTSurface = obj.centerZ;
+                    
+                    % --- center ray calculation-------------
+                    
+                    %trace ray from point source to lens center, to image.  This helps
+                    %determine the point of focus
+                    obj.centerRay.origin = pointSource;
+                    obj.centerRay.direction = [ 0 0 obj.centerZ] - obj.centerRay.origin;
+                    obj.centerRay.direction = obj.centerRay.direction./norm(obj.centerRay.direction);
+                    
+                    %calculate the in-focus plane using thin lens equation
+                    inFocusDistance = 1/(1/obj.focalLength - -1/pointSource(3));
+                    
+                    %calculates the in-focus position.  The in-focus position is the
+                    %intersection of the in-focus plane and the center-ray
+                    inFocusT = (inFocusDistance - obj.centerRay.origin(3))/obj.centerRay.direction(3);
+                    obj.inFocusPosition = obj.centerRay.origin + inFocusT .* obj.centerRay.direction;
+                    % --------center ray calculation -------
+                case 'linear'
+                    error('not implemented yet')
+                otherwise
+                    error('unknown ray trace type')
+            end
+             
+            
             % Create rays from the point source to each aperture grid point
             %the new origin is the position of the current point source
-            aGrid = obj.apertureGrid(false);   %TODO: set randJitter somehow
+            aGrid = obj.apertureGrid(jitterFlag);   %TODO: set randJitter somehow
             nPts  = numel(aGrid.X(:));
-            aGrid.Z = repmat(-obj.get('totalOffset'),[nPts,1]);
+            aGrid.Z = repmat(frontRTSurface,[nPts,1]);
+            
             ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];  %e stands for end... endPoionts
             
             % Computes the directions between the origin and the end points

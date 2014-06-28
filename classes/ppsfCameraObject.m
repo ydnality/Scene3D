@@ -55,7 +55,7 @@ classdef ppsfCameraObject <  psfCameraObject
              obj = obj@psfCameraObject('lens', lens,'film', film, 'pointSource', pointSource);  %this lets the psfCameraObject do error handling
          end
          
-         function ppsfReturn = estimatePPSF(obj,nLines)
+         function ppsfReturn = estimatePPSF(obj,nLines, jitterFlag)
             % calculate the origin and direction of the exiting rays
             %
             % nLines is the number of lines to draw on the diagram.
@@ -63,11 +63,12 @@ classdef ppsfCameraObject <  psfCameraObject
             % ppsfCamera.estimatePPSF(nLines)    
             
             if ieNotDefined('nLines'), nLines = false; end
+            if (ieNotDefined('jitterFlag')), jitterFlag = false; end
             
             disp('-----trace source to lens-----');
             tic
             ppsfObjectFlag = true;
-            obj.ppsfRays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag);
+            obj.ppsfRays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag);
             toc
             
             %duplicate the existing rays, and creates one for each

@@ -17,24 +17,6 @@ classdef lensSurfaceObject <  handle
     %  lensSurfaceObject(lensType, relevant parameter list ... )
     %
     % Examples:
-    %   lSurf = lensObject; lens.apertureSample = [51,51];
-    %   fGrid = lSurf.fullGrid;
-    %   aMask = lSurf.apertureMask; vcNewGraphWin; imagesc(aMask)
-    %   aGrid = lSurf.apertureGrid; vcNewGraphWin; plot(aGrid.X(:),aGrid.Y(:),'o')
-    %
-    %   pointSource = [0 0 -50];
-    %   rays = lSurf.rtSourceToEntrance(pointSource);
-    %   ro =  rays.origin;
-    %   rd =  rays.origin + rays.direction;
-    %   vcNewGraphWin; hold on;
-    %   for ii=1:10:size(rd,1), line([ro(ii,1),rd(ii,1)],[ro(ii,2),rd(ii,2)],[ro(ii,3),rd(ii,3)]); end
-    %
-    %  To get a variable, both actual slots and derived, use:
-    %   lens.get('name')
-    %
-    %  To set a variable use.  (We may want to create a set() function, but
-    %  we haven't yet).
-    %   lens.name = 'test';
     %
     % AL Vistasoft Copyright 2014
     
@@ -56,11 +38,13 @@ classdef lensSurfaceObject <  handle
         
         % %%%%% Lens surface object constructor %%%%%%%
         function obj = lensSurfaceObject(varargin)
-
+            %zpos must be assigned AFTER sCenter is assigned (after sCenter
+            %in parameter declaration order).  Zpos assumes that lenses are
+            %centered on z-axis.
             for ii=1:2:length(varargin)
-%                 p = ieParamFormat(varargin{ii});
-                switch varargin{ii}
-                    case 'apertureD'
+                p = ieParamFormat(varargin{ii});
+                switch p
+                    case 'apertured'
                         % Units are mm
                         obj.apertureD = varargin{ii+1};
                         
@@ -70,14 +54,19 @@ classdef lensSurfaceObject <  handle
 %                     case 'diffractionEnabled'
 %                         obj.diffractionEnabled = varargin{ii+1};
 %                         
-                    case 'sRadius'
+                    case 'sradius'
                         obj.sRadius = varargin{ii+1};
                         
-                    case 'sCenter'
+                    case 'scenter'
                         obj.sCenter = varargin{ii+1};
                         
                     case 'wave'
                         obj.wave = varargin{ii+1};
+                        
+                    case 'zpos' %**MUST be assigned after sCenter is assigned
+                        %assumes that lenses are centered on z axis
+                        zPos = varargin{ii+1};
+                        obj.sCenter = [ 0 0 obj.centerComputeFromZSRadius(zPos)];
                         
                     case 'n' % Index of refraction
                         obj.n = varargin{ii+1};
@@ -87,6 +76,14 @@ classdef lensSurfaceObject <  handle
                 end
             end
             
+        end
+        
+        
+        function center = centerComputeFromZSRadius(obj, zPos)
+            %computes the spherical center given the z position and the
+            %spherical radius.
+            
+            center = zPos + obj.sRadius;
         end
         
         function res = get(obj,pName,varargin)

@@ -1,3 +1,13 @@
+%% ADD COMMENTS - WHAT IS THIS FILE???
+
+% I think that this file generates the PSFs needed for the chromatic
+% aberration renderings of test targets.  However, this is a copy of what
+% p_Figure1.m is doing, or very close.  So I believe that we might not need
+% this as a separate file. Leave it as reference for now.
+
+%% TOFIX!! - do we need this script?
+
+
 %% Initialize scene, lens and film properties
 
 % We will loop through the lens positions

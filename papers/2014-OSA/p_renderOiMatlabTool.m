@@ -1,5 +1,11 @@
-% renders some chromatic aberration oi's, given a PSFs generated from our
-% Matlab tool. 
+%% 2014 OSA Conference
+%
+% This script renders some chromatic aberration optical images, given PSFs
+% generated from our Matlab tool.  
+%
+% This uses the forward calculation.
+%
+% AL Vistalab 2014
 %%
 s_initISET
 
@@ -38,9 +44,9 @@ scene = sceneSet(scene,'fov', 3);
 vcAddAndSelectObject(scene);
 sceneWindow
 
-
 %% Load PSF from file
 
+% uncomment these psfFileName's if you wish to use them
 %diffraction only PSF
 % psfFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'PSFCenter_50mm_2m_f22_n401.mat');
 
@@ -49,7 +55,6 @@ sceneWindow
 
 %chromatic aberration PSF (diffraction disabled) 2m
 psfFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'PSFCenter_2ElLens_50mm_2mmAp_2mSensDist_n201.mat');
-
 
 load(psfFileName);
 oi = opticalimage;
@@ -63,7 +68,6 @@ umPerSample = [pixelSize pixelSize];                % Sample spacing in um
 
 %crop the PSF so it's of managable size
 % oiPhotons = oiPhotons(75-25: 75+25, :);
-
 
 %% Apply PSF onto test scene
 
@@ -84,8 +88,4 @@ oi = oiCrop(oi, round([sizeDifference/2 sizeDifference/2  (rows-sizeDifference) 
 vcAddAndSelectObject(oi);
 oiWindow;
 
-
-%%
 % imageMultiview('oi',1:4,1)
-
-%% End

@@ -62,34 +62,46 @@ classdef psfCameraObject <  handle
 %             end
         end
         
-        function oi = estimatePSF(obj)
-            obj.rays = obj.lens.rayTraceSourceToLens(obj.pointSource);
+        function oi = estimatePSF(obj,nLines, jitterFlag)
+            %oi = estimatePSF(obj)
+            %
+            %estimates the PSF given the point source, lens, and film. 
+            %returns the optical image of the film
+            
+            if ieNotDefined('nLines'), nLines = false; end
+            if (ieNotDefined('jitterFlag')), jitterFlag = false; end
+            
+            ppsfObjectFlag = true;
+            obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag);
 
             %duplicate the existing rays, and creates one for each
             %wavelength
-            obj.rays.expandWavelengths(obj.film.wave);
+%             obj.rays.expandWavelengths(obj.film.wave);
+            obj.rays.expandWavelengths(obj.lens.wave);
 
             %lens intersection and raytrace
-            obj.lens.rayTraceThroughLens(obj.rays);
+            obj.lens.rtThroughLens(obj.rays, nLines);
 
             %intersect with "film" and add to film
             obj.rays.recordOnFilm(obj.film);
             
+            oi = obj.showFilm();
+            
             %show the oi from the film
-            oi = oiCreate;
-            oi = initDefaultSpectrum(oi);
-            oi = oiSet(oi, 'wave', obj.film.wave);
-            oi = oiSet(oi,'photons',obj.film.image);
-            optics = oiGet(oi,'optics');
-            optics = opticsSet(optics,'focal length',obj.lens.focalLength/1000);
-            optics = opticsSet(optics,'fnumber', obj.lens.focalLength/(2*1));
-            oi = oiSet(oi,'optics',optics);
-            hfov = rad2deg(2*atan2(obj.film.size(1)/2,obj.lens.focalLength));
-            oi = oiSet(oi,'hfov', hfov);
+%             oi = oiCreate;
+%             oi = initDefaultSpectrum(oi);
+%             oi = oiSet(oi, 'wave', obj.film.wave);
+%             oi = oiSet(oi,'photons',obj.film.image);
+%             optics = oiGet(oi,'optics');
+%             optics = opticsSet(optics,'focal length',obj.lens.focalLength/1000);
+%             optics = opticsSet(optics,'fnumber', obj.lens.focalLength/(2*1));
+%             oi = oiSet(oi,'optics',optics);
+%             hfov = rad2deg(2*atan2(obj.film.size(1)/2,obj.lens.focalLength));
+%             oi = oiSet(oi,'hfov', hfov);
         end
         
         
-        function showFilm(obj)
+        function oi = showFilm(obj)
             oi = oiCreate;
             oi = initDefaultSpectrum(oi);
             oi = oiSet(oi, 'wave', obj.film.wave);
