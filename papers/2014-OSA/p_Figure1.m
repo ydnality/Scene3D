@@ -134,6 +134,13 @@ for waveInd = wList
     end
 end
 
+%key data to know for interpolation later
+PSFFieldHeightSamples = atan(pX/pZ(1)) * 180/pi
+PSFDepthSamples = -Z(1,1,:);
+PSFDepthSamples = PSFDepthSamples(:)
+PSFStructure.fHAngle = PSFFieldHeightSamples;
+PSFStructure.depth = PSFDepthSamples;
+
 
 % make figure
 %Different field heights on 1 plot. Each depth will have an image stack of 
