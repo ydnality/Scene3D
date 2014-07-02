@@ -83,7 +83,7 @@ vcAddObject(scene); sceneWindow;
 
     %for now - the width of the high quality sensor is set manually - this should be
     %somewhat automated in the future
-    newWidth = 4;    %%mm
+    newWidth = 10;    %%mm
 
     %% Describe the lens
 
@@ -91,7 +91,7 @@ vcAddObject(scene); sceneWindow;
     % This goes from the light through the lens to the film
     zPos   = [-3 -1.5 0];   % Z intercept positions of lens surfaces
     radius   = [67 0 -67];    % Radius of curvature, 0 means aperture
-    aperture = [6 4 6];       % Circular apertures, these are the radii in mm
+    aperture = [10 10 10];       % Circular apertures, these are the radii in mm
 
     % Index of refraction to the right of each surface
     %(ray.wavelength - 550) * -.04/(300) + curEl.n;
