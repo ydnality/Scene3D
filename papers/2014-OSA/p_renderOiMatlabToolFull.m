@@ -9,19 +9,19 @@
 s_initISET
 
 %% Render a pinhole scene.  It can be treated as the scene radiance
-
-%TODO: save these scenes and depth maps so that brian can import them
-sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinhole.pbrt');
-scene = s3dRenderScene(sceneName, 'indObj');
-vcAddObject(scene); sceneWindow;
-
-%% Render the depthmap for that pinhole scene
-sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinholeDepth.pbrt');
-depthMap = s3dRenderDepthMap(sceneName, 1);
-figure; imagesc(depthMap);
-title('Depth-map For Indestructible Object(units mm)');
-colorbar;
-scene = sceneSet(scene, 'depthmap', depthMap);
+% 
+% %TODO: save these scenes and depth maps so that brian can import them
+% sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinhole.pbrt');
+% scene = s3dRenderScene(sceneName, 'indObj');
+% vcAddObject(scene); sceneWindow;
+% 
+% %% Render the depthmap for that pinhole scene
+% sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinholeDepth.pbrt');
+% depthMap = s3dRenderDepthMap(sceneName, 1);
+% figure; imagesc(depthMap);
+% title('Depth-map For Indestructible Object(units mm)');
+% colorbar;
+% scene = sceneSet(scene, 'depthmap', depthMap);
 
 %% If modded pbrt is NOT installed on this system, run this command to 
 % load a scene file
@@ -50,7 +50,7 @@ vcAddObject(scene); sceneWindow;
     %% Describe the point sources 
 
     % We will loop through the lens positions
-    pX = 0:-800:-2400; pY = 0; pZ =[-70 -80 -90 -110];% millimeters
+    pX = 0:-1000:-3000; pY = 0; pZ =[-70 -80 -90 -110];% millimeters
     normalizingZ = -16000; %mm assumed reference Z point.  All other points will use the same field angle as this reference Z point
     [X, Y, Z] = meshgrid(pX,pY,pZ);
     
@@ -72,8 +72,8 @@ vcAddObject(scene); sceneWindow;
     fX = 0; fY = 0; fZ = 135.5;       % mm.  Film position
     
     % Film width and height
-    fW = 60;  % mm
-    fH = 60;  % mm
+    fW = 80;  % mm
+    fH = 80;  % mm
     % Film resolution (preview)
     numPixelsW = 151;
     numPixelsH = 151;
@@ -114,6 +114,11 @@ vcAddObject(scene); sceneWindow;
     % Declare lens
     lens = lensMEObject('surfaceArray', lensSurfaceArray, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
     lens.apertureMiddleD = 10;
+    
+    
+    testFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject' , '2ElLens.dat');
+    lens2 = lensMEObject('fileName', testFileName, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
+
     % lens.calculateApertureSample([nSamples nSamples]);
 
     %% Loop on wavelength and depth to create PSFs 
@@ -275,7 +280,7 @@ oi = oiSet(oi, 'wave', renderWave);
 oi = oiSet(oi,'cphotons',photonSum);
 vcAddObject(oi); oiWindow;
 
-% debugging 
+% % debugging 
 % figure; 
 % imshow(photonSum(:,:,1)./ max(photonSum(:)) * 4)
 % figure; 
@@ -292,3 +297,18 @@ vcAddObject(oi); oiWindow;
 % 
 % currentPSF = s3dPSFLookUp(fieldHeightAngle, depth, wavelength,PSFStructure);
 % vcNewGraphWin; imagesc(currentPSF); title(['PSF Depth: ' int2str(depth)]);
+
+
+%% For comparison (modded pbrt needed) - this is the backwards calculation
+% sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused2El.pbrt');
+% oi = s3dRenderOi(sceneName, .050, 'indObj');
+% 
+% %reduce to 400:100:700
+% scene = sceneCreate;
+% scene = sceneSet(scene, 'photons', oiGet(oi,' photons'));
+% scene = sceneSet(scene, 'wave', 400:100:700);
+% 
+% oi = oiSet(oi, 'wave', 400:100:700);
+% oi = oiSet(oi, 'photons', sceneGet(scene, 'photons'));
+% vcAddObject(oi); oiWindow;
+

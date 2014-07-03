@@ -17,7 +17,11 @@
     %% Render the defocused oi
     sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused.pbrt');
     oi = s3dRenderOi(sceneName, .050, 'indObj');
-
+    
+    %% Render the defocused oi with 2 element lens
+    sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused2El.pbrt');
+    oi = s3dRenderOi(sceneName, .050, 'indObj');
+    
     %% Render the pinhole scene
 
     %the pinhole scene can be treated as the scene radiance
