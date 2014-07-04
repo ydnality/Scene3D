@@ -6,9 +6,9 @@ classdef psfCameraObject <  handle
     % Spatial units throughout are mm
     %
     % For ray tracing, the sensor plane is called the 'film'.  At some
-    % point we will need to be able to convert data from the ISET sensor
-    % object and this film object.  In the fullness of time, they may be
-    % closely coordinated.
+    % point we will need to convert data between the ISET sensor object and
+    % this film object.  In the fullness of time, they may be closely
+    % coordinated.
     %
     % The film properties are
     %
@@ -31,8 +31,7 @@ classdef psfCameraObject <  handle
         
         %default constructor
         function obj = psfCameraObject(varargin)
-            
-%             ( lens, film, pointSource)
+            % psfCameraObject('lens',lens,'film',film,'point source',point);
             
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
@@ -40,26 +39,31 @@ classdef psfCameraObject <  handle
                     case 'lens'
                         obj.lens = varargin{ii+1};
                     case 'film'
-                        obj.film = varargin{ii+1};  %must be a 2 element vector
+                        obj.film = varargin{ii+1};
                     case 'pointsource'
                         obj.pointSource = varargin{ii+1};
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
             end
-             
             
-%             if (ieNotDefined('lens')),     error('Input lens are required');
-%             else                           obj.lens = lens;
-%             end
-%             
-%             if (ieNotDefined('film')),     error('Input film are required');
-%             else                           obj.film = film;
-%             end
-% 
-%             if (ieNotDefined('pointSource')),     obj.pointSource = [0 0 -20000]; %default point source at -20m
-%             else                           obj.pointSource = pointSource;  %units in mm
-%             end
+        end
+        
+        function val = get(obj,param)
+            % psfCamera.get('parameter name')
+            % Start to set up the gets for this object
+            val = [];
+            param = ieParamFormat(param);
+            switch param
+                case 'spacing'
+                    % Millimeters per sample
+                    r = obj.film.resolution(1);
+                    s = obj.film.size(1);
+                    val = s/r;
+                otherwise
+                    error('unknown parameter %s\n',param)
+            end
+            
         end
         
         function oi = estimatePSF(obj,nLines, jitterFlag)
@@ -68,15 +72,15 @@ classdef psfCameraObject <  handle
             %estimates the PSF given the point source, lens, and film. 
             %returns the optical image of the film
             
-            if ieNotDefined('nLines'), nLines = false; end
-            if (ieNotDefined('jitterFlag')), jitterFlag = false; end
+            if ieNotDefined('nLines'),     nLines = false;     end
+            if ieNotDefined('jitterFlag'), jitterFlag = false; end
             
             ppsfObjectFlag = true;
             obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag);
 
-            %duplicate the existing rays, and creates one for each
-            %wavelength
-%             obj.rays.expandWavelengths(obj.film.wave);
+            %duplicate the existing rays for each wavelength
+            % Note that both lens and film have a wave, sigh.
+            % obj.rays.expandWavelengths(obj.film.wave);
             obj.rays.expandWavelengths(obj.lens.wave);
 
             %lens intersection and raytrace
@@ -85,45 +89,62 @@ classdef psfCameraObject <  handle
             %intersect with "film" and add to film
             obj.rays.recordOnFilm(obj.film);
             
-            oi = obj.showFilm();
+            oi = obj.oiCreate();
             
-            %show the oi from the film
-%             oi = oiCreate;
-%             oi = initDefaultSpectrum(oi);
-%             oi = oiSet(oi, 'wave', obj.film.wave);
-%             oi = oiSet(oi,'photons',obj.film.image);
-%             optics = oiGet(oi,'optics');
-%             optics = opticsSet(optics,'focal length',obj.lens.focalLength/1000);
-%             optics = opticsSet(optics,'fnumber', obj.lens.focalLength/(2*1));
-%             oi = oiSet(oi,'optics',optics);
-%             hfov = rad2deg(2*atan2(obj.film.size(1)/2,obj.lens.focalLength));
-%             oi = oiSet(oi,'hfov', hfov);
         end
         
+        function oi = oiCreate(obj)
         
-        function oi = showFilm(obj)
+            % Create an optical image from the camera (film) image data.
             oi = oiCreate;
             oi = initDefaultSpectrum(oi);
-            oi = oiSet(oi, 'wave', obj.film.wave);
+            oi = oiSet(oi,'wave', obj.film.wave);            
             oi = oiSet(oi,'photons',obj.film.image);
-
-            optics = oiGet(oi,'optics');
-            optics = opticsSet(optics,'focal length',obj.lens.focalLength/1000);
-            optics = opticsSet(optics,'fnumber', obj.lens.focalLength/(2*1));
-            oi = oiSet(oi,'optics',optics);
+            
+            % The photon numbers do not yet have meaning.  This is a hack,
+            % that should get removed some day, to give the photon numbers
+            % some reasonable level. 
+            oi = oiAdjustIlluminance(oi,1);
+            
+            % Set focal length in meters
+            oi = oiSet(oi,'optics focal length',obj.lens.focalLength/1000);
+            
+            % This isn't exactly the fnumber.  Do we have the aperture in
+            % there?  Ask MP what to use for the multicomponent system.
+            % This is just a hack to get something in there
+            % Maybe this should be obj.lens.apertureMiddleD?
+            fN = obj.lens.focalLength/obj.lens.surfaceArray(1).apertureD;
+            oi = oiSet(oi,'optics fnumber',fN);
+            
+            % Estimate the horizontal field of view
             hfov = rad2deg(2*atan2(obj.film.size(1)/2,obj.lens.focalLength));
             oi = oiSet(oi,'hfov', hfov);
 
+            % Set the name based on the distance of the sensor from the
+            % final surface.  But maybe the obj has a name, and we should
+            % use that?  Or the film has a name?
             temp = obj.film.position;
             filmDistance = temp(3);
             oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
-            vcAddAndSelectObject(oi); oiWindow; 
+        
+        end
+        
+        function oi = showFilm(obj)
+            % Create a new oi object, store it in the ISET database, and
+            % show the oiWindow
+            %
+            oi = obj.oiCreate;
+            vcAddAndSelectObject(oi); 
+            oiWindow; 
         end
         
         function obj = recordOnFilm(obj)
-             %records the psf onto film of the current ppsfRays and the
-             %film
-             %obj = recordOnFilm(obj)
+             % Record the psf onto the film object in the camera.
+             %
+             % Uses the current ppsfRays and the film objects.  These are
+             % both part of the camera object.
+             % 
+             % obj = recordOnFilm(obj)
              %
              
             obj.rays.recordOnFilm(obj.film); 

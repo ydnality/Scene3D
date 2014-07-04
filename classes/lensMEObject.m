@@ -182,10 +182,14 @@ classdef lensMEObject <  handle
             % representing the rays at the entrance aperture, is changed to
             % be the position and direction of the rays at the exit
             % aperture.
+            %
+            % TODO:  Simplify this code
             
             % The order is from furthest from film to film, which is also
             % how the rays pass through the optics.    
             
+            lWidth = 0.1; lColor = [0 0.5 1]; lStyle = '-';
+
             passedCenterAperture = false;  %true if rays are traced through lens aperture
              
             % prevSurfaceZ = -obj.get('totalOffset');
@@ -244,19 +248,19 @@ classdef lensMEObject <  handle
                     % Let's try to make the lines 3D.  That would be cool!
                     if (nLines)
                         if lensEl == 1
-                            vcNewGraphWin; obj.draw();
+                            obj.draw();
                             % Find some samples.  Let's get smarter at how
                             % we find them.  For now, pick 20 random
                             % values.
-%                             samps = 1:size(rays.origin,1);
-%                             nLines = length(samps);
+                            %    samps = 1:size(rays.origin,1);
+                            %    nLines = length(samps);
                             samps = randi(size(rays.origin,1),[nLines,1]);
                         end
                         xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines 1])]';
                         yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines 1])]';
                         xCoordVector = real(xCoordVector(:));
                         yCoordVector = real(yCoordVector(:));
-                        line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
+                        line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
                         pause(0.2);
                     end
                     
@@ -357,11 +361,15 @@ classdef lensMEObject <  handle
                 % iterate previous z
                 % prevSurfaceZ = prevSurfaceZ + curEl.offset;
             end
+            xlabel('Z (mm)')
+            ylabel('Y (mm)')
+            grid on
         end
         
         function obj = rtIdealThroughLens(obj, rays, nLines)
             %traces rays through the lens
 
+            lWidth = 0.5; lColor = [0 0.5 1];
  
             %---------------- lens refraction code  -----
             %when intersecting ideal lens, change the direction to intersect the
@@ -378,12 +386,13 @@ classdef lensMEObject <  handle
                 yCoordVector = [rays.origin(samps,2) lensIntersectPosition(samps,2) NaN([nLines 1])]';
                 xCoordVector = real(xCoordVector(:));
                 yCoordVector = real(yCoordVector(:));
-                line(xCoordVector,  yCoordVector ,'Color','b','LineWidth',1);
+                line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth);
                 pause(0.2);
-%                 for i = 1:size(rays.direction,1)
-%                     hold on;
-%                     line([rays.origin(i,3) lensIntersectPosition(i,3) ], [rays.origin(i,2) lensIntersectPosition(i,2)] ,'Color','b','LineWidth',1);
-%                 end
+                
+                %                 for i = 1:size(rays.direction,1)
+                %                     hold on;
+                %                     line([rays.origin(i,3) lensIntersectPosition(i,3) ], [rays.origin(i,2) lensIntersectPosition(i,2)] ,'Color','b','LineWidth',1);
+                %                 end
             end
             
             %calculate new direction
@@ -545,10 +554,10 @@ classdef lensMEObject <  handle
         
         %%
         function obj =  draw(obj)
-            %draws the illustration of the lens on a figure - you must declare
-            %a new graphwin first!
-            
-            vcNewGraphWin;
+            %draws the the lens on a new graph window. 
+            vcNewGraphWin([],'wide');
+            axis equal;
+            lWidth = 2; lColor = 'k';
             %             prevSurfaceZ = -obj.get('totalOffset');
             %             prevAperture = 1;
             
@@ -558,7 +567,9 @@ classdef lensMEObject <  handle
                 
                 %illustrations for debug
                 if (curEl.sRadius ~=0)
-                    %draw arcs if radius is nonzero
+                    % This is a spherical element
+                    
+                    % Draw arcs 
                     nextEl = obj.surfaceArray(min(lensEl+1, end));
                     prevEl = obj.surfaceArray(max(lensEl-1, 1));
                     
@@ -568,6 +579,8 @@ classdef lensMEObject <  handle
                     %be the limiting factor.
                     delta = 10;
                     
+                    % Determine the minimum/maximum z-positions for the
+                    % curve 
                     if (curEl.sRadius > 0 )
                         leftBoundary = curEl.get('zIntercept');
                         rightBoundary = nextEl.get('zIntercept') + delta;
@@ -577,21 +590,29 @@ classdef lensMEObject <  handle
                     end
                     zPlot = linspace(leftBoundary, rightBoundary, 1000);
                     
-                    yPlot  = sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
+                    % Solve for the points on the curve.  We are drawing in
+                    % the z-y plane because we are letting the z-axis be
+                    % horizontal and y-axis be vertical.  The center of the
+                    % sphere is at (0,0,z).  
+                    % The formula is r^2 = (x)^2 + (y)^2 + (z - c)^2
+                    % But since we are in the x=0 plane.
+                    %   r^2 = (y)^2 + (z - c)^2
+                    
+                    % We get the positive and negative y-values
+                    yPlot  =  sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
                     yPlotN = -sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
                     
                     
-                    %TODO:find a better way to plot the arcs later - this one is prone to potential problem
-                    %  withinRange = and(and((yPlot < curEl.apertureD),(zPlot < prevSurfaceZ + curEl.offset + arcZone)), (zPlot > prevSurfaceZ + curEl.offset - arcZone));
-                    % withinRange = and(and((yPlot < curEl.apertureD/2),(zPlot <curEl.get('zIntercept') + arcZone)), (zPlot > curEl.get('zIntercept') - arcZone));
-                    
-                    %may have problems with a concave lens - but these are
-                    %rare
+                    % TODO: 
+                    % may have problems with a concave lens - but these are
+                    % rare
                     withinRange = (yPlot < curEl.apertureD/2);
-                    line(zPlot(withinRange), yPlot(withinRange));
-                    line(zPlot(withinRange), yPlotN(withinRange));
+                    l = line(zPlot(withinRange), yPlot(withinRange));
+                    set(l,'linewidth',lWidth,'color',lColor);
+                    l = line(zPlot(withinRange), yPlotN(withinRange));
+                    set(l,'linewidth',lWidth,'color',lColor);
                 else
-                    %draw the aperture opening if radius = 0
+                    %Draw the aperture opening if radius = 0
                     
                     %TODO: draw the difference between specified aperture
                     %from file and specified aperture from object instance
@@ -599,8 +620,11 @@ classdef lensMEObject <  handle
                     %right now: take the minimum value
                     curAperture = min(curEl.apertureD/2, obj.apertureMiddleD/2);
                     
-                    line(curEl.sCenter(3) * ones(2,1), [-curEl.apertureD/2 -curAperture]);
-                    line(curEl.sCenter(3) * ones(2,1), [curAperture curEl.apertureD/2]);
+                    l = line(curEl.sCenter(3) * ones(2,1), [-curEl.apertureD/2 -curAperture]);
+                    set(l,'linewidth',lWidth,'color',lColor);
+                    l = line(curEl.sCenter(3) * ones(2,1), [curAperture curEl.apertureD/2]);
+                    set(l,'linewidth',lWidth,'color',lColor);
+
                 end
 
             end
@@ -620,6 +644,9 @@ classdef lensMEObject <  handle
             % representing the rays at the entrance aperture, is changed to
             % be the position and direction of the rays at the exit
             % aperture.
+            %
+            % Simplify the code.
+            % Also, why is there similar code in ppsfCamera?
             
             % The order is from furthest from film to film, which is also
             % how the rays pass through the optics.

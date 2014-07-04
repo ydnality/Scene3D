@@ -71,16 +71,16 @@ pointSourceFieldHeight = 0;
 % a camera that calculates the point spread function.
 ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
 
-nLines =  500;  % Draw the ray trace if nLines > 0
+nLines =  100;  % Draw the ray trace if nLines > 0
 ppsf = ppsfCamera.estimatePPSF(nLines);
 
 %% Record on film
 ppsfCamera.recordOnFilm();
 
 % Bring up the pointspread in an optics window
-ppsfCamera.showFilm();
-% There is now an ISET oi object we can review
-% oi = vcGetObject('oi'); plotOI(oi,'illuminance mesh log');
+oi = ppsfCamera.showFilm();
+% vcAddObject(oi); oiWindow;
+% plotOI(oi,'illuminance mesh log');
 
 %% Calculate light field at the entrance pupil plane and exit pupil - estimate the linear transform
 
