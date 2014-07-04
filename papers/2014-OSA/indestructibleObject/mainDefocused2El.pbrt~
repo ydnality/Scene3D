@@ -1,0 +1,71 @@
+# pbrt v2.0 Scene File
+# Exported by pbrtBlend Blender Exporter
+
+Scale -1 1 1  # account for fixed lookat bug...
+LookAt -39.8207  -69.2222   26.4228   #original position
+        -39.3933  -68.3181   26.2080
+       -0.000013 -0.000031 1.000000
+
+Camera "realisticDiffraction" 
+	"string specfile" "2ElLens.dat" 
+    "float filmdistance" 135.5 #135.5 
+	"float aperture_diameter" 10 
+	"float filmdiag" 70
+	"float hither" [0.001 ] 
+	"float yon" [1e+30 ] 
+	"float shutteropen" [0 ] 
+	"float shutterclose" [0 ]
+    "float diffractionEnabled" [0]
+    "float chromaticAberrationEnabled" [0]
+
+#Camera "idealDiffraction"
+#	"float focal_length" 50 
+#	"float filmdistance" 137
+#	"float aperture_diameter" 10
+#	"float filmdiag" [70]
+#	"float diffractionEnabled" [0]
+
+Film "image"
+   "integer xresolution" [300] 
+   "integer yresolution" [300]
+
+Sampler "lowdiscrepancy"
+   "integer pixelsamples" [512] 
+
+#Sampler "stratified"
+#	"integer xsamples" [1]
+#	"integer ysamples" [1]
+#	"bool jitter" "false"
+
+SurfaceIntegrator "directlighting"
+   "integer maxdepth" [1]
+
+VolumeIntegrator "single"
+   "float stepsize" [1.000000]
+
+Renderer "sample"
+
+WorldBegin
+
+#flash
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-56.914787 -105.385544 13.014802] "point to" [-56.487434 -104.481461 13.014835]
+
+#flash - this one is placed further back
+#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [20] "float conedeltaangle" [20] "point from" [   -142.3855 -286.2024   13.0082] "point to" [ -141.9582 -285.2984   13.0082]
+
+LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [   -142.3855 -286.2024   13.0082] "point to" [ -141.9582 -285.2984   13.0082]
+
+AttributeBegin
+	LightSource "infinite"
+	   "color L" [.001 .001 .001]
+	   "float scale" [.0100000]
+AttributeEnd
+
+Include "default-mat.pbrt"
+
+Include "default-geom.pbrt"
+
+Include "default-vol.pbrt"
+
+WorldEnd
+

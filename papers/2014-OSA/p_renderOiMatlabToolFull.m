@@ -26,10 +26,16 @@ s_initISET
 %% If modded pbrt is NOT installed on this system, run this command to 
 % load a scene file
 
-sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+% sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'simpleTarget', 'pinholeSceneFile.mat');
+
 scene = load(sceneFileName);
 scene = scene.scene;
 vcAddObject(scene); sceneWindow;
+
+
+
+
 %% Render a collection of PSFs (similar to p_Figure1.m) - could make this a function later or separate script.
 % For each PSF rendered, we will calculate the centroid of that PSF, and
 % zoom in and calculate a "high quality" PSF using a much smaller film
@@ -50,7 +56,7 @@ vcAddObject(scene); sceneWindow;
     %% Describe the point sources 
 
     % We will loop through the lens positions
-    pX = 0:-1000:-3000; pY = 0; pZ =[-70 -80 -90 -110];% millimeters
+    pX = 0:-1500:-4500; pY = 0; pZ =[-70 -80 -90 -100 -110];% millimeters
     normalizingZ = -16000; %mm assumed reference Z point.  All other points will use the same field angle as this reference Z point
     [X, Y, Z] = meshgrid(pX,pY,pZ);
     
@@ -72,8 +78,8 @@ vcAddObject(scene); sceneWindow;
     fX = 0; fY = 0; fZ = 135.5;       % mm.  Film position
     
     % Film width and height
-    fW = 80;  % mm
-    fH = 80;  % mm
+    fW = 120;  % mm
+    fH = 120;  % mm
     % Film resolution (preview)
     numPixelsW = 151;
     numPixelsH = 151;
@@ -229,7 +235,7 @@ photonSum = zeros(size(oiGet(oi,'photons')));
 vcAddObject(oi); oiWindow;
 
 % Loop through wavelength
-for waveInd = 1:length(renderWave)
+for waveInd = 1:1 %length(renderWave)
     curWave = renderWave(waveInd);
     waveInd
     % Loop through rows and cols
@@ -244,10 +250,19 @@ for waveInd = 1:length(renderWave)
             %the pixel value.
             %-add to the sum
             
-            % Calculate field height (in degrees)
-            hypotenuse = sqrt((ii - numRows/2)^2 + (jj - numCols)^2) * largePixelSize;
+            % Calculate field height (in degrees) and angle(relative to
+            % center)
+            
+            hypotenuse = sqrt((ii - numRows/2)^2 + (jj - numCols/2)^2) * largePixelSize;
             curFieldHeightAngle = atan(hypotenuse/filmDistance) * 180/pi; 
-
+            
+            x = jj - numCols/2;
+            y = (numRows/2 - ii);
+            angle = atan(y/x) * 180/pi;
+            if (isnan(angle))
+                angle = 0;
+            end
+            
             depth = dM(ii, jj);
             
             % Calculates the correct PSF for the current field angle, depth,
@@ -257,7 +272,12 @@ for waveInd = 1:length(renderWave)
             % Scale PSF to the right size
             scaledCPSF = imresize(currentPSF, scaleFactor);
             scaledCPSF = scaledCPSF./sum(scaledCPSF(:)); %normalize
+
+            %rotatePSF to correct orientation
+%             scaledCPSF = imrotate(scaledCPSF, angle, 'bilinear' );
+
             scaledPSFNumRows = size(scaledCPSF, 1);
+            scaledPSFNumCols = size(scaledCPSF, 2);
             
             % Define center and starting window
             centerPos = ceil(size(scaledCPSF, 1)/2);
@@ -265,7 +285,7 @@ for waveInd = 1:length(renderWave)
             startingRow = ii + padAmount - centerPos;
             endingRow  = startingRow + scaledPSFNumRows-1;
             startingCol = jj + padAmount - centerPos;
-            endingCol = startingCol + scaledPSFNumRows-1;
+            endingCol = startingCol + scaledPSFNumCols-1;
             
             % Add to the sum
             photonSum(startingRow:endingRow,startingCol:endingCol, waveInd) = ...
@@ -281,10 +301,10 @@ oi = oiSet(oi,'cphotons',photonSum);
 vcAddObject(oi); oiWindow;
 
 % % debugging 
-% figure; 
-% imshow(photonSum(:,:,1)./ max(photonSum(:)) * 4)
-% figure; 
-% imshow(unBlurredPhotons(:,:,1)./ max(unBlurredPhotons(:)) * 4)
+figure; 
+imshow(photonSum(:,:,1)./ max(photonSum(:)))
+figure; 
+imshow(unBlurredPhotons(:,:,1)./ max(unBlurredPhotons(:)))
 %% Debugging s3dLookUp: Key data: PSF and PSFFieldHeightSamples
 
 % wavelength = 700;
@@ -300,15 +320,15 @@ vcAddObject(oi); oiWindow;
 
 
 %% For comparison (modded pbrt needed) - this is the backwards calculation
-% sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused2El.pbrt');
-% oi = s3dRenderOi(sceneName, .050, 'indObj');
-% 
-% %reduce to 400:100:700
-% scene = sceneCreate;
-% scene = sceneSet(scene, 'photons', oiGet(oi,' photons'));
-% scene = sceneSet(scene, 'wave', 400:100:700);
-% 
-% oi = oiSet(oi, 'wave', 400:100:700);
-% oi = oiSet(oi, 'photons', sceneGet(scene, 'photons'));
-% vcAddObject(oi); oiWindow;
+sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused2El.pbrt');
+oi = s3dRenderOi(sceneName, .050, 'indObj');
+
+%reduce to 400:100:700
+scene = sceneCreate;
+scene = sceneSet(scene, 'photons', oiGet(oi,' photons'));
+scene = sceneSet(scene, 'wave', 400:100:700);
+
+oi = oiSet(oi, 'wave', 400:100:700);
+oi = oiSet(oi, 'photons', sceneGet(scene, 'photons'));
+vcAddObject(oi); oiWindow;
 

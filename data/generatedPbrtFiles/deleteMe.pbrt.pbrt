@@ -1,0 +1,114 @@
+# PBRT v2.0 Blender Scene file (written from Scene3D)
+#
+
+Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
+
+
+LookAt
+	0.000000 0.000000 80.000000
+	0.000000 0.000000 79.000000
+	0.000000 1.000000 0.000000
+
+Camera "pinhole"
+	"float filmdistance" 140.000000
+	"float filmdiag" 43.267000
+
+
+Film "image"
+	"integer xresolution" [200]
+	"integer yresolution" [200]
+
+
+Sampler "lowdiscrepancy"
+	"integer pixelsamples" [512]
+
+
+SurfaceIntegrator "directlighting"
+	"integer maxdepth" [0]
+
+
+Renderer "sample"
+
+
+WorldBegin
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [0.000000 0.000000 80.000000 ]
+		"point to" [0.000000 0.000000 79.000000 ]
+
+AttributeEnd
+
+
+Include "/home/ajwandell/Dropbox/Scene3D/Scene3DMatlabDev/Scene3D/data/validate/pbrtObject/depthTargetSpheres-mat.pbrt"
+
+
+MakeNamedMaterial "grayMat"
+	"string type" ["matte"]
+	"color Kd" [1.000000 1.000000 1.000000 ]
+
+
+Include "/home/ajwandell/Dropbox/Scene3D/Scene3DMatlabDev/Scene3D/data/materials/simpleTarget-mat.pbrt"
+
+
+AttributeBegin #backdrop
+
+	Transform 
+	[
+	100.000000 0.000000 0.000000 0.000000 
+	0.000000 100.000000 0.000000 0.000000 
+	0.000000 0.000000 1.000000 0.000000 
+	0.000000 0.000000 -170.000000 1.000000 
+	]
+	NamedMaterial "Material"
+	Shape "trianglemesh" "integer indices" 
+	[
+	0 1 2
+	0 2 3
+	]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #backdrop
+
+	Transform 
+	[
+	7.000000 0.000000 0.000000 0.000000 
+	0.000000 7.000000 0.000000 0.000000 
+	0.000000 0.000000 1.000000 0.000000 
+	0.000000 0.000000 -50.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "trianglemesh" "integer indices" 
+	[
+	0 1 2
+	0 2 3
+	]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+WorldEnd

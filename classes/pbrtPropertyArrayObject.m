@@ -8,6 +8,7 @@ classdef pbrtPropertyArrayObject <  handle
         %default constructor
         %TODO: doccument
         function obj = pbrtPropertyArrayObject(inProperty)
+            % obj = pbrtPropertyArrayObject(inProperty)
             obj.propertyArray = cell(1,1);
             if (ieNotDefined('inProperty'))  %default property
                 obj.propertyArray{1} = pbrtPropertyObject('color Kd', [0 0.374624 0]);
@@ -19,15 +20,17 @@ classdef pbrtPropertyArrayObject <  handle
         
         %TODO: error checking
         function addProperty(obj, inProperty)
+            % function addProperty(obj, inProperty)
             validateattributes(inProperty, {'pbrtPropertyObject'}, {'nonempty'});
             obj.propertyArray{end+1} = inProperty;
         end
  
 
-        %removes the shape corresponding to the specified index
-        %if deleteIndex is undefined, remove from the end
-        %returns the deleted value
         function returnVal = removeProperty(obj, removeIndex)
+            %returnVal = removeProperty(obj, removeIndex)
+            %removes the shape corresponding to the specified index
+            %if deleteIndex is undefined, remove from the end
+            %returns the deleted value
             if (ieNotDefined('removeIndex'))
                 returnVal = obj.propertyArray{end};
                 obj.propertyArray(end)= [];

@@ -1,0 +1,14 @@
+	# Material 'Material'
+Texture "Material::Kd" "color" "imagemap"
+   "string wrap" ["repeat"]
+   "string filename" ["simpleTexture.tga"]
+   "float gamma" [2.200000]
+   "float scale" [1.000000]
+   "string mapping" ["uv"]
+   "float uscale" [100.000000]
+   "float vscale" [-100.000000]
+   "float udelta" [0.000000]
+   "float vdelta" [0.000000]
+Texture "Material::Kd.scale" "color" "scale" "texture tex1" ["Material::Kd"] "color tex2" [1 1 1]
+MakeNamedMaterial "Material"
+   "string type" ["matte"] "texture Kd" ["Material::Kd.scale"]

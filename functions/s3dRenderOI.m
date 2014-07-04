@@ -18,7 +18,10 @@ function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
     if (ieNotDefined('focalLength'))
         focalLength = .050;
     end
-
+    if (ieNotDefined('sceneName'))
+        sceneName = 'deleteMe';
+    end
+    
     if(isa(inputPbrt, 'pbrtObject'))
         fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
         inputPbrt.writeFile(fullfname);

@@ -11,6 +11,8 @@ classdef pbrtSamplerObject <  pbrtPropertyArrayObject
         
         %default constructor
         function obj = pbrtSamplerObject(inType, inProperty)
+            %function obj = pbrtSamplerObject(inType, inProperty)
+            
             %sampler type
             if (ieNotDefined('inType'))
                 obj.type = 'lowdiscrepancy';
@@ -32,6 +34,7 @@ classdef pbrtSamplerObject <  pbrtPropertyArrayObject
         
         %TODO: error checking
         function setType(obj, inType)
+            %function setType(obj, inType)
             obj.type = inType;
         end
         
@@ -44,6 +47,8 @@ classdef pbrtSamplerObject <  pbrtPropertyArrayObject
         %pixelSamples
         
         function writeFile(obj, fid)
+            % function writeFile(obj, fid)
+            
             fprintf(fid,'\n\nSampler "%s"\n', obj.type);    %TODO: consider putting this inside each of the objects? i'm not sure yet
             
             %assume numeric output for value for now
