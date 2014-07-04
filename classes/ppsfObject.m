@@ -1,7 +1,9 @@
 classdef ppsfObject < rayObject
-    % Create a ray object
+    % Create a plenotpic point spread function object
     %
-    % ppsf = ppsfObject(origin,direction,wavelength)
+    %   ppsf = ppsfObject(origin,direction,wavelength)
+    %
+    % This is related to ray objects, must explain more here.
     %
     % Example:
     %   ppsf
@@ -30,6 +32,7 @@ classdef ppsfObject < rayObject
     
     methods
         function obj = ppsfObject(varargin)
+            % Comments and neatening needed.
             
 %             (origin, direction, wavelength, pointSourceDepth, pointSourceFieldHeight, aEntranceInt)
             %default constructor

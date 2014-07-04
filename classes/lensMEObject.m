@@ -361,9 +361,6 @@ classdef lensMEObject <  handle
                 % iterate previous z
                 % prevSurfaceZ = prevSurfaceZ + curEl.offset;
             end
-            xlabel('Z (mm)')
-            ylabel('Y (mm)')
-            grid on
         end
         
         function obj = rtIdealThroughLens(obj, rays, nLines)

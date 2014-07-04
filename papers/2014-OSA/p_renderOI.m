@@ -57,7 +57,8 @@ nLines = false;      % Number of lines to draw for debug illustrations.
 
 %%  Declare film properties for PSF recording.
 
-wave = 400:100:700;            % Wavelength
+wave = 500;
+% wave = 400:100:700;            % Wavelength
 wList = 1:length(wave);
 fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
 
@@ -114,7 +115,7 @@ lens.apertureMiddleD = 10;
 
 %% Pick a point, create its PSF 
 % These psfs will be for different field heights, depths, and wavelengths
-curPt = 4;
+curPt = 2;
 %  curInd = 1
 
 %---initial low quality render
@@ -175,33 +176,62 @@ s1 = sum(u1.data(:))*ds1;
 s2 = sum(u2.data(:))*ds2;
 plot(u1.pos,u1.data/s1,'k-',u2.pos,u2.data/s2,'r-')
 
+vcAddObject(oi); oiWindow;
+
+%% Show the lens ray trace
+psfCamera.estimatePSF(50);
+
+
+%% Record on film
+psfCamera.recordOnFilm();
+
+% Show the point spread as an image
+oi = psfCamera.oiCreate;
+img = oiGet(oi,'rgb image');
+vcNewGraphWin; image(img); axis image
+
+% Bring up the pointspread in an optics window
+psfCamera.showFilm();
+
+% Plot the illuminance image
+plotOI(oi,'illuminance mesh linear');
+
+%% Plenoptic
+
+ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources(curPt,:));
+
+nLines =  100;  % Draw the ray trace if nLines > 0
+ppsf = ppsfCamera.estimatePPSF(nLines);
+ppsfCamera.recordOnFilm();
+oi = ppsfCamera.showFilm();
+
 %% Compute PSF collection matrix
 
 % We should probably turn this into an object.
 % This will serve as a lookup table for later parts of the script
 
 % Form PSF matrix
-PSF = zeros(numPixelsWHQ, numPixelsHHQ, length(wave), numDepths, numFieldHeights);
-for waveInd = wList
-    for depthInd = 1:numDepths
-        for fHIndex = 1:psfsPerDepth
-            longInd = (depthInd - 1) * psfsPerDepth + fHIndex;
-            curOi = oiList{longInd};
-            curPhotons = oiGet(curOi, 'photons');
-            curPSF = curPhotons(:,:, waveInd);
-            PSF(:,:,waveInd,depthInd, fHIndex) = curPSF; %put PSF for current depth and wavelength in the matrix;
-        end
-    end
-end
-
-% Key data to know for interpolation later
-PSFFieldHeightSamples = atan(pX/normalizingZ) * 180/pi;
-PSFDepthSamples = -Z(1,1,:);
-PSFDepthSamples = PSFDepthSamples(:);
-PSFStructure.fHAngle = PSFFieldHeightSamples;
-PSFStructure.depth = PSFDepthSamples';
-PSFStructure.wave = wave;
-PSFStructure.PSF = PSF;
-PSFStructure.film = smallFilm;
+% PSF = zeros(numPixelsWHQ, numPixelsHHQ, length(wave), numDepths, numFieldHeights);
+% for waveInd = wList
+%     for depthInd = 1:numDepths
+%         for fHIndex = 1:psfsPerDepth
+%             longInd = (depthInd - 1) * psfsPerDepth + fHIndex;
+%             curOi = oiList{longInd};
+%             curPhotons = oiGet(curOi, 'photons');
+%             curPSF = curPhotons(:,:, waveInd);
+%             PSF(:,:,waveInd,depthInd, fHIndex) = curPSF; %put PSF for current depth and wavelength in the matrix;
+%         end
+%     end
+% end
+% 
+% % Key data to know for interpolation later
+% PSFFieldHeightSamples = atan(pX/normalizingZ) * 180/pi;
+% PSFDepthSamples = -Z(1,1,:);
+% PSFDepthSamples = PSFDepthSamples(:);
+% PSFStructure.fHAngle = PSFFieldHeightSamples;
+% PSFStructure.depth = PSFDepthSamples';
+% PSFStructure.wave = wave;
+% PSFStructure.PSF = PSF;
+% PSFStructure.film = smallFilm;
 
 %% END

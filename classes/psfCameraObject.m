@@ -1,25 +1,12 @@
 classdef psfCameraObject <  handle
-    % Create a film object
-    %
-    %   film = filmObject(position,size,wave,waveConversion,resolution);
+    % Create a point spread camera object
     %
     % Spatial units throughout are mm
     %
-    % For ray tracing, the sensor plane is called the 'film'.  At some
-    % point we will need to convert data between the ISET sensor object and
-    % this film object.  In the fullness of time, they may be closely
-    % coordinated.
-    %
-    % The film properties are
-    %
-    %   position - relative to lens
-    %   size     - size in millimeters (height, width)
-    %   wave     - sample wavelengths
-    %   waveConversion - we will see
-    %   resolution - Number of samples (pixels) in the film plane
-    %
     % AL Vistasoft Copyright 2014
     
+    % Figure out the relationship between these rays and the ppsfRays in
+    % the ppsfCameraObject.
     properties
         lens;
         film;

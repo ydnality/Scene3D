@@ -1,7 +1,11 @@
 classdef ppsfCameraObject <  psfCameraObject
-    % Create a film object
+    % The comments here don't make sense to me.  What is going on?
+    % 
+    % It seems like the ppsf inherits the psf camera object properties.
+    % OK. This object has rays, while the basic psfCamera doesn't store
+    % rays.
     %
-    %   film = filmObject(position,size,wave,waveConversion,resolution);
+    % But there are duplicate functions here.  Is that OK?
     %
     % Spatial units throughout are mm
     %
@@ -21,19 +25,11 @@ classdef ppsfCameraObject <  psfCameraObject
     % AL Vistasoft Copyright 2014
     
     properties
-%         lens;
-%         film;
-%         pointSource;
         ppsfRays;
     end
     
     methods
          function obj = ppsfCameraObject(varargin)
-             
-             
-%              ( lens, film, pointSource)
-             %deals with omitted inputs - super class decides the default
-             %values
              
              for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
@@ -49,10 +45,9 @@ classdef ppsfCameraObject <  psfCameraObject
                 end
              end
              
-             %              if (ieNotDefined('lens')), lens = []; end
-             %              if (ieNotDefined('film')), film = []; end
-             %              if (ieNotDefined('pointSource')), pointSource = []; end
-             obj = obj@psfCameraObject('lens', lens,'film', film, 'pointSource', pointSource);  %this lets the psfCameraObject do error handling
+             %this lets the psfCameraObject do error handling
+             obj = obj@psfCameraObject('lens', lens,'film', film, 'pointSource', pointSource);
+             
          end
          
          function ppsfReturn = estimatePPSF(obj,nLines, jitterFlag)
