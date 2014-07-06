@@ -57,8 +57,8 @@ nLines = false;      % Number of lines to draw for debug illustrations.
 
 %%  Declare film properties for PSF recording.
 
-wave = 500;
-% wave = 400:100:700;            % Wavelength
+% wave = 500;
+wave = 400:100:700;            % Wavelength
 wList = 1:length(wave);
 fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
 
@@ -87,9 +87,12 @@ radius   = [67 0 -67];   % Radius of curvature, 0 means aperture
 aperture = [10 10 10];   % Circular apertures, these are the radii in mm
 
 % Index of refraction to the right of each surface
+% n changes linearly with wavelength
 %(ray.wavelength - 550) * -.04/(300) + curEl.n;
-firstN = (wave - 550) * -.04/(300) + 1.65; %linearly changes the 1.65 material
-n = [firstN' zeros(length(wave), 1) ones(length(wave),1)]; %index of refraction (wavelength x element)
+firstN = (wave - 550) * -(0.04/300) + 1.65;
+
+% This nWave x nElement
+n = [firstN' zeros(length(wave), 1) ones(length(wave),1)]; 
 
 nSamples = 25;           % On the first aperture. x,y, before cropping
 nSamplesHQ = 801;        % Number of samples for the HQ render
@@ -100,13 +103,21 @@ fLength = 50;            % Todo: We should derive this using the lensmaker's equ
 % For multiple lenses, we add up the power using something from the web
 
 % Populate lens surface array using given properties above
-lensSurfaceArray = lensSurfaceObject();
+% lensSurfaceArray = lensSurfaceObject();
 for i = 1:length(zPos)
-    lensSurfaceArray(i) = lensSurfaceObject('sRadius', radius(i), 'apertureD', aperture(i), 'zPos', zPos(i), 'n', n(:, i));
+    lensSurfaceArray(i) = lensSurfaceObject('sRadius', radius(i), ...
+        'apertureD', aperture(i), ...
+        'zPos', zPos(i),...
+        'wave',wave,...
+        'n', n(:, i));
 end
 
 % Declare lens
-lens = lensMEObject('surfaceArray', lensSurfaceArray, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
+lens = lensMEObject('surfaceArray', lensSurfaceArray, ...
+    'focalLength', fLength, ...
+    'diffractionEnabled', diffractionEnabled, ...
+    'wave', wave, ...
+    'aperturesample', [nSamples nSamples]);
 
 % Comment, please.
 lens.apertureMiddleD = 10;
@@ -115,7 +126,7 @@ lens.apertureMiddleD = 10;
 
 %% Pick a point, create its PSF 
 % These psfs will be for different field heights, depths, and wavelengths
-curPt = 2;
+curPt = 1;
 %  curInd = 1
 
 %---initial low quality render
@@ -204,34 +215,5 @@ nLines =  100;  % Draw the ray trace if nLines > 0
 ppsf = ppsfCamera.estimatePPSF(nLines);
 ppsfCamera.recordOnFilm();
 oi = ppsfCamera.showFilm();
-
-%% Compute PSF collection matrix
-
-% We should probably turn this into an object.
-% This will serve as a lookup table for later parts of the script
-
-% Form PSF matrix
-% PSF = zeros(numPixelsWHQ, numPixelsHHQ, length(wave), numDepths, numFieldHeights);
-% for waveInd = wList
-%     for depthInd = 1:numDepths
-%         for fHIndex = 1:psfsPerDepth
-%             longInd = (depthInd - 1) * psfsPerDepth + fHIndex;
-%             curOi = oiList{longInd};
-%             curPhotons = oiGet(curOi, 'photons');
-%             curPSF = curPhotons(:,:, waveInd);
-%             PSF(:,:,waveInd,depthInd, fHIndex) = curPSF; %put PSF for current depth and wavelength in the matrix;
-%         end
-%     end
-% end
-% 
-% % Key data to know for interpolation later
-% PSFFieldHeightSamples = atan(pX/normalizingZ) * 180/pi;
-% PSFDepthSamples = -Z(1,1,:);
-% PSFDepthSamples = PSFDepthSamples(:);
-% PSFStructure.fHAngle = PSFFieldHeightSamples;
-% PSFStructure.depth = PSFDepthSamples';
-% PSFStructure.wave = wave;
-% PSFStructure.PSF = PSF;
-% PSFStructure.film = smallFilm;
 
 %% END

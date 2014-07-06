@@ -321,7 +321,7 @@ imshow(unBlurredPhotons(:,:,1)./ max(unBlurredPhotons(:)))
 
 %% For comparison (modded pbrt needed) - this is the backwards calculation
 sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused2El.pbrt');
-oi = s3dRenderOi(sceneName, .050, 'indObj');
+oi = s3dRenderOI(sceneName, .050, 'indObj');
 
 %reduce to 400:100:700
 scene = sceneCreate;

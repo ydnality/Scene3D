@@ -9,29 +9,31 @@
 %  (z is positive).
 %
 %  
-% AL
+% AL Copyright Vistasoft Team, 2014
 
 %% Initialize ISET
 s_initISET
 
 %% Describe the point sources 
 
-% We will loop through the lens positions
+% We will loop through the point positions
 % pX = 0; pY = 0; pZ = -20000;   % millimeters
 pX = 0:-400:-800; pY = 0; pZ =[-16000 -8000 -4000 -2000 ];% millimeters
 % pX = 0; pY = 0; pZ = [-8000];   % millimeters
+
 [X, Y, Z] = meshgrid(pX,pY,pZ);
-%adjust for approximate difference in field position when Z changes
+
+% BW?? - adjust for approximate difference in field position when Z changes
 for i = 2:length(pZ)
     X(:,:,i) = X(:,:,i) *  pZ(i)/pZ(1); 
 end
 pointSources = [X(:), Y(:), Z(:)];
 
-numDepths = length(pZ);
+numDepths       = length(pZ);
 numFieldHeights = length(pX) * length(pY);
-psfsPerDepth = size(pointSources, 1)/numDepths;
-jitterFlag = true;   %enable jitter for lens front element aperture samples
-nLines = false;  %number of lines to draw for debug illustrations.  
+psfsPerDepth    = size(pointSources, 1)/numDepths;
+jitterFlag      = true;      %enable jitter for lens front element aperture samples
+nLines          = false;     %number of lines to draw for debug illustrations.  
 
 %%  Declare film properties
 wave = 400:100:700;            % Wavelength
@@ -55,7 +57,7 @@ newWidth = .3;    %%mm
 
 % Multicomponent lens properties
 % This goes from the light through the lens to the film
-zPos   = [-3 -1.5 0];   % Z intercept positions of lens surfaces
+zPos     = [-3 -1.5 0];   % Z intercept positions of lens surfaces
 radius   = [67 0 -67];    % Radius of curvature, 0 means aperture
 aperture = [6 4 6];       % Circular apertures, these are the radii in mm
 
@@ -79,6 +81,8 @@ end
 
 % Declare lens
 lens = lensMEObject('surfaceArray', lensSurfaceArray, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
+lens.name = 'Two surface';
+
 lens.apertureMiddleD = 4;
 % lens.calculateApertureSample([nSamples nSamples]);
 

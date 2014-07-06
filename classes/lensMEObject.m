@@ -5,7 +5,7 @@ classdef lensMEObject <  handle
     %
     % Distance units, when not specified, are millimeters.
     %
-    % Presently we represent multielement lenses as a set of spherical
+    % Presently we represent multi-element lenses as a set of spherical
     % lenses and circular apertures. The multiple elements are defined by a
     % series of surfaces with a curvature, position, and index of
     % refraction (as a function of wavelength).
@@ -38,8 +38,8 @@ classdef lensMEObject <  handle
     
     properties
         name = 'default';
-        type = 'multi element lens';   %we might be removing this soon
-        surfaceArray = lensSurfaceObject();              % Set of spherical surfaces and apertures
+        type = 'multi element lens';            % We might be removing this soon (why? - BW)
+        surfaceArray = lensSurfaceObject();     % Set of spherical surfaces and apertures
         diffractionEnabled = false;% Not implemented yet
         wave = 400:50:700;         % nm
         focalLength = 50;          % mm, focal length of multi-element lens
@@ -364,7 +364,7 @@ classdef lensMEObject <  handle
         end
         
         function obj = rtIdealThroughLens(obj, rays, nLines)
-            %traces rays through the lens
+            %traces rays through the ideal lens - what is that?
 
             lWidth = 0.5; lColor = [0 0.5 1];
  
