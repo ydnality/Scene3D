@@ -194,6 +194,8 @@ vcAddObject(scene); sceneWindow;
 
 %% Apply proper PSF for every pixel - this will become a function later
 
+renderSimpleTarget.m
+
 % Dimensions of scene data
 numRows = sceneGet(scene, 'rows');
 numCols = sceneGet(scene,'cols');
@@ -235,7 +237,7 @@ photonSum = zeros(size(oiGet(oi,'photons')));
 vcAddObject(oi); oiWindow;
 
 % Loop through wavelength
-for waveInd = 1:1 %length(renderWave)
+for waveInd = 1:length(renderWave)
     curWave = renderWave(waveInd);
     waveInd
     % Loop through rows and cols
@@ -256,11 +258,17 @@ for waveInd = 1:1 %length(renderWave)
             hypotenuse = sqrt((ii - numRows/2)^2 + (jj - numCols/2)^2) * largePixelSize;
             curFieldHeightAngle = atan(hypotenuse/filmDistance) * 180/pi; 
             
-            x = jj - numCols/2;
-            y = (numRows/2 - ii);
+            x = -(numCols/2 - jj);
+            y =  (numRows/2 - ii);
             angle = atan(y/x) * 180/pi;
             if (isnan(angle))
                 angle = 0;
+            end
+            
+            if (x < 0 && y > 0)
+                angle = angle + 180;
+            elseif (x < 0 && y < 0)
+                angle = angle - 180;
             end
             
             depth = dM(ii, jj);
@@ -269,12 +277,12 @@ for waveInd = 1:1 %length(renderWave)
             % wavelength, given the PSf structure
             currentPSF = s3dPSFLookUp(curFieldHeightAngle, depth, curWave,PSFStructure);
             
-            % Scale PSF to the right size
-            scaledCPSF = imresize(currentPSF, scaleFactor);
-            scaledCPSF = scaledCPSF./sum(scaledCPSF(:)); %normalize
-
             %rotatePSF to correct orientation
-%             scaledCPSF = imrotate(scaledCPSF, angle, 'bilinear' );
+            scaledCPSF = imrotate(currentPSF, angle, 'bilinear', 'crop' );
+            
+            % Scale PSF to the right size
+            scaledCPSF = imresize(scaledCPSF, scaleFactor);
+            scaledCPSF = scaledCPSF./sum(scaledCPSF(:)); %normalize
 
             scaledPSFNumRows = size(scaledCPSF, 1);
             scaledPSFNumCols = size(scaledCPSF, 2);

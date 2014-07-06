@@ -10,6 +10,7 @@ newCamPos =    [0  0 0;
 curPbrt.camera.setPosition(newCamPos);
 curPbrt.camera.lens.filmDistance = 133.33;
 curPbrt.camera.lens.filmDiag = 70;
+% curPbrt.camera.setResolution(100, 100);    %LQ mode
 
 %uncomment to use a 2 element lens instead of a pinhole
 % curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt'));
