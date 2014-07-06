@@ -30,7 +30,7 @@ Film "image"
    "integer yresolution" [300]
 
 Sampler "lowdiscrepancy"
-   "integer pixelsamples" [512] 
+   "integer pixelsamples" [2048] 
 
 #Sampler "stratified"
 #	"integer xsamples" [1]

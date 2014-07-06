@@ -26,8 +26,8 @@ s_initISET
 %% If modded pbrt is NOT installed on this system, run this command to 
 % load a scene file
 
-% sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
-sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'simpleTarget', 'pinholeSceneFile.mat');
+sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+% sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'simpleTarget', 'pinholeSceneFile.mat');
 
 scene = load(sceneFileName);
 scene = scene.scene;
@@ -127,7 +127,7 @@ vcAddObject(scene); sceneWindow;
 
     % lens.calculateApertureSample([nSamples nSamples]);
 
-    %% Loop on wavelength and depth to create PSFs 
+    %% Loop on fieldheight and depth to create PSFs 
     % These psfs will be for different field heights, depths, and wavelengths
     oiList = cell(1,size(pointSources, 1))
     for curInd = 1:size(pointSources, 1)
@@ -194,7 +194,7 @@ vcAddObject(scene); sceneWindow;
 
 %% Apply proper PSF for every pixel - this will become a function later
 
-renderSimpleTarget.m
+
 
 % Dimensions of scene data
 numRows = sceneGet(scene, 'rows');
@@ -331,9 +331,15 @@ imshow(unBlurredPhotons(:,:,1)./ max(unBlurredPhotons(:)))
 sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused2El.pbrt');
 oi = s3dRenderOi(sceneName, .050, 'indObj');
 
-%reduce to 400:100:700
+% Reduce to 400:100:700
+% Note: there is no way for a scene to be restructured for wavelengths so
+% we need to make this into an Oi and do it this way.  Perhaps this should
+% be a new feature of ISE to allow for scenes to change their wave samples
+% and interpolate.  
+
 scene = sceneCreate;
-scene = sceneSet(scene, 'photons', oiGet(oi,' photons'));
+% scene = sceneSet(scene, 'photons', oiGet(oi,' photons'));
+ scene = sceneSet(scene, 'photons', oiGet(opticalimage,' photons'));
 scene = sceneSet(scene, 'wave', 400:100:700);
 
 oi = oiSet(oi, 'wave', 400:100:700);

@@ -13,11 +13,11 @@ curPbrt.camera.lens.filmDiag = 70;
 % curPbrt.camera.setResolution(100, 100);    %LQ mode
 
 %uncomment to use a 2 element lens instead of a pinhole
-% curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt'));
+curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt'));
 
 %sampler
 sampler = curPbrt.sampler.removeProperty();
-sampler.value = 128;
+sampler.value = 2048;
 curPbrt.sampler.addProperty(sampler);
 
 %backdrop Depth
@@ -26,9 +26,9 @@ backDropDepth = -160;
 foregroundDepth = -80;
 
 %calculate sphere offsets
-xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
-yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
-[xOffsets yOffsets] = meshgrid(xValues, yValues); 
+% xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
+% yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
+% [xOffsets yOffsets] = meshgrid(xValues, yValues); 
 
 
 % lightRight = pbrtLightSpotObject('rightLight', [], [], [], inFrom, inTo);
