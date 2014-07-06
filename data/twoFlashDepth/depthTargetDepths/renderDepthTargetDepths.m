@@ -1,4 +1,7 @@
-%% Runs PBRT and imports it in ISET for the bench scene. 
+%% Runs PBRT on bench scene and imports data into ISET scene. 
+
+% Don't use this.  Use s_s3dSceneRender in the scripts directory.
+% This is an older scratch file that should go away.
 
 %% render scene with PBRT
 

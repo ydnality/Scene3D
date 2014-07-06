@@ -53,6 +53,7 @@ classdef pbrtObject <  handle
             
             %  Material file
             obj.materialArray = cell(1,1);
+            datapath = fullfile(s3dRootPath,'data');
             obj.materialArray{1} = fullfile(datapath,'validate', 'pbrtObject', 'depthTargetSpheres-mat.pbrt');
             
             %example materials object

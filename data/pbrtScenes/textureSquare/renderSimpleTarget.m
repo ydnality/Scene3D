@@ -26,6 +26,7 @@ backDropDepth = -160;
 foregroundDepth = -80;
 
 %calculate sphere offsets
+scaleFactor = 1;
 xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
 yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
 [xOffsets yOffsets] = meshgrid(xValues, yValues); 
@@ -111,3 +112,5 @@ figure; imagesc(groundTruthDepthMap);
 
 scene = sceneSet(scene, 'depthmap', groundTruthDepthMap);
 vcAddObject(scene); sceneWindow;
+
+%% End

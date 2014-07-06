@@ -9,6 +9,8 @@ function pbrtPath = pbrtRootPath
 %
 %s
 
+error('Obsolete')
+
 if exist('/home/andy/','dir')
     pbrtPath = '/home/andy/Dropbox/Scene3D/pbrt-v2-spectral-diffraction/';
 elseif exist('/home/ajwandell','dir')

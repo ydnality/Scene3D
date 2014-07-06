@@ -1,7 +1,11 @@
-%% 2014 OSA Conference: Full Forward calculation
+%% p_renderOI
 %
-% This script takes a scene image with depth map, and applies the series of
-% PSF's to it, depending on the position, wavelength, and depth.
+% Illustrates a point rendering for a simple lens 
+%
+% The point spread is calculated using lensMEObject and ppsfCamera object.
+% The results are shown in the OI window.
+% The method is illustrated
+% Some ray traces are put up.
 %
 % Shortening of p_renderOiMatlabToolFull.m
 
@@ -11,9 +15,9 @@ s_initISET
 
 %% If modded pbrt is NOT installed on this system, run this command to
 % load a scene file
-sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
-scene = load(sceneFileName);
-scene = scene.scene;
+% sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+% scene = load(sceneFileName);
+% scene = scene.scene;
 % vcAddObject(scene); sceneWindow;
 
 %% Render a PSF collection (see p_Figure1.m also)

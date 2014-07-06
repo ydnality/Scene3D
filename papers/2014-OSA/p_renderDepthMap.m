@@ -1,10 +1,15 @@
-%% 2014 OSA Conference
+%% p_renderDepthMap
 %
 % This script generates the depth maps for 2 scenes.  The first scene is a
 % test scene featuring many depth targets.  The second scene is the
 % indestructible Object scene.
 %
 % AL
+
+error('Obsolete.  See s_s3dSceneRadiance');
+
+%
+datapath = fullfile(s3dRootPath,'data');
 
 %%  generate and read and output depth map for depth target
 % ** make sure the rendering file has a small initial aperture, and only 1
