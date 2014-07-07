@@ -44,11 +44,11 @@ normalizingZ = -16000;        % mm assumed reference Z point.
 % d(1:(sz(1)/2),:) = -pZ(1);
 % scene = sceneSet(scene,'depth map',d);
 
-scene = sceneCreate('sweep frequency',64,5);
+scene = sceneCreate('sweep frequency',96,7);
 d = sceneGet(scene,'depth map');
 sz = size(d);
 d(:) = -pZ(end);
-d(1:(sz(1)/2),:) = -pZ(1);
+d(1:(sz(1)/2),:) = abs(pZ(1));
 scene = sceneSet(scene,'depth map',d);
 
 % Check scene
@@ -97,6 +97,8 @@ vcAddObject(scene); sceneWindow;
     jitterFlag   = true;   %enable jitter for lens front element aperture samples
     nLines       = false;  %number of lines to draw for debug illustrations.  
 
+    % Plot the points in 3Space
+    
     %%  Declare film properties for PSF recording (NOT for the forward calculation)
 
     fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
