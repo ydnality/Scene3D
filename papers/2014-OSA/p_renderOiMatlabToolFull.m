@@ -1,4 +1,6 @@
-%% 2014 OSA Conference: Full Forward calculation
+%% p_renderOiMatlabToolFull
+%
+% 2014 OSA Conference: Full Forward calculation
 %
 % This script takes a scene image with depth map, and applies the series of
 % PSF's to it, depending on the position, wavelength, and depth.
@@ -152,6 +154,8 @@ vcAddObject(scene); sceneWindow;
             'film', film, ...
             'pointsource', pointSources{ii,dd});
         
+        % From here could could be psfCamera.get('image centroid')
+        
         % What happens to each of the wavelengths?
         oi = psfCamera.estimatePSF();
         % To calculate and show, use this:
@@ -174,6 +178,8 @@ vcAddObject(scene); sceneWindow;
         distanceMatrix = sqrt(filmDistanceX.^2 + filmDistanceY.^2);
         centroidX = sum(sum(img .* filmDistanceX));
         centroidY = sum(sum(img .* filmDistanceY));
+        
+        % to here
         
         sz = oiGet(oi,'size'); mid = round(sz(1)/2);
         
