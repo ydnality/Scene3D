@@ -53,6 +53,23 @@ classdef psfCameraObject <  handle
                     % Used for calculating centroid of the psf
                     % Could use obj.film.image for the data, rather than oi
                     % p_renderOiMatlabToolFull
+                    % Figure out center pos by calculating the centroid of illuminance image
+                    flm = obj.film;
+                    img = flm.image;  img = sum(img,3);
+
+                    % Force to unit area and flip up/down for a point spread
+                    img = img./sum(img(:));
+                    img = flipud(img);
+                    % vcNewGraphWin; mesh(img);
+
+                    % Calculate the weighted centroid/center-of-mass
+                    xSample = linspace(-flm.size(1)/2, flm.size(1)/2, flm.resolution(1));
+                    ySample = linspace(-flm.size(2)/2, flm.size(2)/2, flm.resolution(2));
+                    [filmDistanceX, filmDistanceY] = meshgrid(xSample,ySample);
+                    
+                    % distanceMatrix = sqrt(filmDistanceX.^2 + filmDistanceY.^2);
+                    val.X = sum(sum(img .* filmDistanceX));
+                    val.Y = sum(sum(img .* filmDistanceY));
                     
                 otherwise
                     error('unknown parameter %s\n',param)

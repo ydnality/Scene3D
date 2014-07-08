@@ -26,7 +26,11 @@ fLength = 50;           % Todo: We should derive this using the lensmaker's equa
 % Populate lens surface array ussing given property arrays
 lensSurfaceArray = lensSurfaceObject();
 for i = 1:length(zPos)
-    lensSurfaceArray(i) = lensSurfaceObject('sRadius', radius(i), 'apertureD', aperture(i), 'wave',wave,'zPos', zPos(i), 'n', n(:, i));
+    lensSurfaceArray(i) = lensSurfaceObject('sRadius', radius(i), ...
+        'apertureD', aperture(i), ...
+        'wave',wave,...
+        'zPos', zPos(i),...
+        'n', n(:, i));
 end
 
 % Declare lens
@@ -38,25 +42,14 @@ lens = lensMEObject('surfaceArray', lensSurfaceArray, ...
 lens.apertureMiddleD = 5;
 % lens.draw;
 
+%% Save
+
 lensFile = fullfile(s3dRootPath,'data','lens','2ElLens.mat');
 save(lensFile,'lens')
 
-%% The PBRT lens data are stored as 2ElLens.dat 
-%  But this has no way to include the additional index of refraction 
-
-% But, we haven't got a way to represent the variations in n with
-% wavelength 
-lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.dat');
-wave = 400:10:700;
-fLength = 50;
-nSamples = 25;           % On the first aperture. x,y, before cropping
-diffractionEnabled = false;    % disable diffraction for this example
-lens = lensMEObject('fileName', lensFile, ...
-    'focalLength', fLength, ...
-    'diffractionEnabled', diffractionEnabled, ...
-    'wave', wave, ...
-    'aperturesample', [nSamples nSamples]);
-lens.apertureMiddleD = 5;
-lens.draw;
+%% Test save
+clear lens
+load(lensFile,'lens');
+lens.draw
 
 %% END

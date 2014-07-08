@@ -84,49 +84,18 @@ newWidth = 10;    % mm
 
 %% Describe the lens
 
-% Multicomponent lens.  Three surfaces
-% This goes from the light through the lens to the film
-zPos     = [-3 -1.5 0];  % Z intercept positions of lens surfaces
-radius   = [67 0 -67];   % Radius of curvature, 0 means aperture
-aperture = [10 10 10];   % Circular apertures, these are the radii in mm
-
-% Index of refraction to the right of each surface
-% n changes linearly with wavelength
-%(ray.wavelength - 550) * -.04/(300) + curEl.n;
-firstN = (wave - 550) * -(0.04/300) + 1.65;
-
-% This nWave x nElement
-n = [firstN' zeros(length(wave), 1) ones(length(wave),1)]; 
-
-nSamples = 25;           % On the first aperture. x,y, before cropping
-nSamplesHQ = 801;        % Number of samples for the HQ render
-diffractionEnabled = false;    %disable diffraction for this example
-idx = find(radius==0);   % This is the middle of the lens aperture size mm
-fLength = 50;            % Todo: We should derive this using the lensmaker's equation
-
-% For multiple lenses, we add up the power using something from the web
-
-% Populate lens surface array using given properties above
-% lensSurfaceArray = lensSurfaceObject();
-for i = 1:length(zPos)
-    lensSurfaceArray(i) = lensSurfaceObject('sRadius', radius(i), ...
-        'apertureD', aperture(i), ...
-        'zPos', zPos(i),...
-        'wave',wave,...
-        'n', n(:, i));
-end
-
-% Declare lens
-lens = lensMEObject('surfaceArray', lensSurfaceArray, ...
-    'focalLength', fLength, ...
-    'diffractionEnabled', diffractionEnabled, ...
-    'wave', wave, ...
-    'aperturesample', [nSamples nSamples]);
-
-% Comment, please.
+lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
+% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
+load(lensFile,'lens')
 lens.apertureMiddleD = 5;
 
-% lens.calculateApertureSample([nSamples nSamples]);
+% Preview and high quality sampling on first lens aperture
+nSamples = 25;           % On the first aperture. x,y, before cropping
+nSamplesHQ = 801;        % Number of samples for the HQ render
+fLength = 50;            % Todo: We should derive this using the lensmaker's equation
+lens.apertureMiddleD = 5;
+
+% lens.draw;
 
 %% Pick a point, create its PSF 
 % These psfs will be for different field heights, depths, and wavelengths

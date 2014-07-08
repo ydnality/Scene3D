@@ -1,14 +1,22 @@
-%% Create dgauss50mm.mat
+%% Create dgauss.50mm.mat
+%  11 element lens
 
-lensfileName = fullfile(s3dRootPath,'data','lens','dgauss.50mm.dat');
+lensFileDat = fullfile(s3dRootPath,'data','lens','dgauss.50mm.dat');
 nSamples = 151;
 apertureMiddleD = 10;   % mm
 lens = lensMEObject('apertureSample', [nSamples nSamples], ...
-    'fileName', lensFileName, ...
+    'fileName', lensFileDat, ...
     'apertureMiddleD', apertureMiddleD);
 
-lensfileName = fullfile(s3dRootPath,'data','lens','dgauss.50mm.mat');
+lens.draw
 
-save(lensfileName,'lens')
+%%  Save
+lensFileName = fullfile(s3dRootPath,'data','lens','dgauss.50mm.mat');
+save(lensFileName,'lens')
+
+%%  Load
+clear lens
+load(lensFileName,'lens')
+lens.draw
 
 %%
