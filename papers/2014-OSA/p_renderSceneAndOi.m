@@ -39,6 +39,8 @@
     title('Depth-map For Indestructible Object (units mm)');
     colorbar;
     colormap('gray');
+    
+   
 
 %% Create images for figures in paper with image slices of the previously rendered optical images
     %% create figure images for defocused oi
@@ -96,6 +98,7 @@
     %% create sensor images
     readNoise = 0;
     oi = pinholeOi;  
+
     % oi = blurredOi;
     sensor = s3dProcessSensor(oi, readNoise, [500 500],[], 'analog');    %low noise, auto exposure
     vcAddObject(sensor); sensorWindow;
@@ -105,7 +108,6 @@
     image = imageSet(image, 'gamma', .6);
     image = imageSet(image, 'internalcolorspace', 'XYZ');
     image = vcimageCompute(image,sensor);
-
     vcAddAndSelectObject(image); vcimageWindow;
 
     %save images
