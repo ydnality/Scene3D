@@ -17,7 +17,7 @@ curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt')
 
 %sampler
 sampler = curPbrt.sampler.removeProperty();
-sampler.value = 2048;
+sampler.value = 128;
 curPbrt.sampler.addProperty(sampler);
 
 %backdrop Depth
