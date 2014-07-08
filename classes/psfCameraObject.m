@@ -47,6 +47,13 @@ classdef psfCameraObject <  handle
                     r = obj.film.resolution(1);
                     s = obj.film.size(1);
                     val = s/r;
+                case 'imagecentroid'
+                    % obj.get('image centroid')
+                    % x,y positions (0,0) is center of the image centroid.
+                    % Used for calculating centroid of the psf
+                    % Could use obj.film.image for the data, rather than oi
+                    % p_renderOiMatlabToolFull
+                    
                 otherwise
                     error('unknown parameter %s\n',param)
             end
