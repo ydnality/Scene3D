@@ -28,7 +28,7 @@ s_initISET
 % We will loop through the point positions.  Units are millimeters
 pX = 0;
 pY = 0;                % Assume radial symmetry, so only calculate X
-pZ =[-50:-5:-130];    % Depth range
+pZ =[-70:-5:-130];    % Depth range
 
 % What is the normalizingZ thing inside of psCreate (BW)?
 pointSources = psCreate(pX,pY,pZ);
@@ -83,7 +83,7 @@ lens.apertureMiddleD = 5;
 % ff = 1; dd = 1;
 clear xLine
 clear img
-
+ff = 1;
 for dd = 1:nDepth
     %---initial low quality render
     film = pbrtFilmObject('position', [fX fY fZ], ...
