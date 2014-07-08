@@ -130,7 +130,11 @@ for dd = 1:nDepth
     plot(u1.pos,u1.data/s1,'k-',u2.pos,u2.data/s2,'r-')
     title(sprintf('Point depth %.1f',pointSources{ff,dd}(3)))
     
-    %%
+    %
+    if dd == 1
+        xLine = zeros(length(u2.pos),nDepth);
+        img = zeros(sz(1),sz(2),nDepth);
+    end
     xLine(:,dd) = u2.data/s2;
     img(:,:,dd) = oiGet(oi,'illuminance');
 end
