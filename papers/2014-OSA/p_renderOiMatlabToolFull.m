@@ -29,8 +29,8 @@ normalizingZ = -16000;        % mm assumed reference Z point.
 % Two possible scenes
 
 % Much nicer
-% sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes', 'metronome.mat');
-% load(sceneFileName,'scene');
+sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes', 'metronome.mat');
+load(sceneFileName,'scene');
 
 %  Much smaller
 % sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes', 'textureSquare.mat');
@@ -44,12 +44,12 @@ normalizingZ = -16000;        % mm assumed reference Z point.
 % d(1:(sz(1)/2),:) = -pZ(1);
 % scene = sceneSet(scene,'depth map',d);
 
-scene = sceneCreate('sweep frequency',96,7);
-d = sceneGet(scene,'depth map');
-sz = size(d);
-d(:) = -pZ(end);
-d(1:(sz(1)/2),:) = abs(pZ(1));
-scene = sceneSet(scene,'depth map',d);
+% scene = sceneCreate('sweep frequency',96,7);
+% d = sceneGet(scene,'depth map');
+% sz = size(d);
+% d(:) = -pZ(end);
+% d(1:(sz(1)/2),:) = abs(pZ(1));
+% scene = sceneSet(scene,'depth map',d);
 
 % Check scene
 vcAddObject(scene); sceneWindow;

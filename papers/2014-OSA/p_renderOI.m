@@ -124,7 +124,7 @@ lens = lensMEObject('surfaceArray', lensSurfaceArray, ...
     'aperturesample', [nSamples nSamples]);
 
 % Comment, please.
-lens.apertureMiddleD = 10;
+lens.apertureMiddleD = 5;
 
 % lens.calculateApertureSample([nSamples nSamples]);
 
@@ -194,7 +194,7 @@ plot(u1.pos,u1.data/s1,'k-',u2.pos,u2.data/s2,'r-')
 vcAddObject(oi); oiWindow;
 
 %% Show the lens ray trace
-psfCamera.estimatePSF(50);
+psfCamera.estimatePSF(200);
 
 
 %% Record on film
