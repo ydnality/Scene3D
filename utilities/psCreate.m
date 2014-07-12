@@ -15,6 +15,8 @@ function points = psCreate(pX,pY,pZ)
 %   pX = 0:10:30
 %   points = psCreate(pX,[],pZ);
 %
+% See also: p_re
+%
 % BW Copyright Vistasoft Team, 2014
 
 if ieNotDefined('pX'), pX = 0; end
