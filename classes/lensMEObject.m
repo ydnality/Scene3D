@@ -199,22 +199,29 @@ classdef lensMEObject <  handle
             lWidth = 0.1; lColor = [0 0.5 1]; lStyle = '-';
             % passedCenterAperture = false;  %true if rays are traced through lens aperture
              
+            nRays = rays.get('n rays');
+            
             % prevSurfaceZ = -obj.get('totalOffset');
-            prevN = ones(length(rays.origin), 1);
+            prevN = ones(nRays, 1);
             
             % For each surface element (lenses and apertures).
-            for lensEl = 1:obj.numEls
+            nSurfaces = obj.get('numels');
+            for lensEl = 1:nSurfaces
                 
                 % Get the surface data
                 curEl = obj.surfaceArray(lensEl);
                 curAperture = curEl.apertureD/2;
  
-                % Calculate ray intersection position with lens element or aperture
+                % Calculate ray intersection position with lens element or
+                % aperture. In the case of a 0 curvature, the direction
+                % does not change.
                 if (curEl.sRadius ~= 0)
                     
                     % Spherical element
-                    repCenter = repmat(curEl.sCenter, [length(rays.origin) 1]);
-                    repRadius = repmat(curEl.sRadius, [length(rays.origin) 1]);
+                    repCenter = repmat(curEl.sCenter, [nRays 1]);
+                    repRadius = repmat(curEl.sRadius, [nRays 1]);
+                    
+                    % What is this formula?
                     radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
                         ( dot(rays.origin - repCenter, rays.origin -repCenter, 2)) + repRadius.^2;
                     
@@ -229,7 +236,7 @@ classdef lensMEObject <  handle
                     
                     %make sure that intersectT is > 0
                     if (min(intersectT(:)) < 0)
-                        disp('intersectT less than 0 for lens %d',lensEl);
+                        fprintf('intersectT less than 0 for lens %i',lensEl);
                     end
                     
                     repIntersectT = repmat(intersectT, [1 3]);
@@ -240,7 +247,7 @@ classdef lensMEObject <  handle
                         if lensEl == 1
                             % Draw something.
                             obj.draw();
-                            samps = randi(size(rays.origin,1),[nLines,1]);
+                            samps = randi(nRays,[nLines,1]);
                         end
                         xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines 1])]';
                         yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines 1])]';
@@ -252,7 +259,7 @@ classdef lensMEObject <  handle
                     
                 else
                     % This is an aperture plane.  sRadius == 0
-                    intersectZ = repmat(curEl.sCenter(3), [length(rays.origin) 1]); 
+                    intersectZ = repmat(curEl.sCenter(3), [nRays 1]); 
                     intersectT = (intersectZ - rays.origin(:, 3))./rays.direction(:, 3);
                     repIntersectT = repmat(intersectT, [1 3]);
                     intersectPosition = rays.origin + rays.direction .* repIntersectT;
@@ -268,7 +275,7 @@ classdef lensMEObject <  handle
                     end
                 end
                 
-                % remove rays that land outside of the aperture
+                % Set rays outside of the aperture to NaN
                 outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 >= curAperture^2;
                 rays.origin(outsideAperture, : ) = NaN;
                 rays.direction(outsideAperture, : ) = NaN;
@@ -277,18 +284,20 @@ classdef lensMEObject <  handle
                 intersectPosition(outsideAperture, :) = NaN;
                 prevN(outsideAperture) = NaN;
                 
-                %special case with ppsfObjects
+                % Handle special case with ppsfObjects
                 if(isa(rays,'ppsfObject'))
                     rays.aEntranceInt.XY(outsideAperture, :) = NaN;
                     rays.aMiddleInt.XY(outsideAperture, :) = NaN;                
                     rays.aExitInt.XY(outsideAperture, :) = NaN;    
                 end
                 
-                % Apply Snell's law to the spherical surface rays
+                % Apply Snell's law to the spherical surface rays.
+                % Determine the new ray directions and origin
+                % 
                 if(curEl.sRadius ~= 0)
                     
                     %in bounds case - perform vector Snell's law
-                    repCenter = repmat(curEl.sCenter, [length(rays.origin) 1]);
+                    repCenter = repmat(curEl.sCenter, [nRays 1]);
                     normalVec = intersectPosition - repCenter;  %does the polarity of this vector matter? YES
                     normalVec = normalVec./repmat(sqrt(sum(normalVec.*normalVec, 2)),[1 3]); %normalizes each row
                     
@@ -316,19 +325,20 @@ classdef lensMEObject <  handle
                     curN(~liveIndices) = nan;
                     
                     % curN = ones(length(rays.wavelength), 1) * curEl.n;
-                    %Snell's law index of refraction ratios at surface
-                    %boundary
+                    % Snell's law index of refraction ratios at surface
+                    % boundary
                     ratio = prevN./curN;    
                     
-                    %Vector form of Snell's Law
+                    % Vector form of Snell's Law
                     c = -dot(normalVec, rays.direction, 2);
                     repRatio = repmat(ratio, [1 3]);
                     newVec = repRatio .* rays.direction + repmat((ratio.*c -sqrt(1 - ratio.^2 .* (1 - c.^2))), [1 3])  .* normalVec;
-                    newVec = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
+                    rays.direction = normvec(newVec,'dim',2);
+                    % newVec2 = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
+                    % vcNewGraphWin; plot(newVec(:),newVec2(:),'.');
                     
                     %update the direction of the ray
                     rays.origin = intersectPosition;
-                    rays.direction = newVec;
                     prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture
                     
                 end
@@ -393,7 +403,7 @@ classdef lensMEObject <  handle
         end
     end
     
-    methods
+    methods (Access = public)
         %Multiple element lens constructor
         %TODO: error handling
         function obj = lensMEObject(varargin)

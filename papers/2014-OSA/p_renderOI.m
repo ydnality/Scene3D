@@ -74,6 +74,9 @@ newWidth = 10;    % mm
 
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
+% Maybe we need lensRead(fname,{param/val pairs}), such as
+%  lensRead(lensFile,'wave',wave);
+%
 load(lensFile,'lens')
 lens.set('wave', wave);
 
@@ -87,10 +90,10 @@ lens.apertureMiddleD = 10;
 
 %% Pick a point, create its PSF 
 
+ff = 1; dd = 1;
 %---initial low quality render
 for ff = 1:1 %nFH
     for dd = 1:1 %nDepth
-        
         film = pbrtFilmObject('position', [fX fY fZ], ...
             'size', [fW fH], ...
             'wave', wave, ...
@@ -102,7 +105,11 @@ for ff = 1:1 %nFH
             'pointsource', pointSources{ff,dd});
         ds1 = psfCamera.get('spacing');
         
+        % This traces through to the film plane
+        % toFilm = true; nLines = 200; psfCamera.draw(toFilm,nLines);
+        
         % What happens to each of the wavelengths?
+        % This traces to the back of the lens
         oi = psfCamera.estimatePSF();
         % vcAddObject(oi); oiWindow;
         
@@ -131,6 +138,7 @@ for ff = 1:1 %nFH
             'pointsource', pointSources{ff,dd});
         oi = psfCamera.estimatePSF(nLines, jitterFlag);
         ds2 = psfCamera.get('spacing');
+        % psfCamera.draw(true,500);
         
         % Compare with coarse resolution
         %   oi = psfCamera.showFilm;
@@ -150,7 +158,7 @@ end
 
 
 %% Show the lens ray trace
-psfCamera.estimatePSF(200);
+psfCamera.draw(true,200);
 
 
 %% Record on film

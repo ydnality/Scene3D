@@ -109,6 +109,54 @@ classdef psfCameraObject <  handle
             
         end
         
+        function draw(obj,toFilm,nLines,apertureD)
+            % Show the ray trace lines to the film (sensor) plane
+            if ieNotDefined('toFilm'), toFilm = false; end
+            if ieNotDefined('nLines'), nLines = 200; end
+            
+            % We need a principled way to set this.
+            if ieNotDefined('apertureD'), apertureD = 100; end
+            
+            jitterFlag = true;
+            
+            wave      = obj.lens.wave;
+            % SHOULD BE Planar object.  But it won't draw to that
+            sRadius   = 1e5;  % Many millimeters  
+            zPosition = obj.film.position(3);
+            
+            % Not sure what to do here
+            ppsfObjectFlag = false;
+
+            % If toFilm is true, add the film surface as if it is an
+            % aperture.  This will force the ray trace to continue to that
+            % plane
+            sArray = obj.lens.surfaceArray;  % Store the original
+            
+            if toFilm
+                disp('Drawing to film surface')
+                obj.lens.surfaceArray(end+1) = ...
+                    lensSurfaceObject('wave',wave,...
+                    'aperture diameter',apertureD,...
+                    'sRadius',sRadius,...
+                    'zPosition',zPosition);
+            end
+            obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag);
+            
+            % Duplicate the existing rays for each wavelength
+            % Note that both lens and film have a wave, sigh.
+            % obj.rays.expandWavelengths(obj.film.wave);
+            obj.rays.expandWavelengths(obj.lens.wave);
+
+            %lens intersection and raytrace
+            obj.lens.rtThroughLens(obj.rays, nLines);
+            
+            % Put it back the way you found it.
+            if toFilm
+                obj.lens.surfaceArray = sArray;
+            end
+        end
+        
+        
         function oi = oiCreate(obj)
         
             % Create an optical image from the camera (film) image data.

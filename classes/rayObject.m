@@ -39,6 +39,17 @@ classdef rayObject <  clonableHandleObject
            end
         end
         
+        % Get parameters about the rays
+        function val = get(obj,param,varargin)
+            p = ieParamFormat(param);
+            switch p
+                case 'nrays'
+                    val = size(obj.origin,1);
+                otherwise
+                    error('Unknown parameter %s\n',p);
+            end
+        end
+        
         
         function obj = traceSourceToLens(obj, curPointSource, lens)
             % Deprecate?

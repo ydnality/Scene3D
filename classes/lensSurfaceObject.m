@@ -48,7 +48,7 @@ classdef lensSurfaceObject <  handle
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
                 switch p
-                    case 'apertured'
+                    case {'apertured','aperturediameter'}
                         % Units are mm
                         obj.apertureD = varargin{ii+1};
                         
@@ -61,7 +61,7 @@ classdef lensSurfaceObject <  handle
                     case 'wave'
                         obj.wave = varargin{ii+1};
                         
-                    case 'zpos' 
+                    case {'zpos','zposition'} 
                         %**MUST be assigned after sCenter is assigned
                         %assumes that lenses are centered on z axis
                         zPos = varargin{ii+1};
