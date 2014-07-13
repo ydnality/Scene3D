@@ -75,12 +75,7 @@ newWidth = 10;    % mm
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
 load(lensFile,'lens')
-lens.wave = wave;
-nElements = lens.get('n surfaces');
-for ii=1:nElements
-    lens.surfaceArray(ii).wave = wave;
-end
-
+lens.set('wave', wave);
 
 % Preview and high quality sampling on first lens aperture
 nSamples = 25;           % On the first aperture. x,y, before cropping

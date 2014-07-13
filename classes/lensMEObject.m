@@ -428,6 +428,7 @@ classdef lensMEObject <  handle
             %             obj.setElements(elOffset, elRadius, elAperture, elN);
         end
         
+        % Get properties
         function res = get(obj,pName,varargin)
             % Get various derived lens properties though this call
             pName = ieParamFormat(pName);
@@ -461,6 +462,27 @@ classdef lensMEObject <  handle
                     error('Unknown parameter %s\n',pName);
             end
         end
+        
+        %% Set
+        % This could go away some day.  But for now, the wavelength set is
+        % ridiculous because there are so many copies of wave.  So, we
+        % should set it here rather than addressing every surface element.
+        function set(obj,pName,val,varargin)
+            pName = ieParamFormat(pName);
+            switch pName
+                case 'wave'
+                    % The wavelength is annoying.
+                    obj.wave = val;
+                    nSurfaces = obj.get('n surfaces');
+                    for ii=1:nSurfaces
+                        obj.surfaceArray(ii).wave = val;
+                    end
+                otherwise
+                    error('Unknown parameter %s\n',pName);
+            end
+            
+        end
+        
         
         %%
         function fileRead(obj, fullFileName)
@@ -532,67 +554,105 @@ classdef lensMEObject <  handle
         
         %%
         function numEls = numEls(obj)
+            % This is now lens.get('n surface')
+            warning('Use lens.get(''n surface'')');
             numEls = length(obj.surfaceArray);
         end
         
-        %%
+        %% Draw the spherical and aperture components
         function obj =  draw(obj)
             % Draw the the multi-element lens in a new graph window. 
             % Helpful for debugging
+            
+            % Create the figure and set the parameters
             vcNewGraphWin([],'wide');
             axis equal;
             lWidth = 2; lColor = 'k';  % Drawing parameters
 
             % We draw one surface/aperture at a time
-            for lensEl = 1:obj.numEls
+            nSurfaces = obj.get('n surfaces');
+            for lensEl = 1:nSurfaces
+                
+                % Get the current surface element
                 curEl = obj.surfaceArray(lensEl);
                 
-                %illustrations for debug
-                if (curEl.sRadius ~=0)
-                    % This is a spherical element
-                    
-                    % Draw arcs 
-                    nextEl = obj.surfaceArray(min(lensEl+1, end));
-                    prevEl = obj.surfaceArray(max(lensEl-1, 1));
-                    
-                    %lens elements do NOT always end when the neighboring
-                    %element begins.  this allows for a fudge factor.  This
-                    %won't matter too much because the aperture radius will
-                    %be the limiting factor.
-                    delta = 10;
-                    
-                    % Determine the minimum/maximum z-positions for the
-                    % curve 
-                    if (curEl.sRadius > 0 )
-                        leftBoundary = curEl.get('zIntercept');
-                        rightBoundary = nextEl.get('zIntercept') + delta;
+                if (curEl.sRadius ~= 0)
+                    %% Simpler code
+                    testme = false;
+                    if testme
+                        [z,y] = circlePoints([curEl.sCenter,0],curEl.sRadius);
+                        if curEl.sRadius > 0
+                            l = (abs(y) < curEl.apertureD/2) & (z < curEl.sCenter(3));
+                        else
+                            l = (abs(y) < curEl.apertureD/2) & (z > curEl.sCenter(3));
+                        end
+                        p = plot(z(l),y(l),'k.'); set(p,'markersize',1); hold on;
                     else
-                        leftBoundary = prevEl.get('zIntercept') - delta;
-                        rightBoundary = curEl.get('zIntercept');
+                        % Draw a spherical element
+                        
+                        % Get previous and next elements, within bounds
+                        nextEl = obj.surfaceArray(min(lensEl+1, end));
+                        prevEl = obj.surfaceArray(max(lensEl-1, 1));
+                        
+                        % Lens elements do NOT always end when the neighboring
+                        % element begins.  this allows for a fudge factor.  This
+                        % won't matter too much because the aperture radius will
+                        % be the limiting factor. (I don't understand this
+                        % comment, other than this is a fudge factor somehwere.
+                        % BW).
+                        delta = 10;
+                        
+                        % Determine the minimum/maximum z-positions for the
+                        % curve. Which side has the position depends on the
+                        % sign of the curvature
+                        if (curEl.sRadius > 0 )
+                            % The fudge factor is used here
+                            leftBoundary  = curEl.get('zIntercept');
+                            rightBoundary = nextEl.get('zIntercept') + delta;
+                        else
+                            % Here is fudge again
+                            leftBoundary  = prevEl.get('zIntercept') - delta;
+                            rightBoundary = curEl.get('zIntercept');
+                        end
+                        
+                        % This is the range of z values we will consider.
+                        zPlot = linspace(leftBoundary, rightBoundary, 100);
+                        
+                        
+                        % Solve for the points on the curve for this lens
+                        % surface element.  We are drawing in the z-y plane
+                        % because the z-axis is the horizontal axis, and the
+                        % y-axis is the vertical. The center of the sphere is
+                        % at (0,0,z), so the formula is
+                        %
+                        %     r^2 = (x)^2 + (y)^2 + (z - c)^2
+                        %
+                        % But since we are in the x=0 plane this simplifies to
+                        %
+                        %   r^2 = (y)^2 + (z - c)^2
+                        %
+                        % We solve for y in terms of z.
+                        % We get the positive and negative y-values
+                        yPlot  =  sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
+                        yPlotN = -sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
+                        
+                        % NOTE: We may have problems with a concave lens
+                        % because of how we are choosing the z range - but
+                        % these are rare.
+                        %
+                        % We will plot for the range of y values that are less
+                        % than the radius of the spherical surface.
+                        withinRange = (yPlot < curEl.apertureD/2);
+                        
+                        % The positive solutions
+                        l = line(zPlot(withinRange), yPlot(withinRange));
+                        set(l,'linewidth',lWidth,'color',lColor);
+                        
+                        % The negative solutions
+                        l = line(zPlot(withinRange), yPlotN(withinRange));
+                        set(l,'linewidth',lWidth,'color',lColor);
                     end
-                    zPlot = linspace(leftBoundary, rightBoundary, 1000);
                     
-                    % Solve for the points on the curve.  We are drawing in
-                    % the z-y plane because we are letting the z-axis be
-                    % horizontal and y-axis be vertical.  The center of the
-                    % sphere is at (0,0,z).  
-                    % The formula is r^2 = (x)^2 + (y)^2 + (z - c)^2
-                    % But since we are in the x=0 plane.
-                    %   r^2 = (y)^2 + (z - c)^2
-                    
-                    % We get the positive and negative y-values
-                    yPlot  =  sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
-                    yPlotN = -sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
-                    
-                    
-                    % TODO: 
-                    % may have problems with a concave lens - but these are
-                    % rare
-                    withinRange = (yPlot < curEl.apertureD/2);
-                    l = line(zPlot(withinRange), yPlot(withinRange));
-                    set(l,'linewidth',lWidth,'color',lColor);
-                    l = line(zPlot(withinRange), yPlotN(withinRange));
-                    set(l,'linewidth',lWidth,'color',lColor);
                 else
                     %Draw the aperture opening if radius = 0
                     
@@ -602,7 +662,7 @@ classdef lensMEObject <  handle
                     %right now: take the minimum value
                     curAperture = min(curEl.apertureD/2, obj.apertureMiddleD/2);
                     
-                    l = line(curEl.sCenter(3) * ones(2,1), [-curEl.apertureD/2 -curAperture]);
+                    l = line(curEl.sCenter(3) * ones(2,1), -1*[curEl.apertureD/2 curAperture]);
                     set(l,'linewidth',lWidth,'color',lColor);
                     l = line(curEl.sCenter(3) * ones(2,1), [curAperture curEl.apertureD/2]);
                     set(l,'linewidth',lWidth,'color',lColor);
@@ -651,30 +711,31 @@ classdef lensMEObject <  handle
 
         function rays = rtSourceToEntrance(obj, pointSource, ppsfObjectFlag, jitterFlag, rtType)
             % Ray trace from a point to the aperture grid on the first lens
-            % surface (the one furthest from the sensor).  Rays at this
-            % point will only have 1 wavelength assigned to them, for they
-            % will be "expanded" out later to save on computations.  
+            % surface (the one furthest from the sensor).  
+            %  
+            % Rays have 1 wavelength assigned to them.  There is no
+            % particular wavelength dependence in air, so there is no need
+            % to have multiple indices of refraction or wavelength at this
+            % moment.
             %
-            % ppsfObjectFlag: specifies whether we are computing the pPSF
-            % or not.  Default: false (only for PSF)
-            % 
+            % The rays will be "expanded" out later to save on computations
+            % to handle wavelength differences.
             %
-            % See also: rtEntranceToExit in meLens
+            % The object is a lensMEObject
+            %     pointSource    -  a 3 vector
+            %     ppsfObjectFlag -  specifies whether we are computing the
+            %     plenoptic PSF (pPSF) or not.  Default: false (PSF only)
+            %
+            % See also: rtEntranceToExit 
             
-            if (ieNotDefined('ppsfObjectFlag'))
-                ppsfObjectFlag = false;
-            end
-            if (ieNotDefined('jitterFlag'))
-                jitterFlag = false;
-            end
+            if (ieNotDefined('ppsfObjectFlag')), ppsfObjectFlag = false;end
+            if (ieNotDefined('jitterFlag')), jitterFlag = false; end
             if (ieNotDefined('rtType')), rtType = 'realistic'; end
             rtType = ieParamFormat(rtType);
             
             % Define rays object
-            if (~ppsfObjectFlag)
-                rays = rayObject();
-            else
-                rays = ppsfObject();
+            if (~ppsfObjectFlag), rays = rayObject();
+            else                  rays = ppsfObject();
             end
             
             
@@ -690,54 +751,65 @@ classdef lensMEObject <  handle
                     %trace ray from point source to lens center, to image.  This helps
                     %determine the point of focus
                     obj.centerRay.origin = pointSource;
+                    
+                    % This could be a call to rayDirection
                     obj.centerRay.direction = [ 0 0 obj.centerZ] - obj.centerRay.origin;
                     obj.centerRay.direction = obj.centerRay.direction./norm(obj.centerRay.direction);
                     
-                    %calculate the in-focus plane using thin lens equation
+                    %calculate the z-position of the in-focus plane using
+                    %thin lens equation. 
                     inFocusDistance = 1/(1/obj.focalLength - -1/pointSource(3));
                     
-                    %calculates the in-focus position.  The in-focus position is the
-                    %intersection of the in-focus plane and the center-ray
+                    % Calculates the 3-vector for the in-focus position.
+                    % The in-focus position is the intersection of the
+                    % in-focus plane and the center-ray
                     inFocusT = (inFocusDistance - obj.centerRay.origin(3))/obj.centerRay.direction(3);
                     obj.inFocusPosition = obj.centerRay.origin + inFocusT .* obj.centerRay.direction;
                     % --------center ray calculation -------
                 case 'linear'
                     error('not implemented yet')
                 otherwise
-                    error('unknown ray trace type')
+                    error('unknown ray trace method:  %s\n',rtType)
             end
              
             
             % Create rays from the point source to each aperture grid point
-            %the new origin is the position of the current point source
-            aGrid = obj.apertureGrid(jitterFlag);   %TODO: set randJitter somehow
-            nPts  = numel(aGrid.X(:));
+            % The new origin is the position of the current point source
+            % The jitterFlag scatters the points on the front surface a bit
+            % to improve the rendering.
+            aGrid   = obj.apertureGrid(jitterFlag);
+            
+            % Set Z to the position of the front surface
+            nPts    = numel(aGrid.X(:));
             aGrid.Z = repmat(frontRTSurface,[nPts,1]);
             
-            ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];  %e stands for end... endPoionts
+            % These are the end points of the ray in the aperture plane
+            ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];  
             
-            % Computes the directions between the origin and the end points
-            rays.origin = repmat(pointSource, [nPts, 1, 1] );
+            % These are the directions from the point source to the end
+            % points in the aperture
+            rays.origin    = repmat(pointSource, [nPts, 1, 1] );
             rays.direction = rayDirection(rays.origin,ePoints);
             
             if(isa(rays,'ppsfObject'))
+                % If the rays are a plenoptic point spread, AL thinks we
+                % should store the XY positions at the front aperture,
+                % middle aperture, and exist aperture.  The slots for this
+                % information are created and initialized here.
+                %
+                % BW isn't sure why this is useful, but he believes it.
                 rays.aEntranceInt.XY = zeros(length(aGrid.X), 2);
                 rays.aEntranceInt.XY(:,1) = aGrid.X(:);
                 rays.aEntranceInt.XY(:,2) = aGrid.Y(:);
                 rays.aEntranceInt.Z = aGrid.Z(1);
                 
-                %initialization of these various intersection parameters
-                %consider putting in function
+                % The intersection positions (XY) of the rays in the middle
+                % aperture and the exit aperture will be stored here.
                 rays.aMiddleInt.XY = zeros(length(aGrid.X), 2);
                 rays.aExitInt.XY = zeros(length(aGrid.X), 2);
                 
-                %                 rays.aEntranceInt.X = aGrid.X(:);
-                %                 rays.aEntranceInt.Y = aGrid.Y(:);
             end
             
-            
-            % rays.direction = [(aGrid.X(:) -  rays.origin(:,1)) (aGrid.Y(:) -  rays.origin(:,2)) (obj.centerPosition(3) - rays.origin (:,3)) .* ones(size(obj.apertureSample.Y(:)))];
-            % rays.direction = rays.direction./repmat( sqrt(rays.direction(:, 1).^2 + rays.direction(:, 2).^2 + rays.direction(:,3).^2), [1 3]); %normalize direction
         end
         
         function obj = rtHURB(obj, rays, lensIntersectPosition, curApertureRadius)
@@ -745,35 +817,25 @@ classdef lensMEObject <  handle
             %rays, given a circular aperture radius, and lens intersection
             %position This function accepts both vector forms of inputs, or
             %individual inputs
-            
+            %
             % Look for cases when you can use: bsxfun ...
+            %
+            % This code is not readable yet.  Let's figure out the steps
+            % and write clarifying functions.
+            %
             
-            %potentially vectorize later for speed
-            %             for i = 1:size(rays.direction, 1)
-            %calculate the distance of the intersect point to the center of the lens
-            
-            %                 curLensIntersectPosition = lensIntersectPosition(i, :);
-            
-            %we don't care about the z coordinate so we remove it
-            %                 curLensIntersectPosition = curLensIntersectPosition(1:2);
-            
-            %                 curRay.origin = rays.origin(i, :);
-            %                 curRay.direction = rays.direction(i, :);
-            %                 curRay.wavelength = rays.wavelength(i);
             
             ipLength = sqrt(sum(dot(lensIntersectPosition(:, (1:2)), lensIntersectPosition(:, (1:2)), 2), 2));
             
-            %calculate directionS and orthogonal directionL
-            
+            %calculate directionS which is ....
             directionS = [lensIntersectPosition(:, 1) lensIntersectPosition(:,2) zeros(length(lensIntersectPosition), 1)];
+
+            % And the orthogonal directionL
             directionL = [-lensIntersectPosition(:,2) lensIntersectPosition(:,1) zeros(length(lensIntersectPosition), 1)];
-            
-            
             
             normS = repmat(sqrt(sum(dot(directionS, directionS, 2), 2)), [1 3]);
             normL = repmat(sqrt(sum(dot(directionL, directionL, 2), 2)), [1 3]);
             divideByZero = sum(normS,2) ==0;
-            
             
             directionS(~divideByZero, :) = directionS(~divideByZero, :)./normS(~divideByZero, :);
             directionL(~divideByZero, :) = directionL(~divideByZero, :)./normL(~divideByZero, :);

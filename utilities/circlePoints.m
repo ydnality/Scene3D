@@ -1,9 +1,11 @@
-function [xp,yp] = circlePoints(center,r, aStep)
+function [xp,yp] = circlePoints(center, r, aStep)
 % Draw a circle of radius r
 %
-% center coordinates of the center of the circle: default (0,0)
+%  [x,y] = circlePoints(c, r, aStep)
+%
+% c - center coordinates of the circle:      default (0,0)
 % r is the radius of the circle:             default 1
-% aStep is the angular step in radians:        default is 0.01
+% aStep is the angular step in radians:      default is 0.01
 %
 % Example:
 %    [x,y] = circlePoints; plot(x,y,'.'); axis equal
