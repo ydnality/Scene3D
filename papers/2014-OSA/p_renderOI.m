@@ -33,8 +33,8 @@ s_initISET
 % rendered image.
 
 % Define point sources
-pX = [0];
-pY = 0;                % Assume radial symmetry, so only calculate X
+pX = [0 10];
+pY = [0];           
 pZ =[-90:-20:-130];     % Depth range
 
 % What is the normalizingZ thing inside of psCreate (BW)?
@@ -52,7 +52,6 @@ nLines = false;      % Number of lines to draw for debug illustrations.
 % wave = 500;
 wave = 400:100:700;            % Wavelength
 wList = 1:length(wave);
-fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
 
 % Film width and height for coarse calculation
 fW = 80;  % mm
@@ -73,7 +72,11 @@ newWidth = 10;    % mm
 %% Describe the lens
 
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
+fX = 0; fY = 0; fZ = 100;    % mm.  Film position should go with lens.
+
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
+% fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position should go with lens.
+
 % Maybe we need lensRead(fname,{param/val pairs}), such as
 %  lensRead(lensFile,'wave',wave);
 %
@@ -92,8 +95,8 @@ lens.apertureMiddleD = 10;
 
 ff = 1; dd = 1;
 %---initial low quality render
-for ff = 1:1 %nFH
-    for dd = 1:1 %nDepth
+for ff = 1:nFH
+    for dd = 1:nDepth
         film = pbrtFilmObject('position', [fX fY fZ], ...
             'size', [fW fH], ...
             'wave', wave, ...

@@ -1,13 +1,11 @@
 tmp/
-*.dat
 *conflicted copy*
 *~
 *Bak*
 *.original*
 pbrtHome.m
 *(copy)*
-*tempOutput/*
-*.mat
+*tempOutput/t
 data/generatedPbrtFiles/
 *(Case Conflict*
 *.exr

@@ -65,9 +65,12 @@ newWidth = 10;    % mm
 %% Describe the lens
 
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
+
 lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
 load(lensFile,'lens')
 lens.apertureMiddleD = 5;
+
+lens.set('wave',wave);
 
 % Preview and high quality sampling on first lens aperture
 nSamples = 25;           % On the first aperture. x,y, before cropping
@@ -156,7 +159,7 @@ end
 
 
 %% Show the lens ray trace
-psfCamera.estimatePSF(200);
+psfCamera.draw(200);
 
 %% Record on film
 psfCamera.recordOnFilm();
