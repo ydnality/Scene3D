@@ -63,8 +63,9 @@ load(lensFile,'lens')
 [p,lens.name] = fileparts(lensFile);
 
 lens.apertureMiddleD = 5;
-W = 400:100:700;
-nW = [1.720,     1.6567,     1.6033,     1.5500];
+% Linearly space the index of refraction, just as an example.
+W  = [400, 700];
+nW = [1.720, 1.5500];
 
 % Preview and high quality sampling on first lens aperture
 nSamples = 25;           % On the first aperture. x,y, before cropping
@@ -115,7 +116,7 @@ close(wbar);
 %% Make a video of the PSFs as a function of wavelength
 
 vObj = VideoWriter('wavePSF.avi','Motion JPEG AVI');
-vObj.FrameRate = 5;
+vObj.FrameRate = 4;
 open(vObj);
 
 vcNewGraphWin;
@@ -126,8 +127,8 @@ y = ((1:sz(1)) - (sz(1)/2))*s(1);
 
 for ii=1:nWave
     % v = uint8(ieScale(img(:,:,ii),0,1)*255);
-    image(x,y,v(:,:,:,ii)); 
-    text(x(5),y(5),sprintf('%.0f ',wave(ii)),'Color','w','FontSize',20);
+    image(x,y,v(:,:,:,ii)); axis image
+    text(x(5),y(5),sprintf('%.0f nm',wave(ii)),'Color','w','FontSize',20);
     text(x(60),y(5),lens.name,'Color','w','FontSize',20);
     title(sprintf('%s',lens.name));
     grid on; set(gca,'XColor',[0.5 0.5 0.5],'YColor',[0.5 0.5 0.5]);
@@ -140,6 +141,14 @@ end
 
 close(vObj);
 
+%% How can we open and read video file?
+
+% Why doesn't this work?
+% mplay('wavePSF.avi')
+
+vid = VideoReader('wavePSF.avi');
+vidFrames = read(vid);
+mplay(vidFrames);
 
 %% Show the spread as a function of depth
 % Not implemented here.  Get it from Depth if you want it.

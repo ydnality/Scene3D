@@ -1,4 +1,4 @@
-%% p_renderDepth
+%% p_renderFH
 %
 % Show focus as a function of point depth
 %
@@ -8,15 +8,9 @@
 %%
 s_initISET
 
-%% Render a PSF collection
+%% Render a PSF collection by wavelength
 %
 % Rendering the collection will become a function at some point
-%
-% To render a high quality PSF, we first get an approximation at coarse
-% scale. Then we calculate the centroid of that PSF,  zoom in, and
-% calculate a "high quality" PSF using a much smaller film but higher spatial resolution.
-%
-% We need to keep track of spatial units on the film as we do this.
 %
 % The high-resolution PSFs will be added into a PSF Collection matrix,
 % which contains the whole series of PSFs depending on field height,
@@ -26,10 +20,11 @@ s_initISET
 % rendered image.
 
 % We will loop through the point positions.  Units are millimeters
+pX = 0; %linspace(0,3.5,1);        
+pY = linspace(0,12,3);
+pZ = -100;        % Depth range
+
 % What is the normalizingZ thing inside of psCreate (BW)?
-pX = 0;
-pY = 0;                % Assume radial symmetry, so only calculate X
-pZ =[-70:-1:-100];    % Depth range
 pointSources = psCreate(pX,pY,pZ);
 
 nDepth = length(pZ);
@@ -40,41 +35,35 @@ nLines = false;      % Number of lines to draw for debug illustrations.
 
 %%  Declare film properties for PSF recording.
 
-wave = 500;
-% wave = 400:100:700;            % Wavelength
-wList = 1:length(wave);
-fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
-
-% Film width and height for coarse calculation
-fW = 80;  % mm
-fH = 80;  % mm
-
-% Film resolution (preview)
-numPixelsW = 151;
-numPixelsH = 151;
+wave = 500;            % Wavelength
+fX = 0; fY = 0; fZ = 100;    % mm.  Film position
 
 % Film resolution (final render)
-numPixelsWHQ = 100;
-numPixelsHHQ = 100;
+numPixelsWHQ = 300;
+numPixelsHHQ = 300;
 
 % The film width for high quality is set manually - this
 % should be automated in the future
-newWidth = 10;    % mm
+newWidth = 50;    % mm
 
 %% Describe the lens
 
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
-% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
-load(lensFile,'lens')
-lens.apertureMiddleD = 5;
 
+% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
+load(lensFile,'lens')
 [p,lens.name] = fileparts(lensFile);
 lens.set('wave',wave);
+
+% Linearly space the index of refraction, just as an example.
+W  = [400, 700];
+nW = [1.720, 1.5500];
+
 % Preview and high quality sampling on first lens aperture
 nSamples = 25;           % On the first aperture. x,y, before cropping
 nSamplesHQ = 801;        % Number of samples for the HQ render
 fLength = 50;            % Todo: We should derive this using the lensmaker's equation
-lens.apertureMiddleD = 5;
+lens.apertureMiddleD = 10;
 
 % lens.draw;
 
@@ -82,14 +71,14 @@ lens.apertureMiddleD = 5;
 % These psfs will be for different field heights, depths, and wavelengths
 
 % ff = 1; dd = 1;
-clear xLine
-clear img
-ff = 1;
-wbar = waitbar(0,'Depth renderings');
-for dd = 1:nDepth
+wbar = waitbar(0);
+% Could add a loop on depths for dd = 1:nDepth
+dd = 1;
+for ff = 1:nFH
+    waitbar(ff/nFH,wbar,sprintf('Field height %d',ff));
     
     % Render image using new center position and width and higher resolution
-    smallFilm = pbrtFilmObject('position', [0 0 fZ], ...
+    smallFilm = pbrtFilmObject('position', [fX fY fZ], ...
         'size', [newWidth newWidth], ...
         'wave', wave, ...
         'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
@@ -98,48 +87,40 @@ for dd = 1:nDepth
     % NOTE:  Changing the number of samples also changes the oi size.
     % This isn't good.  We need to change the sampling density without
     % changing the size.
-    waitbar(dd/nDepth,wbar,'Estimating PSFs');
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
-    psfCamera = psfCameraObject('lens', lens, 'film', smallFilm, 'pointsource', pointSources{ff,dd});
+    psfCamera = psfCameraObject('lens', lens, ...
+        'film', smallFilm, ...
+        'pointsource', pointSources{ff,dd});
+    
     oi = psfCamera.estimatePSF(nLines, jitterFlag);
-    
-    if dd == 1
-        sz = oiGet(oi,'size'); 
-        mid = round(sz(1)/2);
-        img = zeros(sz(1),sz(2),nDepth);
-        xLine = zeros(sz(1),nDepth);
+    % vcAddObject(oi); oiWindow;
+
+    psfCamera.draw(200);
+    if ff == 1
+        sz = size(oiGet(oi,'rgb image'));
+        rgb = zeros(sz(1),sz(2),3,nFH);
+        %         vcNewGraphWin; image(rgb(:,:,:,3))
     end
-    
-    [uData,g] = plotOI(oi,'illuminance hline',[mid,mid]); close(g);
-    if dd == 1,
-        pos = uData.pos/1000; % Return is um, converts to mm
-        xLine = zeros(length(pos),nDepth);
-    end
-    img(:,:,dd) = oiGet(oi,'illuminance');
-    xLine(:,dd) = uData.data;
-    
+    rgb(:,:,:,ff) = oiGet(oi,'rgb image');
 end
 close(wbar);
 
+%% Make a video of the PSFs as a function of wavelength
 
-%%  Make a video of the different depth point spreads
-
-vObj = VideoWriter('depthPSF.avi','Motion JPEG AVI');
-vObj.FrameRate = 5;
+vObj = VideoWriter('fhPSF.avi','Motion JPEG AVI');
+vObj.FrameRate = 4;
 open(vObj);
 
-vcNewGraphWin; colormap(gray)
-v = uint8(ieScale(img,0,1)*255);
-[r, c] = size(v(:,:,1));
-x = pos;
-y = pos;
+vcNewGraphWin;
+v = uint8(ieScale(rgb,0,1)*255);
+s = oiGet(oi,'sample spacing','mm');
+x = ((1:sz(2)) - (sz(2)/2))*s(2);
+y = ((1:sz(1)) - (sz(1)/2))*s(1);
 
-for ii=1:nDepth
+for ii=1:nFH
     % v = uint8(ieScale(img(:,:,ii),0,1)*255);
-    image(x,y,v(:,:,ii)); brighten(0.5); axis image;
-    text(x(5),y(5),sprintf('%.0f ',-pZ(ii)),'Color','w','FontSize',20);
+    image(x,y,v(:,:,:,ii)); axis image
     text(x(60),y(5),lens.name,'Color','w','FontSize',20);
-    title(sprintf('%s',lens.name));
     grid on; set(gca,'XColor',[0.5 0.5 0.5],'YColor',[0.5 0.5 0.5]);
     xlabel('mm'); ylabel('mm')
     drawnow;
@@ -150,28 +131,18 @@ end
 
 close(vObj);
 
-%% Plot the spread as a function of depth
-vcNewGraphWin;
-mesh(abs(pZ),pos,xLine)
-xlabel('depth (mm)')
-ylabel('position (mm)')
-zlabel('Illuminance (lux)')
+%% Show the spread as a function of depth
+% Not implemented here.  Get it from Depth if you want it.
+% vcNewGraphWin;
+% mesh(abs(pZ),u2.pos,xLine)
+% ylabel('position')
+% xlabel('depth')
 
 %% Show the lens ray trace
 % psfCamera.draw(200);
 
-%% Record on film
-% psfCamera.recordOnFilm();
-% 
-% % Show the point spread as an image
-% oi = psfCamera.oiCreate;
-% img = oiGet(oi,'rgb image');
-% vcNewGraphWin; image(img); axis image
-% 
-% % Bring up the pointspread in an optics window
-% psfCamera.showFilm();
-% 
-% % Plot the illuminance image
+
+%% Plot the illuminance image
 % plotOI(oi,'illuminance mesh linear');
 
 %% Plenoptic

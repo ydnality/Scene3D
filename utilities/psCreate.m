@@ -26,6 +26,9 @@ if ieNotDefined('pZ'), pZ = -50; end
 nFH    = length(pX) * length(pY);
 nDepth = length(pZ);
 
+% At each depth, we have a set of 
+[X,Y] = meshgrid(pX,pY);
+X = X(:); Y = Y(:);
 % I don't understand this (BW)
 % normalizingZ = min(pZ)*10;
 normalizingZ = min(pZ);
@@ -34,8 +37,7 @@ normalizingZ = min(pZ);
 points = cell(nFH,nDepth);
 for ii=1:nFH
     for dd = 1:nDepth
-        %points{ii,dd} = [pX(ii)*  pZ(ii)/normalizingZ, pY, pZ(dd)];  %There seems to be a bug here (AL)
-        points{ii,dd} = [pX(ii)*  pZ(dd)/normalizingZ, pY, pZ(dd)]; 
+        points{ii,dd} = [X(ii)*  pZ(dd)/normalizingZ, Y(ii), pZ(dd)]; 
     end
 end
 
