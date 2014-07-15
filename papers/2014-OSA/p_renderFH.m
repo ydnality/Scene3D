@@ -35,7 +35,7 @@ nLines = false;      % Number of lines to draw for debug illustrations.
 
 %%  Declare film properties for PSF recording.
 
-wave = 500;            % Wavelength
+wave = 400:100:700;            % Wavelength
 fX = 0; fY = 0; fZ = 100;    % mm.  Film position
 
 % Film resolution (final render)
@@ -95,7 +95,8 @@ for ff = 1:nFH
     oi = psfCamera.estimatePSF(nLines, jitterFlag);
     % vcAddObject(oi); oiWindow;
 
-    psfCamera.draw(200);
+    toFilm = true;
+    psfCamera.draw(toFilm);
     if ff == 1
         sz = size(oiGet(oi,'rgb image'));
         rgb = zeros(sz(1),sz(2),3,nFH);
