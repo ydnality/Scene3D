@@ -66,7 +66,7 @@ newWidth = 10;    % mm
 
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 
-lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
+lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
 load(lensFile,'lens')
 lens.apertureMiddleD = 5;
 

@@ -27,13 +27,15 @@ nFH    = length(pX) * length(pY);
 nDepth = length(pZ);
 
 % I don't understand this (BW)
-normalizingZ = min(pZ)*10;
+% normalizingZ = min(pZ)*10;
+normalizingZ = min(pZ);
 
 % Make the cell array
 points = cell(nFH,nDepth);
 for ii=1:nFH
     for dd = 1:nDepth
-        points{ii,dd} = [pX(ii)*  pZ(ii)/normalizingZ, pY, pZ(dd)];
+        %points{ii,dd} = [pX(ii)*  pZ(ii)/normalizingZ, pY, pZ(dd)];  %There seems to be a bug here (AL)
+        points{ii,dd} = [pX(ii)*  pZ(dd)/normalizingZ, pY, pZ(dd)]; 
     end
 end
 
