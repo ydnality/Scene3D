@@ -243,18 +243,58 @@ classdef lensMEObject <  handle
                     intersectPosition = rays.origin + repIntersectT .* rays.direction;
                     
                     % Let's try to make the lines 3D.  That would be cool!
-                    if (nLines)
-                        if lensEl == 1
-                            % Draw something.
-                            obj.draw();
-                            samps = randi(nRays,[nLines,1]);
+                    
+                    %added new structure to nLines to specify
+                    %whether we are randomly sampling or uniformly
+                    %sampling
+                    
+                 
+                    drawLines = false;
+                    
+                    %struct handling - one option is to specify
+                    %nLines.spacing and nLines.numLines.  .spacing has
+                    %choices of 'uniform' or 'random'.  .numLines must be
+                    %an integer.
+                    if (isfield(nLines, 'spacing') && isfield(nLines,'numLines'))
+                        if (nLines.numLines > 0)
+                            if lensEl ==1
+                                obj.draw();
+
+                                if (strcmp(nLines.spacing, 'uniform'))
+                                    samps = round(linspace(1, nRays, nLines.numLines));
+                                else
+                                    samps = randi(nRays,[nLines.numLines,1]);
+                                end
+                            end
+                            xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines.numLines 1])]';
+                            yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines.numLines 1])]';
+                            xCoordVector = real(xCoordVector(:));
+                            yCoordVector = real(yCoordVector(:));
+                            line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
+                            pause(0.2);
                         end
-                        xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines 1])]';
-                        yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines 1])]';
-                        xCoordVector = real(xCoordVector(:));
-                        yCoordVector = real(yCoordVector(:));
-                        line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
-                        pause(0.2);
+                    else
+                        %number handling - another case is if nLines is a
+                        %number - in this case, random sampling is assumed,
+                        %and nLines = false, or 0 will assume no drawing.
+                        if (nLines > 0)
+                            if (lensEl ==1)
+                                obj.draw();
+                                samps = randi(nRays,[nLines,1]);
+                            end
+                            xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines 1])]';
+                            yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines 1])]';
+                            xCoordVector = real(xCoordVector(:));
+                            yCoordVector = real(yCoordVector(:));
+                            line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
+                            pause(0.2); 
+                        end
+                       
+                    end
+                    
+                    %if user has specified to draw lines, then we will.
+                    if (drawLines)
+                        
                     end
                     
                 else
