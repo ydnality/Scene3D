@@ -1,4 +1,4 @@
-%% p_renderDepth
+%% p_renderWave
 %
 % Show focus as a function of point depth
 %
@@ -26,9 +26,9 @@ s_initISET
 % rendered image.
 
 % We will loop through the point positions.  Units are millimeters
-pX = 0;
-pY = 0;                % Assume radial symmetry, so only calculate X
-pZ =[-70:-20:-130];    % Depth range
+pX = 30;
+pY = 0;          % Assume radial symmetry, so only calculate X
+pZ =[-100];       % Depth range
 
 % What is the normalizingZ thing inside of psCreate (BW)?
 pointSources = psCreate(pX,pY,pZ);
@@ -41,9 +41,7 @@ nLines = false;      % Number of lines to draw for debug illustrations.
 
 %%  Declare film properties for PSF recording.
 
-% wave = 500;
-wave = 400:100:700;            % Wavelength
-wList = 1:length(wave);
+wave = 400:50:700;            % Wavelength
 fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
 
 % Film width and height for coarse calculation
@@ -64,13 +62,13 @@ newWidth = 10;    % mm
 
 %% Describe the lens
 
-% lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
+lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 
-lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
+% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
 load(lensFile,'lens')
 lens.apertureMiddleD = 5;
-
-lens.set('wave',wave);
+W = 400:100:700;
+nW = [1.700,     1.6567,     1.6433,     1.6000];
 
 % Preview and high quality sampling on first lens aperture
 nSamples = 25;           % On the first aperture. x,y, before cropping
@@ -84,31 +82,38 @@ lens.apertureMiddleD = 5;
 % These psfs will be for different field heights, depths, and wavelengths
 
 % ff = 1; dd = 1;
-clear xLine
-clear img
-ff = 1;
-for dd = 1:nDepth
+nWave = length(wave);
+rgb = cell(nWave,1);
+
+for ww = 1:nWave
+    
+    lens.set('wave',wave(ww));
+    n = interp1(W,nW,wave(ww));
+    lens.set('n all',n);
+    
     %---initial low quality render
     film = pbrtFilmObject('position', [fX fY fZ], ...
         'size', [fW fH], ...
-        'wave', wave, ...
+        'wave', wave(ww), ...
         'resolution', [numPixelsW numPixelsH length(wave)]);
     
-    psfCamera = psfCameraObject('lens', lens, 'film', film, 'pointsource', pointSources{ff,dd});
+    psfCamera = psfCameraObject('lens', lens, ...
+        'film', film, ...
+        'pointsource', pointSources{1,1});
     ds1 = psfCamera.get('spacing');
     
     % What happens to each of the wavelengths?
-    oi = psfCamera.estimatePSF();
-    sz = oiGet(oi,'size'); mid = round(sz(1)/2);
-    [u1,g] = plotOI(oi,'illuminance hline',[mid,mid]); close(g)
+    psfCamera.estimatePSF();
+    %     sz = oiGet(oi,'size'); mid = round(sz(1)/2);
+    %     [u1,g] = plotOI(oi,'illuminance hline',[mid,mid]); close(g)
     
     % Find the point spread centeroid
     centroid = psfCamera.get('image centroid');
     
     % Render image using new center position and width and higher resolution
-    smallFilm = pbrtFilmObject('position', [centroid.X centroid.Y fZ], ...
+    smallFilm = pbrtFilmObject('position', [centroid.X centroid.X fZ], ...
         'size', [newWidth newWidth], ...
-        'wave', wave, ...
+        'wave', wave(ww), ...
         'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
     
     % Use more samples in the lens aperture to produce a high quality psf.
@@ -116,30 +121,36 @@ for dd = 1:nDepth
     % This isn't good.  We need to change the sampling density without
     % changing the size.
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
-    psfCamera = psfCameraObject('lens', lens, 'film', smallFilm, 'pointsource', pointSources{ff,dd});
+    psfCamera = psfCameraObject('lens', lens, ...
+        'film', smallFilm, ...
+        'pointsource', pointSources{1,1});
+    
     oi = psfCamera.estimatePSF(nLines, jitterFlag);
-    ds2 = psfCamera.get('spacing');
+    rgb{ww} = oiGet(oi,'rgb image');
+    vcAddObject(oi); oiWindow;
+
+    % ds2 = psfCamera.get('spacing');
     
     % Compare with coarse resolution
     %   oi = psfCamera.showFilm;
     %   oiGet(oi,'spatial resolution','mm');
-    sz = oiGet(oi,'size'); mid = round(sz(1)/2);
-    [u2,g] = plotOI(oi,'illuminance hline',[mid,mid]); close(g);
-    
-    % Compare the coarse and fine plots through the center
-    vcNewGraphWin;
-    s1 = sum(u1.data(:))*ds1;
-    s2 = sum(u2.data(:))*ds2;
-    plot(u1.pos,u1.data/s1,'k-',u2.pos,u2.data/s2,'r-')
-    title(sprintf('Point depth %.1f',pointSources{ff,dd}(3)))
-    
+    %     sz = oiGet(oi,'size'); mid = round(sz(1)/2);
+    %     [u2,g] = plotOI(oi,'illuminance hline',[mid,mid]); close(g);
     %
-    if dd == 1
-        xLine = zeros(length(u2.pos),nDepth);
-        img = zeros(sz(1),sz(2),nDepth);
-    end
-    xLine(:,dd) = u2.data/s2;
-    img(:,:,dd) = oiGet(oi,'illuminance');
+    % Compare the coarse and fine plots through the center
+    %     vcNewGraphWin;
+    %     s1 = sum(u1.data(:))*ds1;
+    %     s2 = sum(u2.data(:))*ds2;
+    %     plot(u1.pos,u1.data/s1,'k-',u2.pos,u2.data/s2,'r-')
+    %     title(sprintf('Point depth %.1f',pointSources{1,1}(3)))
+    %
+    %     %
+    %     if ww == 1
+    %         xLine = zeros(length(u2.pos),nDepth);
+    %         img = zeros(sz(1),sz(2),nDepth);
+    %     end
+    %     xLine(:,ww) = u2.data/s2;
+    %     img(:,:,ww) = oiGet(oi,'illuminance');
 end
 
 
@@ -150,22 +161,22 @@ ylabel('position')
 xlabel('depth')
 
 %%
-vcNewGraphWin([],'tall');
-[r,c,z] = size(img);
-lst = 1:1:nDepth;
 
-gimg = zeros(r,c,length(lst));
-colormap(gray)
-for dd=1:nDepth
-    subplot(length(lst),1,dd), imagesc(img(:,:,lst(dd))); axis image
-    gimg(:,:,dd) = ieScale(img(:,:,lst(dd)),0,1)*255;
+[r,c,w] = size(rgb{1});
+gimg = zeros(r,c,nWave);
+for ww=1:nWave
+    [tmp, cmap] = rgb2ind(rgb{ww},256);
+    vcNewGraphWin; image(tmp); colormap(cmap); axis image
+    gimg(:,:,ww) = tmp;
 end
+animatedGif(gimg,'deleteme.gif',1,cmap);
+
 
 %%
 gimg = zeros(size(img));
-for dd=1:nDepth
-    gimg(:,:,dd) = ieScale(img(:,:,dd),0,1)*255;
-    gimg(:,:,dd) = AddTextToImage(gimg(:,:,dd),sprintf('%.1f ',pZ(dd)/10),[2 40],'r','Arial',18);
+for ww=1:nDepth
+    gimg(:,:,ww) = ieScale(img(:,:,ww),0,1)*255;
+    gimg(:,:,ww) = AddTextToImage(gimg(:,:,ww),sprintf('%.1f ',pZ(ww)/10),[2 40],'r','Arial',18);
 end
 animatedGif(gimg,'deleteme.gif',1);
 

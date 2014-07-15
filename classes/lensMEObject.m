@@ -487,6 +487,12 @@ classdef lensMEObject <  handle
                     for ii=1:nSurfaces
                         obj.surfaceArray(ii).wave = val;
                     end
+                case 'nall'
+                    % Set the index of refraction to all the surfaces
+                    nSurfaces = obj.get('n surfaces');
+                    for ii=1:nSurfaces
+                        obj.surfaceArray(ii).n = val;
+                    end    
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end
