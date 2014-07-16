@@ -21,8 +21,8 @@ s_initISET
 
 % We will loop through the point positions.  Units are millimeters
 pX = 0; %linspace(0,3.5,1);        
-pY = linspace(0,12,3);
-pZ = -100;        % Depth range
+pY = linspace(-12,12,3);
+pZ = -115;        % Depth range
 
 % What is the normalizingZ thing inside of psCreate (BW)?
 pointSources = psCreate(pX,pY,pZ);
@@ -49,7 +49,6 @@ newWidth = 50;    % mm
 %% Describe the lens
 
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
-
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
 load(lensFile,'lens')
 [p,lens.name] = fileparts(lensFile);
@@ -95,13 +94,17 @@ for ff = 1:nFH
     oi = psfCamera.estimatePSF(nLines, jitterFlag);
     % vcAddObject(oi); oiWindow;
 
-    toFilm = true;
-    psfCamera.draw(toFilm);
     if ff == 1
         sz = size(oiGet(oi,'rgb image'));
         rgb = zeros(sz(1),sz(2),3,nFH);
         %         vcNewGraphWin; image(rgb(:,:,:,3))
+        ps1 = psfCamera;
+    elseif ff == round(nFH/2)
+        ps2 = psfCamera;
+    elseif ff == nFH
+        ps3 = psfCamera;
     end
+    
     rgb(:,:,:,ff) = oiGet(oi,'rgb image');
 end
 close(wbar);
@@ -132,6 +135,14 @@ end
 
 close(vObj);
 
+%%
+toFilm = true; nLines = 75;
+ps1.draw(toFilm,nLines);
+set(gca,'ylim',[-30 30],'xlim',[-120 100])
+ps2.draw(toFilm,nLines);
+set(gca,'ylim',[-30 30],'xlim',[-120 100])
+ps3.draw(toFilm,nLines);
+set(gca,'ylim',[-30 30],'xlim',[-120 100])
 %% Show the spread as a function of depth
 % Not implemented here.  Get it from Depth if you want it.
 % vcNewGraphWin;

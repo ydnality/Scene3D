@@ -43,15 +43,15 @@ nLines = false;      % Number of lines to draw for debug illustrations.
 wave = 500;
 % wave = 400:100:700;            % Wavelength
 wList = 1:length(wave);
-fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
+fX = 0; fY = 0; fZ = 135.5;      % mm.  Film position
 
 % Film width and height for coarse calculation
-fW = 80;  % mm
-fH = 80;  % mm
+% fW = 80;  % mm
+% fH = 80;  % mm
 
 % Film resolution (preview)
-numPixelsW = 151;
-numPixelsH = 151;
+% numPixelsW = 151;
+% numPixelsH = 151;
 
 % Film resolution (final render)
 numPixelsWHQ = 100;
@@ -108,6 +108,11 @@ for dd = 1:nDepth
         mid = round(sz(1)/2);
         img = zeros(sz(1),sz(2),nDepth);
         xLine = zeros(sz(1),nDepth);
+        ps1 = psfCamera; 
+    elseif dd == round(nDepth/2)
+        ps2 = psfCamera; 
+    elseif dd == nDepth
+        ps3 = psfCamera; 
     end
     
     [uData,g] = plotOI(oi,'illuminance hline',[mid,mid]); close(g);
@@ -156,6 +161,16 @@ mesh(abs(pZ),pos,xLine)
 xlabel('depth (mm)')
 ylabel('position (mm)')
 zlabel('Illuminance (lux)')
+
+%% Show ray traces for three depths
+
+ps1.draw(true,200); 
+set(gca,'xlim',[-100 150]);
+ps2.draw(true,200); 
+set(gca,'xlim',[-100 150]);
+ps3.draw(true,200); 
+set(gca,'xlim',[-100 150]);
+
 
 %% Show the lens ray trace
 % psfCamera.draw(200);
