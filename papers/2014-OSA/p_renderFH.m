@@ -21,8 +21,8 @@ s_initISET
 
 % We will loop through the point positions.  Units are millimeters
 pX = 0; %linspace(0,3.5,1);        
-pY = linspace(-12,12,3);
-pZ = -115;        % Depth range
+pY = linspace(-18,18,3);
+pZ = -100;        % Depth range
 
 % What is the normalizingZ thing inside of psCreate (BW)?
 pointSources = psCreate(pX,pY,pZ);
@@ -44,12 +44,12 @@ numPixelsHHQ = 300;
 
 % The film width for high quality is set manually - this
 % should be automated in the future
-newWidth = 50;    % mm
+newWidth = 75;    % mm
 
 %% Describe the lens
 
-lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
-% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
+% lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
+lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
 load(lensFile,'lens')
 [p,lens.name] = fileparts(lensFile);
 lens.set('wave',wave);
@@ -143,6 +143,15 @@ ps2.draw(toFilm,nLines);
 set(gca,'ylim',[-30 30],'xlim',[-120 100])
 ps3.draw(toFilm,nLines);
 set(gca,'ylim',[-30 30],'xlim',[-120 100])
+
+%%
+oi = ps1.oiCreate;
+vcAddObject(oi); oiWindow;
+
+
+oi = ps2.oiCreate;
+vcAddObject(oi); oiWindow;
+
 %% Show the spread as a function of depth
 % Not implemented here.  Get it from Depth if you want it.
 % vcNewGraphWin;

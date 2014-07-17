@@ -150,15 +150,10 @@ vid = VideoReader('wavePSF.avi');
 vidFrames = read(vid);
 mplay(vidFrames);
 
-%% Show the spread as a function of depth
-% Not implemented here.  Get it from Depth if you want it.
-% vcNewGraphWin;
-% mesh(abs(pZ),u2.pos,xLine)
-% ylabel('position')
-% xlabel('depth')
 
 %% Show the lens ray trace
-% psfCamera.draw(200);
+
+psfCamera.draw(200);
 
 
 %% Plot the illuminance image
