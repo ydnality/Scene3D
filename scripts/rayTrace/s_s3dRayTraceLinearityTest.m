@@ -64,13 +64,13 @@ pointSources = [ 0 5 -pointSourceDepth];  %large distance test
 pointSourceFieldHeight = 0;
 % pointSources = [ 0 0 -60];  %short distance test
 
-
 %% ray trace and save ppsf - Not sure camera should have pointSources
 
 % Use the multi element lens and film and a point source.  Combine into
 % a camera that calculates the point spread function.
 ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
 
+%%
 nLines =  100;  % Draw the ray trace if nLines > 0
 ppsf = ppsfCamera.estimatePPSF(nLines);
 

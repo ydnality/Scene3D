@@ -1,11 +1,8 @@
 classdef ppsfCameraObject <  psfCameraObject
-    % The comments here don't make sense to me.  What is going on?
-    % 
-    % It seems like the ppsf inherits the psf camera object properties.
-    % OK. This object has rays, while the basic psfCamera doesn't store
-    % rays.
+    % The superclass is psfCameraObject.
+    % This ppsfRay object is added to this subclass.
     %
-    % But there are duplicate functions here.  Is that OK?
+    %   ppsfCamera = ppsfCameraObject;
     %
     % Spatial units throughout are mm
     %
@@ -28,9 +25,14 @@ classdef ppsfCameraObject <  psfCameraObject
         ppsfRays;
     end
     
-    methods
+    methods (Access = public)
          function obj = ppsfCameraObject(varargin)
+             % Initialize so ppsf = ppsfCameraObject; will work
+             lens = [];
+             film = [];
+             pointSource = [];
              
+             % Set the parameters
              for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
                 switch p
@@ -45,20 +47,25 @@ classdef ppsfCameraObject <  psfCameraObject
                 end
              end
              
-             %this lets the psfCameraObject do error handling
-             obj = obj@psfCameraObject('lens', lens,'film', film, 'pointSource', pointSource);
+             %Use the psfCameraObject constructor
+             obj = obj@psfCameraObject('lens', lens,...
+                 'film', film, ...
+                 'pointSource', pointSource);
+             
+             % Should we clear out rays on return and only keep ppsfRays?
+             % What is the plan here?
              
          end
          
          function ppsfReturn = estimatePPSF(obj,nLines, jitterFlag)
-            % calculate the origin and direction of the exiting rays
+            % Calculate the origin and direction of the exiting rays
             %
             % nLines is the number of lines to draw on the diagram.
             % For no diagram set nLines to 0 (false).  This is the default.
             % ppsfCamera.estimatePPSF(nLines)    
             
             if ieNotDefined('nLines'), nLines = false; end
-            if (ieNotDefined('jitterFlag')), jitterFlag = false; end
+            if ieNotDefined('jitterFlag'), jitterFlag = false; end
             
             disp('-----trace source to lens-----');
             tic
@@ -88,7 +95,8 @@ classdef ppsfCameraObject <  psfCameraObject
          
          
          function obj = recordOnFilm(obj)
-             %records the psf onto film of the current ppsfRays and the
+             %records the psf onto film 
+             % The ppsfRays 
              %film
              %obj = recordOnFilm(obj)
              %
