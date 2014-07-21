@@ -1,9 +1,9 @@
-classdef pbrtFilmObject <  handle
+classdef pbrtFilmC <  handle
     % Create a pbrtFilmObject
     %
     % Initiated by property/val pairs
     %
-    %  film = pbrtFilmObject('position',val,'size',val,'wave',val,'resolution',val);
+    %  film = pbrtFilmC('position',val,'size',val,'wave',val,'resolution',val);
     %
     % Spatial units throughout are mm
     %
@@ -13,6 +13,10 @@ classdef pbrtFilmObject <  handle
     %   size       - film size in millimeters (height, width)
     %   wave       - wavelengths
     %   resolution - Number of spatial samples (pixels) in the film plane
+    %
+    % Example:
+    % wave = 500; sz = [10,10]; pos = [0 0 20]; res = [150 150 1];
+    % smallFilm = pbrtFilmC('position', pos, 'size', sz, 'wave', wave, 'resolution', res);
     %
     % AL Vistasoft Copyright 2014
     
@@ -31,7 +35,7 @@ classdef pbrtFilmObject <  handle
     methods
         
         %default constructor
-        function obj = pbrtFilmObject(varargin)
+        function obj = pbrtFilmC(varargin)
             
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});

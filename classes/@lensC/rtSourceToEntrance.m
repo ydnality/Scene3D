@@ -23,8 +23,8 @@ if ieNotDefined('jitterFlag'),     jitterFlag = false;     end
 if ieNotDefined('rtType'),         rtType = 'realistic';   end
 
 % Define rays object
-if (~ppsfObjectFlag), rays = rayObject();
-else                  rays = ppsfObject();
+if (~ppsfObjectFlag), rays = rayC();
+else                  rays = ppsfC();
 end
 
 %deal with different ray trace types

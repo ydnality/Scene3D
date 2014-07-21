@@ -29,7 +29,7 @@ s_initISET
 % What is the normalizingZ thing inside of psCreate (BW)?
 pX = 0;
 pY = 0;                % Assume radial symmetry, so only calculate X
-pZ =[-70:-1:-100];    % Depth range
+pZ =[-70:-10:-100];    % Depth range
 pointSources = psCreate(pX,pY,pZ);
 
 nDepth = length(pZ);
@@ -89,7 +89,7 @@ wbar = waitbar(0,'Depth renderings');
 for dd = 1:nDepth
     
     % Render image using new center position and width and higher resolution
-    smallFilm = pbrtFilmObject('position', [0 0 fZ], ...
+    smallFilm = pbrtFilmC('position', [0 0 fZ], ...
         'size', [newWidth newWidth], ...
         'wave', wave, ...
         'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
@@ -100,9 +100,14 @@ for dd = 1:nDepth
     % changing the size.
     waitbar(dd/nDepth,wbar,'Estimating PSFs');
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
-    psfCamera = psfCameraObject('lens', lens, 'film', smallFilm, 'pointsource', pointSources{ff,dd});
-    oi = psfCamera.estimatePSF(nLines, jitterFlag);
     
+    % Create the camera, calculate the PSF and create an OI
+    psfCamera = psfCameraC('lens', lens, 'film', smallFilm, 'pointsource', pointSources{ff,dd});
+    psfCamera.estimatePSF(nLines, jitterFlag);
+    oi = psfCamera.oiCreate;
+    % vcAddObject(oi); oiWindow;
+    
+    % Save the point spread data for plotting
     if dd == 1
         sz = oiGet(oi,'size'); 
         mid = round(sz(1)/2);
@@ -172,22 +177,18 @@ ps3.draw(true,200);
 set(gca,'xlim',[-100 150]);
 
 
-%% Show the lens ray trace
-% psfCamera.draw(200);
-
 %% Record on film
-% psfCamera.recordOnFilm();
-% 
-% % Show the point spread as an image
-% oi = psfCamera.oiCreate;
-% img = oiGet(oi,'rgb image');
-% vcNewGraphWin; image(img); axis image
-% 
-% % Bring up the pointspread in an optics window
-% psfCamera.showFilm();
-% 
-% % Plot the illuminance image
-% plotOI(oi,'illuminance mesh linear');
+psfCamera.recordOnFilm();
+
+% Show the point spread as an image
+oi = psfCamera.oiCreate;
+
+% Plot the illuminance image
+plotOI(oi,'illuminance mesh linear');
+
+% Bring up the oiWindow;
+vcAddObject(oi); oiWindow;
+
 
 %% Plenoptic
 %

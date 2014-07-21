@@ -62,7 +62,6 @@ lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 load(lensFile,'lens')
 [p,lens.name] = fileparts(lensFile);
 
-lens.apertureMiddleD = 5;
 % Linearly space the index of refraction, just as an example.
 W  = [400, 700];
 nW = [1.720, 1.5500];
@@ -88,7 +87,7 @@ for ww = 1:nWave
     lens.set('n all',n);
     
     % Render image using new center position and width and higher resolution
-    smallFilm = pbrtFilmObject('position', [fX fY fZ], ...
+    smallFilm = pbrtFilmC('position', [fX fY fZ], ...
         'size', [newWidth newWidth], ...
         'wave', wave(ww), ...
         'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
@@ -98,11 +97,12 @@ for ww = 1:nWave
     % This isn't good.  We need to change the sampling density without
     % changing the size.
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
-    psfCamera = psfCameraObject('lens', lens, ...
+    psfCamera = psfCameraC('lens', lens, ...
         'film', smallFilm, ...
         'pointsource', pointSources{1,1});
     
-    oi = psfCamera.estimatePSF(nLines, jitterFlag);
+    psfCamera.estimatePSF(nLines, jitterFlag);
+    oi = psfCamera.oiCreate;
     if ww == 1
         sz = size(oiGet(oi,'rgb image'));
         rgb = zeros(sz(1),sz(2),3,nWave);
@@ -151,13 +151,9 @@ vidFrames = read(vid);
 mplay(vidFrames);
 
 
-%% Show the lens ray trace
+%% Show the camera/lens ray trace
 
-psfCamera.draw(200);
-
-
-%% Plot the illuminance image
-% plotOI(oi,'illuminance mesh linear');
+psfCamera.draw(true,150);
 
 %% Plenoptic
 %

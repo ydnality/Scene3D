@@ -1,4 +1,4 @@
-classdef ppsfCameraObject <  psfCameraObject
+classdef ppsfCameraC <  psfCameraC
     % The superclass is psfCameraObject.
     % This ppsfRay object is added to this subclass.
     %
@@ -26,7 +26,7 @@ classdef ppsfCameraObject <  psfCameraObject
     end
     
     methods (Access = public)
-         function obj = ppsfCameraObject(varargin)
+         function obj = ppsfCameraC(varargin)
              % Initialize so ppsf = ppsfCameraObject; will work
              lens = [];
              film = [];
@@ -48,7 +48,7 @@ classdef ppsfCameraObject <  psfCameraObject
              end
              
              %Use the psfCameraObject constructor
-             obj = obj@psfCameraObject('lens', lens,...
+             obj = obj@psfCameraC('lens', lens,...
                  'film', film, ...
                  'pointSource', pointSource);
              

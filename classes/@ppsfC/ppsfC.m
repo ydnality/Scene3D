@@ -1,4 +1,4 @@
-classdef ppsfObject < rayObject
+classdef ppsfC < rayC
     % Create a plenoptic point spread function object
     %
     %   ppsf = ppsfObject(origin,direction,wavelength)
@@ -6,7 +6,7 @@ classdef ppsfObject < rayObject
     % This is related to ray objects, must explain more here.
     %
     % Example:
-    %   ppsf = ppsfObject;
+    %   ppsf = ppsfC;
     %
     % TODO: in order to save memory, we anticipate that all the
     % intersection data members will contain a Z intercept separately, and
@@ -33,7 +33,7 @@ classdef ppsfObject < rayObject
     end
     
     methods
-        function obj = ppsfObject(varargin)
+        function obj = ppsfC(varargin)
             % Constructor
             
             % Set up defaults.
@@ -65,7 +65,7 @@ classdef ppsfObject < rayObject
             if ieNotDefined('waveIndex'),  waveIndex = 1:length(wave);
             end
             
-            obj = expandWavelengths@rayObject(obj, wave, waveIndex);
+            obj = expandWavelengths@rayC(obj, wave, waveIndex);
                        
             obj.aEntranceInt.XY = repmat(obj.aEntranceInt.XY, [length(wave) 1]);  %added for ppsfObject
         end
@@ -80,7 +80,7 @@ classdef ppsfObject < rayObject
             
             %if we are projecting onto the z = 0 plane, assign the exit
             %pupil intersection data member
-            projectOnPlane@rayObject(obj, planeLocation);
+            projectOnPlane@rayC(obj, planeLocation);
             
             %special case for z = 0 plane - then we modify the ppsf
             %structure for exit aperture intersection position

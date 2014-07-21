@@ -1,7 +1,7 @@
-classdef lensMEObject <  handle
+classdef lensC <  handle
     % Create a multiple element lens object
     %
-    %   lens = lensMEObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center);  
+    %   lens = lensC(elOffset, elRadius, elAperture, elN, aperture, focalLength, center);  
     %
     % Distance units, when not specified, are millimeters.
     %
@@ -39,7 +39,7 @@ classdef lensMEObject <  handle
     properties
         name = 'default';
         type = 'multi element lens';            % We might be removing this soon (why? - BW)
-        surfaceArray = lensSurfaceObject();     % Set of spherical surfaces and apertures
+        surfaceArray = surfaceC();     % Set of spherical surfaces and apertures
         diffractionEnabled = false;% Not implemented yet
         wave = 400:50:700;         % nm
         focalLength = 50;          % mm, focal length of multi-element lens
@@ -54,7 +54,7 @@ classdef lensMEObject <  handle
     methods (Access = public)
         %Multiple element lens constructor
         %TODO: error handling
-        function obj = lensMEObject(varargin)
+        function obj = lensC(varargin)
             %  surfaceList = lensReadFile(fName);
             %  lensME = lensMEObject('surfaceArray',surfList);
             
@@ -146,7 +146,7 @@ classdef lensMEObject <  handle
             
         end
         
-       
+    end
         %%  Probably no longer used
         %
         %         function numEls = numEls(obj)
@@ -157,40 +157,7 @@ classdef lensMEObject <  handle
         
         %% Draw the spherical and aperture components
              
-        function obj = rtThroughLens(obj, rays, nLines, rtType)
-            % lens.rtThroughLens(rays,true/false)
-            % 
-            % Inputs:  lens object,rays at the entrance aperture,
-            % calculates the rays at the exit aperture.  The exiting rays
-            % are represented by the 
-            %
-            % On return, the input variable rays, which starts out
-            % representing the rays at the entrance aperture, is changed to
-            % be the position and direction of the rays at the exit
-            % aperture.
-            %
-            % Simplify the code.
-            % Also, why is there similar code in ppsfCamera?
-            
-            % The order is from furthest from film to film, which is also
-            % how the rays pass through the optics.
-            
-            if (ieNotDefined('nLines')), nLines = false; end
-            if (ieNotDefined('rtType')), rtType = 'realistic'; end
-             rtType = ieParamFormat(rtType);
-             switch rtType
-                 case 'ideal'
-                     obj = obj.rtIdealThroughLens(rays, nLines);
-                 case 'realistic'
-                     obj = obj.rtRealisticThroughLens( rays, nLines);
-                 case 'linear'
-                     error ('not implemented yet');
-                 otherwise
-                     error ('unknown ray trace type');
-             end
-        end
         
-    end
     
     % Not sure why these are private. (BW).
     methods (Access = private)
@@ -300,14 +267,14 @@ classdef lensMEObject <  handle
 
             
             %create array of surfaces
-            obj.surfaceArray = lensSurfaceObject();
+            obj.surfaceArray = surfaceC();
             
             %compute surface array centers
             centers = obj.centersCompute(sOffset, sRadius);
             
             for i = 1:length(sOffset)
                 obj.surfaceArray(i) = ...
-                    lensSurfaceObject('sCenter', centers(i, :), ...
+                    surfaceC('sCenter', centers(i, :), ...
                     'sRadius', sRadius(i), ...
                     'apertureD', sAperture(i), 'n', sN(i, :));
             end
@@ -537,9 +504,9 @@ classdef lensMEObject <  handle
                     obj.rtHURB(rays, intersectPosition, curEl.apertureD/2);  
                 end
                 
-                xlabel('Depth (mm)');
-                ylabel('Y field height (mm)')
-                % iterate previous z
+                %  xlabel('Depth (mm)');
+                %  ylabel('Y field height (mm)')
+                %  % iterate previous z
                 % prevSurfaceZ = prevSurfaceZ + curEl.offset;
             end
         end

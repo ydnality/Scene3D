@@ -1,7 +1,13 @@
 function obj =  draw(obj)
-% Draw the the multi-element lens in a new graph window
+% Draw the the multi-element lens in a graph window
 %
-% Helpful for debugging
+%   lens.draw
+%
+% See also:  psfCamera.draw
+%  That calls this lens draw and also draws the rays for the point spread,
+%  I think.
+%
+% AL/BW Vistasoft Team, Copyright 2014
 
 % Create the figure and set the parameters
 vcNewGraphWin;
@@ -109,4 +115,5 @@ for lensEl = 1:nSurfaces
     end
     
 end
+
 end

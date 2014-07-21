@@ -77,7 +77,7 @@ for ff = 1:nFH
     waitbar(ff/nFH,wbar,sprintf('Field height %d',ff));
     
     % Render image using new center position and width and higher resolution
-    smallFilm = pbrtFilmObject('position', [fX fY fZ], ...
+    smallFilm = pbrtFilmC('position', [fX fY fZ], ...
         'size', [newWidth newWidth], ...
         'wave', wave, ...
         'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
@@ -87,11 +87,12 @@ for ff = 1:nFH
     % This isn't good.  We need to change the sampling density without
     % changing the size.
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
-    psfCamera = psfCameraObject('lens', lens, ...
+    psfCamera = psfCameraC('lens', lens, ...
         'film', smallFilm, ...
         'pointsource', pointSources{ff,dd});
     
-    oi = psfCamera.estimatePSF(nLines, jitterFlag);
+    psfCamera.estimatePSF(nLines, jitterFlag);
+    oi = psfCamera.oiCreate;
     % vcAddObject(oi); oiWindow;
 
     if ff == 1

@@ -1,15 +1,15 @@
-classdef lensSurfaceObject <  handle
+classdef surfaceC <  handle
     % Create a lens surface object
     %
-    %   lens = lensSurfaceObject(parameter, value, ....);
+    %   lens = surfaceC(parameter, value, ....);
     %
     % Presently we only represent spherical surfaces and apertures.  Multi
-    % element lenses (lensMEObject) consist of a set of these surfaces and
+    % element lenses (lensC) consist of a set of these surfaces and
     % apertures.
     %
     % This object is meant to be a class within the multi-element lens
     % objects, not a meant to be a stand-alone object.  This object
-    % contains basic properties common to almost all lenses.  
+    % contains basic properties common to almost all lenses.
     %
     % get - beginning of a get function
     % calculateApertureSamples - outputs samples on the aperture to aid in
@@ -19,6 +19,8 @@ classdef lensSurfaceObject <  handle
     %    apertured, sradius, scenter, wave, zpos, n
     %
     % Examples:
+    %    s = surfaceC;
+    %    s = surfaceC('sRadius',2,'sCenter',[0 0 -2]);
     %
     % AL Vistasoft Copyright 2014
     
@@ -32,13 +34,13 @@ classdef lensSurfaceObject <  handle
         sCenter = [0 0 0];          % Sphere's center position
         wave = 400:50:700;          % nm
         apertureD = 1;              % mm diameter
-        n =  ones(7,1)              %index of refraction    
+        n =  ones(7,1)              %index of refraction
     end
     
-    methods
+    methods (Access = public)
         
         % %%%%% Lens surface object constructor %%%%%%%
-        function obj = lensSurfaceObject(varargin)
+        function obj = surfaceC(varargin)
             %zpos must be assigned AFTER sCenter is assigned (after sCenter
             %in parameter declaration order).  Zpos assumes that lenses are
             %centered on z-axis.
@@ -61,7 +63,7 @@ classdef lensSurfaceObject <  handle
                     case 'wave'
                         obj.wave = varargin{ii+1};
                         
-                    case {'zpos','zposition'} 
+                    case {'zpos','zposition'}
                         %**MUST be assigned after sCenter is assigned
                         %assumes that lenses are centered on z axis
                         zPos = varargin{ii+1};
@@ -97,17 +99,6 @@ classdef lensSurfaceObject <  handle
                     error('Unknown parameter %s\n',pName);
             end
         end
-        
-        % Could be named sphereCenter()
-        function center = centerComputeFromZSRadius(obj, zPos)
-            %computes the spherical center given the z position and the
-            %spherical radius.
-            
-            center = zPos + obj.sRadius;
-        end
-        
-        
-
     end
     
 end

@@ -32,7 +32,7 @@ s_initISET
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
-film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:50:700);
+film = pbrtFilmC('position', [0 0 60 ],'size', [10 10], 'wave', 400:50:700);
 
 %% lens properties
 % diffractionEnabled = false;
@@ -47,7 +47,7 @@ film = pbrtFilmObject('position', [0 0 60 ],'size', [10 10], 'wave', 400:50:700)
 lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
 nSamples = 151;
 apertureMiddleD = 10;   % mm
-lens = lensMEObject('apertureSample', [nSamples nSamples], ...
+lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
 
@@ -68,7 +68,7 @@ pointSourceFieldHeight = 0;
 
 % Use the multi element lens and film and a point source.  Combine into
 % a camera that calculates the point spread function.
-ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
+ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources);
 
 %%
 nLines =  100;  % Draw the ray trace if nLines > 0
@@ -78,9 +78,9 @@ ppsf = ppsfCamera.estimatePPSF(nLines);
 ppsfCamera.recordOnFilm();
 
 % Bring up the pointspread in an optics window
-oi = ppsfCamera.showFilm();
-% vcAddObject(oi); oiWindow;
-% plotOI(oi,'illuminance mesh log');
+oi = ppsfCamera.oiCreate;
+vcAddObject(oi); oiWindow;
+plotOI(oi,'illuminance mesh log');
 
 %% Calculate light field at the entrance pupil plane and exit pupil - estimate the linear transform
 
@@ -207,28 +207,4 @@ end
 %
 %     % Trace the rays lens to sensor
 %     modifyRays.recordOnFilm(ppsfCamera.film);
-
-%% Show the images
-
-% vcNewGraphWin;
-% imshow(film.image/ max(film.image(:)));
-
-%         oi = oiCreate;
-%         oi = initDefaultSpectrum(oi);
-%         oi = oiSet(oi, 'wave', film.wave);
-%         oi = oiSet(oi,'photons',film.image);
-%
-%
-%         optics = oiGet(oi,'optics');
-%         optics = opticsSet(optics,'focal length',lens.focalLength/1000);
-%         optics = opticsSet(optics,'fnumber', lens.focalLength/(2*1));
-%         oi = oiSet(oi,'optics',optics);
-%         hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
-%         oi = oiSet(oi,'hfov', hfov);
-%
-%         temp = film.position;
-%         filmDistance = temp(3);
-%         oi = oiSet(oi, 'name', ['filmDistance: ' num2str(filmDistance)]);
-%         vcAddAndSelectObject(oi); oiWindow;
-
 
