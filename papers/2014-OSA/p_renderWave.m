@@ -159,7 +159,7 @@ psfCamera.draw(true,150);
 %
 % Some bug in here.
 %
-% ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources(ff,dd));
+% ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources(ff,dd));
 %
 % nLines =  100;  % Draw the ray trace if nLines > 0
 % ppsf = ppsfCamera.estimatePPSF(nLines);

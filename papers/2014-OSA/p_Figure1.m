@@ -74,13 +74,13 @@ fLength = 50;           % Todo: We should derive this using the lensmaker's equa
 % For multiple lenses, we add up the power using something from the web
 
 % Populate lens surface array ussing given property arrays
-lensSurfaceArray = lensSurfaceObject();
+lensSurfaceArray = surfaceC();
 for i = 1:length(zPos)
-    lensSurfaceArray(i) = lensSurfaceObject('sRadius', radius(i), 'apertureD', aperture(i), 'zPos', zPos(i), 'n', n(:, i));
+    lensSurfaceArray(i) = surfaceC('sRadius', radius(i), 'apertureD', aperture(i), 'zPos', zPos(i), 'n', n(:, i));
 end
 
 % Declare lens
-lens = lensMEObject('surfaceArray', lensSurfaceArray, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
+lens = lensC('surfaceArray', lensSurfaceArray, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
 lens.name = 'Two surface';
 
 lens.apertureMiddleD = 4;
@@ -92,8 +92,8 @@ oiList = cell(1,size(pointSources, 1))
 for curInd = 1:size(pointSources, 1)
 % for curInd = 1:1
     %---initial low quality render
-    film = pbrtFilmObject('position', [fX fY fZ], 'size', [fW fH], 'wave', wave, 'resolution', [numPixelsW numPixelsH length(wave)]);
-    psfCamera = psfCameraObject('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
+    film = pbrtFilmC('position', [fX fY fZ], 'size', [fW fH], 'wave', wave, 'resolution', [numPixelsW numPixelsH length(wave)]);
+    psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
     oi = psfCamera.estimatePSF();
     vcAddObject(oi); oiWindow;
     
@@ -114,10 +114,10 @@ for curInd = 1:size(pointSources, 1)
     centroidY = sum(sum(flippedGrayImage .* filmDistanceY));
 
     %---re-render image under new center position and width
-    film = pbrtFilmObject('position', [centroidX centroidY fZ], 'size', [newWidth newWidth], 'wave', wave, 'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
+    film = pbrtFilmC('position', [centroidX centroidY fZ], 'size', [newWidth newWidth], 'wave', wave, 'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
     %use more samples this time for a high quality render
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
-    psfCamera = psfCameraObject('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
+    psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
     oiList{curInd} = psfCamera.estimatePSF(nLines, jitterFlag);
     vcAddObject(oiList{curInd}); oiWindow;
 end

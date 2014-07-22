@@ -6,7 +6,7 @@ classdef psfCameraC <  handle
     % AL Vistasoft Copyright 2014
     
     % Figure out the relationship between these rays and the ppsfRays in
-    % the ppsfCameraObject.
+    % the ppsfCameraC.
     properties
         lens;
         film;
@@ -18,7 +18,7 @@ classdef psfCameraC <  handle
         
         %default constructor
         function obj = psfCameraC(varargin)
-            % psfCameraObject('lens',lens,'film',film,'point source',point);
+            % psfCameraC('lens',lens,'film',film,'point source',point);
             
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});

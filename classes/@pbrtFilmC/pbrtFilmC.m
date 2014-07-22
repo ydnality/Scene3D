@@ -1,5 +1,5 @@
 classdef pbrtFilmC <  handle
-    % Create a pbrtFilmObject
+    % Create a pbrtFilmC
     %
     % Initiated by property/val pairs
     %
@@ -22,7 +22,7 @@ classdef pbrtFilmC <  handle
     
     % This object has no methods yet.  What is going on?
     % What does it do? It gets attached to other objects that need this
-    % information, like psfCameraObject.
+    % information, like psfCameraC.
     
     properties
         position = [ 0 0 100];

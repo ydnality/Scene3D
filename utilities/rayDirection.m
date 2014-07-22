@@ -3,7 +3,7 @@ function d = rayDirection(oPoints,ePoints)
 %
 %   d = rayDirection(origin,endpoints)
 %
-% See also: lensMEObject
+% See also: lensC
 %
 % AL/BW (c) Vistasoft Team, 2014
 

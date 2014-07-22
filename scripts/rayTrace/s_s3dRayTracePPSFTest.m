@@ -26,7 +26,7 @@ pointSources = [ 3 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -102,7 +102,7 @@ modifyRays.apertureSamples.Y(outsideAperture) = [];
 
 film = cell(1,3);
 %first try at 36.4 sensor distance
-film{1} = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{1} = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic
@@ -110,7 +110,7 @@ modifyRays.recordOnFilm(film{1});
 toc
 
 %38 sensor distance
-film{2} = pbrtFilmObject([0 0 37],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{2} = pbrtFilmC([0 0 37],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic
@@ -118,7 +118,7 @@ modifyRays.recordOnFilm(film{2});
 toc
 
 %35 sensor distance
-film{3} = pbrtFilmObject([0 0 35.5],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{3} = pbrtFilmC([0 0 35.5],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic

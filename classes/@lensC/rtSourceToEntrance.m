@@ -11,7 +11,7 @@ function rays = rtSourceToEntrance(obj, pointSource, ppsfObjectFlag, jitterFlag,
 % The rays will be "expanded" later to save on computations to
 % handle wavelength differences.
 %
-% The object is a lensMEObject
+% The object is a lensC
 %     pointSource    -  a 3 vector
 %     ppsfObjectFlag -  specifies whether we are computing the
 %     plenoptic PSF (pPSF) or not.  Default: false (PSF only)

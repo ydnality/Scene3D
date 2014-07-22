@@ -44,16 +44,16 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties
-    film = pbrtFilmObject('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
+    film = pbrtFilmC('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
 
     %% lens properties
     %     diffractionEnabled = false;   
     lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
-    lens = lensMEObject('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
+    lens = lensC('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
     lens.draw();
 
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
+    ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources);
     lowerRightRays = ppsfCamera.estimatePPSF();
     ppsfCamera.recordOnFilm();   % Could be on the camera, not the ppsf
     ppsfCamera.showFilm();
@@ -64,16 +64,16 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
+    film = pbrtFilmC('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
 
     %% lens properties
     %     diffractionEnabled = false;   
     lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
-    lens = lensMEObject('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
+    lens = lensC('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
     lens.draw();
     
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
+    ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources);
     lowerLeftRays = ppsfCamera.estimatePPSF();
     ppsfCamera.recordOnFilm();   % Could be on the camera, not the ppsf
     ppsfCamera.showFilm();
@@ -84,15 +84,15 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
+    film = pbrtFilmC('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
 
     %% lens properties
     lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
-    lens = lensMEObject('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
+    lens = lensC('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
     lens.draw();
     
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
+    ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources);
     upperRightRays = ppsfCamera.estimatePPSF();
     ppsfCamera.recordOnFilm();   % Could be on the camera, not the ppsf
     ppsfCamera.showFilm();
@@ -102,15 +102,15 @@ s_initISET
     pointSources = upperLeftPosition;  %large distance test
  
     %% film properties -
-    film = pbrtFilmObject('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
+    film = pbrtFilmC('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
 
     %% lens properties
     lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
-    lens = lensMEObject('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
+    lens = lensC('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
     lens.draw();
     
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
+    ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources);
     upperLeftRays = ppsfCamera.estimatePPSF();
     ppsfCamera.recordOnFilm();   % Could be on the camera, not the ppsf
     ppsfCamera.showFilm();   
@@ -120,15 +120,15 @@ s_initISET
     pointSources = newPosition;  %large distance test
 
        %% film properties -
-    film = pbrtFilmObject('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
+    film = pbrtFilmC('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
 
     %% lens properties
     lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
-    lens = lensMEObject('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
+    lens = lensC('apertureSample', [301 301], 'fileName', lensFileName, 'apertureMiddleD', 16);
     lens.draw();
     
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject('lens', lens, 'film', film, 'pointSource', pointSources);
+    ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources);
     middleRays = ppsfCamera.estimatePPSF();
     ppsfCamera.recordOnFilm();   % Could be on the camera, not the ppsf
     ppsfCamera.showFilm();
@@ -182,7 +182,7 @@ s_initISET
     %% record on film
     filmCell = cell(1,1);
     %first try at 36.4 sensor distance
-    film = pbrtFilmObject('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
+    film = pbrtFilmC('position', [0 0 40 ],'size', [10 10], 'wave', 400:10:700);   %large distance
     filmCell{1} = film;
     %intersect with "film" and add to film
     disp('-----record on film-----');

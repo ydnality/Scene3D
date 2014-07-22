@@ -32,7 +32,7 @@ classdef lensC <  handle
     % Todo: consider a set function for better error handling.
     %
     % Example:
-    %   lensMEObject()
+    %   lensC()
     %
     % AL Vistasoft Copyright 2014
     
@@ -56,7 +56,7 @@ classdef lensC <  handle
         %TODO: error handling
         function obj = lensC(varargin)
             %  surfaceList = lensReadFile(fName);
-            %  lensME = lensMEObject('surfaceArray',surfList);
+            %  lensME = lensC('surfaceArray',surfList);
             
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
@@ -304,7 +304,7 @@ classdef lensC <  handle
             % following our analysis of the lens ABCD matrices and
             % lightfields.
             %
-            % See also psfCameraObject.estimatePSF
+            % See also psfCameraC.estimatePSF
             %   In that routine, one can ask that the lines be extended to
             %   the film plane by setting a flag.  The flag adds a final
             %   surface in the film plane to the surfaceArray 

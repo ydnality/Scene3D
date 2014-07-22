@@ -28,7 +28,10 @@ obj.lens.rtThroughLens(obj.rays, nLines);
 % Something like this?  Extend the rays to the film plane?
 % if nLines > 0; obj.rays.draw(obj.film); end
 
-%intersect with "film" and add to film
+% intersect with "film" and add to film
 obj.rays.recordOnFilm(obj.film);
 
+% Create an oi. (Needed so that oi can be returned as stated from function
+% contract. AL)
+oi = obj.oiCreate();
 end
