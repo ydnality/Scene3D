@@ -20,83 +20,57 @@ for lensEl = 1:nSurfaces
     
     % Get the current surface element
     curEl = obj.surfaceArray(lensEl);
-    
-    if (curEl.sRadius ~= 0)
-        %% Simpler code
-        testme = false;
-        if testme
-            [z,y] = circlePoints([curEl.sCenter,0],curEl.sRadius);
-            if curEl.sRadius > 0
-                l = (abs(y) < curEl.apertureD/2) & (z < curEl.sCenter(3));
-            else
-                l = (abs(y) < curEl.apertureD/2) & (z > curEl.sCenter(3));
-            end
-            p = plot(z(l),y(l),'k.'); set(p,'markersize',1); hold on;
-        else
-            % Draw a spherical element
-            
-            % Get previous and next elements, within bounds
-            nextEl = obj.surfaceArray(min(lensEl+1, end));
-            prevEl = obj.surfaceArray(max(lensEl-1, 1));
-            
-            % Lens elements do NOT always end when the neighboring
-            % element begins.  this allows for a fudge factor.  This
-            % won't matter too much because the aperture radius will
-            % be the limiting factor. (I don't understand this
-            % comment, other than this is a fudge factor somehwere.
-            % BW).
-            delta = 10;
-            
-            % Determine the minimum/maximum z-positions for the
-            % curve. Which side has the position depends on the
-            % sign of the curvature
-            if (curEl.sRadius > 0 )
-                % The fudge factor is used here
-                leftBoundary  = curEl.get('zIntercept');
-                rightBoundary = nextEl.get('zIntercept') + delta;
-            else
-                % Here is fudge again
-                leftBoundary  = prevEl.get('zIntercept') - delta;
-                rightBoundary = curEl.get('zIntercept');
-            end
-            
-            % This is the range of z values we will consider.
-            zPlot = linspace(leftBoundary, rightBoundary, 100);
-            
-            
-            % Solve for the points on the curve for this lens
-            % surface element.  We are drawing in the z-y plane
-            % because the z-axis is the horizontal axis, and the
-            % y-axis is the vertical. The center of the sphere is
-            % at (0,0,z), so the formula is
-            %
-            %     r^2 = (x)^2 + (y)^2 + (z - c)^2
-            %
-            % But since we are in the x=0 plane this simplifies to
-            %
-            %   r^2 = (y)^2 + (z - c)^2
-            %
-            % We solve for y in terms of z.
-            % We get the positive and negative y-values
-            yPlot  =  sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
-            yPlotN = -sqrt(curEl.sRadius^2 - (zPlot - curEl.sCenter(3)) .^2);
-            
-            % NOTE: We may have problems with a concave lens
-            % because of how we are choosing the z range - but
-            % these are rare.
-            %
-            % We will plot for the range of y values that are less
-            % than the radius of the spherical surface.
-            withinRange = (yPlot < curEl.apertureD/2);
-            
-            % The positive solutions
-            l = line(zPlot(withinRange), yPlot(withinRange));
-            set(l,'linewidth',lWidth,'color',lColor);
-            
-            % The negative solutions
-            l = line(zPlot(withinRange), yPlotN(withinRange));
-            set(l,'linewidth',lWidth,'color',lColor);
+    apertureD = curEl.apertureD;
+    c = curEl.sCenter(3);
+    r = curEl.sRadius;
+    if (r ~= 0)
+         
+        % One edge of the lens sits at this z intercept
+        zIntercept = curEl.get('z intercept');
+        
+        % Solve for the points on the curve for this lens
+        % surface element.  We are drawing in the z-y plane
+        % because the z-axis is the horizontal axis, and the
+        % y-axis is the vertical. The center of the sphere is
+        % at (0,0,z), so the formula is
+        %
+        %     r^2 = (x)^2 + (y)^2 + (z - c)^2
+        %
+        % But since we are in the x=0 plane this simplifies to
+        %
+        %   r^2 = (y)^2 + (z - c)^2
+        %
+        % We solve for y in terms of z.
+        
+        % Solve for the Z-range we will need
+        %  r^2 = (apertureD)^2 + (Zedge - c)^2
+        %  zEdge = sqrt(r^2 - (apertureD)^2 ) + c
+        %
+        % There will be a positive and negative solution
+        zEdgeN = -sqrt(r^2 - (apertureD/2)^2 ) + c;
+        zEdgeP =  sqrt(r^2 - (apertureD/2)^2 ) + c;
+        
+        % Choose the zEdge that is closer to the zIntercept.
+        zEdge = zEdgeN;
+        if abs(zEdgeN - zIntercept) > abs(zEdgeP - zIntercept)
+            zEdge = zEdgeP;
         end
+        
+        % This is the range of z values we will consider.
+        zPlot = linspace(zIntercept, zEdge, 100);
+        
+        % We get the positive and negative y-values
+        yPlot  =  sqrt(r^2 - (zPlot - c) .^2);
+        yPlotN = -sqrt(r^2 - (zPlot - c) .^2);
+        
+        
+        % The positive solutions
+        line('xData',zPlot, 'yData',yPlot,...
+            'color',lColor,'linewidth',lWidth);
+        
+        % The negative solutions
+        line('xData',zPlot, 'yData',yPlotN,...
+            'color',lColor,'linewidth',lWidth);
         
     else
         %Draw the aperture opening if radius = 0

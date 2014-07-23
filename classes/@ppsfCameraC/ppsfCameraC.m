@@ -57,43 +57,6 @@ classdef ppsfCameraC <  psfCameraC
              
          end
          
-         function ppsfReturn = estimatePPSF(obj,nLines, jitterFlag)
-            % Calculate the origin and direction of the exiting rays
-            %
-            % nLines is the number of lines to draw on the diagram.
-            % For no diagram set nLines to 0 (false).  This is the default.
-            % ppsfCamera.estimatePPSF(nLines)    
-            
-            if ieNotDefined('nLines'), nLines = false; end
-            if ieNotDefined('jitterFlag'), jitterFlag = false; end
-            
-            disp('-----trace source to lens-----');
-            tic
-            ppsfCFlag = true;
-            obj.ppsfRays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag);
-            toc
-            
-            %duplicate the existing rays, and creates one for each
-            %wavelength
-            disp('-----expand wavelenghts-----');
-            tic
-            obj.ppsfRays.expandWavelengths(obj.lens.wave);
-            toc
-
-            %lens intersection and raytrace
-            disp('-----rays trace through lens-----');
-            tic
-            obj.lens.rtThroughLens(obj.ppsfRays,nLines);
-            toc
-            
-            %project rays onto the z = 0 plane for a proper light field
-            obj.ppsfRays.projectOnPlane(0);
-            obj.ppsfRays.pointSourceLocation = obj.pointSource;
-            ppsfReturn = obj.ppsfRays;
-            
-         end
-         
-         
          function obj = recordOnFilm(obj)
              %records the psf onto film 
              % The ppsfRays 
