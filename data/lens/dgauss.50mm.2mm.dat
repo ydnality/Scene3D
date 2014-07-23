@@ -1,7 +1,8 @@
 # D-GAUSS F/2 22deg HFOV			
 # US patent 2,673,491 Tronnier"			
 # Moden Lens Design, p.312"			
-# Scaled to 50 mm from 100 mm
+# Scaled to 50 mm from 100 mm.
+# Changed the final aperture to 2mm from the original 20mm.
 #    focal length (in mm)     
 50			
 #    radius	 axpos	N	aperture
@@ -15,4 +16,4 @@
 40.77	6.065	1.658	20
 -20.385	0.19	1	20
 437.065	3.22	1.717	20
--39.73	0	1	20
+-39.73	0	1	2

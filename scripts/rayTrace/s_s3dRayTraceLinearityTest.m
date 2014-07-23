@@ -32,7 +32,9 @@ s_initISET
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
-film = pbrtFilmC('position', [0 0 60 ],'size', [10 10], 'wave', 400:50:700);
+film = pbrtFilmC('position', [0 0 20 ], ...
+    'size', [10 10], ...
+    'wave', 400:50:700);
 
 %% lens properties
 % diffractionEnabled = false;
@@ -44,7 +46,7 @@ film = pbrtFilmC('position', [0 0 60 ],'size', [10 10], 'wave', 400:50:700);
 %      object.
 
 %initialize and read multi-element lens from file
-lensFileName = fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat');
+lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 nSamples = 151;
 apertureMiddleD = 10;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
@@ -56,11 +58,13 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
 
 %% point sources (units are mm)
 
+% TODO:  Point in the psCreate here ..
+
 % Millimeters from last surface.  Always at least the lens thickness
 % away.
 pointSourceDepth = 100;   % What is happening when 10,000?
 pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
-pointSources = [ 0 5 -pointSourceDepth];  %large distance test
+pointSources = [ 0 -30 -pointSourceDepth];  %large distance test
 pointSourceFieldHeight = 0;
 % pointSources = [ 0 0 -60];  %short distance test
 

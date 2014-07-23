@@ -1,7 +1,7 @@
-function oi = estimatePSF(obj,nLines, jitterFlag)
+function estimatePSF(obj,nLines, jitterFlag)
 % Estimate the PSF of a psfCamera
 %
-%   oi = psfCamera.estimatePSF(obj)
+%   psfCamera.estimatePSF(obj)
 %
 % The camera has a point source, lens, and film.
 %
@@ -31,7 +31,4 @@ obj.lens.rtThroughLens(obj.rays, nLines);
 % intersect with "film" and add to film
 obj.rays.recordOnFilm(obj.film);
 
-% Create an oi. (Needed so that oi can be returned as stated from function
-% contract. AL)
-oi = obj.oiCreate();
 end

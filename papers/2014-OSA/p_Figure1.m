@@ -94,7 +94,8 @@ for curInd = 1:size(pointSources, 1)
     %---initial low quality render
     film = pbrtFilmC('position', [fX fY fZ], 'size', [fW fH], 'wave', wave, 'resolution', [numPixelsW numPixelsH length(wave)]);
     psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
-    oi = psfCamera.estimatePSF();
+    psfCamera.estimatePSF();
+    oi = psfCamera.oiCreate;
     vcAddObject(oi); oiWindow;
     
     %---figure out center pos by calculating the centroid of gray image
@@ -118,7 +119,8 @@ for curInd = 1:size(pointSources, 1)
     %use more samples this time for a high quality render
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
     psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
-    oiList{curInd} = psfCamera.estimatePSF(nLines, jitterFlag);
+    psfCamera.estimatePSF(nLines, jitterFlag);
+    oiList{curInd} = psfCamera.oiCreate;
     vcAddObject(oiList{curInd}); oiWindow;
 end
 
