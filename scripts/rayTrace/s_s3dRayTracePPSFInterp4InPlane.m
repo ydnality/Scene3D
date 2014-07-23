@@ -139,7 +139,7 @@ s_initISET
     %perhaps make this into a function for ppsfrays....
     %ppsfRays.interpolate(point1, ppsf1, point2, ppsf2, point3, ppsf3, point4, ppsf4);
     
-    averageRays = ppsfObject();
+    averageRays = ppsfC();
     averageRays.makeDeepCopy(lowerRightRays);
     %average between the first 2 ppsfs
     averageRays.origin = (lowerRightWeight * lowerRightRays.origin + lowerLeftWeight* lowerLeftRays.origin + upperLeftWeight * upperLeftRays.origin + upperRightWeight * upperRightRays.origin);
@@ -159,7 +159,7 @@ s_initISET
     % ray-trace the last bit - from lens to sensor
     %% modify the film and see the consequences on the PSF - these computations
     %should be very fast
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(averageRays);
     % 
     % newRadius = 2;

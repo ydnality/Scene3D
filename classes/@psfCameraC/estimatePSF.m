@@ -14,8 +14,8 @@ if ieNotDefined('jitterFlag'), jitterFlag = false; end
 
 % Trace from the point source to the entrance aperture of the
 % multielement lens
-ppsfObjectFlag = true;
-obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag);
+ppsfCFlag = true;
+obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag);
 
 % Duplicate the existing rays for each wavelength
 % Note that both lens and film have a wave, sigh.

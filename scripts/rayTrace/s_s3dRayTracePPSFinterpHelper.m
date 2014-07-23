@@ -11,7 +11,7 @@ tic
 rays = lens.rayTraceSourceToLens(pointSources(1, :));
 
 apertureSamples = lens.apertureSample;
-ppsfRays = ppsfObject(rays.origin, rays.direction, rays.wavelength, pointSourceDepth, pointSourceFieldHeight, apertureSamples);  %think of a best way to put in aperture sample location
+ppsfRays = ppsfC(rays.origin, rays.direction, rays.wavelength, pointSourceDepth, pointSourceFieldHeight, apertureSamples);  %think of a best way to put in aperture sample location
 toc
 
 %duplicate the existing rays, and creates one for each
@@ -34,7 +34,7 @@ toc
 %% ray-trace the last bit - from lens to sensor
 %modify the film and see the consequences on the PSF - these computations
 %should be very fast
-modifyRays = ppsfObject();
+modifyRays = ppsfC();
 modifyRays.makeDeepCopy(ppsfRays);
 % 
 % newRadius = 2;

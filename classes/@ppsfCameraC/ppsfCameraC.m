@@ -69,8 +69,8 @@ classdef ppsfCameraC <  psfCameraC
             
             disp('-----trace source to lens-----');
             tic
-            ppsfObjectFlag = true;
-            obj.ppsfRays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag);
+            ppsfCFlag = true;
+            obj.ppsfRays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag);
             toc
             
             %duplicate the existing rays, and creates one for each

@@ -32,7 +32,7 @@ s_initISET
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
-film = pbrtFilmC('position', [0 0 60 ],'size', [10 10], 'wave', 400:50:700);
+film = pbrtFilmC('position', [0 0 100 ],'size', [10 10], 'wave', 400:50:700);
 
 %% lens properties
 % diffractionEnabled = false;
@@ -60,7 +60,7 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
 % away.
 pointSourceDepth = 100;   % What is happening when 10,000?
 pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
-pointSources = [ 0 5 -pointSourceDepth];  %large distance test
+pointSources = [ 0 0 -pointSourceDepth];  %large distance test
 pointSourceFieldHeight = 0;
 % pointSources = [ 0 0 -60];  %short distance test
 
@@ -199,7 +199,7 @@ end
 
 
 % Make a second ppsf object
-%     modifyRays = ppsfObject();
+%     modifyRays = ppsfC();
 %
 %     % Take the ppsfRays from the first object, copy the properties of the
 %     % ppsfRays into real data, not just a pointer to the data.

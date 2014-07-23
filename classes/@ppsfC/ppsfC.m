@@ -1,7 +1,7 @@
 classdef ppsfC < rayC
     % Create a plenoptic point spread function object
     %
-    %   ppsf = ppsfObject(origin,direction,wavelength)
+    %   ppsf = ppsfC(origin,direction,wavelength)
     %
     % This is related to ray objects, must explain more here.
     %
@@ -67,7 +67,7 @@ classdef ppsfC < rayC
             
             obj = expandWavelengths@rayC(obj, wave, waveIndex);
                        
-            obj.aEntranceInt.XY = repmat(obj.aEntranceInt.XY, [length(wave) 1]);  %added for ppsfObject
+            obj.aEntranceInt.XY = repmat(obj.aEntranceInt.XY, [length(wave) 1]);  %added for ppsfC
         end
         
         

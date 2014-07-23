@@ -95,7 +95,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -105,7 +105,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    lowerRightRays = ppsfObject();
+    lowerRightRays = ppsfC();
     lowerRightRays.makeDeepCopy(modifyRays);
 
 %% --2nd PPSF lower left --
@@ -138,7 +138,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -148,7 +148,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    lowerLeftRays = ppsfObject();
+    lowerLeftRays = ppsfC();
     lowerLeftRays.makeDeepCopy(modifyRays);
 
 %% --3rd PPSF upper right--
@@ -181,7 +181,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -191,7 +191,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    upperRightRays = ppsfObject();
+    upperRightRays = ppsfC();
     upperRightRays.makeDeepCopy(modifyRays);
     
 %% --4th PPSF upper left--
@@ -224,7 +224,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -234,7 +234,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    upperLeftRays = ppsfObject();
+    upperLeftRays = ppsfC();
     upperLeftRays.makeDeepCopy(modifyRays);
 
     
@@ -271,7 +271,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -281,7 +281,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    lowerRightBackRays = ppsfObject();
+    lowerRightBackRays = ppsfC();
     lowerRightBackRays.makeDeepCopy(modifyRays);
 
 %% --6th PPSF lower left, 2nd depth --
@@ -314,7 +314,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -324,7 +324,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    lowerLeftBackRays = ppsfObject();
+    lowerLeftBackRays = ppsfC();
     lowerLeftBackRays.makeDeepCopy(modifyRays);
 
 %% --7th PPSF upper right, second depth--
@@ -357,7 +357,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -367,7 +367,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    upperRightBackRays = ppsfObject();
+    upperRightBackRays = ppsfC();
     upperRightBackRays.makeDeepCopy(modifyRays);
     
 %% --8th PPSF upper left, second depth--
@@ -400,7 +400,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -410,7 +410,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    upperLeftBackRays = ppsfObject();
+    upperLeftBackRays = ppsfC();
     upperLeftBackRays.makeDeepCopy(modifyRays);
     
     
@@ -450,7 +450,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -460,12 +460,12 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    middleRays = ppsfObject();
+    middleRays = ppsfC();
     middleRays.makeDeepCopy(modifyRays);
     
 %% --Interpolate between 8 PPSFs to try to produce 9th one--
     %% Average between 8 sets of rays
-    averageRays = ppsfObject();
+    averageRays = ppsfC();
     averageRays.makeDeepCopy(lowerRightRays);
     %average between the first 2 ppsfs
     averageRays.origin = (lowerRightWeight * lowerRightRays.origin + lowerLeftWeight* lowerLeftRays.origin + upperLeftWeight * upperLeftRays.origin + upperRightWeight * upperRightRays.origin) + ...
@@ -478,7 +478,7 @@ s_initISET
     % ray-trace the last bit - from lens to sensor
     %% modify the film and see the consequences on the PSF - these computations
     %should be very fast
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(averageRays);
     % 
     % newRadius = 2;

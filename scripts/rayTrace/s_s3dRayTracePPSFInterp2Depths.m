@@ -59,7 +59,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -69,7 +69,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    firstRays = ppsfObject();
+    firstRays = ppsfC();
     firstRays.makeDeepCopy(modifyRays);
 
 %% --2nd PPSF at the center to the side--
@@ -104,7 +104,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -114,7 +114,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    secondRays = ppsfObject();
+    secondRays = ppsfC();
     secondRays.makeDeepCopy(modifyRays);
 
 %% --3rd PPSF in between--
@@ -149,7 +149,7 @@ s_initISET
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -159,11 +159,11 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    middleRays = ppsfObject();
+    middleRays = ppsfC();
     middleRays.makeDeepCopy(modifyRays);
 %% --Interpolate between 1st and 2nd PPSF to try to produce 3rd one--
     %% Average between 2 sets of rays
-    averageRays = ppsfObject();
+    averageRays = ppsfC();
     averageRays.makeDeepCopy(firstRays);
     %average between the first 2 ppsfs
     averageRays.origin = (firstRays.origin + secondRays.origin)./2;
@@ -173,7 +173,7 @@ s_initISET
     % ray-trace the last bit - from lens to sensor
     %% modify the film and see the consequences on the PSF - these computations
     %should be very fast
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(averageRays);
     % 
     % newRadius = 2;

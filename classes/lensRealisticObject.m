@@ -330,8 +330,8 @@ classdef lensRealisticObject <  lensObject
                     intersectPosition = rays.origin + rays.direction .* repIntersectT;
                     curAperture = min(curEl.aperture, obj.apertureRadius);
                     
-                    %added for ppsfObject apertureTracking
-                    if(isa(rays, 'ppsfObject'))
+                    %added for ppsfC apertureTracking
+                    if(isa(rays, 'ppsfC'))
                         rays.apertureLocation = intersectPosition;
                         passedCenterAperture = true;
                     end
@@ -353,8 +353,8 @@ classdef lensRealisticObject <  lensObject
                 prevN(outsideAperture) = NaN;
                 
                 
-                %special case with ppsfObjects
-                if(isa(rays,'ppsfObject') && passedCenterAperture)
+                %special case with ppsfCs
+                if(isa(rays,'ppsfC') && passedCenterAperture)
                     rays.apertureLocation(outsideAperture, :) = NaN;   
                 end
                 

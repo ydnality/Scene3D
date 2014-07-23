@@ -415,9 +415,9 @@ classdef lensC <  handle
                     intersectPosition = rays.origin + rays.direction .* repIntersectT;
                     curAperture = min(curEl.apertureD, obj.apertureMiddleD)/2;
                     
-                    % Added for ppsfObject aperture tracking
+                    % Added for ppsfC aperture tracking
                     % (What does that mean?)
-                    if(isa(rays, 'ppsfObject'))
+                    if(isa(rays, 'ppsfC'))
                         rays.aMiddleInt.XY = 0;
                         rays.aMiddleInt.XY = intersectPosition(:,1:2);  %only X-Y coords
                         rays.aMiddleInt.Z  = intersectZ;    %aperture Z
@@ -434,8 +434,8 @@ classdef lensC <  handle
                 intersectPosition(outsideAperture, :) = NaN;
                 prevN(outsideAperture) = NaN;
                 
-                % Handle special case with ppsfObjects
-                if(isa(rays,'ppsfObject'))
+                % Handle special case with ppsfCs
+                if(isa(rays,'ppsfC'))
                     rays.aEntranceInt.XY(outsideAperture, :) = NaN;
                     rays.aMiddleInt.XY(outsideAperture, :) = NaN;                
                     rays.aExitInt.XY(outsideAperture, :) = NaN;    

@@ -22,7 +22,7 @@ if ieNotDefined('nLines'), nLines = 200; end
 jitterFlag = true;
 
 % Not sure what to do here
-ppsfObjectFlag = false;
+ppsfCFlag = false;
 
 % If toFilm is true, add the film surface as if it is an
 % aperture.  This will force the ray trace to continue to that
@@ -48,8 +48,8 @@ if toFilm
         'zPosition',zPosition);
 end
 
-% Not sure why we need the ppsfObjectFlag (BW)
-obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag);
+% Not sure why we need the ppsfCFlag (BW)
+obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag);
 
 % Duplicate the existing rays for each wavelength
 % Note that both lens and film have a wave, sigh.

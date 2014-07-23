@@ -58,7 +58,7 @@ lens.drawLens();
 %% ray trace and save ppsf
 s_s3dRayTracePPSFInterpHelper;
 % save ppsf
-firstRays = ppsfObject();
+firstRays = ppsfC();
 firstRays.makeDeepCopy(modifyRays);
 
 
@@ -93,7 +93,7 @@ lens.drawLens();
 %%
 s_s3dRayTracePPSFInterpHelper;
 % save ppsf
-secondRays = ppsfObject();
+secondRays = ppsfC();
 secondRays.makeDeepCopy(modifyRays);
 
 
@@ -130,12 +130,12 @@ lens.drawLens();
 %%
 s_s3dRayTracePPSFInterpHelper;
 % save ppsf
-middleRays = ppsfObject();
+middleRays = ppsfC();
 middleRays.makeDeepCopy(modifyRays);
 
 
 %% Interpolate between 1st and 2nd PPSF to try to produce 3rd one
-averageRays = ppsfObject();
+averageRays = ppsfC();
 averageRays.makeDeepCopy(firstRays);
 %average between the first 2 ppsfs
 averageRays.origin = (firstRays.origin + secondRays.origin)./2;
@@ -145,7 +145,7 @@ averageRays.apertureLocation = (firstRays.apertureLocation + secondRays.aperture
 % ray-trace the last bit - from lens to sensor
 %modify the film and see the consequences on the PSF - these computations
 %should be very fast
-modifyRays = ppsfObject();
+modifyRays = ppsfC();
 modifyRays.makeDeepCopy(averageRays);
 % 
 % newRadius = 2;

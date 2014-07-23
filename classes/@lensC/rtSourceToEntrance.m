@@ -1,8 +1,8 @@
-function rays = rtSourceToEntrance(obj, pointSource, ppsfObjectFlag, jitterFlag, rtType)
+function rays = rtSourceToEntrance(obj, pointSource, ppsfCFlag, jitterFlag, rtType)
 % Ray trace from a point to the aperture grid on the first lens surface
 % (the one furthest from the sensor).
 %
-%  rays = rtSourceToEntrance(obj, pointSource, ppsfObjectFlag, jitterFlag, rtType)
+%  rays = rtSourceToEntrance(obj, pointSource, ppsfCFlag, jitterFlag, rtType)
 %
 % Rays have 1 wavelength assigned to them.  There is no particular
 % wavelength dependence in air, so there is no need to have multiple
@@ -13,17 +13,17 @@ function rays = rtSourceToEntrance(obj, pointSource, ppsfObjectFlag, jitterFlag,
 %
 % The object is a lensC
 %     pointSource    -  a 3 vector
-%     ppsfObjectFlag -  specifies whether we are computing the
+%     ppsfCFlag -  specifies whether we are computing the
 %     plenoptic PSF (pPSF) or not.  Default: false (PSF only)
 %
 % See also: rtEntranceToExit
 
-if ieNotDefined('ppsfObjectFlag'), ppsfObjectFlag = false; end
+if ieNotDefined('ppsfCFlag'), ppsfCFlag = false; end
 if ieNotDefined('jitterFlag'),     jitterFlag = false;     end
 if ieNotDefined('rtType'),         rtType = 'realistic';   end
 
 % Define rays object
-if (~ppsfObjectFlag), rays = rayC();
+if (~ppsfCFlag), rays = rayC();
 else                  rays = ppsfC();
 end
 
@@ -81,7 +81,7 @@ ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];
 rays.origin    = repmat(pointSource, [nPts, 1, 1] );
 rays.direction = rayDirection(rays.origin,ePoints);
 
-if(isa(rays,'ppsfObject'))
+if(isa(rays,'ppsfC'))
     % If the rays are a plenoptic point spread, AL thinks we
     % should store the XY positions at the front aperture,
     % middle aperture, and exist aperture.  The slots for this
