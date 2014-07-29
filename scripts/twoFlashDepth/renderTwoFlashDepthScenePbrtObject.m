@@ -19,7 +19,7 @@ lightFrom = [  -56.914787 -105.385544 35.0148];
 lightTo = [-56.487434 -104.481461 34.8  ];
 coneAngle = 180;
 coneDeltaAngle = 180;
-lightSource = lightSpotObject('light', spectrum, coneAngle, coneDeltaAngle, lightFrom, lightTo);  %lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
+lightSource = pbrtLightSpotObject('light', spectrum, coneAngle, coneDeltaAngle, lightFrom, lightTo);  %lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
 
 %camera properties
 from = [ -56.914787 -105.385544 35.0148];
@@ -54,7 +54,7 @@ lightBackFrom = [ -77.8060 -149.5817   45.5153];
 lightBackTo = [-77.3786 -148.6776   45.3005 ];
 coneAngle = 180;
 coneDeltaAngle = 180;
-lightSource = lightSpotObject('light', spectrum, coneAngle, coneDeltaAngle, lightBackFrom, lightBackTo);  %lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
+lightSource = pbrtLightSpotObject('light', spectrum, coneAngle, coneDeltaAngle, lightBackFrom, lightBackTo);  %lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
 
 % add old parts, put in new ones
 curPbrt.removeLight();

@@ -7,7 +7,14 @@ function pbrtPath = pbrtRootPath
 % I am also not sure why it is here.  Why don't we just ask users to put
 % pbrt on their path sso unix('pbrt') runs?
 %
-%s
+%
+% New solution: Add the pbrt directory to the matlab script.  
+% 
+% Ex.
+%    
+% add the following line to the beginning of the matlab script used to
+% launch matlab, where <pbrtDirectory> is the directory of the pbrt binary file:
+% export PATH=$PATH:<pbrtDirectory>
 
 error('Obsolete')
 

@@ -5,7 +5,10 @@ function estimatePSF(obj,nLines, jitterFlag)
 %
 % The camera has a point source, lens, and film.
 %
-% Returns the optical image of the film
+% If you wish to obtain the optical image of the PSF, use the following
+% command after calling this function:
+%
+%   psfCamera.oiCreate();
 %
 % AL/BW Vistasoft Team, Copyright 2014
 

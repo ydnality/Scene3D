@@ -19,7 +19,7 @@ s_initISET
 %
 % Rendering the collection will become a function at some point
 %
-% To render a high quality PSF, we first get an approximation at coarse
+To render a high quality PSF, we first get an approximation at coarse
 % scale. Then we calculate the centroid of that PSF,  zoom in, and
 % calculate a "high quality" PSF using a much smaller film but higher spatial resolution.
 %
@@ -113,7 +113,8 @@ for ff = 1:nFH
         
         % What happens to each of the wavelengths?
         % This traces to the back of the lens
-        oi = psfCamera.estimatePSF();
+        psfCamera.estimatePSF();
+        oi = psfCamera.oiCreate();
         % vcAddObject(oi); oiWindow;
         
         % Find the point spread centroid
@@ -139,7 +140,8 @@ for ff = 1:nFH
         psfCamera = psfCameraC('lens', lens, ...
             'film', smallFilm, ...
             'pointsource', pointSources{ff,dd});
-        oi = psfCamera.estimatePSF(nLines, jitterFlag);
+        psfCamera.estimatePSF(nLines, jitterFlag);
+        oi = psfCamera.oiCreate();
         ds2 = psfCamera.get('spacing');
         % psfCamera.draw(true,500);
         
@@ -168,7 +170,7 @@ psfCamera.draw(true,200);
 psfCamera.recordOnFilm();
 
 % Show the point spread as an image
-oi = psfCamera.oiCreate;
+oi = psfCamera.oiCreate();
 img = oiGet(oi,'rgb image');
 vcNewGraphWin; image(img); axis image
 
@@ -179,12 +181,12 @@ psfCamera.showFilm();
 plotOI(oi,'illuminance mesh linear');
 
 %% Plenoptic
-
-ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources{1,1});
-
-nLines =  100;  % Draw the ray trace if nLines > 0
-ppsf = ppsfCamera.estimatePPSF(nLines);
-ppsfCamera.recordOnFilm();
-oi = ppsfCamera.showFilm();
+% 
+% ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources{1,1});
+% 
+% nLines =  100;  % Draw the ray trace if nLines > 0
+% ppsf = ppsfCamera.estimatePPSF(nLines);
+% ppsfCamera.recordOnFilm();
+% oi = ppsfCamera.showFilm();
 
 %% END
