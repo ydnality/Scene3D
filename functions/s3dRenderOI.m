@@ -1,5 +1,6 @@
 %% oi= s3dRenderOI(fname)
-% fname: file name of the pbrt file to render
+% sceneName: file name of the pbrt file to render (without the .pbrt
+% extension).  sceneName will also be used to name the optical image.
 %
 % This function renders a PBRT oi using the given pbrt object, then
 % returns the data as an optical image. The pbrt file should be previously 
