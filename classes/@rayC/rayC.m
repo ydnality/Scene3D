@@ -19,6 +19,54 @@ classdef rayC <  clonableHandleObject
         waveIndex;
     end
     
+    methods (Access = private)
+        function angles = toSphericalAngles(obj)
+            %angles = toSphericalAngles(obj)
+            %
+            %Conversion of cartesian to spherical coordinates for
+            %direction.
+            %We will use official spherical coordinates as defined here: 
+            %http://en.wikipedia.org/wiki/Spherical_coordinate_system
+            %The first column will be the azimuth angle, and the second
+            %column will be the polar angle.  All angles are in degrees.
+            
+            angles = zeros(size(obj.direction,1), 2);
+            y = obj.direction(:, 2);
+            x = obj.direction(:, 1);
+            z = obj.direction(:, 3);
+            azimuth = atan(y./x) * 180/pi;
+            polar = acos(z./sqrt(x.^2 + y.^2 + z.^2));
+            
+            angles(:,1) = azimuth;
+            angles(:,2) = polar;
+        end
+        
+         function angles = toProjectedAngles(obj)
+            %angles = toProjectedAngles(obj)
+            
+            %Conversion of cartesian to projected angles
+            %
+            %Let theta_x denote the angle cast by the vector, when
+            %projected onto the z-x plane.
+            %Similar, let theta_y denote the angle cast by the vector, when
+            %projected onto the z-y plane
+            %
+            %The first column will be the theta_x angle, and the second
+            %column will be the theta_y angle.  Angles are in degrees.
+            
+            angles = zeros(size(obj.direction,1), 2);
+            y = obj.direction(:, 2);
+            x = obj.direction(:, 1);
+            z = obj.direction(:, 3);
+            theta_x = atan(x./z) * 180/pi;
+            theta_y = atan(y./z) * 180/pi;
+            
+            angles(:,1) = theta_x;
+            angles(:,2) = theta_y;
+        end       
+        
+    end
+        
     methods (Access = public)
           
         function obj = rayC(varargin)
@@ -49,6 +97,10 @@ classdef rayC <  clonableHandleObject
             switch p
                 case 'nrays'
                     val = size(obj.origin,1);
+                case 'sphericalangles'
+                    val = obj.toSphericalAngles();
+                case 'projectedangles'
+                    val = obj.toProjectedAngles();
                 otherwise
                     error('Unknown parameter %s\n',p);
             end

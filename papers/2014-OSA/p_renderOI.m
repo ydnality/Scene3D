@@ -19,7 +19,7 @@ s_initISET
 %
 % Rendering the collection will become a function at some point
 %
-To render a high quality PSF, we first get an approximation at coarse
+% To render a high quality PSF, we first get an approximation at coarse
 % scale. Then we calculate the centroid of that PSF,  zoom in, and
 % calculate a "high quality" PSF using a much smaller film but higher spatial resolution.
 %
@@ -171,11 +171,14 @@ psfCamera.recordOnFilm();
 
 % Show the point spread as an image
 oi = psfCamera.oiCreate();
+vcAddObject(oi); oiWindow;
+
 img = oiGet(oi,'rgb image');
-vcNewGraphWin; image(img); axis image
+vcNewGraphWin; image(img); axis image;
+
 
 % Bring up the pointspread in an optics window
-psfCamera.showFilm();
+%psfCamera.showFilm();
 
 % Plot the illuminance image
 plotOI(oi,'illuminance mesh linear');
