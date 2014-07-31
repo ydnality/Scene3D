@@ -15,11 +15,11 @@ s_initISET
 
 % [XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
 [XGrid YGrid] = meshgrid(-2000:1000:2000,-2000:1000:2000);
-pointSources = [0 0 -2000];
+pointSources = [0 10 -2000];
 % pointSources = [0 0 -20000];
 
 
-%% Declare camera and film properties
+%% Declare camera properties
 
 % Build a sensor (film) object
 % Position, size,  wave, waveConversion, resolution
@@ -37,14 +37,20 @@ diffractionEnabled = false;   %diffraction causes imaginary directions!! TODO:  
 apertureDiameterMM = 2.2727;  %f/22 
 % apertureDiameterMM = 3.1250;  %f/16
 % apertureDiameterMM = 4.5455;  %f/11
-
 fLength = 50;
 apertureSamples = [51 51];
 name = 'idealLensTest';
 type = 'idealLens';
 jitterFlag = true;
 debugLines = 100;
-lens = lensC('name', name, 'type', type, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', apertureSamples);
+thinlens = lensC('name', name, 'type', type, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', apertureSamples);
+
+lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
+import = load(lensFile,'lens');
+thickLens = import.lens;
+% thickLens.set('wave', wave);
+
+lens = thickLens;
 
 %% Loop through all point sources and Render PSF
 vcNewGraphWin; 
@@ -68,9 +74,8 @@ figure; hist(sphereAngles(:,2));
 %% use the projection form of nagles
 
 projAngles = rays.get('projectedAngles');
-hist(projAngles(:,1)); 
-hist(projAngles(:,2)); 
-
+% hist(projAngles(:,1)); 
+% hist(projAngles(:,2)); 
 
 %% plot phase space
 
