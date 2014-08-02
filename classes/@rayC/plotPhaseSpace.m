@@ -8,6 +8,7 @@ function obj = plotPhaseSpace(obj)
     theta_x = angles(:,1);
     
     vcNewGraphWin;
+    subplot(1,2,1);
     plot(position, theta_x, '.');  
     xlabel('x');
     ylabel('theta_x');
@@ -16,7 +17,8 @@ function obj = plotPhaseSpace(obj)
     position = obj.origin(:,2);
     theta_y = angles(:,2);
     
-    vcNewGraphWin;
+    %vcNewGraphWin;
+    subplot(1,2,2);
     plot(position, theta_y, '.');  
     xlabel('y');
     ylabel('theta_y');    
