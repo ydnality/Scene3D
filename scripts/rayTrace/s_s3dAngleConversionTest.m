@@ -8,6 +8,10 @@
 %% Initialize Iset
 s_initISET
 
+%% Declare ray-trace type
+
+rtType = 'realistic';  %ideal/realistic
+debugLines = 50;
 %% Declare point sources
 % tic
 % declare point sources in world space.  The camera is usually at [0 0 0],
@@ -27,8 +31,10 @@ pointSources = [0 10 -2000];
 
 % Declare film
 filmPosition = [0 0 51.2821	];
-filmSize = [.2/sqrt(2) .2/sqrt(2)];
-wave = 400:10:700;
+% filmSize = [.2/sqrt(2) .2/sqrt(2)];
+filmSize = [4/sqrt(2) 4/sqrt(2)];
+
+wave = 400:100:700;
 resolution =  [50 50 length(wave)];
 film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
@@ -42,43 +48,44 @@ apertureSamples = [51 51];
 name = 'idealLensTest';
 type = 'idealLens';
 jitterFlag = true;
-debugLines = 100;
+
 thinlens = lensC('name', name, 'type', type, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', apertureSamples);
+
+lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
+import = load(lensFile,'lens');
+thickLens = import.lens;
+thickLens.apertureMiddleD = 10;
 
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import = load(lensFile,'lens');
-thickLens = import.lens;
+multiLens = import.lens;
+
 % thickLens.set('wave', wave);
 
 lens = thickLens;
+lens.set('wave', wave);
 
-%% Loop through all point sources and Render PSF
-vcNewGraphWin; 
-
-curInd = 1;
 
 %% calculate the origin and direction of the rays
+curInd = 1;
 disp('-----trace source to lens-----');
 tic
-rtType = 'ideal';
-rays = lens. rtSourceToEntrance(pointSources(curInd, :), false, jitterFlag, rtType)
+rays = lens.rtSourceToEntrance(pointSources(curInd, :), false, jitterFlag, rtType)
 toc
 
-%%  look at angles and analyze them
-sphereAngles = rays.get('sphericalAngles');
+%  look at angles and analyze them
+%sphereAngles = rays.get('sphericalAngles');
 
-figure; hist(sphereAngles(:,1));  %should be uniform
+% figure; hist(sphereAngles(:,1));  %should be uniform
 %should have more at edges (more data points at perimeter) ... approximately linear
-figure; hist(sphereAngles(:,2));  
+% figure; hist(sphereAngles(:,2));  
 
-%% use the projection form of nagles
-
+%% use the projection form of angles and plot phase space
 projAngles = rays.get('projectedAngles');
 % hist(projAngles(:,1)); 
 % hist(projAngles(:,2)); 
 
-%% plot phase space
-
+% plot phase space
 rays.plotPhaseSpace();
 
 %% duplicate the existing rays, and creates one for each wavelength
@@ -93,21 +100,22 @@ tic
 lens.rtThroughLens(rays, debugLines, rtType);
 toc
 
-%% plot phase space
+% plot phase space
 rays.plotPhaseSpace();
 
-
 %%  intersect with "film" and add to film
+
 disp('-----record on film-----');
 tic
-rays.recordOnFilm(film);
+rays.recordOnFilm(film, debugLines);
 toc
-
 
 %% Assign to optical image
 
 oi = oiCreate;
 oi = initDefaultSpectrum(oi);
+oi = oiSet(oi, 'wave', wave);
+
 oi = oiSet(oi,'photons',film.image);
 
 % Set the optics parameters too

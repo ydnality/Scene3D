@@ -17,6 +17,9 @@ classdef rayC <  clonableHandleObject
         direction;
         wavelength;
         waveIndex;
+        
+        drawSamples;   
+        plotHandle = [];
     end
     
     methods (Access = private)
@@ -107,47 +110,74 @@ classdef rayC <  clonableHandleObject
         end
         
         function obj = projectOnPlane(obj, planeLocation)
-        % ray.projectOnPlane(planeLocation)
-        %
-        % planeLocation: the z coordinate of a plane that is parallel to the
-        %                x-y plane.
-        % intersects the rays with a plane at a specified location.  
-        % This is meant to make it easier to analyze the lightfield function.
-        
-        %remove dead rays
-        liveIndices = ~isnan(obj.wavelength);
-        
-        intersectZ = repmat(planeLocation, [size(obj.wavelength(liveIndices, 1), 1) 1]);
-        intersectT = (intersectZ - obj.origin(liveIndices, 3))./obj.direction(liveIndices, 3);
-        intersectPosition = obj.origin(liveIndices, :) + obj.direction(liveIndices, :) .* repmat(intersectT, [1 3]);
-        
-        obj.origin(liveIndices, :) = intersectPosition;
-        
+            % ray.projectOnPlane(planeLocation)
+            %
+            % planeLocation: the z coordinate of a plane that is parallel to the
+            %                x-y plane.
+            % nLines: number of lines to draw for the illustration
+            % intersects the rays with a plane at a specified location.
+            % This is meant to make it easier to analyze the lightfield function.
+            
+            %remove dead rays
+            
+            liveIndices = ~isnan(obj.wavelength);
+            
+            intersectZ = repmat(planeLocation, [size(obj.wavelength(liveIndices, 1), 1) 1]);
+            intersectT = (intersectZ - obj.origin(liveIndices, 3))./obj.direction(liveIndices, 3);
+            intersectPosition = obj.origin(liveIndices, :) + obj.direction(liveIndices, :) .* repmat(intersectT, [1 3]);
+            
+            obj.origin(liveIndices, :) = intersectPosition;
         end
         
-        function obj = recordOnFilm(obj, film)
+        function obj = recordOnFilm(obj, film, nLines)
         %records the ray on the film surface
+        %nLines: number of lines to draw for the illustration
         
+            if (ieNotDefined('nLines'))
+                nLines = 0;
+            end
+            
+            %parameters for plotting from lens to sensor
+            lWidth = 0.1; lColor = [0 0.5 1]; lStyle = '-';
+            
+            
             %make a clone of the rays
             liveRays = rayC();
             liveRays.makeDeepCopy(obj);
             
-            %remove dead rays
-            deadIndices = isnan(obj.waveIndex);      
+            %calculate intersection point at sensor
+            intersectZ = repmat(film.position(3), [size(liveRays.origin, 1) 1]);
+            intersectT = (intersectZ - liveRays.origin(:, 3))./liveRays.direction(:, 3);
+            liveRays.origin = liveRays.origin + liveRays.direction .* repmat(intersectT, [1 3]);
             
+            %plot phase space and for the future - ray-raced lines
+            if (nLines > 0)
+                liveRays.plotPhaseSpace();
+
+                 %draw debug lines
+                % draw lines...TODO: figure this out...
+                samps = obj.drawSamples;
+                
+                xCoordVector = [obj.origin(samps,3) liveRays.origin(samps,3) NaN([nLines 1])]';
+                yCoordVector = [obj.origin(samps,2) liveRays.origin(samps,2) NaN([nLines 1])]';
+                xCoordVector = real(xCoordVector(:));
+                yCoordVector = real(yCoordVector(:));
+                figure(obj.plotHandle);
+                line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
+                pause(0.1);
+            end
+
+            %remove dead rays
+            deadIndices = isnan(obj.waveIndex);
             liveRays.origin(deadIndices, : ) = [];
             liveRays.direction(deadIndices, : ) = [];
             liveRays.wavelength(deadIndices) = [];
             liveRays.waveIndex(deadIndices) = [];
+
+            intersectPosition = liveRays.origin;
             
             % Record the real rays - if there are any
             if(~isempty(liveRays.origin))
-                
-                %calculate intersection point at sensor
-                intersectZ = repmat(film.position(3), [size(liveRays.origin, 1) 1]);
-                intersectT = (intersectZ - liveRays.origin(:, 3))./liveRays.direction(:, 3);
-                intersectPosition = liveRays.origin + liveRays.direction .* repmat(intersectT, [1 3]);
-                
                 %imagePixel is the pixel that will gain a photon due to the traced ray
                 imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
                 imagePixel.position = real(imagePixel.position); %add error handling for this
@@ -191,7 +221,6 @@ classdef rayC <  clonableHandleObject
                 serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';
                 
                 film.image = reshape(serializeFilm, size(film.image));
-                
             end
         end
         

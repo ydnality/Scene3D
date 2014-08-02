@@ -10,7 +10,6 @@ function obj =  draw(obj)
 % AL/BW Vistasoft Team, Copyright 2014
 
 % Create the figure and set the parameters
-vcNewGraphWin;
 axis equal;
 lWidth = 2; lColor = 'k';  % Drawing parameters
 

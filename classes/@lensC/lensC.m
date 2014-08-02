@@ -147,17 +147,7 @@ classdef lensC <  handle
         end
         
     end
-        %%  Probably no longer used
-        %
-        %         function numEls = numEls(obj)
-        %             % This is now lens.get('n surface')
-        %             warning('Use lens.get(''n surface'')');
-        %             numEls = length(obj.surfaceArray);
-        %         end
-        
-        %% Draw the spherical and aperture components
-             
-        
+
     
     % Not sure why these are private. (BW).
     methods (Access = private)
@@ -328,6 +318,7 @@ classdef lensC <  handle
             
             % For each surface element (lenses and apertures).
             nSurfaces = obj.get('numels');
+            
             for lensEl = 1:nSurfaces
                 
                 % Get the surface data
@@ -337,13 +328,17 @@ classdef lensC <  handle
                 % Calculate ray intersection position with lens element or
                 % aperture. In the case of a 0 curvature, the direction
                 % does not change.
+                %
+                % This uses the vector form of Snell's Law:
+                % http://en.wikipedia.org/wiki/Snell's_law
+                
                 if (curEl.sRadius ~= 0)
                     
                     % Spherical element
                     repCenter = repmat(curEl.sCenter, [nRays 1]);
                     repRadius = repmat(curEl.sRadius, [nRays 1]);
                     
-                    % What is this formula?
+                    % Radicand from vector form of Snell's Law
                     radicand = dot(rays.direction, rays.origin - repCenter, 2).^2 - ...
                         ( dot(rays.origin - repCenter, rays.origin -repCenter, 2)) + repRadius.^2;
                     
@@ -373,6 +368,7 @@ classdef lensC <  handle
                         %   .numLines is a positive integer of rays to draw
                         if (nLines.numLines > 0)
                             if lensEl ==1
+                                rays.plotHandle = vcNewGraphWin;
                                 obj.draw();   % Draw the lens
                                 if (strcmp(nLines.spacing, 'uniform'))
                                     samps = round(linspace(1, nRays, nLines.numLines));
@@ -381,11 +377,13 @@ classdef lensC <  handle
                                 else
                                     error('Unknown spacing parameter %s\n',nLines.spacing);
                                 end
+                                rays.drawSamples = samps;
                             end
                             xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines.numLines 1])]';
                             yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines.numLines 1])]';
                             xCoordVector = real(xCoordVector(:));
                             yCoordVector = real(yCoordVector(:));
+                            figure(obj.rays.plotHandle);
                             line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
                             pause(0.1);
                         end
@@ -395,15 +393,28 @@ classdef lensC <  handle
                         % If nLines = false, or < 0 no drawing happens
                         if (nLines > 0)
                             if (lensEl ==1)
+                                rays.plotHandle = vcNewGraphWin;
                                 obj.draw();
                                 samps = randi(nRays,[nLines,1]);
+                                rays.drawSamples = samps;
                             end
                             xCoordVector = [rays.origin(samps,3) intersectPosition(samps,3) NaN([nLines 1])]';
                             yCoordVector = [rays.origin(samps,2) intersectPosition(samps,2) NaN([nLines 1])]';
                             xCoordVector = real(xCoordVector(:));
                             yCoordVector = real(yCoordVector(:));
-                            line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
+                            figure(rays.plotHandle);
                             pause(0.1); 
+                            line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
+                            
+                            
+                            
+                            %TODO:::!!!
+%                             vcNewGraphWin;
+%                             for i = 1:10
+%                             subplot(ceil(10/3), 3, i);
+%                             plot(1:10, 1:10)
+%                             end
+%                             rays.plotPhaseSpace();
                         end
                        
                     end
@@ -483,6 +494,18 @@ classdef lensC <  handle
                     c = -dot(normalVec, rays.direction, 2);
                     repRatio = repmat(ratio, [1 3]);
                     
+                    
+                    %update the direction of the ray
+                    rays.origin = intersectPosition;
+     %plot phase -space for now - deal with
+     %subplotting later
+     
+                    %plot phase space right before the lens, before the rays are bent
+                    if (lensEl ==1)
+                        rays.plotPhaseSpace();  %this is before the change in position
+                    end
+                                
+                    
                     % Use bsx for speed.
                     % Simplify the line
                     newVec = repRatio .* rays.direction + repmat((ratio.*c -sqrt(1 - ratio.^2 .* (1 - c.^2))), [1 3])  .* normalVec;
@@ -490,8 +513,9 @@ classdef lensC <  handle
                     % newVec2 = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
                     % vcNewGraphWin; plot(newVec(:),newVec2(:),'.');
                     
-                    %update the direction of the ray
-                    rays.origin = intersectPosition;
+                    
+                    
+                    
                     prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture
                     
                 end

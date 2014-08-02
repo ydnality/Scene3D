@@ -12,7 +12,7 @@ function obj = plotPhaseSpace(obj)
     xlabel('x');
     ylabel('theta_x');
     
-    %% plot the projection onto the x-z plane first
+    %% plot the projection onto the x-z plane
     position = obj.origin(:,2);
     theta_y = angles(:,2);
     
