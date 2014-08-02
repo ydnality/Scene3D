@@ -13,15 +13,12 @@ s_initISET
 rtType = 'realistic';  %ideal/realistic
 debugLines = 50;
 %% Declare point sources
-% tic
 % declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
 
 % [XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
 [XGrid YGrid] = meshgrid(-2000:1000:2000,-2000:1000:2000);
 pointSources = [0 10 -2000];
-% pointSources = [0 0 -20000];
-
 
 %% Declare camera properties
 
@@ -60,11 +57,8 @@ lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import = load(lensFile,'lens');
 multiLens = import.lens;
 
-% thickLens.set('wave', wave);
-
 lens = thickLens;
-lens.set('wave', wave);
-
+lens.set('wave', wave);  %TODO: right now only 400:100:700 works.  Fix this.
 
 %% calculate the origin and direction of the rays
 curInd = 1;
