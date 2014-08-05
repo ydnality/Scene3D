@@ -53,6 +53,9 @@ import = load(lensFile,'lens');
 thickLens = import.lens;
 thickLens.apertureMiddleD = 10;
 
+
+
+
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import = load(lensFile,'lens');
 multiLens = import.lens;

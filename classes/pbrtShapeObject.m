@@ -65,15 +65,23 @@ classdef pbrtShapeObject <  handle
         %writeFile(obj, fid)
         %
         %write the pbrt output to file
-            fprintf(fid,'\tShape "%s" "', obj.type);
+            fprintf(fid,'\tShape "%s" ', obj.type);
             
             for i = 1:length(obj.parameterArray)
                 %TODO: add support for more shapes here...
-                if (strcmp(obj.parameterArray{i}, 'radius'))
-                    fprintf(fid, 'float ');
-                end
                 
-                fprintf(fid,' %s" [', obj.parameterArray{i});
+                switch obj.parameterArray{i}
+                    case 'radius'
+                        fprintf(fid, '"float ');
+                    case 'height'
+                        fprintf(fid, '"float ');
+                    otherwise
+                        error(['unknown pbrtShapeObject parameter: ' obj.parameterArray{i}]);
+                end
+                %                 if (strcmp(obj.parameterArray{i}, 'radius'))
+                %                     fprintf(fid, 'float ');
+                %                 end
+                fprintf(fid,'%s" [', obj.parameterArray{i});
                 fprintf(fid,'%f ', obj.dataArray{i});
                 fprintf(fid,']\n'); 
             end

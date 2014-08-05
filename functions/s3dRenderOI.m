@@ -23,6 +23,7 @@ function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
         sceneName = 'deleteMe';
     end
     
+    % deal with input being either a pbrtObject or a string
     if(isa(inputPbrt, 'pbrtObject'))
         fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
         inputPbrt.writeFile(fullfname);
@@ -33,9 +34,11 @@ function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
         error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
     end
     
+    % make a generated directory.  delete the contents of this directory
+    % first.
     generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
     if exist(generatedDir,'dir')
-        unix(['rm ' generatedDir]);
+        unix(['rm -rf' generatedDir]);
     else
         mkdir(generatedDir);
     end
