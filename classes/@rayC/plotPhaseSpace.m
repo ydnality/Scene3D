@@ -9,7 +9,7 @@ function obj = plotPhaseSpace(obj)
     
     vcNewGraphWin;
     subplot(1,2,1);
-    plot(position, theta_x, '.');  
+    plot(position, theta_x, '.', 'MarkerSize', 1);  
     xlabel('x');
     ylabel('theta_x');
     
@@ -19,7 +19,7 @@ function obj = plotPhaseSpace(obj)
     
     %vcNewGraphWin;
     subplot(1,2,2);
-    plot(position, theta_y, '.');  
+    plot(position, theta_y, '.', 'MarkerSize', 1);  
     xlabel('y');
     ylabel('theta_y');    
     

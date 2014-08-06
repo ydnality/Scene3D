@@ -36,7 +36,7 @@ filmPosition = [0 0 37.4];  % Good for dgauss.50mm.  True focal about 37.3mm
 filmDiag = 1;  % Millimeters
 filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 
-wave = 400:40:700;
+wave = 400:10:700;
 resolution =  [300 300 length(wave)];
 film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
