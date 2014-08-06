@@ -162,9 +162,13 @@ classdef rayC <  clonableHandleObject
                 yCoordVector = [obj.origin(samps,2) liveRays.origin(samps,2) NaN([nLines 1])]';
                 xCoordVector = real(xCoordVector(:));
                 yCoordVector = real(yCoordVector(:));
+
+                if isempty(obj.plotHandle), obj.plotHandle = vcNewGraphWin; end
                 figure(obj.plotHandle);
                 line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
                 pause(0.1);
+                
+                
             end
 
             %remove dead rays

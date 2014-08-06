@@ -17,7 +17,9 @@ debugLines = 50;
 % and pointing towards -z.  We are using a right-handed coordinate system.
 
 % [XGrid YGrid] = meshgrid(-4000:1000:4000,-4000:1000:4000);
-[XGrid YGrid] = meshgrid(-2000:1000:2000,-2000:1000:2000);
+% [XGrid YGrid] = meshgrid(-2000:1000:2000,-2000:1000:2000);
+
+% Use the psCreate thing ...
 pointSources = [0 10 -2000];
 
 %% Declare camera properties
@@ -27,12 +29,15 @@ pointSources = [0 10 -2000];
 % film = pbrtFilmC([0 0 51.2821	],[.2/sqrt(2) .2/sqrt(2)], 400:10:700, [(400:10:700)' (1:31)'], [50 50 31]);
 
 % Declare film
-filmPosition = [0 0 51.2821	];
-% filmSize = [.2/sqrt(2) .2/sqrt(2)];
-filmSize = [4/sqrt(2) 4/sqrt(2)];
+% filmPosition = [0 0 51.2821	];  % Good for 2Elens
+filmPosition = [0 0 37.4];  % Good for dgauss.50mm.  True focal about 37.3mm
 
-wave = 400:100:700;
-resolution =  [50 50 length(wave)];
+% filmSize = [.2/sqrt(2) .2/sqrt(2)];
+filmDiag = 1;  % Millimeters
+filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
+
+wave = 400:40:700;
+resolution =  [300 300 length(wave)];
 film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
 % Declare Lens
@@ -53,14 +58,12 @@ import = load(lensFile,'lens');
 thickLens = import.lens;
 thickLens.apertureMiddleD = 10;
 
-
-
-
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import = load(lensFile,'lens');
 multiLens = import.lens;
 
-lens = thickLens;
+% lens = thickLens;
+lens = multiLens;
 lens.set('wave', wave);  %TODO: right now only 400:100:700 works.  Fix this.
 
 %% calculate the origin and direction of the rays
@@ -128,3 +131,5 @@ hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
 oi = oiSet(oi,'hfov', hfov);
 
 vcAddObject(oi); oiWindow;
+
+% set(gca,'xlim',[-15 15]); set(gca,'xtick',[-15:5:15])
