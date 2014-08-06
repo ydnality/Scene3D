@@ -99,6 +99,19 @@ classdef surfaceC <  handle
                     error('Unknown parameter %s\n',pName);
             end
         end
+        
+         function set(obj,pName,val,varargin)
+            pName = ieParamFormat(pName);
+            switch pName
+                case 'wave'
+                    % The wavelength is annoying.
+                    prevWave = obj.wave;
+                    obj.wave = val;
+                    obj.n = interp1(prevWave, obj.n, obj.wave, 'linear', 'extrap');
+                otherwise
+                    error('Unknown parameter %s\n',pName);
+            end
+         end
     end
     
 end

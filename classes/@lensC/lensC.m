@@ -132,7 +132,7 @@ classdef lensC <  handle
                     obj.wave = val;
                     nSurfaces = obj.get('n surfaces');
                     for ii=1:nSurfaces
-                        obj.surfaceArray(ii).wave = val;
+                        obj.surfaceArray(ii).set('wave', val);
                     end
                 case 'nall'
                     % Set the index of refraction to all the surfaces
