@@ -46,11 +46,12 @@ classdef lensC <  handle
         apertureMiddleD = 1;       % mm, diameter of the middle aperture
         apertureSample = [11 11];  % Number of spatial samples in the aperture.  Use odd number
         centerZ = 0;    %theoretical center of lens (length-wise) in the z coordinate
-        
+    end
+    
+    properties (SetAccess = private)
         centerRay = [];   %for use for ideal Lens
         inFocusPosition = [0 0 0];  
     end
-    
     methods (Access = public)
         %Multiple element lens constructor
         %TODO: error handling
@@ -76,13 +77,14 @@ classdef lensC <  handle
                     case 'diffractionenabled'
                         obj.diffractionEnabled = varargin{ii+1};
                     case 'wave'
-                        obj.wave = varargin{ii+1};
+                        obj.set('wave', varargin{ii+1});
                     case 'filename'
                         obj.fileRead(varargin{ii+1});
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
             end
+            
         end
         
         % Get properties
@@ -168,14 +170,23 @@ classdef lensC <  handle
             
         end
         
-        function aGrid = fullGrid(obj,randJitter)
+        function aGrid = fullGrid(obj,randJitter, rtType)
             % Build the full sampling grid, possibly adding a little jitter
             % to avoid aliasing artifacts
             
             if (ieNotDefined('randJitter')), randJitter = false; end
+            if (ieNotDefined('rtType')), rtType = 'realistic'; end
+            
+            % If an ideal rt type, use the middle aperture as the front
+            % aperture because there will really be only 1 aperture, the
+            % middle one.
+            if (strcmp(rtType, 'ideal'))
+                firstApertureRadius = obj.apertureMiddleD/2;
+            else
+                firstApertureRadius = obj.surfaceArray(1).apertureD/2;
+            end
             
             % First make the rectangular samples.
-            firstApertureRadius = obj.surfaceArray(1).apertureD/2;
             xSamples = linspace(-firstApertureRadius, firstApertureRadius, obj.apertureSample(1));
             ySamples = linspace(-firstApertureRadius, firstApertureRadius, obj.apertureSample(2));
             [X, Y] = meshgrid(xSamples,ySamples);
@@ -190,13 +201,13 @@ classdef lensC <  handle
             
         end
         
-        function aGrid = apertureGrid(obj,randJitter)
+        function aGrid = apertureGrid(obj,randJitter, rtType)
             % Find the full grid, mask it and return only the (X,Y)
             % positions inside the masked region.  This is the usual set of
             % positions that we use for calculating light fields.
             if ieNotDefined('randJitter'), randJitter = false; end
             
-            aGrid = fullGrid(obj,randJitter);
+            aGrid = fullGrid(obj,randJitter, rtType);
             aMask = apertureMask(obj);
             aGrid.X = aGrid.X(aMask);
             aGrid.Y = aGrid.Y(aMask);
@@ -562,6 +573,7 @@ classdef lensC <  handle
                 
             end
             
+
             %calculate new direction
             %             newRays = rayObject(); % added
             rays.origin = lensIntersectPosition;

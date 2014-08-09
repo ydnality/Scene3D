@@ -222,8 +222,11 @@ classdef rayC <  clonableHandleObject
 
                 %serialize the film, then the indices, then add by countEntries
                 serializeFilm = film.image(:);
-                serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';
                 
+                %check to make sure it's non-empty first
+                if(length(serialUniqueIndex(:) > 0))
+                    serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';  %this line might be problematic...
+                end
                 film.image = reshape(serializeFilm, size(film.image));
             end
         end

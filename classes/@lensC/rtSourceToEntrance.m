@@ -67,7 +67,7 @@ end
 % The new origin is the position of the current point source
 % The jitterFlag scatters the points on the front surface a bit
 % to improve the rendering.
-aGrid   = obj.apertureGrid(jitterFlag);
+aGrid   = obj.apertureGrid(jitterFlag, rtType);
 
 % Set Z to the position of the front surface
 nPts    = numel(aGrid.X(:));

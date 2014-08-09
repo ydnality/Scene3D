@@ -34,23 +34,26 @@ s_initISET
 pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
 % pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];
 % pointSources = [0 0 -20000];
-
+wave = 400:10:700;
+rtType = 'ideal';  %ray tracing using the ideal lens model  
 
 %% camera and film properties 
 
 % Build a sensor (film) object
 % Position, size,  wave, waveConversion, resolution
-film = filmObject([0 0 50],[7 7], 400:10:700, [(400:10:700)' (1:31)'], []);   
+film = pbrtFilmC('position', [0 0 50],'size', [7 7], 'wave', wave);   
 
 diffractionEnabled = true;
 % lensObject('ideal')
 % apertureRadiusMM = .1; %diffraction case
-apertureRadiusMM = 10;
+apertureMiddleD = .1;
 sensorDistance = 50;  %mm
-lens = lensIdealObject(apertureRadiusMM, sensorDistance, [0 0 0], diffractionEnabled);
+apertureSamples = 100;
 
-n = 5;
-lens.calculateApertureSample([n n]);
+% lens = lensIdealObject(apertureRadiusMM, sensorDistance, [0 0 0], diffractionEnabled);
+lens = lensC('apertureMiddleD', apertureMiddleD,  ...
+    'diffractionEnabled', diffractionEnabled, 'wave', wave, 'apertureSample', [apertureSamples apertureSamples]);
+
 
 %% loop through all point sources
 vcNewGraphWin;  %vcNewGraphWin causes a matlab seg fault, so using figure
@@ -60,14 +63,14 @@ vcNewGraphWin;  %vcNewGraphWin causes a matlab seg fault, so using figure
 for curInd = 1:size(pointSources, 1);
     
     %calculate the origin and direction of the rays
-    rays = lens.rayTraceSourceToLens(pointSources(curInd, :));
+    rays = lens.rtSourceToEntrance(pointSources(curInd, :), [], [], rtType);
     
     %duplicate the existing rays, and creates one for each
     %wavelength
     rays.expandWavelengths(film.wave);
 
     %lens intersection and raytrace
-    lens.rayTraceThroughLens(rays, pointSources(curInd, :));
+    lens.rtThroughLens(rays, [], rtType);
 
     % intersect with "film" and add to film
     rays.recordOnFilm(film);
@@ -82,7 +85,7 @@ oi = oiSet(oi,'photons',film.image);
 %
 optics = oiGet(oi,'optics');
 optics = opticsSet(optics,'focal length',lens.focalLength/1000);
-optics = opticsSet(optics,'fnumber', lens.focalLength/(2*apertureRadiusMM));
+optics = opticsSet(optics,'fnumber', lens.focalLength/(2*apertureMiddleD));
 oi = oiSet(oi,'optics',optics);
 
 % Opposite over adjacent is the tan of half the angle ...
