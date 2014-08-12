@@ -34,7 +34,7 @@ directionL(divideByZero, :) = [zeros(sum(divideByZero == 1), 1) ones(sum(divideB
 pointToEdgeS = curApertureRadius - ipLength;   %this is 'a' from paper  //pointToEdgeS stands for point to edge short
 pointToEdgeL = sqrt((curApertureRadius* curApertureRadius) - ipLength .* ipLength);  %pointToEdgeS stands for point to edge long
 
-lambda = rays.wavelength * 1e-9;  %this converts lambda to meters
+lambda = rays.get('wavelength')' * 1e-9;  %this converts lambda to meters
 sigmaS = atan(1./(2 * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m
 sigmaL = atan(1./(2 * pointToEdgeL * .001 * 2 * pi./lambda));
 

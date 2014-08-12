@@ -2,6 +2,7 @@ function obj =  traceThroughLens(obj, lens)
 % Deprecate?
 % This seems like a duplicate of the lens function.
 % If so, maybe we should get rid of it.  Or that one.
+% AL : this is in fact a duplicate...
 %
 % Performs ray-trace of the lens, given an input bundle or rays
 % outputs the rays that have been refracted by the lens

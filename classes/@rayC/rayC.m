@@ -15,9 +15,9 @@ classdef rayC <  clonableHandleObject
     properties
         origin;
         direction;
-        wavelength;
-        waveIndex;
-        
+        %wavelength;  %no longer used.  use obj.get('wavelength')
+        waveIndex;   
+        wave;  %this is the same wave in the film, which gives a range of wavelengths used
         drawSamples;   
         plotHandle = [];
     end
@@ -44,7 +44,7 @@ classdef rayC <  clonableHandleObject
             angles(:,2) = polar;
         end
         
-         function angles = toProjectedAngles(obj)
+        function angles = toProjectedAngles(obj)
             %angles = toProjectedAngles(obj)
             
             %Conversion of cartesian to projected angles
@@ -84,18 +84,22 @@ classdef rayC <  clonableHandleObject
                     case 'direction'
                         % Must be a 2 element vector that represents ???
                         obj.direction = varargin{ii+1};  
-                    case 'wavelength'
-                        % In nanometers.  Can it be a vector? Or just a
-                        % scalar?
-                        obj.wavelength = varargin{ii+1};
+                    case 'waveindex'
+                        % The indexing that specifies the wavelength.  use
+                        % obj.get('wavelength') to get a vector of
+                        % wavelengths
+                        obj.waveIndex = varargin{ii+1};
+                    case 'wave'
+                        % The wavelengths used for this ray object.
+                        obj.wave = varargin{ii+1};
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
            end
         end
         
-        % Get parameters about the rays
         function val = get(obj,param,varargin)
+            % Get parameters about the rays
             p = ieParamFormat(param);
             switch p
                 case 'nrays'
@@ -104,6 +108,25 @@ classdef rayC <  clonableHandleObject
                     val = obj.toSphericalAngles();
                 case 'projectedangles'
                     val = obj.toProjectedAngles();
+                case 'wavelength'
+                    val = obj.wave(obj.waveIndex);
+                case 'liveindices'  %return the indices of rays that are still alive
+                    val = ~isnan(obj.waveIndex);
+                otherwise
+                    error('Unknown parameter %s\n',p);
+            end
+        end
+        
+        function set(obj,param,val)
+        % set(param,val)
+        %
+        % sets various data members for the ray class
+        %
+        
+            p = ieParamFormat(param);
+            switch p
+                case 'wave'
+                    obj.wave = val;
                 otherwise
                     error('Unknown parameter %s\n',p);
             end
@@ -120,9 +143,9 @@ classdef rayC <  clonableHandleObject
             
             %remove dead rays
             
-            liveIndices = ~isnan(obj.wavelength);
+            liveIndices = ~isnan(obj.waveIndex);
             
-            intersectZ = repmat(planeLocation, [size(obj.wavelength(liveIndices, 1), 1) 1]);
+            intersectZ = repmat(planeLocation, [size(obj.waveIndex(liveIndices, 1), 1) 1]);
             intersectT = (intersectZ - obj.origin(liveIndices, 3))./obj.direction(liveIndices, 3);
             intersectPosition = obj.origin(liveIndices, :) + obj.direction(liveIndices, :) .* repmat(intersectT, [1 3]);
             
@@ -175,7 +198,7 @@ classdef rayC <  clonableHandleObject
             deadIndices = isnan(obj.waveIndex);
             liveRays.origin(deadIndices, : ) = [];
             liveRays.direction(deadIndices, : ) = [];
-            liveRays.wavelength(deadIndices) = [];
+            %liveRays.wavelength(deadIndices) = [];
             liveRays.waveIndex(deadIndices) = [];
 
             intersectPosition = liveRays.origin;
@@ -188,9 +211,10 @@ classdef rayC <  clonableHandleObject
                 imagePixel.position = round(imagePixel.position * film.resolution(2)/film.size(2) + ...
                     repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + (film.resolution(2:-1:1) + 1)./2, [size(imagePixel.position,1) 1]));   %
                               
-                imagePixel.wavelength = liveRays.wavelength;
+                imagePixel.wavelength = liveRays.get('wavelength');
                 
                 convertChannel = liveRays.waveIndex;
+                %wantedPixel is the pixel that we wish to add 1 photon to
                 wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];  %pixel to update
                 
                 recordablePixels =and(and(and(wantedPixel(:, 1) >= 1,  wantedPixel(:,1) <= film.resolution(1)), (wantedPixel(:, 2) > 1)), wantedPixel(:, 2) <= film.resolution(2));
@@ -217,24 +241,33 @@ classdef rayC <  clonableHandleObject
                 
                 serialWantedPixel = sub2ind(size(film.image), single(wantedPixel(:,1)), single(wantedPixel(:,2)), single(wantedPixel(:,3)));
                 
-                
-                [countEntries] = hist(serialWantedPixel, serialUniqueIndex);
-
-                %serialize the film, then the indices, then add by countEntries
-                serializeFilm = film.image(:);
-                
-                %check to make sure it's non-empty first
-                if(length(serialUniqueIndex(:) > 0))
+                %special case for length 1.  For some reason, hist has
+                %issues with length 1.
+                if (length(serialUniqueIndex(:)) == 1)
+                    serializeFilm = film.image(:);
+                    %when there is only 1 bin, it doesn't matter how many photons, so just add one
+                    serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + 1; 
+                    film.image = reshape(serializeFilm, size(film.image));
+                elseif(length(serialUniqueIndex(:) > 0))
+                    warning('No photons were collected on film!');
+                else
+                    [countEntries] = hist(serialWantedPixel, serialUniqueIndex);
+                    %serialize the film, then the indices, then add by countEntries
+                    serializeFilm = film.image(:);
                     serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';  %this line might be problematic...
+                    film.image = reshape(serializeFilm, size(film.image));
                 end
-                film.image = reshape(serializeFilm, size(film.image));
             end
         end
         
-        % Replicates the ray bundle to cover a series of wavelengths
-        % Why do we need to do this?  (BW)
         function obj = expandWavelengths(obj, wave, waveIndex)
-            
+        % Replicates the ray bundle to cover a series of wavelengths
+        %
+        % The first ray trace step(from point source to the first lens element).
+        % is performed without knowledge of wavelength - to save
+        % computation and memory.  Once the ray enters the lens, then
+        % wavelength information is necessary.  So this function replicates
+        % every ray and assigns the wavelength information for each ray.  
             if ieNotDefined('waveIndex')
                 waveIndex = 1:length(wave);
             end
@@ -248,13 +281,26 @@ classdef rayC <  clonableHandleObject
             
             % Creates a vector representing wavelengths... for example:
             % [400 400 400... 410 410 410... ..... 700] 
-            tmp = (wave' * ones(1, subLength))'; 
-            obj.wavelength = tmp(:);
+%             tmp = (wave' * ones(1, subLength))'; 
+%             obj.wavelength = tmp(:);
+            
+            obj.set('wave', wave);
+            
             
             %assign the indices of this wavelength expansion 
             %  TODO: maybe make this simpler and cleaner somehow ...
             tmp = (waveIndex' * ones(1, subLength))';
             obj.waveIndex = tmp(:);
+        end
+        
+        function removeDead(obj, deadIndices)
+            %removeDead(deadIndices)
+            
+            %Removes dead rays (these are usually those that do not make it
+            %out an aperture) by setting these dead indices to Nan.
+            obj.origin(deadIndices, : ) = NaN;
+            obj.direction(deadIndices, : ) = NaN;
+            obj.waveIndex(deadIndices) = NaN;
         end
     end
 end

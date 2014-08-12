@@ -20,7 +20,8 @@ debugLines = 50;
 % [XGrid YGrid] = meshgrid(-2000:1000:2000,-2000:1000:2000);
 
 % Use the psCreate thing ...
-pointSources = [0 10 -2000];
+%pointSources = [0 10 -2000];
+pointSources = [0 0 -50];
 
 %% Declare camera properties
 
@@ -30,10 +31,13 @@ pointSources = [0 10 -2000];
 
 % Declare film
 % filmPosition = [0 0 51.2821	];  % Good for 2Elens
-filmPosition = [0 0 37.4];  % Good for dgauss.50mm.  True focal about 37.3mm
+%filmPosition = [0 0 37.4];  % Good for dgauss.50mm.  True focal about 37.3mm
+filmPosition = [0 0 80];  % Good for dgauss.50mm.  True focal about 37.3mm
+
 
 % filmSize = [.2/sqrt(2) .2/sqrt(2)];
-filmDiag = 1;  % Millimeters
+%filmDiag = 1;  % Millimeters
+filmDiag = 40;  % Millimeters
 filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 
 wave = 400:10:700;

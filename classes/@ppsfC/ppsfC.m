@@ -44,8 +44,8 @@ classdef ppsfC < rayC
                         obj.origin = varargin{ii+1};
                     case 'direction'
                         obj.direction = varargin{ii+1};  %must be a 2 element vector
-                    case 'wavelength'
-                        obj.wavelength = varargin{ii+1};
+                    case 'waveindex'
+                        obj.waveindex = varargin{ii+1};
                     case 'pointsourcedepth'
                         obj.pointSourceDepth = varargin{ii+1};
                     case 'pointsourcefieldheight'
@@ -70,7 +70,6 @@ classdef ppsfC < rayC
             obj.aEntranceInt.XY = repmat(obj.aEntranceInt.XY, [length(wave) 1]);  %added for ppsfC
         end
         
-        
         function obj = projectOnPlane(obj, planeLocation)
             %projectOnPlane(obj, planeLocation)
             %planeLocation: the z coordinate of a plane that is parallel to the
@@ -91,6 +90,19 @@ classdef ppsfC < rayC
                 obj.aExitDir = obj.direction;
             end
             
+        end
+        
+        function removeDead(obj, deadIndices)
+            %removeDead(deadIndices)
+            
+            % Removes dead rays (these are usually those that do not make it
+            %out an aperture) by setting these dead indices to Nan.
+            removeDead@rayC(obj, deadIndices);
+
+            % Set properties that are specific to the ppsfC to NaN
+            obj.aEntranceInt.XY(outsideAperture, :) = NaN;
+            obj.aMiddleInt.XY(outsideAperture, :) = NaN;
+            obj.aExitInt.XY(outsideAperture, :) = NaN;
         end
     end
     

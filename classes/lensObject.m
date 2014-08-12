@@ -1,4 +1,6 @@
 classdef lensObject <  handle
+    % THIS IS AN OLD FILE.  Can delete.  AL.
+    %
     % Create a lens object
     %
     %   lens = lensObject( parameter, value, ....);
@@ -80,6 +82,8 @@ classdef lensObject <  handle
                         error('Unknown parameter %s\n',varargin{ii});
                 end
             end
+            
+            error('lensObject no longer supported.  Use lensC isntead!');
             
         end
         

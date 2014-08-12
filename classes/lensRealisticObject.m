@@ -1,4 +1,6 @@
 classdef lensRealisticObject <  lensObject
+    % No longer used.  Use lensC isntead!  A.L.
+    %
     % Create a lens object
     %
     %   lens = lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center);  % Units are mm
@@ -84,6 +86,7 @@ classdef lensRealisticObject <  lensObject
             
             obj.nWave = 1:length(obj.wave);
             obj.setElements(elOffset, elRadius, elAperture, elN);
+            error('no longer supported! use lensC isntead!');
         end
         
         function setElements(obj, elOffset, elRadius, elAperture, elN)

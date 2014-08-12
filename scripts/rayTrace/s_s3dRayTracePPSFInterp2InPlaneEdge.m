@@ -159,7 +159,7 @@ outsideAperture = [];
 %TODO: make this into a function
 modifyRays.origin(outsideAperture, : ) = [];   %this needs to be fixed later
 modifyRays.direction(outsideAperture, : ) = [];
-modifyRays.wavelength(outsideAperture) = [];
+%modifyRays.wavelength(outsideAperture) = [];
 modifyRays.waveIndex(outsideAperture) = [];
 modifyRays.apertureLocation(outsideAperture, :) = [];
 modifyRays.apertureSamples.X(outsideAperture) = []; 

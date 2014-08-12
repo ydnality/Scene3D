@@ -76,11 +76,14 @@ fLength = 50;           % Todo: We should derive this using the lensmaker's equa
 % Populate lens surface array ussing given property arrays
 lensSurfaceArray = surfaceC();
 for i = 1:length(zPos)
-    lensSurfaceArray(i) = surfaceC('sRadius', radius(i), 'apertureD', aperture(i), 'zPos', zPos(i), 'n', n(:, i));
+    lensSurfaceArray(i) = surfaceC('sRadius', radius(i), ...
+        'apertureD', aperture(i), 'zPos', zPos(i), 'n', n(:, i), 'wave', wave);
 end
 
 % Declare lens
-lens = lensC('surfaceArray', lensSurfaceArray, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
+lens = lensC('surfaceArray', lensSurfaceArray, 'focalLength', fLength, ...
+    'diffractionEnabled', diffractionEnabled, 'wave', wave, ...
+    'aperturesample', [nSamples nSamples]);
 lens.name = 'Two surface';
 
 lens.apertureMiddleD = 4;

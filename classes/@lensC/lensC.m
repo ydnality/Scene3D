@@ -331,7 +331,6 @@ classdef lensC <  handle
             nSurfaces = obj.get('numels');
             
             for lensEl = 1:nSurfaces
-                
                 % Get the surface data
                 curEl = obj.surfaceArray(lensEl);
                 curAperture = curEl.apertureD/2;
@@ -342,7 +341,6 @@ classdef lensC <  handle
                 %
                 % This uses the vector form of Snell's Law:
                 % http://en.wikipedia.org/wiki/Snell's_law
-                
                 if (curEl.sRadius ~= 0)
                     
                     % Spherical element
@@ -372,7 +370,9 @@ classdef lensC <  handle
                     
                     % Let's try to make the lines 3D.  That would be cool!
                     
-                    %nLines can be either a number or a structure
+                    %nLines can be either a number or a structure.  This is
+                    %not completely supported yet.  We don't know if this
+                    %is necessary though. Leave it here for now.
                     if (isfield(nLines, 'spacing') && isfield(nLines,'numLines'))
                         % Structure case.
                         %   .spacing is either 'uniform' or 'random'.  
@@ -416,16 +416,6 @@ classdef lensC <  handle
                             figure(rays.plotHandle);
                             pause(0.1); 
                             line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
-                            
-                            
-                            
-                            %TODO:::!!!
-%                             vcNewGraphWin;
-%                             for i = 1:10
-%                             subplot(ceil(10/3), 3, i);
-%                             plot(1:10, 1:10)
-%                             end
-%                             rays.plotPhaseSpace();
                         end
                        
                     end
@@ -438,7 +428,10 @@ classdef lensC <  handle
                     curAperture = min(curEl.apertureD, obj.apertureMiddleD)/2;
                     
                     % Added for ppsfC aperture tracking
-                    % (What does that mean?)
+                    % If we are using ppsfC's instead of ray objects, we
+                    % will track the intersection of the rays at the middle
+                    % of the aperture and save these entries in the ppsfC
+                    % object.
                     if(isa(rays, 'ppsfC'))
                         rays.aMiddleInt.XY = 0;
                         rays.aMiddleInt.XY = intersectPosition(:,1:2);  %only X-Y coords
@@ -449,52 +442,36 @@ classdef lensC <  handle
                 
                 % Set rays outside of the aperture to NaN
                 outsideAperture = intersectPosition(:, 1).^2 + intersectPosition(:, 2).^2 >= curAperture^2;
-                rays.origin(outsideAperture, : ) = NaN;
-                rays.direction(outsideAperture, : ) = NaN;
-                rays.wavelength(outsideAperture) = NaN;
-                rays.waveIndex(outsideAperture) = NaN;
                 intersectPosition(outsideAperture, :) = NaN;
                 prevN(outsideAperture) = NaN;
+                rays.removeDead(outsideAperture);
                 
                 % Handle special case with ppsfCs
-                if(isa(rays,'ppsfC'))
-                    rays.aEntranceInt.XY(outsideAperture, :) = NaN;
-                    rays.aMiddleInt.XY(outsideAperture, :) = NaN;                
-                    rays.aExitInt.XY(outsideAperture, :) = NaN;    
-                end
+%                 if(isa(rays,'ppsfC'))
+%                     rays.aEntranceInt.XY(outsideAperture, :) = NaN;
+%                     rays.aMiddleInt.XY(outsideAperture, :) = NaN;                
+%                     rays.aExitInt.XY(outsideAperture, :) = NaN;    
+%                 end
                 
                 % Apply Snell's law to the spherical surface rays.
                 % Determine the new ray directions and origin
                 % 
                 if(curEl.sRadius ~= 0)
-                    
                     %in bounds case - perform vector Snell's law
                     repCenter = repmat(curEl.sCenter, [nRays 1]);
                     normalVec = intersectPosition - repCenter;  %does the polarity of this vector matter? YES
                     normalVec = normalVec./repmat(sqrt(sum(normalVec.*normalVec, 2)),[1 3]); %normalizes each row
                     
-                    %which is the correct sign convention? This is correct
+                    %This is the correct sign convention
                     if (curEl.sRadius < 0)  
                         normalVec = -normalVec;
                     end
                     
-                    % Modify the index of refraction depending on wavelength
-                    % TODO: have this be one of the input parameters (N vs. wavelength)
-                    %                     if (curEl.n ~= 1)
-                    %                         curN = (rays.wavelength - 550) * -.04/(300) + curEl.n;
-                    %                     else
-                    %                         curN = ones(length(rays.wavelength), 1);
-                    %                     end
-                    
-                    %                     waveIndex = find([obj.wave' obj.nWave']== rays.wavelength);  %this doesn't work yet
-                    %this was supposed to convert wavelength to waveIndex -
-                    %but I couldn't find a way to vectorize it, so instead
-                    %we precompute it
-                    
-                    liveIndices = ~isnan(rays.wavelength);
+                    %liveIndices = ~isnan(rays.waveIndex);
+                    liveIndices = rays.get('liveIndices');
                     curN = ones(size(prevN));
                     curN(liveIndices) = curEl.n(rays.waveIndex(liveIndices));  %deal with nans
-                    curN(~liveIndices) = nan;
+                    curN(~liveIndices) = NaN;
                     
                     % curN = ones(length(rays.wavelength), 1) * curEl.n;
                     % Snell's law index of refraction ratios at surface
@@ -504,29 +481,25 @@ classdef lensC <  handle
                     % Vector form of Snell's Law
                     c = -dot(normalVec, rays.direction, 2);
                     repRatio = repmat(ratio, [1 3]);
-                    
-                    
+
                     %update the direction of the ray
                     rays.origin = intersectPosition;
-     %plot phase -space for now - deal with
-     %subplotting later
-     
+                    
+                    %plot phase -space for now - deal with
+                    %subplotting later
                     %plot phase space right before the lens, before the rays are bent
-                    if (lensEl ==1)
+                    if (lensEl ==1 && nLines > 0)
                         rays.plotPhaseSpace();  %this is before the change in position
                     end
                                 
                     
                     % Use bsx for speed.
                     % Simplify the line
-                    newVec = repRatio .* rays.direction + repmat((ratio.*c -sqrt(1 - ratio.^2 .* (1 - c.^2))), [1 3])  .* normalVec;
+                    newVec = repRatio .* rays.direction + ...
+                        repmat((ratio.*c -sqrt(1 - ratio.^2 .* (1 - c.^2))), [1 3])  .* normalVec;
                     rays.direction = normvec(newVec,'dim',2);
                     % newVec2 = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
                     % vcNewGraphWin; plot(newVec(:),newVec2(:),'.');
-                    
-                    
-                    
-                    
                     prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture
                     
                 end
@@ -538,11 +511,6 @@ classdef lensC <  handle
                 if (obj.diffractionEnabled)
                     obj.rtHURB(rays, intersectPosition, curEl.apertureD/2);  
                 end
-                
-                %  xlabel('Depth (mm)');
-                %  ylabel('Y field height (mm)')
-                %  % iterate previous z
-                % prevSurfaceZ = prevSurfaceZ + curEl.offset;
             end
         end
         
@@ -578,7 +546,7 @@ classdef lensC <  handle
             %             newRays = rayObject(); % added
             rays.origin = lensIntersectPosition;
             rays.direction = repmat(obj.inFocusPosition , [size(rays.origin,1) 1 ]) - rays.origin;
-            rays.wavelength = rays.wavelength;
+            %rays.wavelength = rays.wavelength;
             
             % diffraction HURB calculation
             if (obj.diffractionEnabled)
