@@ -1,4 +1,4 @@
-function rays = rtSourceToEntrance(obj, pointSource, ppsfCFlag, jitterFlag, rtType)
+function rays = rtSourceToEntrance(obj, pointSource, ppsfCFlag, jitterFlag, rtType, subSection)
 % Ray trace from a point to the aperture grid on the first lens surface
 % (the one furthest from the sensor).
 %
@@ -21,6 +21,7 @@ function rays = rtSourceToEntrance(obj, pointSource, ppsfCFlag, jitterFlag, rtTy
 if ieNotDefined('ppsfCFlag'), ppsfCFlag = false; end
 if ieNotDefined('jitterFlag'),     jitterFlag = false;     end
 if ieNotDefined('rtType'),         rtType = 'realistic';   end
+if ieNotDefined('subSection'),      subSection = [];    end
 
 % Define rays object
 if (~ppsfCFlag), rays = rayC();
@@ -63,11 +64,42 @@ switch rtType
 end
 
 
-% Create rays from the point source to each aperture grid point
-% The new origin is the position of the current point source
-% The jitterFlag scatters the points on the front surface a bit
-% to improve the rendering.
-aGrid   = obj.apertureGrid(jitterFlag, rtType);
+if (isempty(subSection))
+    % Case 1: full aperture is sampled
+    
+    % Create rays from the point source to each aperture grid point
+    % The new origin is the position of the current point source
+    % The jitterFlag scatters the points on the front surface a bit
+    % to improve the rendering.
+    aGrid   = obj.apertureGrid(jitterFlag, rtType);
+else
+    % Case 2: only a subSection of the aperture is sampled.
+   
+    % for now, it's a sub section of the aperture, defined by 'subSection',
+    % which is a 4 element vector, providing the lowerLeft, and upperRight
+    % boundaries
+    %
+    % [leftX lowerY rightX upperY]
+    
+    leftX = subSection(1);
+    lowerY = subSection(2);
+    rightX = subSection(3);
+    upperY = subSection(4);
+    
+    % make the rectangular samples.
+    firstApertureRadius = obj.surfaceArray(1).apertureD/2;
+    xSamples = linspace(-firstApertureRadius *leftX, firstApertureRadius*rightX, obj.apertureSample(1));
+    ySamples = linspace(-firstApertureRadius *lowerY, firstApertureRadius*upperY, obj.apertureSample(2));
+    [X, Y] = meshgrid(xSamples,ySamples);
+
+    %Add a random jitter.  Uniform distribution.  Scales to plus or
+    %minus half the sample width
+    if(jitterFlag)
+        X = X + (rand(size(X)) - .5) * (xSamples(2) - xSamples(1));
+        Y = Y + (rand(size(Y)) - .5) * (ySamples(2) - ySamples(1));
+    end
+    aGrid.X = X; aGrid.Y = Y;  
+end
 
 % Set Z to the position of the front surface
 nPts    = numel(aGrid.X(:));
@@ -84,7 +116,7 @@ rays.direction = rayDirection(rays.origin,ePoints);
 if(isa(rays,'ppsfC'))
     % If the rays are a plenoptic point spread, AL thinks we
     % should store the XY positions at the front aperture,
-    % middle aperture, and exist aperture.  The slots for this
+    % middle aperture, and exit aperture.  The slots for this
     % information are created and initialized here.
     %
     % BW isn't sure why this is useful, but he believes it.

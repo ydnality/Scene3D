@@ -12,6 +12,9 @@ s_initISET
 
 rtType = 'realistic';  %ideal/realistic
 debugLines = 50;
+subSection = [];
+subSection = [0 0 -.25 -.25];
+
 %% Declare point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
@@ -21,7 +24,7 @@ debugLines = 50;
 
 % Use the psCreate thing ...
 %pointSources = [0 10 -2000];
-pointSources = [0 0 -50];
+pointSources = [0 0 -100];
 
 %% Declare camera properties
 
@@ -32,7 +35,7 @@ pointSources = [0 0 -50];
 % Declare film
 % filmPosition = [0 0 51.2821	];  % Good for 2Elens
 %filmPosition = [0 0 37.4];  % Good for dgauss.50mm.  True focal about 37.3mm
-filmPosition = [0 0 80];  % Good for dgauss.50mm.  True focal about 37.3mm
+filmPosition = [0 0 37.4]; 
 
 
 % filmSize = [.2/sqrt(2) .2/sqrt(2)];
@@ -74,7 +77,7 @@ lens.set('wave', wave);  %TODO: right now only 400:100:700 works.  Fix this.
 curInd = 1;
 disp('-----trace source to lens-----');
 tic
-rays = lens.rtSourceToEntrance(pointSources(curInd, :), false, jitterFlag, rtType)
+rays = lens.rtSourceToEntrance(pointSources(curInd, :), false, jitterFlag, rtType, subSection)
 toc
 
 %  look at angles and analyze them

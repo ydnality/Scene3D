@@ -249,13 +249,13 @@ classdef rayC <  clonableHandleObject
                     serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + 1; 
                     film.image = reshape(serializeFilm, size(film.image));
                 elseif(length(serialUniqueIndex(:) > 0))
-                    warning('No photons were collected on film!');
-                else
                     [countEntries] = hist(serialWantedPixel, serialUniqueIndex);
                     %serialize the film, then the indices, then add by countEntries
                     serializeFilm = film.image(:);
                     serializeFilm(serialUniqueIndex) = serializeFilm(serialUniqueIndex) + countEntries';  %this line might be problematic...
                     film.image = reshape(serializeFilm, size(film.image));
+                else
+                     warning('No photons were collected on film!');
                 end
             end
         end
