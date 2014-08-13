@@ -92,6 +92,8 @@ classdef surfaceC <  handle
                     res = obj.name;
                 case 'type'
                     res = obj.type;
+                case 'wave'
+                    res = obj.wave;
                 case 'zintercept'
                     %assumes a centered lens on the y = 0 axis;
                     res = obj.sCenter(3) - obj.sRadius;

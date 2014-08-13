@@ -103,6 +103,14 @@ classdef lensC <  handle
                     res = -(obj.surfaceArray(1).sCenter(3) - obj.surfaceArray(1).sRadius);
                 case 'surfacearray'
                     res = obj.surfaceArray;
+                case {'indexofrefraction','narray'}
+                    nSurf = obj.get('nsurfaces');
+                    sWave  = obj.surfaceArray(1).wave;
+                    res = zeros(length(sWave),nSurf);
+                    for ii=1:nSurf
+                        res(:,ii) = obj.surfaceArray(ii).n(:)';
+                    end
+                    
                 case 'sradius'
                     % spherical radius of curvature of this surface.
                     % lens.get('sradius',whichSurface)

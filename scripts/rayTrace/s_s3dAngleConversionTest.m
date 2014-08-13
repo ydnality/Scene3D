@@ -12,8 +12,11 @@ s_initISET
 
 rtType = 'realistic';  %ideal/realistic
 debugLines = 50;
-subSection = [];
-subSection = [0 0 -.25 -.25];
+% (lowerLeftx,LowerLefty,uppRightx,upperRighty)
+% Percentage of rectangular lens, 0 is middle
+% subSection = [];   % Whole thing
+% subSection = [-.25 -.25 .25 .25];   % Not working
+subSection = [0 0 .25 .25];   
 
 %% Declare point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
@@ -34,16 +37,16 @@ pointSources = [0 0 -100];
 
 % Declare film
 % filmPosition = [0 0 51.2821	];  % Good for 2Elens
-%filmPosition = [0 0 37.4];  % Good for dgauss.50mm.  True focal about 37.3mm
-filmPosition = [0 0 37.4]; 
+% filmPosition = [0 0 37.4];        % Good for dgauss.50mm.  True focal about 37.3mm
+filmPosition = [0 0 95.4]; 
 
 
 % filmSize = [.2/sqrt(2) .2/sqrt(2)];
 %filmDiag = 1;  % Millimeters
-filmDiag = 40;  % Millimeters
+filmDiag = 3;  % Millimeters
 filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 
-wave = 400:10:700;
+wave = 400:50:600;
 resolution =  [300 300 length(wave)];
 film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
@@ -60,6 +63,10 @@ jitterFlag = true;
 
 thinlens = lensC('name', name, 'type', type, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', apertureSamples);
 
+% Make a function that goes gets a lens from a file, say
+% lens = lensC('filename',fname);
+%  That should go and see if there is a file called fname.
+%
 lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
 import = load(lensFile,'lens');
 thickLens = import.lens;
@@ -69,9 +76,13 @@ lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import = load(lensFile,'lens');
 multiLens = import.lens;
 
-% lens = thickLens;
-lens = multiLens;
-lens.set('wave', wave);  %TODO: right now only 400:100:700 works.  Fix this.
+% lens = multiLens;
+lens = thickLens;
+lens.set('wave', wave);
+% Matrix of n for each surface element.
+% Apertures are 0
+n = lens.get('nArray');
+% Plot it?  Make an image?  Have a swell time
 
 %% calculate the origin and direction of the rays
 curInd = 1;
@@ -140,3 +151,5 @@ oi = oiSet(oi,'hfov', hfov);
 vcAddObject(oi); oiWindow;
 
 % set(gca,'xlim',[-15 15]); set(gca,'xtick',[-15:5:15])
+
+%% 
