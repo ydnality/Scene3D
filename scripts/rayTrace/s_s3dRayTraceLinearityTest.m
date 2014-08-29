@@ -1,5 +1,10 @@
 %% ray-tracing for realistic lens - PPSF
 %
+% Towards a volume of linear transforms (volt)
+%
+% Check why we have a discontinuity at (0,0).  Something about the 0 always
+% mapping to 0, or something ...
+%
 % Lens element positions are all negative, and the final exit plan can be
 % considered as z = 0
 %
@@ -29,7 +34,9 @@
 s_initISET
 
 %% loop through different point source positions
-pSLocations = 0:.5:10;
+% pSLocations = 0.01:.3:2;
+pSLocations = -1*(50:20:160);
+
 AComplete = zeros(4, 4, length(pSLocations));
 
 %% lens properties
@@ -42,7 +49,7 @@ AComplete = zeros(4, 4, length(pSLocations));
 %      object.
 
 %initialize and read multi-element lens from file
-lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
+% lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 
 lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
@@ -51,9 +58,6 @@ apertureMiddleD = 10;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
-
-
-
 
 %2 element lens
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
@@ -75,9 +79,6 @@ for pSIndex = 1:length(pSLocations)
         'size', [10 10], ...
         'wave', 400:50:700);
 
-
-
-
     %lens illustration - very small aperture in the middle
     % lens.draw();
 
@@ -89,7 +90,8 @@ for pSIndex = 1:length(pSLocations)
     % away.
     pointSourceDepth = 100;   % What is happening when 10,000?
     pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
-    pointSources = [ 0 pSLocation -pointSourceDepth];  %large distance test
+    % pointSources = [ pSLocation pSLocation -pointSourceDepth];  %large distance test
+    pointSources = [ 3 3 pSLocation];  %large distance test
 
     pointSourceFieldHeight = 0;
     % pointSources = [ 0 0 -60];  %short distance test
@@ -229,14 +231,30 @@ end
 % Can we interpret A?  Does it agree with MP's predict calculation from the
 % method he uses?
 
-%% compare how A coefficients change 
-for i = 1:4
-    for j = 1:4
-        ASerial = AComplete(i,j, :);
-        ASerial = ASerial(:);
-        figure; plot(pSLocations, ASerial);
-    end
+% %% compare how A coefficients change 
+% for i = 1:4
+%     for j = 1:4
+%         ASerial = AComplete(i,j, :);
+%         ASerial = ASerial(:);
+%         figure; plot(pSLocations, ASerial);
+%     end
+% end
+
+%% Make an A movie
+
+vcNewGraphWin; colormap(hot);
+mn = min(AComplete(:));
+mx = max(AComplete(:));
+az = -37; el = 80;
+% caxis([mn mx]);
+for ii=1:size(AComplete,3)
+    surf(AComplete(:,:,ii)); set(gca,'zlim',[mn mx/4])
+    view(az,el);
+    shading interp
+    title(sprintf('%.2f',pSLocations(ii)));
+    pause(0.5);
 end
+% [az el] = view;
 
 %% Future development for modifying the rays.
 
