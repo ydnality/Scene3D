@@ -61,11 +61,22 @@ Obj.y=10; %height
 %% STEP2: CREATE AN IDENTICAL IMAGE SYSTEM according to ANDY's standard
 [A_surfaceArray,A_lens,A_film,A_object]=paraxCreateScene3DSystem(ImagSyst,Aper_Diam);
 
+%manually set film to focal position because the calculated one isn't
+%working for some reason
+
+bestFocus_z=ImagSyst.object{end}.ConjGauss.z_im-z0;
+
+A_film.position = [0 -1.3 bestFocus_z(4)];
+A_film.size = [.6 .6];
+%A_film.wave = [550];
+
+A_lens.diffractionEnabled = true;
+%A_lens.set('wave', [550]);
 % %DEBUG
-%  psfCamera = psfCameraC('lens', A_lens, 'film', A_film, 'pointsource', A_object);
-% psfCamera.estimatePSF(1000,true);
-%   oi = psfCamera.oiCreate;
-%   vcAddObject(oi); oiWindow;
+psfCamera = psfCameraC('lens', A_lens, 'film', A_film, 'pointsource', A_object);
+psfCamera.estimatePSF(100,true);
+oi = psfCamera.oiCreate;
+vcAddObject(oi); oiWindow;
 
 
 %% STEP4:  ESTIMATE POINT SPREAD FUNCTION from ImagSyst (Michael's Method)

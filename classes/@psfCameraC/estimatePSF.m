@@ -32,6 +32,6 @@ obj.lens.rtThroughLens(obj.rays, nLines);
 % if nLines > 0; obj.rays.draw(obj.film); end
 
 % intersect with "film" and add to film
-obj.rays.recordOnFilm(obj.film);
+obj.rays.recordOnFilm(obj.film, nLines);
 
 end

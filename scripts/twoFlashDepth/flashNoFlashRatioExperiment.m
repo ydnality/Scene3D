@@ -116,6 +116,7 @@ phi   = asin(z./(fakeD1.*cos(alpha)));
 %front back flash case
 radical = abs(sqrt(4*cos(alpha).^2.*sin(phi).^2.*f.^2 - 4*f^2.*(1 - ratioImage)));
 d1Test = (2.*f.^2)./(-2.*cos(alpha).*sin(phi).*f + radical);
+d1Test1st = d1Test;
 
 figure; imagesc(d1Test);
 colorbar; title('Calculated Depth (1st pass)'); caxis([80 150]);
@@ -128,6 +129,8 @@ d1TestMedFiltered = medianFilter(d1Test,5);
 d1TestMedFiltered = medianFilter(d1TestMedFiltered',5)';
 d1TestFiltered = bilateralFilter(d1TestMedFiltered, 10, 4, 25);  
 figure; imagesc(d1TestFiltered);
+d1TestFiltered1st = d1TestFiltered;
+
 colorbar; title('Filtered Depth'); caxis([80 150]);
 
 %% Estimate the surface normals using the crude depth map
@@ -274,6 +277,23 @@ colorbar; title('Filtered Depth (2nd pass)'); caxis([80 150]);
 %% Compare the depth map to the ground truth
 figure; imagesc(groundTruthDepthMap);
 colorbar; title('Ground Truth Depth Map'); caxis([80 150]);
+
+%% Metric for error
+
+%resize images to same size as original
+nativeSize = size(groundTruthDepthMap);
+d1TestResized = imresize(d1Test1st, nativeSize);
+% d1TestFilteredResized = imresize(d1TestFiltered, nativeSize);
+
+error = abs(groundTruthDepthMap - d1TestResized)./groundTruthDepthMap;
+realValues = ~isnan(error);
+meanPercentError = mean(error(realValues)) * 100
+
+
+d1TestFilteredResized = imresize(d1TestFiltered1st, nativeSize);
+errorFiltered = abs(groundTruthDepthMap - d1TestFilteredResized)./groundTruthDepthMap;
+realValues = ~isnan(errorFiltered);
+meanPercentErrorFiltered= mean(errorFiltered(realValues)) * 100
 
 %% Summary
 % We were able to calculate a reasonable depth map from the 2-flash

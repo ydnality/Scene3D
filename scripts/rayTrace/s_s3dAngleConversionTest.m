@@ -38,7 +38,7 @@ pointSources = [0 0 -100];
 % Declare film
 % filmPosition = [0 0 51.2821	];  % Good for 2Elens
 % filmPosition = [0 0 37.4];        % Good for dgauss.50mm.  True focal about 37.3mm
-filmPosition = [0 0 95.4]; 
+filmPosition = [0 0 107]; 
 
 
 % filmSize = [.2/sqrt(2) .2/sqrt(2)];

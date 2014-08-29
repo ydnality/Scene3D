@@ -88,8 +88,8 @@ else
     
     % make the rectangular samples.
     firstApertureRadius = obj.surfaceArray(1).apertureD/2;
-    xSamples = linspace(-firstApertureRadius *leftX, firstApertureRadius*rightX, obj.apertureSample(1));
-    ySamples = linspace(-firstApertureRadius *lowerY, firstApertureRadius*upperY, obj.apertureSample(2));
+    xSamples = linspace(firstApertureRadius *leftX, firstApertureRadius*rightX, obj.apertureSample(1));
+    ySamples = linspace(firstApertureRadius *lowerY, firstApertureRadius*upperY, obj.apertureSample(2));
     [X, Y] = meshgrid(xSamples,ySamples);
 
     %Add a random jitter.  Uniform distribution.  Scales to plus or
@@ -98,7 +98,7 @@ else
         X = X + (rand(size(X)) - .5) * (xSamples(2) - xSamples(1));
         Y = Y + (rand(size(Y)) - .5) * (ySamples(2) - ySamples(1));
     end
-    aGrid.X = X; aGrid.Y = Y;  
+    aGrid.X = X(:); aGrid.Y = Y(:);  
 end
 
 % Set Z to the position of the front surface

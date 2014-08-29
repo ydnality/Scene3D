@@ -100,9 +100,9 @@ classdef ppsfC < rayC
             removeDead@rayC(obj, deadIndices);
 
             % Set properties that are specific to the ppsfC to NaN
-            obj.aEntranceInt.XY(outsideAperture, :) = NaN;
-            obj.aMiddleInt.XY(outsideAperture, :) = NaN;
-            obj.aExitInt.XY(outsideAperture, :) = NaN;
+            obj.aEntranceInt.XY(deadIndices, :) = NaN;
+            obj.aMiddleInt.XY(deadIndices, :) = NaN;
+            obj.aExitInt.XY(deadIndices, :) = NaN;
         end
     end
     

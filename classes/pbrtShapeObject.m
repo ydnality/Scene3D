@@ -75,6 +75,10 @@ classdef pbrtShapeObject <  handle
                         fprintf(fid, '"float ');
                     case 'height'
                         fprintf(fid, '"float ');
+                    case 'zmin'
+                        fprintf(fid, '"float ');
+                    case 'zmax'
+                        fprintf(fid, '"float ');
                     otherwise
                         error(['unknown pbrtShapeObject parameter: ' obj.parameterArray{i}]);
                 end

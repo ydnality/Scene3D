@@ -28,15 +28,9 @@
 %%
 s_initISET
 
-%% film (sensor) properties
-% position - relative to center of final lens surface
-% size - 'mm'
-% wavelength samples
-
-film = pbrtFilmC('position', [0 0 100 ], ...
-    'size', [10 10], ...
-    'wave', 400:50:700);
-
+%% loop through different point source positions
+pSLocations = 0:.5:10;
+AComplete = zeros(4, 4, length(pSLocations));
 
 %% lens properties
 % diffractionEnabled = false;
@@ -49,158 +43,200 @@ film = pbrtFilmC('position', [0 0 100 ], ...
 
 %initialize and read multi-element lens from file
 lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
+
+lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
+
 nSamples = 151;
 apertureMiddleD = 10;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
 
-%lens illustration - very small aperture in the middle
-% lens.draw();
 
-%% point sources (units are mm)
 
-% TODO:  Point in the psCreate here ..
 
-% Millimeters from last surface.  Always at least the lens thickness
-% away.
-pointSourceDepth = 100;   % What is happening when 10,000?
-pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
-pointSources = [ 0 0 -pointSourceDepth];  %large distance test
+%2 element lens
+% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
+% import = load(lensFile,'lens');
+% thickLens = import.lens;
+% thickLens.apertureMiddleD = 10;
 
-pointSourceFieldHeight = 0;
-% pointSources = [ 0 0 -60];  %short distance test
+for pSIndex = 1:length(pSLocations)
 
-%% ray trace and save ppsf - Not sure camera should have pointSources
+    close all;
+    pSLocation = pSLocations(pSIndex);
 
-% Use the multi element lens and film and a point source.  Combine into
-% a camera that calculates the point spread function.
-ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources);
+    %% film (sensor) properties
+    % position - relative to center of final lens surface
+    % size - 'mm'
+    % wavelength samples
 
-%%
-nLines =  100;  % Draw the ray trace if nLines > 0
-ppsf = ppsfCamera.estimatePPSF(nLines);
+    film = pbrtFilmC('position', [0 0 100 ], ...
+        'size', [10 10], ...
+        'wave', 400:50:700);
 
-%% Record on film
-ppsfCamera.recordOnFilm();
 
-% Bring up the pointspread in an optics window
-oi = ppsfCamera.oiCreate;
-vcAddObject(oi); oiWindow;
-plotOI(oi,'illuminance mesh log');
 
-%% Calculate light field at the entrance pupil plane and exit pupil - estimate the linear transform
 
-% do we need to put this in terms of angles? or are direction using
-% cartesian coordinates good enough?
-% put this into Ax = b form
+    %lens illustration - very small aperture in the middle
+    % lens.draw();
 
-% x will be a 4 x numSamples matrix containing the input lightfield
-% b will be a 4 x numSamples matrix containing the output lightfield
-% A will be the 4 x 4 least squares fit for this transformation
+    %% point sources (units are mm)
 
-% Light field representation of the (x,y) positions in the entrance pupil
-% of just those rays that actually make it to the film. There is a nan in
-% the value when the ray does not make it.
-%
-cAEntranceXY = ppsf.aEntranceInt.XY';   % 2 x nSamples_in_aperture x nWave
+    % TODO:  Point in the psCreate here ..
 
-% Eliminate nans
-survivedRays = ~isnan(cAEntranceXY(1,:));
-cAEntranceXY = cAEntranceXY(:, survivedRays);
+    % Millimeters from last surface.  Always at least the lens thickness
+    % away.
+    pointSourceDepth = 100;   % What is happening when 10,000?
+    pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
+    pointSources = [ 0 pSLocation -pointSourceDepth];  %large distance test
 
-% This is the effective aperture
-vcNewGraphWin;
-whichElement = 1;
-r = lens.get('sdiameter',whichElement)/2; [x,y] = circlePoints([],r); plot(x,y,'.');
-hold on; plot(cAEntranceXY(1,:),cAEntranceXY(2,:),'o'); axis equal
-grid on
-title(sprintf('Entrance points that make it to the exit'));
+    pointSourceFieldHeight = 0;
+    % pointSources = [ 0 0 -60];  %short distance test
 
-% Matrix of directions at entrance pupil.  This is 3 x nExitRays
-% Write this: lf = ppsf.get('entrance lf')
-%
-% This direction is an (x,y,z) vector
-entDirMatrix = ...
-    [cAEntranceXY(1, :) - ppsf.pointSourceLocation(1);
-    cAEntranceXY(2, :) - ppsf.pointSourceLocation(2);
-    ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:))) - ppsf.pointSourceLocation(3)];
-entDirMatrix = normvec(entDirMatrix, 'dim', 1);
+    %% ray trace and save ppsf - Not sure camera should have pointSources
 
-% Here we have (x,y,z) positions in the entrace aperture.
-% We also have the first two entries of the unit length vector direction of
-% the ray.  Maybe we want the two angles of that ray.
-% x = [cAEntranceXY(1,:);
-%     cAEntranceXY(2,:);
-%     ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:)));
-%     entDirMatrix(1, :);
-%     entDirMatrix(2,:)];
-x = [cAEntranceXY(1,:);
-    cAEntranceXY(2,:);
-    entDirMatrix(1, :);
-    entDirMatrix(2,:)];
+    % Use the multi element lens and film and a point source.  Combine into
+    % a camera that calculates the point spread function.
+    ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSources);
 
-% Distribution of one of the angles 
-vcNewGraphWin;
-hist(entDirMatrix(1,:),100);
+    %%
+    nLines =  100;  % Draw the ray trace if nLines > 0
+    ppsf = ppsfCamera.estimatePPSF(nLines);
 
-%% All the ray directions from a common point
-vcNewGraphWin;
-nPoints = size(x,2);
-if nPoints > 1000, s = randi(nPoints,[500,1]);
-else              s = 1:nPoints;
+    %% Record on film
+    ppsfCamera.recordOnFilm();
+
+    % Bring up the pointspread in an optics window
+    oi = ppsfCamera.oiCreate;
+    vcAddObject(oi); oiWindow;
+    plotOI(oi,'illuminance mesh log');
+
+    %% Calculate light field at the entrance pupil plane and exit pupil - estimate the linear transform
+
+    % do we need to put this in terms of angles? or are direction using
+    % cartesian coordinates good enough?
+    % put this into Ax = b form
+
+    % x will be a 4 x numSamples matrix containing the input lightfield
+    % b will be a 4 x numSamples matrix containing the output lightfield
+    % A will be the 4 x 4 least squares fit for this transformation
+
+    % Light field representation of the (x,y) positions in the entrance pupil
+    % of just those rays that actually make it to the film. There is a nan in
+    % the value when the ray does not make it.
+    %
+    cAEntranceXY = ppsf.aEntranceInt.XY';   % 2 x nSamples_in_aperture x nWave
+
+    % Eliminate nans
+    survivedRays = ~isnan(cAEntranceXY(1,:));
+    cAEntranceXY = cAEntranceXY(:, survivedRays);
+
+    % This is the effective aperture
+    vcNewGraphWin;
+    whichElement = 1;
+    r = lens.get('sdiameter',whichElement)/2; [x,y] = circlePoints([],r); plot(x,y,'.');
+    hold on; plot(cAEntranceXY(1,:),cAEntranceXY(2,:),'o'); axis equal
+    grid on
+    title(sprintf('Entrance points that make it to the exit'));
+
+    % Matrix of directions at entrance pupil.  This is 3 x nExitRays
+    % Write this: lf = ppsf.get('entrance lf')
+    %
+    % This direction is an (x,y,z) vector
+    entDirMatrix = ...
+        [cAEntranceXY(1, :) - ppsf.pointSourceLocation(1);
+        cAEntranceXY(2, :) - ppsf.pointSourceLocation(2);
+        ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:))) - ppsf.pointSourceLocation(3)];
+    entDirMatrix = normvec(entDirMatrix, 'dim', 1);
+
+    % Here we have (x,y,z) positions in the entrace aperture.
+    % We also have the first two entries of the unit length vector direction of
+    % the ray.  Maybe we want the two angles of that ray.
+    % x = [cAEntranceXY(1,:);
+    %     cAEntranceXY(2,:);
+    %     ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:)));
+    %     entDirMatrix(1, :);
+    %     entDirMatrix(2,:)];
+    x = [cAEntranceXY(1,:);
+        cAEntranceXY(2,:);
+        entDirMatrix(1, :);
+        entDirMatrix(2,:)];
+
+    % Distribution of one of the angles 
+    vcNewGraphWin;
+    hist(entDirMatrix(1,:),100);
+
+    %% All the ray directions from a common point
+    vcNewGraphWin;
+    nPoints = size(x,2);
+    if nPoints > 1000, s = randi(nPoints,[500,1]);
+    else              s = 1:nPoints;
+    end
+    z = zeros(1,length(s));
+    line([z;x(1,s)+x(3,s)],[z;x(2,s)+x(4,s)],[z;x(3,s)+entDirMatrix(3,s)])
+    view([20 58])
+    title(sprintf('%i distance\n%i samples\n%.1f aperture',pointSourceDepth,nSamples,apertureMiddleD))
+    set(gca,'xlim',[-10 10],'ylim',[-10,10],'zlim',[0 1.5]);
+
+    % The directions from the actual aperture position
+    % vcNewGraphWin;
+    % line([x(1,:);x(1,:)+x(4,:)],[x(2,:);x(2,:)+x(5,:)],[x(3,:);x(3,:)+entDirMatrix(3,:)])
+    % view([1 58])
+
+
+    %% Compute exit lightfield
+    cAExitXY = ppsf.aExitInt.XY';
+    cAExitXY = cAExitXY(:, survivedRays);
+
+    exitDirMatrix = ppsf.aExitDir';
+    exitDirMatrix = exitDirMatrix(:, survivedRays);
+
+    % b = [cAExitXY(1,:);
+    %     cAExitXY(2,:);
+    %     ppsf.aExitInt.Z * ones(size(cAExitXY(1,:)));
+    %     exitDirMatrix(1, :);
+    %     exitDirMatrix(2,:)];
+    b = [cAExitXY(1,:);
+        cAExitXY(2,:);
+        exitDirMatrix(1, :);
+        exitDirMatrix(2,:)];
+    %%  We wonder about the linear relationship
+    %  b = Ax
+    % To solve, we would compute
+    % A = b\x
+
+    % A = (x'\b')';
+    % bEst = A * x;
+
+    A = b/x;
+    bEst = A * x;
+
+    % Scatter plot of positions
+    for ii=1:4
+        vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
+        grid on;
+
+        meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
+        averageAmp = mean(abs(b(ii,:)));
+        meanPercentError = meanAbsError/averageAmp * 100
+    end
+
+
+    AComplete(:,:,pSIndex) = A;
+
 end
-z = zeros(1,length(s));
-line([z;x(1,s)+x(3,s)],[z;x(2,s)+x(4,s)],[z;x(3,s)+entDirMatrix(3,s)])
-view([20 58])
-title(sprintf('%i distance\n%i samples\n%.1f aperture',pointSourceDepth,nSamples,apertureMiddleD))
-set(gca,'xlim',[-10 10],'ylim',[-10,10],'zlim',[0 1.5]);
-
-% The directions from the actual aperture position
-% vcNewGraphWin;
-% line([x(1,:);x(1,:)+x(4,:)],[x(2,:);x(2,:)+x(5,:)],[x(3,:);x(3,:)+entDirMatrix(3,:)])
-% view([1 58])
-
-
-%% Compute exit lightfield
-cAExitXY = ppsf.aExitInt.XY';
-cAExitXY = cAExitXY(:, survivedRays);
-
-exitDirMatrix = ppsf.aExitDir';
-exitDirMatrix = exitDirMatrix(:, survivedRays);
-
-% b = [cAExitXY(1,:);
-%     cAExitXY(2,:);
-%     ppsf.aExitInt.Z * ones(size(cAExitXY(1,:)));
-%     exitDirMatrix(1, :);
-%     exitDirMatrix(2,:)];
-b = [cAExitXY(1,:);
-    cAExitXY(2,:);
-    exitDirMatrix(1, :);
-    exitDirMatrix(2,:)];
-%%  We wonder about the linear relationship
-%  b = Ax
-% To solve, we would compute
-% A = b\x
-
-% A = (x'\b')';
-% bEst = A * x;
-
-A = b/x;
-bEst = A * x;
-
-% Scatter plot of positions
-for ii=1:4
-    vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
-    grid on;
-    
-    meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
-    averageAmp = mean(abs(b(ii,:)));
-    meanPercentError = meanAbsError/averageAmp * 100
-end
-
 % Can we interpret A?  Does it agree with MP's predict calculation from the
 % method he uses?
+
+%% compare how A coefficients change 
+for i = 1:4
+    for j = 1:4
+        ASerial = AComplete(i,j, :);
+        ASerial = ASerial(:);
+        figure; plot(pSLocations, ASerial);
+    end
+end
 
 %% Future development for modifying the rays.
 

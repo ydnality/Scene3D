@@ -27,6 +27,11 @@ filmDiag = 43.26;
 pinholeLens = pbrtLensPinholeObject(filmDistance, filmDiag) ;
 curPbrt.camera.setLens(pinholeLens)
 
+%field of view calculation
+sensorWidth = filmDiag/sqrt(2);
+sensorDistance = filmDistance;
+fieldOfView = atan(sensorWidth/2/sensorDistance) * 2 * 180/pi;
+
 %depths
 sphereDepths = -170;  %negative is into the screen
 
@@ -141,7 +146,10 @@ curPbrt.writeFile(tmpFileName);
 groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
 figure; imagesc(groundTruthDepthMap);
 
+%% normal vectors
 
+[normalVector scaledNormal] = s3dCalculateNormals(groundTruthDepthMap, fieldOfView);
+vcNewGraphWin; imshow(scaledNormal );
 
 %% front flash image processing
 % %load oi from file (optional)

@@ -109,7 +109,11 @@ classdef rayC <  clonableHandleObject
                 case 'projectedangles'
                     val = obj.toProjectedAngles();
                 case 'wavelength'
-                    val = obj.wave(obj.waveIndex);
+                    val = zeros(size(obj.waveIndex));
+                    val(isnan(obj.waveIndex)) = NaN;
+                    liveInd = obj.get('liveIndices');
+                    val(~isnan(obj.waveIndex)) = obj.wave(obj.waveIndex(liveInd));
+                    val = val';
                 case 'liveindices'  %return the indices of rays that are still alive
                     val = ~isnan(obj.waveIndex);
                 otherwise
