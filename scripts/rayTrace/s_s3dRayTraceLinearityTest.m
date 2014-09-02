@@ -35,7 +35,7 @@ s_initISET
 
 %% loop through different point source positions
 pSLocations = 0.01:.3:2;
-pSZ = -100;
+pSZ = -102;
 %pSLocations = -1*(50:20:160);
 
 AComplete = zeros(4, 4, length(pSLocations));
@@ -108,7 +108,7 @@ for pSIndex = 1:length(pSLocations)
     ppsf = ppsfCamera.estimatePPSF(nLines);
 
     %% Record on film
-    ppsfCamera.recordOnFilm();
+    ppsfCamera.recordOnFilm(nLines);
 
     % Bring up the pointspread in an optics window
     oi = ppsfCamera.oiCreate;
@@ -313,7 +313,7 @@ end
     ppsf = ppsfCamera.estimatePPSF(nLines);
 
     %% Record on film
-    ppsfCamera.recordOnFilm();
+    ppsfCamera.recordOnFilm(nLines);
 
     % Bring up the pointspread in an optics window
     oi = ppsfCamera.oiCreate;
@@ -436,18 +436,18 @@ end
     
 %% Calculate the same result, but using the interpolated A Matrix instead
     
-    bEstInterp = AInterp * x;
-    
-    % calculate errors
-    % Scatter plot of positions
-    for ii=1:4
-        vcNewGraphWin; plot(b(ii,:),bEstInterp(ii,:),'o');
-        grid on;
+bEstInterp = AInterp * x;
 
-        meanAbsError = mean(abs(bEstInterp(ii,:) - b(ii,:)));
-        averageAmp = mean(abs(b(ii,:)));
-        meanPercentError = meanAbsError/averageAmp * 100
-    end
+% calculate errors
+% Scatter plot of positions
+for ii=1:4
+    vcNewGraphWin; plot(b(ii,:),bEstInterp(ii,:),'o');
+    grid on;
+
+    meanAbsError = mean(abs(bEstInterp(ii,:) - b(ii,:)));
+    averageAmp = mean(abs(b(ii,:)));
+    meanPercentError = meanAbsError/averageAmp * 100
+end
 
 %% Plot phase space of linear interpolation model output
 %this still needs to be debugged    
@@ -467,10 +467,13 @@ rayDir(1,:) = bEstInterp(3,:);
 rayDir(2,:) = bEstInterp(4,:);
 rayDir(3,:) = 1 - rayDir(1,:).^2 + rayDir(2,:).^2;
 
-
-
-calculatedRays = ppsfC('origin', rayOrigin', 'direction', rayDir');
+wave = ppsf.get('wave');
+waveIndex = ppsf.get('waveIndex');
+waveIndex = waveIndex(~isnan(waveIndex));  %remove nans
+calculatedRays = rayC('origin', rayOrigin', 'direction', rayDir', 'wave', wave, 'waveIndex', waveIndex);
 calculatedRays.plotPhaseSpace();
+
+calculatedRays.recordOnFilm(ppsfCamera.film, nLines); 
 %% Future development for modifying the rays.
 
 

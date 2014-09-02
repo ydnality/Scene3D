@@ -108,6 +108,10 @@ classdef rayC <  clonableHandleObject
                     val = obj.toSphericalAngles();
                 case 'projectedangles'
                     val = obj.toProjectedAngles();
+                case 'wave'
+                    val = obj.wave;
+                case 'waveindex'
+                    val = obj.waveIndex;
                 case 'wavelength'
                     val = zeros(size(obj.waveIndex));
                     val(isnan(obj.waveIndex)) = NaN;

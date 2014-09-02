@@ -57,14 +57,18 @@ classdef ppsfCameraC <  psfCameraC
              
          end
          
-         function obj = recordOnFilm(obj)
+         function obj = recordOnFilm(obj, nLines)
              %records the psf onto film 
              % The ppsfRays 
-             %film
+             % film
+             % nLines: >0 for drawing existing debug lines.  0 or false for
+             % not drawing them
              %obj = recordOnFilm(obj)
              %
              
-            obj.ppsfRays.recordOnFilm(obj.film); 
+            if ieNotDefined('nLines'), nLines = false; end
+             
+            obj.ppsfRays.recordOnFilm(obj.film, nLines); 
          end
     end
     
