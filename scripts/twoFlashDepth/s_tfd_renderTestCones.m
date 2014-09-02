@@ -17,6 +17,14 @@ newCamPos =    [0  0 80.0000;
     0 1.00000 0];
 curPbrt.camera.setPosition(newCamPos);
 
+%camera position (top-side-ish view to see what the scene is)
+newCamPos =    [-240  240 80.0000;
+    -239   239 79.0000;
+    0 1.00000 0];
+curPbrt.camera.setPosition(newCamPos);
+
+
+
 %depths
 sphereDepths = -170;  %negative is into the screen
 

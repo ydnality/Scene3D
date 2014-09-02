@@ -18,6 +18,14 @@ newCamPos =    [0  0 80.0000;
     0 1.00000 0];
 curPbrt.camera.setPosition(newCamPos);
 
+%camera position (top-side-ish view to see what the scene is)
+newCamPos =    [-240  240 80.0000;
+    -239   239 79.0000;
+    0 1.00000 0];
+curPbrt.camera.setPosition(newCamPos);
+
+
+
 %adjust FOV
 filmDistance = 40;
 curPbrt.camera.lens.filmDistance = filmDistance;

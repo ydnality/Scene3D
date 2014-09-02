@@ -34,8 +34,8 @@
 s_initISET
 
 %% loop through different point source positions
-% pSLocations = 0.01:.3:2;
-pSLocations = -1*(50:20:160);
+pSLocations = 0.01:.3:2;
+%pSLocations = -1*(50:20:160);
 
 AComplete = zeros(4, 4, length(pSLocations));
 
@@ -91,7 +91,7 @@ for pSIndex = 1:length(pSLocations)
     pointSourceDepth = 100;   % What is happening when 10,000?
     pointSourceDepth = max(pointSourceDepth,-(lens.get('totaloffset')+1));
     % pointSources = [ pSLocation pSLocation -pointSourceDepth];  %large distance test
-    pointSources = [ 3 3 pSLocation];  %large distance test
+    pointSources = [ 0 pSLocation -60];  %large distance test
 
     pointSourceFieldHeight = 0;
     % pointSources = [ 0 0 -60];  %short distance test
@@ -255,6 +255,12 @@ for ii=1:size(AComplete,3)
     pause(0.5);
 end
 % [az el] = view;
+
+%% Obtain an A given a pSLocation 
+
+%desired pSLocation
+wantedPSFieldHeight = 5;
+
 
 %% Future development for modifying the rays.
 

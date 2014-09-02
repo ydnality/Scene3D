@@ -60,6 +60,7 @@ else
     sensorWidth = (curPbrt.camera.lens.filmDiag/hypotneuseRatio) * aspectRatio;
     f = norm( curPbrt.camera.position(1,:) - curPbrt.lightSourceArray{1}.from, 2); %distance between 2 flashes
 end
+% DELETE THIS!!!
 fieldOfView = atan(sensorWidth/2/sensorDistance) * 2 * 180/pi;  %this does not need to be changed
 
 %% Process images and obtain ratio image
