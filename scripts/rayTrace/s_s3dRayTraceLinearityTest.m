@@ -461,7 +461,7 @@ rayDir = rayOrigin;
 
 rayOrigin(1,:) = bEstInterp(1,:);
 rayOrigin(2,:) = bEstInterp(2,:);
-rayOrigin(3,:) = 1 - bEstInterp(1,:).^2 + bEstInterp(2,:).^2;
+rayOrigin(3,:) = 0;
 
 rayDir(1,:) = bEstInterp(3,:);
 rayDir(2,:) = bEstInterp(4,:);
@@ -473,7 +473,20 @@ waveIndex = waveIndex(~isnan(waveIndex));  %remove nans
 calculatedRays = rayC('origin', rayOrigin', 'direction', rayDir', 'wave', wave, 'waveIndex', waveIndex);
 calculatedRays.plotPhaseSpace();
 
-calculatedRays.recordOnFilm(ppsfCamera.film, nLines); 
+newFilm = pbrtFilmC('position', [0 0 100 ], ...
+    'size', [10 10], ...
+    'wave', 400:50:700);
+
+calculatedRays.recordOnFilm(newFilm, nLines); 
+
+ppsfCamera.film = newFilm; 
+
+oi = ppsfCamera.oiCreate;
+    vcAddObject(oi); oiWindow;
+    plotOI(oi,'illuminance mesh log');
+    
+%TODO: verify that rayOrigin is correct!!!
+    
 %% Future development for modifying the rays.
 
 

@@ -198,8 +198,6 @@ classdef rayC <  clonableHandleObject
                 figure(obj.plotHandle);
                 line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
                 pause(0.1);
-                
-                
             end
 
             %remove dead rays
