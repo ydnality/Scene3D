@@ -19,15 +19,15 @@ newCamPos =    [0  0 80.0000;
 curPbrt.camera.setPosition(newCamPos);
 
 %camera position (top-side-ish view to see what the scene is)
-newCamPos =    [-240  240 80.0000;
-    -239   239 79.0000;
-    0 1.00000 0];
-curPbrt.camera.setPosition(newCamPos);
+% newCamPos =    [-240  240 80.0000;
+%     -239   239 79.0000;
+%     0 1.00000 0];
+% curPbrt.camera.setPosition(newCamPos);
 
 
 
 %adjust FOV
-filmDistance = 40;
+filmDistance = 140;  %filmDistance = 40;  %good for 42.5 degree FOV
 curPbrt.camera.lens.filmDistance = filmDistance;
 
 %depths
@@ -37,8 +37,9 @@ sphereDepths = -170;  %negative is into the screen
 flashSeparation = 50;
 
 %scaleFactor
-% scaleFactor = (-sphereDepths + 80)/(80); % good for film distance of 140
-scaleFactor = (-sphereDepths + 80)/(80) * 4.25;
+scaleFactor = (-sphereDepths + 80)/(80); % good for film distance of 140
+%scaleFactor = (-sphereDepths + 80)/(80) * 4.25;  %good for filim distance
+%of 40
 
 %backdrop Depth
 % backDropDepth = -100 * scaleFactor;  %backdrop distance increases with depth of spheres

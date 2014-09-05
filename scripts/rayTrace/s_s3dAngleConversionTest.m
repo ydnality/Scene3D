@@ -14,9 +14,9 @@ rtType = 'realistic';  %ideal/realistic
 debugLines = 50;
 % (lowerLeftx,LowerLefty,uppRightx,upperRighty)
 % Percentage of rectangular lens, 0 is middle
-% subSection = [];   % Whole thing
+subSection = [];   % Whole thing
 % subSection = [-.25 -.25 .25 .25];   % Not working
-subSection = [0 0 .25 .25];   
+%subSection = [0 0 .25 .25];   
 
 %% Declare point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
@@ -77,7 +77,7 @@ import = load(lensFile,'lens');
 multiLens = import.lens;
 
 % lens = multiLens;
-lens = thickLens;
+lens = multiLens;
 lens.set('wave', wave);
 % Matrix of n for each surface element.
 % Apertures are 0
