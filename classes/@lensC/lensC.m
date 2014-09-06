@@ -444,6 +444,8 @@ classdef lensC <  handle
                         rays.aMiddleInt.XY = 0;
                         rays.aMiddleInt.XY = intersectPosition(:,1:2);  %only X-Y coords
                         rays.aMiddleInt.Z  = intersectZ;    %aperture Z
+
+                        rays.aMiddleDir = rays.direction;                       
                         % passedCenterAperture = true;
                     end
                 end
