@@ -519,7 +519,7 @@ end
         meanPercentError = meanAbsError/averageAmp * 100
     end
     
-%% Calculate the same result, but using the INTERPOLATED A Matrix instead
+%% Calculate the same result as above, but using the INTERPOLATED A Matrix instead
     
 bEstInterp = AInterp * x;
 
@@ -535,7 +535,7 @@ for ii=1:4
 end
 
 
-    %% Plot phase space of linear interpolation model output
+    %% Plot phase space and visual PSF of linear interpolation model output
     %this still needs to be debugged    
 
 
@@ -594,8 +594,9 @@ end
 
 %% Calculate the same result, using the 2 A matrices instead, and the aperture in the middle
 
+adjustedMiddleAperture = 4;
 middleXY = ppsf.aEntranceInt.XY;
-withinAperture = sqrt(middleXY(:,1).^2 + middleXY(:,2).^2) <= 3;%apertureMiddleD/2;
+withinAperture = middleXY(:,1).^2 + middleXY(:,2).^2 <= adjustedMiddleAperture.^2;%apertureMiddleD/2;
 %middleAperture = diag(middleAperture);
 
 firstHalf = A1stInterp * xOrig;
