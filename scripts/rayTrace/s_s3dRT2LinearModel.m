@@ -136,7 +136,7 @@ for i = 1:4
     end
 end
 
-%% Compute ground truth LF at the wanted Point source Field Height
+%% Compute ground truth LF at the WANTED Point source Field Height, and produce PSF
 
 %assign the full coordinates for the wanted pS location to pointSource
 pointSource = pSLocations(1,:);
