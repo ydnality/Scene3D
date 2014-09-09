@@ -1,48 +1,42 @@
-%% ray-tracing for realistic lens - PPSF
+%% Volume of Linear Transforms (VOLT) ray-tracing for multi-element lenses 
 %
-% Towards a volume of linear transforms (volt)
+% This script produces a volume of linear transforms (VOLT) to help speed
+% up ray-tracing.  Although lens transforms using Snell's Law are generally
+% not linear, it can be shown that they are approximately locally linear.
+% Thus we can produce a collection of linear transforms to summarize the
+% generally non-linear transform.
 %
-% Check why we have a discontinuity at (0,0).  Something about the 0 always
+% Input field positions are given for the point sources where we wish to
+% perform complete ray-tracing.  Linear lens models (4x4 matrices) are
+% computed for these point source locations that transform the input light
+% field to the output lightfield.
+%
+% Since the linear transforms were shown to vary slowly, we can linearly
+% interpolate between these known estimated transforms to produce linear
+% transforms for arbitrary locations of point sources.  
+%
+% Notes:
+%
+% -Check why we have a discontinuity at (0,0).  Something about the 0 always
 % mapping to 0, or something ...
-%
-% Lens element positions are all negative, and the final exit plan can be
+% -Lens element positions are all negative, and the final exit plan can be
 % considered as z = 0
-%
-%  This uses Snell's law and a lens prescription to create a tray trace.
-%  The script is too long, and we need to start writing functions so that
-%  the length is shortened and the clarity increased.
-%  We are only ray-tracing ideal point sources in order to extract out point
-%  spread functions.
-%
-%  We are also experimenting with the plenoptic point spread function
-%  (PPSF).  this is a very early experiment, where we are splitting the
-%  calculation into 2 steps.  The first step traces the rays from a single
-%  point in the scene towards the lens.  Ray-tracing is performed through
-%  the lens, and out the back aperture.  At this point, the rays may be
-%  saved as data.  Next, the rays are traced from the end of the lens to
-%  the sensor (this process is reasonably efficient and doesn't take much
-%  time).  Using this format, differrent sensor depths may be used to
-%  access the PSF.
-%
-%  This specific script renders 2 PPSFs at a set field position , but with
-%  different depths.  We attempt to interpolate a PPSF for a
-%  position half-way between these 2, and check the results with the ground
-%  truth.
 %
 % AL Vistalab, 2014
 %%
 s_initISET
 
-%% specify different point source positions
+%% Specify different point source positions to compute linear transform
 pSY = 0.01:.3:2;
 pSZ = -102 * ones(length(pSY), 1);
+
 pSLocations = [zeros(length(pSY), 1) pSY' pSZ];
 
 %desired pSLocation for interpolation
 wantedPSLocation = 1.7;
 
+%% Define the Lens and Film
 
-%% lens properties
 % diffractionEnabled = false;
 %turning on diffraction does NOT make sense yet since we have not modeled
 %the transformation of uncertainty from the middle aperture to the end of the lens
@@ -62,6 +56,7 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
 
+% lens.draw();
 %2 element lens
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
 % import = load(lensFile,'lens');
@@ -76,9 +71,22 @@ film = pbrtFilmC('position', [0 0 100 ], ...
     'size', [10 10], ...
     'wave', 400:50:700);
 
-% lens.draw();
-
-%% compute VOLT model
+%% Compute VOLT model
+%
+% The VOLT model consists of a collection of 4x4 A matrices that
+% transforms the positions and directions of an input light-field into an
+% output light-field.  Each field position has a 4x4 transform matrix. 3
+% collections of A matrices are calculated.  These are stored in 4x4xn
+% matrices, where n is the number of input field positions.
+%       -AComplete: the collection of complete linear transform from the
+%       front-most lens element to the back-most lens element.
+%       -A1stComplete: the collection of linear transforms from the
+%       front-most lens element to the middle aperture. -A2ndComplete: the
+%       collection of linear transforms from the middle aperture to the
+%       back-most lens element.
+%
+% Currently the VOLT model accomodates changes in field position ONLY.
+% Depth variation will come later.
 
 [AComplete A1stComplete A2ndComplete] = s3dVOLTCreateModel(lens, film, pSLocations);
 
@@ -112,7 +120,7 @@ for ii=1:size(AComplete,3)
 end
 % [az el] = view;
 
-%% Obtain an A given a wantedpSLocation by interpolation
+%% Obtain an A given a wantedpSLocation by linear interpolation
 
 AInterp = zeros(4,4);
 A1stInterp = zeros(4,4);
@@ -151,7 +159,9 @@ oi = ppsfCamera.oiCreate;
     vcAddObject(oi); oiWindow;
     plotOI(oi,'illuminance mesh log');
     
-%% Calculate the same result as above, but using the INTERPOLATED A Matrix instead
+%% Calculate the same result as above (PSF), but using the INTERPOLATED A Matrix instead
+% The result of this experiment should be almost the same as the one above.
+
 close all;
 bEstInterp = AInterp * x;
 
@@ -173,7 +183,16 @@ oi = ppsfCamera.oiCreate;
     plotOI(oi,'illuminance mesh log');
 
 
-%% Calculate the same result as above, using the 2 A matrices instead
+%% Calculate the same result as above (PSF), using the 2 interpolated A matrices instead
+% Once again, this result should not be too much different from the ground
+% truth PSF.  The 2 interpolated A matrix split the lens into 2 halves, the
+% first one from the front-most lens element to the aperture, and the
+% second one from the aperture to the back-most lens element.
+%
+% However, we are "cheating" in a sense because we are using the ground
+% truth effective aperture information to determine which rays make it
+% through the lens.
+
 close all;
 
 bEstInterp = A2ndInterp * (A1stInterp * x);
@@ -196,7 +215,18 @@ end
 %     vcAddObject(oi); oiWindow;
 %     plotOI(oi,'illuminance mesh log');
 
-%% Calculate the same result, using the 2 A matrices instead, and the aperture in the middle
+%% Calculate the PSF, using the 2 A matrices instead, and the aperture in the middle
+% Once again, this result should not be too much different from the ground
+% truth PSF, unless adjustedMiddleAperture was changed.
+% 
+% This experiment demonstrates the flexibility of the transform method.  We
+% can quickly produce PSFs at arbitrary field heights, and aperture shapes
+% and sizes, given the VOLT model.
+%
+% We are no longer "cheating" in this experiemnt because we are using the
+% assumption that ONLY the middle aperture will constrict light flow in
+% this system.  For middle apertures that are smaller than the other
+% apertures, this assumption should be valid.
 
 %*** change this parameter to change the rendered middle aperture for the
 %lens
@@ -208,12 +238,12 @@ withinAperture = middleXY(:,1).^2 + middleXY(:,2).^2 <= adjustedMiddleAperture.^
 %middleAperture = diag(middleAperture);
 
 firstHalf = A1stInterp * xOrig;
-firstHalfBlock = firstHalf(:, withinAperture);
+firstHalfBlock = firstHalf(:, withinAperture); %Apply aperture to rays from the first half
 bEstInterp = A2ndInterp * firstHalfBlock;
 
-bOrigCropped = bOrig(:, withinAperture);
+bOrigCropped = bOrig(:, withinAperture); %ground truth rays
 
-% calculate errors
+% Calculate errors
 % Scatter plot of positions
 for ii=1:4
     ii
@@ -225,22 +255,8 @@ for ii=1:4
     meanPercentErrorSplit = meanAbsError/averageAmp * 100
 end
 
-% visualize PSF and phase space
+% Visualize PSF and phase space
 ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp, withinAperture)
 oi = ppsfCamera.oiCreate;
     vcAddObject(oi); oiWindow;
     plotOI(oi,'illuminance mesh log');
-
-%% Future development for modifying the rays.
-
-
-% Make a second ppsf object
-%     modifyRays = ppsfC();
-%
-%     % Take the ppsfRays from the first object, copy the properties of the
-%     % ppsfRays into real data, not just a pointer to the data.
-%     modifyRays.makeDeepCopy(ppsfCamera.ppsfRays);
-%
-%     % Trace the rays lens to sensor
-%     modifyRays.recordOnFilm(ppsfCamera.film);
-
