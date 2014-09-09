@@ -1,5 +1,21 @@
 function [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens)    
-
+    % [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens)  
+    %
+    % This function performs the ray-trace for one point source, and
+    % returns light-field information in the form of the input, output,
+    % middle light-fields, the ppsf, and the ppsfCamera used for the
+    % calculation
+    % 
+    % x: the light-field at the entrance of the lens (rays that don't make
+    % it through are removed).
+    % xOrig: the light-field at the entrance of the lens (rays that don't
+    % make it through are NOT removed). 
+    % b: the light-field at the exit of the lens (rays that don't make it
+    % through are removed).
+    % bOrig: the light-field at the exit of the lens (rays that dont' make
+    % it through are NOT removed).  
+    % bMiddle: the light-field that exists at the middle aperture location.
+    
     % TODO:  Point in the psCreate here ..
 
     % Millimeters from last surface.  Always at least the lens thickness
