@@ -1,4 +1,4 @@
-classdef pbrtFilmC <  handle
+classdef pbrtFilmC <  clonableHandleObject
     % Create a pbrtFilmC
     %
     % Initiated by property/val pairs
@@ -20,8 +20,7 @@ classdef pbrtFilmC <  handle
     %
     % AL Vistasoft Copyright 2014
     
-    % This object has no methods yet.  What is going on?
-    % What does it do? It gets attached to other objects that need this
+    % This object has no methods yet.  It gets attached to other objects that need this
     % information, like psfCameraC.
     
     properties
