@@ -90,9 +90,9 @@ film = pbrtFilmC('position', [0 0 100 ], ...
 
 [AComplete A1stComplete A2ndComplete] = s3dVOLTCreateModel(lens, film, pSLocations);
 
-%% Interpret A matrices
+%% Interpret A matrices - let's see if they vary slowly as expected
 
-% Let's interpet A. Does it agree with MP's predict calculation from the
+% Does A agree with MP's predict calculation from the
 % method he uses?  
 
 % %% compare how A coefficients change 
@@ -161,11 +161,15 @@ oi = ppsfCamera.oiCreate;
     
 %% Calculate the same result as above (PSF), but using the INTERPOLATED A Matrix instead
 % The result of this experiment should be almost the same as the one above.
+%
+% However, we are "cheating" in a sense because we are using the ground
+% truth effective aperture information to determine which rays make it
+% through the lens.
 
 close all;
 bEstInterp = AInterp * x;
 
-% calculate errors
+% Calculate errors
 % Scatter plot of positions
 for ii=1:4
     vcNewGraphWin; plot(b(ii,:),bEstInterp(ii,:),'o');
