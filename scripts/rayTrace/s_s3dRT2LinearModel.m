@@ -1,19 +1,59 @@
-%% Volume of Linear Transforms (VOLT) ray-tracing for multi-element lenses 
+%% Volume of Linear Transforms (VOLT) ray-tracing for multi-element lenses
 %
-% This script produces a volume of linear transforms (VOLT) to help speed
-% up ray-tracing.  Although lens transforms using Snell's Law are generally
-% not linear, it can be shown that they are approximately locally linear.
-% Thus we can produce a collection of linear transforms to summarize the
-% generally non-linear transform.
+% This script shows how to produce a volume of linear transforms (VoLT).
+% This scripts relies on a function (s3dVOLTCreateModel) that takes a lens
+% object and a sampled volume of the object space and returns a structure
+% of linear transforms.
 %
-% Input field positions are given for the point sources where we wish to
-% perform complete ray-tracing.  Linear lens models (4x4 matrices) are
-% computed for these point source locations that transform the input light
-% field to the output lightfield.
+% The linear transformation from the object position to the exit plane of
+% the optics needs to account for the properties of the system apertures.
+% THat is, only some of the rays from an object actually make it through
+% the optical system. We discuss this issue at length in the different
+% computational scripts related to this one.
 %
-% Since the linear transforms were shown to vary slowly, we can linearly
-% interpolate between these known estimated transforms to produce linear
-% transforms for arbitrary locations of point sources.  
+% The idea is this:  Lens transforms of the ray from a point through the
+% optics, using Snell's Law are generally not linear. But, they are locally
+% linear. Thus we can produce a collection of linear transforms, one for
+% each visual field position (volume), and the collection summarizes the
+% overall non-linear transform.
+%
+% This script starts with a set of input field positions describing the
+% point sources where we wish to perform complete ray-tracing.  Linear lens
+% models (4x4 matrices) are computed for each these point source locations.
+% These linear transforms convert the rays from each point to the output
+% lightfield for that point. The sum of the light fields from all of the
+% points is the complete image light field.
+%
+% Since the linear transforms vary slowly across the volume of points, we
+% can linearly interpolate between these known estimated transforms to
+% produce linear transforms for arbitrary locations of point sources.
+%
+% How is this useful
+%
+%   This approach speeds up the forward model processing compared to a lot
+%   of ray tracing through multi-element lenses.  Rather than trace each
+%   ray, we can set a cone of rays for each point and apply the linear
+%   transformation.
+%
+%   This method stores for a light field linear transformation each visual
+%   field depth, field height, and wavelength.  One value of this
+%   representation is that the PSF can be derived from that linear
+%   transformation for any film distance.
+%
+%   Another advantage is that in the past we had a point spread function
+%   (PSF) for every position.  We then interpolated between positions
+%   (e.g., deptns and field heights) to estimate the intermediate PSF.
+%
+%   A third advantage is that the interpolation between positions, based on
+%   the interpolation of these linear transformations, is more accurate
+%   than the interpolation based on the PSFs themselves.
+%
+%   A fourth value is that we can recalculate the PSF as we change the
+%   aperture.
+%
+% See also:
+%    MORE SCRIPTS ILLUSTRATING STUFF ABOUT APERTURES, COMPUTATIONAL
+%    EFFICIENCY, SO FORTH.
 %
 % Notes:
 %
@@ -26,7 +66,11 @@
 %%
 s_initISET
 
-%% Specify different point source positions to compute linear transform
+%% Specify different point source positions in the object volume
+%
+% We compute a linear transform for each of these sample positions
+%
+% At this moment, we only change in field height, not yet depth.
 pSY = 0.01:.3:2;
 pSZ = -102 * ones(length(pSY), 1);
 
@@ -75,15 +119,17 @@ film = pbrtFilmC('position', [0 0 100 ], ...
 %
 % The VOLT model consists of a collection of 4x4 A matrices that
 % transforms the positions and directions of an input light-field into an
-% output light-field.  Each field position has a 4x4 transform matrix. 3
-% collections of A matrices are calculated.  These are stored in 4x4xn
+% output light-field.  Each field position has a 4x4 transform matrix. 
+%
+% Three collections of A matrices are calculated.  These are stored in 4x4xn
 % matrices, where n is the number of input field positions.
-%       -AComplete: the collection of complete linear transform from the
+%
+%       - AComplete: the collection of complete linear transform from the
 %       front-most lens element to the back-most lens element.
-%       -A1stComplete: the collection of linear transforms from the
-%       front-most lens element to the middle aperture. -A2ndComplete: the
-%       collection of linear transforms from the middle aperture to the
-%       back-most lens element.
+%       - A1stComplete: the collection of linear transforms from the
+%       front-most lens element to the middle aperture. 
+%       - A2ndComplete: the collection of linear transforms from the middle
+%       aperture to the back-most lens element.
 %
 % Currently the VOLT model accomodates changes in field position ONLY.
 % Depth variation will come later.
@@ -93,9 +139,9 @@ film = pbrtFilmC('position', [0 0 100 ], ...
 %% Interpret A matrices - let's see if they vary slowly as expected
 
 % Does A agree with MP's predict calculation from the
-% method he uses?  
+% method he uses?
 
-% %% compare how A coefficients change 
+% %% compare how A coefficients change
 % for i = 1:4
 %     for j = 1:4
 %         ASerial = AComplete(i,j, :);
@@ -120,13 +166,15 @@ for ii=1:size(AComplete,3)
 end
 % [az el] = view;
 
-%% Obtain an A given a wantedpSLocation by linear interpolation
+%% Obtain an A given a wanted pSLocation by linear interpolation
 
+% This is going to be the basis of the 'get' part of the VOLT class, when
+% we return an interpolated linear transformation
 AInterp = zeros(4,4);
 A1stInterp = zeros(4,4);
 A2ndInterp = zeros(4,4);
 for i = 1:4
-    for j = 1:4   
+    for j = 1:4
         coefValues = AComplete(i,j,:);
         coefValues = coefValues(:);
         yi = interp1(pSY,coefValues, wantedPSLocation);
@@ -144,29 +192,42 @@ for i = 1:4
     end
 end
 
-%% Compute ground truth LF at the WANTED Point source Field Height, and produce PSF
+%% Compute ground truth LF at the WANTED Point source Field Height
 
-%assign the full coordinates for the wanted pS location to pointSource
-pointSource = pSLocations(1,:);
+% For this moment, we only run at one depth
+% We set the wanted field height to the second coordinate,
+% The first coordinate is always 0.
+pointSource    = pSLocations(1,:);
 pointSource(2) = wantedPSLocation;
-[ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens);    
-    
+
+% Compute the plenoptic pointspread that has the light field information
+[ppsf, x, b, bMiddle, xOrig, bOrig, ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens);
+
 close all;
+
+%% Now compute the PSF
 
 % Plot phase space and visual PSF of linear interpolation model output
-ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, b)
-oi = ppsfCamera.oiCreate;
-    vcAddObject(oi); oiWindow;
-    plotOI(oi,'illuminance mesh log');
-    
-%% Calculate the same result as above (PSF), but using the INTERPOLATED A Matrix instead
-% The result of this experiment should be almost the same as the one above.
-%
-% However, we are "cheating" in a sense because we are using the ground
-% truth effective aperture information to determine which rays make it
-% through the lens.
+ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, b);
 
-close all;
+oi = ppsfCamera.oiCreate;
+vcAddObject(oi); oiWindow;
+plotOI(oi,'illuminance mesh linear');
+
+%% Calculate the PSF using the INTERPOLATED A Matrix 
+
+% The PSF for the interpolated should be close to the ground truth we just
+% computed
+%
+
+% N.B. We are "cheating" in a sense because we are using the ground truth
+% effective aperture information to determine which rays make it through
+% the lens.
+%
+% FURTHER:  There is a brightness difference.  In one example, AL and I saw
+% a 550 Lux vs. a 700 Lux output.  Some normalization in the interpolation
+% process?  
+
 bEstInterp = AInterp * x;
 
 % Calculate errors
@@ -174,7 +235,7 @@ bEstInterp = AInterp * x;
 for ii=1:4
     vcNewGraphWin; plot(b(ii,:),bEstInterp(ii,:),'o');
     grid on;
-
+    
     meanAbsError = mean(abs(bEstInterp(ii,:) - b(ii,:)));
     averageAmp = mean(abs(b(ii,:)));
     meanPercentError = meanAbsError/averageAmp * 100
@@ -183,11 +244,14 @@ end
 % Plot phase space and visual PSF of linear interpolation model output
 ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp)
 oi = ppsfCamera.oiCreate;
-    vcAddObject(oi); oiWindow;
-    plotOI(oi,'illuminance mesh log');
+vcAddObject(oi); oiWindow;
+plotOI(oi,'illuminance mesh linear');
 
 
-%% Calculate the same result as above (PSF), using the 2 interpolated A matrices instead
+%% Calculate the PSF again, but using the 2 different A matrices (1st, 2nd)
+
+% These matrices are again inerpolated
+%
 % Once again, this result should not be too much different from the ground
 % truth PSF.  The 2 interpolated A matrix split the lens into 2 halves, the
 % first one from the front-most lens element to the aperture, and the
@@ -197,7 +261,7 @@ oi = ppsfCamera.oiCreate;
 % truth effective aperture information to determine which rays make it
 % through the lens.
 
-close all;
+% close all;
 
 bEstInterp = A2ndInterp * (A1stInterp * x);
 
@@ -207,22 +271,26 @@ for ii=1:4
     ii
     vcNewGraphWin; plot(b(ii,:),bEstInterp(ii,:),'o');
     grid on;
-
+    
     meanAbsError = mean(abs(bEstInterp(ii,:) - b(ii,:)));
     averageAmp = mean(abs(b(ii,:)));
     meanPercentErrorSplit = meanAbsError/averageAmp * 100
 end
 
 % Plot phase space and visual PSF of linear interpolation model output
-% ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp)
-% oi = ppsfCamera.oiCreate;
-%     vcAddObject(oi); oiWindow;
-%     plotOI(oi,'illuminance mesh log');
+ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp)
+oi = ppsfCamera.oiCreate;
+vcAddObject(oi); oiWindow;
+plotOI(oi,'illuminance mesh linear');
 
-%% Calculate the PSF, using the 2 A matrices instead, and the aperture in the middle
+%% Calculate the PSF, using the 2 A matrices and the aperture in the middle
+
+% This illustrates that the aperture can be changed quickly in the
+% simulation, without recomputing the VOLT class
+%
 % Once again, this result should not be too much different from the ground
 % truth PSF, unless adjustedMiddleAperture was changed.
-% 
+%
 % This experiment demonstrates the flexibility of the transform method.  We
 % can quickly produce PSFs at arbitrary field heights, and aperture shapes
 % and sizes, given the VOLT model.
@@ -232,9 +300,13 @@ end
 % this system.  For middle apertures that are smaller than the other
 % apertures, this assumption should be valid.
 
-%*** change this parameter to change the rendered middle aperture for the
+
+% Break this out into a separate couple of scripts that illustrate changing
+% the properties of the aperture
+
+%*** change this parameter to change the size of the middle aperture for the
 %lens
-adjustedMiddleAperture = 4;
+adjustedMiddleAperture = 2;
 close all;
 
 middleXY = ppsf.aEntranceInt.XY;
@@ -253,7 +325,7 @@ for ii=1:4
     ii
     vcNewGraphWin; plot(bOrigCropped(ii,:),bEstInterp(ii,:),'o');
     grid on;
-
+    
     meanAbsError = mean(abs(bEstInterp(ii,:) - bOrigCropped(ii,:)));
     averageAmp = mean(abs(bOrigCropped(ii,:)));
     meanPercentErrorSplit = meanAbsError/averageAmp * 100
@@ -262,5 +334,7 @@ end
 % Visualize PSF and phase space
 ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp, withinAperture)
 oi = ppsfCamera.oiCreate;
-    vcAddObject(oi); oiWindow;
-    plotOI(oi,'illuminance mesh log');
+vcAddObject(oi); oiWindow;
+plotOI(oi,'illuminance mesh linear');
+
+%% End
