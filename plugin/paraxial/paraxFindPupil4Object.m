@@ -113,21 +113,21 @@ if all(Ind1==Ind1(1))
 else
     Radiance.chromSTOP='variable';
     % For upper rim of the aperture
-    for n=1:length(ImagSystPupil.wave)
+    for n=1:length(wave)
         %Aperture stop
-        Radiance.aperSTOP.indexSurf(n,1)=Ind(n);
-        Radiance.aperSTOP.surf{n,1}=OptSystlist{ImagSystPupil.computed_order(Ind(n))};
+        Radiance.aperSTOP.indexSurf(n,1)=Ind1(n);
+        Radiance.aperSTOP.surf{n,1}=OptSystlist{ImagSystPupil.computed_order(Ind1(n))};
         %Entrance Pupil 
-        Radiance.EnP.z_pos(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.z_pos;
-        Radiance.EnP.m_lat(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.m_lat;
-        Radiance.EnP.diam(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.diam(n,1);
+        Radiance.EnP.z_pos(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind1(n))}.z_pos(n,1);
+        Radiance.EnP.m_lat(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind1(n))}.m_lat(n,1);
+        Radiance.EnP.diam(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind1(n))}.diam(n,1);
         %Angular aperture on the object side
         Radiance.EnP.angularAperture_rad(n,1)=Min1(n); %in rad
         Radiance.EnP.angularAperture_deg(n,1)=Min1(n)*pi/180; % in deg
         % Exit Pupil
-        Radiance.ExP.z_pos(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.z_pos;
-        Radiance.ExP.m_lat(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.m_lat;
-        Radiance.ExP.diam(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.diam(n,1);
+        Radiance.ExP.z_pos(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind1(n))}.z_pos(n,1);
+        Radiance.ExP.m_lat(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind1(n))}.m_lat(n,1);
+        Radiance.ExP.diam(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind1(n))}.diam(n,1);
         %Angular aperture on the object side
         tanAng_im=Radiance.ExP.diam(n,1)./(Radiance.ExP.z_pos(n,1)-Object.ConjGauss.z_im(n,1));
         Radiance.ExP.angularAperture_rad(n,1)=abs(atan(tanAng_im));%in rad
@@ -160,23 +160,23 @@ if all(Ind2==Ind2(1))
 else
     Radiance.chromSTOP='variable';
     % For upper rim of the aperture
-    for n=1:length(ImagSyst.wave)
+    for n=1:length(wave)
         %Aperture stop
-        Radiance.aperSTOP.indexSurf(n,2)=Ind(n);
-        Radiance.aperSTOP.surf{n,2}=OptSystlist{ImagSystPupil.computed_order(Ind(n))};
+        Radiance.aperSTOP.indexSurf(n,2)=Ind2(n);
+        Radiance.aperSTOP.surf{n,2}=OptSystlist{ImagSystPupil.computed_order(Ind2(n))};
         %Entrance Pupil 
-        Radiance.EnP.z_pos(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.z_pos;
-        Radiance.EnP.m_lat(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.m_lat;
-        Radiance.EnP.diam(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.diam(n,2);
+        Radiance.EnP.z_pos(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind2(n))}.z_pos(n,1);
+        Radiance.EnP.m_lat(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind2(n))}.m_lat(n,1);
+        Radiance.EnP.diam(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind2(n))}.diam(n,2);
         %Angular aperture on the object side
         Radiance.EnP.angularAperture_rad(n,2)=Min1(n); %in rad
         Radiance.EnP.angularAperture_deg(n,2)=Min1(n)*pi/180; % in deg
         % Exit Pupil
-        Radiance.ExP.z_pos(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.z_pos;
-        Radiance.ExP.m_lat(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.m_lat;
-        Radiance.ExP.diam(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.diam(n,2);
+        Radiance.ExP.z_pos(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind2(n))}.z_pos(n,1);
+        Radiance.ExP.m_lat(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind2(n))}.m_lat(n,1);
+        Radiance.ExP.diam(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind2(n))}.diam(n,2);
         %Angular aperture on the object side
-        tanAng_im=Radiance.ExP.diam(n,2)./(Radiance.ExP.z_pos(n,2)-Object.ConjGauss.z_im(n,2));
+        tanAng_im=Radiance.ExP.diam(n,2)./(Radiance.ExP.z_pos(n,2)-Object.ConjGauss.z_im(n,1));
         Radiance.ExP.angularAperture_rad(n,2)=abs(atan(tanAng_im));%in rad
         Radiance.ExP.angularAperture_deg(n,2)=abs(atan(tanAng_im))*pi/180; % in deg
     end

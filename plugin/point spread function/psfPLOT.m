@@ -37,7 +37,7 @@ end
 
 %% CREATE MESH FOR PLOT
 [X,Y]=meshgrid(x_im(indx),y_im(indy));
-PSF=PSF(indx,indy,inW0);
+PSF=PSF(indy,indx,inW0);
 
 %% PLOT
 %TITLE

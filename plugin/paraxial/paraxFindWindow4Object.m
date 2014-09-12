@@ -151,24 +151,26 @@ elseif  all(Ind1==Ind1(1))
 
 else
     Field.chromSTOP='variable';
+    Ind=Ind1;
     % For upper rim of the aperture
     for n=1:length(wave)
         %Field stop
         Field.fieldSTOP.indexSurf(n,1)=Ind(n);
         Field.fieldSTOP.surf{n,1}=Surfslist.list{Surfslist.order(Ind(n))};
         %Entrance Window 
-        Field.EnW.z_pos(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.z_pos;
-        Field.EnW.m_lat(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.m_lat;
+        Field.EnW.z_pos(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.z_pos(n,1);
+        Field.EnW.m_lat(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.m_lat(n,1);
         Field.EnW.diam(n,1)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.diam(n,1);
         % Exit Window
-        Field.ExW.z_pos(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.z_pos;
-        Field.ExW.m_lat(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.m_lat;
+        Field.ExW.z_pos(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.z_pos(n,1);
+        Field.ExW.m_lat(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.m_lat(n,1);
         Field.ExW.diam(n,1)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.diam(n,1);
         
         %Half-Field of View on the object side
         FoV_obj_rad(n,1)=Min1(n); %in rad
         %Half-Field of View on the image side
-        Min1_im(n)=atan(Field.ExW.diam(n,1)./(Field.ExW.z_pos(n,1)-mean(ObjectExP.z_pos,2)));
+%         Min1_im(n)=atan(Field.ExW.diam(n,1)./(Field.ExW.z_pos(n,1)-mean(ObjectExP.z_pos,2)));
+        Min1_im(n)=atan(Field.ExW.diam(n,1)./(Field.ExW.z_pos(n,1)-mean(ObjectExP.z_pos(n,:))));
         FoV_im_rad(n,1)=Min1_im(n); %in rad 
     end
 end
@@ -215,6 +217,7 @@ elseif  all(Ind2==Ind2(1))
     FoV_im_rad(:,2)=Min2_im; %in rad  
 
 else
+    Ind=Ind2;
     Field.chromSTOP='variable';
     % For upper rim of the aperture
     for n=1:length(wave)
@@ -222,18 +225,19 @@ else
         Field.fieldSTOP.indexSurf(n,2)=Ind(n);
         Field.fieldSTOP.surf{n,2}=Surfslist.list{Surfslist.order(Ind(n))};
         %Entrance Window 
-        Field.EnW.z_pos(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.z_pos;
-        Field.EnW.m_lat(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.m_lat;
+        Field.EnW.z_pos(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.z_pos(n,1);
+        Field.EnW.m_lat(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.m_lat(n,1);
         Field.EnW.diam(n,2)=ImagSystPupil.EnPs{ImagSystPupil.computed_order(Ind(n))}.diam(n,2);
         % Exit Window
-        Field.ExW.z_pos(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.z_pos;
-        Field.ExW.m_lat(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.m_lat;
+        Field.ExW.z_pos(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.z_pos(n,1);
+        Field.ExW.m_lat(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.m_lat(n,1);
         Field.ExW.diam(n,2)=ImagSystPupil.ExPs{ImagSystPupil.computed_order(Ind(n))}.diam(n,2);
         
         %Half-Field of View on the object side
         FoV_obj_rad(n,2)=Min2(n); %in rad
         %Half-Field of View on the image side
-        Min2_im(n)=atan(Field.ExW.diam(n,2)./(Field.ExW.z_pos(n,2)-mean(ObjectExP.z_pos,2)));
+%         Min2_im(n)=atan(Field.ExW.diam(n,2)./(Field.ExW.z_pos(n,1)-mean(ObjectExP.z_pos,2)));
+        Min2_im(n)=atan(Field.ExW.diam(n,2)./(Field.ExW.z_pos(n,1)-mean(ObjectExP.z_pos(n,:))));
         FoV_im_rad(n,2)=Min2_im(n); %in rad 
     end
 end

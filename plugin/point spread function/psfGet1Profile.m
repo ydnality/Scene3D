@@ -31,6 +31,12 @@ switch method
         %find peak
         peakV=max(max(PSF2D(:,:,inW0)));
         [rP,cP]=find(PSF2D(:,:,inW0)==peakV);
+        if numel(rP)>1
+            %In case of multiple peak select the median position
+            in0=find(rP==ceil(median(rP)));
+            rP=rP(in0(1));
+            cP=cP(in0(1));
+        end
         % check if available sampling limit
         if nargin>6
             x1d=varargin{1};

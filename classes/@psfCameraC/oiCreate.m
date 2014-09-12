@@ -18,14 +18,14 @@ oi = oiSet(oi,'photons',obj.film.image);
 oi = oiAdjustIlluminance(oi,1);
 
 % Set focal length in meters
-oi = oiSet(oi,'optics focal length',obj.lens.focalLength/1000);
+% oi = oiSet(oi,'optics focal length',obj.lens.focalLength/1000);
 
 % This isn't exactly the fnumber.  Do we have the aperture in
 % there?  Ask MP what to use for the multicomponent system.
 % This is just a hack to get something in there
 % Maybe this should be obj.lens.apertureMiddleD?
-fN = obj.lens.focalLength/obj.lens.surfaceArray(1).apertureD;
-oi = oiSet(oi,'optics fnumber',fN);
+% fN = obj.lens.focalLength/obj.lens.surfaceArray(1).apertureD;
+% oi = oiSet(oi,'optics fnumber',fN);
 
 % Estimate the horizontal field of view
 hfov = rad2deg(2*atan2(obj.film.size(1)/2,obj.lens.focalLength));

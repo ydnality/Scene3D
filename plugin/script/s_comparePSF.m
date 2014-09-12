@@ -42,15 +42,15 @@ Aper_Diam=[]; %in mm
 %position (any optical system has a default position of the film, but you
 %can place the film in focus for a given wavelenght (@ 550 nm )
 filmParam.waveRef=550*1e-6;
-% filmParam.mode='default';
-filmParam.mode='in-focus';
+filmParam.mode='default';
+% filmParam.mode='in-focus';
 filmParam.dim=[36,48]; %Dimension: 36mm and 47mm along the two direction
 filmParam.pitch=[0.01,0.01]; % pixel distance along the two directionum x um
 %% SOURCE CONDITIONs
 
-Obj.z=-1000; %object distance (has to be negative) [mm]
+Obj.z=-10000; %object distance (has to be negative) [mm]
 %you can specify the eccentricity as 
-Obj.y=10; %height
+Obj.y=0; %height
 %just leave one of the two field empty
 
 
@@ -58,25 +58,7 @@ Obj.y=10; %height
 [ImagSyst]=paraxGenerateImagSystem(file_name,Aper_Diam,Obj,filmParam,n_ob,n_im,wave,unit);
 
 
-%% STEP2: CREATE AN IDENTICAL IMAGE SYSTEM according to ANDY's standard
-[A_surfaceArray,A_lens,A_film,A_object]=paraxCreateScene3DSystem(ImagSyst,Aper_Diam);
 
-%manually set film to focal position because the calculated one isn't
-%working for some reason
-
-bestFocus_z=ImagSyst.object{end}.ConjGauss.z_im-z0;
-
-A_film.position = [0 -1.3 bestFocus_z(4)];
-A_film.size = [.6 .6];
-%A_film.wave = [550];
-
-A_lens.diffractionEnabled = true;
-%A_lens.set('wave', [550]);
-% %DEBUG
-psfCamera = psfCameraC('lens', A_lens, 'film', A_film, 'pointsource', A_object);
-psfCamera.estimatePSF(100,true);
-oi = psfCamera.oiCreate;
-vcAddObject(oi); oiWindow;
 
 
 %% STEP4:  ESTIMATE POINT SPREAD FUNCTION from ImagSyst (Michael's Method)
@@ -126,6 +108,7 @@ xlabel('x [mm]'),ylabel('Normalized intensity')
 % [Xim,Yim]=meshgrid(x_im(1,:),y_im(1,:))
 
 
+
 %% STEP 5: ESTIMATE THE GEOMETRICAL PSF and with SIMULATED diffraction
 % TO be completed by ANDY
 
@@ -166,3 +149,54 @@ diffLimit_Radius= 1.22*wave'./NA; %it'is wavelenght dependent
 %ExP-GaussianImage point) or alfa=atan(effectiveF-number/2)
 % so the NA=1/(2*effFnum) only for paraxial approximation (tan(k)=k,
 % sin(k)=k) and the image space is in AIR
+
+
+%% STEP2: CREATE AN IDENTICAL IMAGE SYSTEM according to ANDY's standard
+[A_surfaceArray,A_lens,A_film,A_object]=paraxCreateScene3DSystem(ImagSyst,Aper_Diam);
+
+%manually set film to focal position because the calculated one isn't
+%working for some reason
+
+bestFocus_z=ImagSyst.object{end}.ConjGauss.z_im-z0;
+
+A_film.position = [0 -1.3 bestFocus_z(4)];
+A_film.size = [.6 .6];
+%A_film.wave = [550];
+
+A_lens.diffractionEnabled = true;
+%A_lens.set('wave', [550]);
+% %DEBUG
+psfCamera = psfCameraC('lens', A_lens, 'film', A_film, 'pointsource', A_object);
+psfCamera.estimatePSF(100,true);
+oi = psfCamera.oiCreate;
+vcAddObject(oi); oiWindow; 
+
+
+% ANYLIZE psf
+yRange=psfCamera.film.size(1); xRange=psfCamera.film.size(2);
+ny=psfCamera.film.resolution(1);nx=psfCamera.film.resolution(2);
+nwave=psfCamera.film.resolution(3);
+
+
+yv=[-ny/2:ny/2-1]*yRange*1e-3; xv=[-nx/2:nx/2-1]*xRange*1e-3;
+yV=repmat(yv,nwave,1);xV=repmat(xv,nwave,1);
+
+PSFandy=psfCamera.film.image;
+h9=figure(9)
+out9=psfPLOT(PSFandy,xV,yV,limit2,'surf',wave,wave0,h9);
+
+% Get a 1D profile for the specific wavelength
+inW0=find(wave==wave0);
+[Psf1Dandy,vettXandy]=psfGet1Profile(PSFandy,xV,yV,wave,wave0,'peak-x');
+
+figure(10)
+plot(vettXandy,Psf1Dandy)
+title('PSF profile along X-axis')
+xlabel('x [mm]'),ylabel('Normalized intensity')
+
+
+figure(11)
+plot(vettX,Psf1D/max(Psf1D)),hold on
+plot(vettXandy,Psf1Dandy/max(Psf1Dandy),'r')
+title('PSF profile along X-axis')
+xlabel('x [mm]'),ylabel('Normalized intensity')
