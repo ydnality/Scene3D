@@ -57,7 +57,9 @@ for li=1:nw
         error('effective F number and wavelength DO NOT MATCH !')
     end    
     %Rescale the variable
-    Xi=X.*ratio;
+%     Xi=X.*ratio/(2*pi);
+%     Yi=Y.*ratio/(2*pi);
+    Xi=X.*ratio;    
     Yi=Y.*ratio;
 end
 

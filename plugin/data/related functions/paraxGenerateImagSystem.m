@@ -60,17 +60,27 @@ switch filmParam.mode
     case{'default'}        
         film_zpos=OptStruct.film_z;
     case {'in-focus'}
+        % FAKE 
+        film_zpos1=OptStruct.film_z;
+        [ImagSyst1]=paraxCreateImagSyst(OptSyst,film,film_zpos1,OptStruct.augParam_Film);
+        profile1='point';
+        [source1]=paraxCreateObject(Obj.z,Obj.y,profile1,unit);
+        %Add to the Imaging System
+        [ImagSyst1]=paraxAddObject2ImagSyst(ImagSyst1,source1);
 %         inWref=find(wave==filmParam.waveRef);
-        film_zpos=OptSyst.cardPoints.dFi(wave==filmParam.waveRef)+OptSyst.cardPoints.lastVertex;       
-        
+%         film_zpos=OptSyst.cardPoints.dFi(wave==filmParam.waveRef)+OptSyst.cardPoints.lastVertex;       
+        film_zpos=ImagSyst1.object{end}.ConjGauss.z_im(wave==filmParam.waveRef);
 end
 
 [ImagSyst]=paraxCreateImagSyst(OptSyst,film,film_zpos,OptStruct.augParam_Film);
 
 
 
-%% Create a Object and add to the Imaging system
-profile1='point';
-[source1]=paraxCreateObject(Obj.z,Obj.y,profile1,unit);
-%Add to the Imaging System
-[ImagSyst]=paraxAddObject2ImagSyst(ImagSyst,source1);
+
+if not(isempty(Obj))
+    %% Create a Object and add to the Imaging system
+    profile1='point';
+    [source1]=paraxCreateObject(Obj.z,Obj.y,profile1,unit);
+    %Add to the Imaging System
+    [ImagSyst]=paraxAddObject2ImagSyst(ImagSyst,source1);
+end

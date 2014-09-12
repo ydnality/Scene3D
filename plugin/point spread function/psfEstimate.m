@@ -27,7 +27,11 @@ if size(ImagSyst.film{end}.z_pos,1)==nW
 else
     defocusZ(:,1)=repmat(ImagSyst.film{end}.z_pos,nW,1);
 end
-defocusZ(:,2)=ImagSyst.cardPoints.dFi+ImagSyst.cardPoints.lastVertex; %last film
+if isinf(ImagSyst.object{end}.z_pos)
+    defocusZ(:,2)=ImagSyst.cardPoints.dFi+ImagSyst.cardPoints.lastVertex; 
+else
+    defocusZ(:,2)=ImagSyst.object{end}.ConjGauss.z_im;
+end
 
 %Peak Value ABERRATION COEFFs
 PeakCoeff=ImagSyst.object{end}.Wavefront.PeakCoeff;
@@ -36,7 +40,7 @@ PeakCoeff=ImagSyst.object{end}.Wavefront.PeakCoeff;
 %% GENERATE PUPIL FUNCTION
 %Normalized coordinate of the pupil function (aperture goes form -1 to 1)
 range_pupil=2*ntime ; % al range od pupil function in normalized coordinate
-d_pupil=range_pupil/nSample; %sampli
+d_pupil=range_pupil/nSample; %sampling
 %
 xn=[-nSample/2:nSample/2-1]*d_pupil;
 yn=[-nSample/2:nSample/2-1]*d_pupil;
@@ -114,7 +118,8 @@ for li=1:nW
     ExPDiam(li,1)=ImagSyst.object{end}.Radiance.ExP.diam(li,1)-ImagSyst.object{end}.Radiance.ExP.diam(li,2);
     efl(li,1)=ImagSyst.cardPoints.fi(li,1);
     [NA(li,:)]=paraxNumAperture(ExPDiam(li,1),efl(li,1),n_im(li,1));
-    PhaseDefocus(:,:,li)=paDefocus4thWaveAber(defocusZ(li,1),defocusZ(li,2),NA (li,:),ro,'high');
+    PhaseDefocus(:,:,li)=paDefocus4thWaveAber(defocusZ(li,1),defocusZ(li,2),NA (li,:),ro,'small');
+%     PhaseDefocus(:,:,li)=paDefocus4thWaveAber(defocusZ(li,1),defocusZ(li,2),NA (li,:),ro,'debug');
 end
 
 

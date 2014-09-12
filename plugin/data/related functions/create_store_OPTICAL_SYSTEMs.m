@@ -27,7 +27,7 @@ OptStruct.features.efl=12; %mm
 OptStruct.features.Fnum=3;%mm
 OptStruct.features.ABCD=[0.9404865,0.9390067;-0.0833332,0.9800774]; %ABCD matrix coeff
 OptStruct.features.note={'unit in mm', 'marginal ray at heigth 2 mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('DoubletObjective.mat')
     %Delete existing file
@@ -65,7 +65,7 @@ OptStruct.features.efl=50; %mm
 OptStruct.features.Fnum=2;%mm
 OptStruct.features.halfFoVdeg=[22]; %Field of View in deg
 OptStruct.features.note={'unit in mm', 'scaled to have a focal length of 50mm '};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('D-GAUSS_F_2_22deg_HFOV_scaled.mat')
     %Delete existing file
@@ -106,7 +106,7 @@ OptStruct.features.efl=10; %mm
 OptStruct.features.Fnum=2;%mm
 OptStruct.features.halfFoVdeg=[22]; %Field of View in deg
 OptStruct.features.note={'unit in mm', 'ORIGINAL VESTION '};%mm
-cd_old = cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('D-GAUSS_F_2_22deg_HFOV_original.mat')
     %Delete existing file
@@ -118,7 +118,7 @@ cd(cd_old)
 clearvars 'OptStruct'
 
 %% # F/2.0, 15 HFOV	split-front crown triplet
-%# EP#237, 212ï¿½1925.	
+%# EP#237, 212–1925.	
 %# Moden Optical Engineering , W Smith 4th edition, pag 485"	
 
 OptStruct.name='F/2.0, 150 HFOV	split-front crown triplet ';
@@ -154,7 +154,7 @@ OptStruct.features.Fnum=2;%mm
 OptStruct.features.halfFoVdeg=[15]; %Field of View in deg
 
 OptStruct.features.note={'unit in mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('split_front_crown_triplet_F_2_15deg_HFOV_original.mat')
     %Delete existing file
@@ -202,7 +202,7 @@ OptStruct.features.Fnum=8;%mm
 OptStruct.features.FoVdeg=[180]; %Field of View in deg
 
 OptStruct.features.note={'unit in mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('Fisheye_Miyamoto_Josa_1964.mat')
     %Delete existing file
@@ -248,7 +248,7 @@ OptStruct.features.Fnum=4;%mm
 
 
 OptStruct.features.note={'unit in mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('F_4_Telephoto Camera Lens.mat')
     %Delete existing file
@@ -260,11 +260,11 @@ cd(cd_old)
 clearvars 'OptStruct'
 
 
-%% # F/3.5, 11.9ï¿½ HFOV	Cooke Triplet
-%# EP#237, 212ï¿½1925.	
+%% # F/3.5, 11.9° HFOV	Cooke Triplet
+%# EP#237, 212–1925.	
 %# Moden Optical Engineering , W Smith, pag 118"	
 
-OptStruct.name='F/3.5, 11.9ï¿½ HFOV	Cooke Triplet';
+OptStruct.name='F/3.5, 11.9° HFOV	Cooke Triplet';
 OptStruct.source=' Moden Optical Engineering , W Smith, pag 118';
 
 OptStruct.unit='mm';
@@ -294,7 +294,7 @@ OptStruct.features.Fnum=3.47;%mm
 OptStruct.features.FoVdeg=11.9; %[
 
 OptStruct.features.note={'unit in mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('F3_5_Cooke_Triplet.mat')
     %Delete existing file
@@ -341,7 +341,7 @@ OptStruct.features.FoVdeg=40;
 OptStruct.features.waveCoeff587nm=[2.66;0.02;-11.13;10.77;6.19]; %wavefront aberration coeff at 587 nm
 
 OptStruct.features.note={'unit in mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('Cooke_Triplet_Sample_Aberr.mat')
     %Delete existing file
@@ -388,7 +388,7 @@ OptStruct.features.EnP_Diam=22.22; %mm
 
 
 OptStruct.features.note={'unit in mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('Triplet_Object.mat')
     %Delete existing file
@@ -452,7 +452,7 @@ OptStruct.features.SeidelCoeffs.log.SIV=[0.000171,-0.000028,0.000066];
 OptStruct.features.SeidelCoeffs.log.SV=[0.000031 ,0.000002,-0.000032];
 
 OptStruct.features.note={'unit in mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('Crown_First_Fraunhofer_Doublet.mat')
     %Delete existing file
@@ -499,7 +499,7 @@ OptStruct.augParam_Film=[0;0];
 OptStruct.features.FoVdeg=30; %[
 
 OptStruct.features.note={'unit in mm'};%mm
-cd_old=cd([s3dRootPath '/plugin/data']);
+cd_old=cd('E:\Michael\PSF3D\data');
 
 if exist('Singlet_plus_Diaphragm.mat')
     %Delete existing file

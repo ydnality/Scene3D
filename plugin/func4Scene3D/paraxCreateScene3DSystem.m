@@ -30,9 +30,6 @@ for si=1:length(ind_ord)
         case {'diaphragm'}
             Radius= 0;
             N=zeros(length(wave),1);
-        case {'flat'}
-            Radius= Inf;
-            N=zeros(length(wave),1);
         otherwise
             Radius= surf0.R;
             N=surf0.N;
