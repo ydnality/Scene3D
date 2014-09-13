@@ -1,21 +1,23 @@
-%% Function: Create an Optical System
-
-
 function [OptSyst]=paraxCreateOptSyst(list_surf,n_ob,n_im,unit,wavelength,varargin)
-
+%% Function: Create an Optical System
+%
+%
+%
+%
 %INPUT
-%list_surf: list with the surface structures in the optical system
-%n_ob: refractive index in object space
-%n_im: refractive index in image space
-%unit: unit witch referes to eache distance e.g. 'mm' ,'m'
-%wavelength: (c.v) of the wavelength of refractive indixes sampling in unit
-%varargin: 
-
+%  list_surf: list with the surface structures in the optical system
+%  n_ob: refractive index in object space
+%  n_im: refractive index in image space
+%  unit: unit witch referes to eache distance e.g. 'mm' ,'m'
+%  wavelength: (c.v) of the wavelength of refractive indixes sampling in unit
+%  varargin: 
+%
 %OUTPUT
 %OptSyst: struct of the OptSyst
-
+%
 %c.v. =column vector for wavelenght dependence
-
+%
+% MP Vistasoft 2014
 
 %% CHECKs
 
