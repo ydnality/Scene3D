@@ -19,15 +19,29 @@ classdef VoLTC < clonableHandleObject
     end
     
     methods (Access = private)
-        function pSLocations = getPSLocations(obj)
-            %somehow accomodate different depths...
-            
+        function pSLocations = getPSLocations(obj, depthIndex)
+            %Returns a collection of point source locations (n x 3, where n
+            %is the number of point sources) at a specific depth, specified
+            %by depthIndex
+            %
+            % pSLocations = getPSLocations(obj, depthIndex)
+            % depthIndex: the depth index that the user desires to extract
+            % PSLocations at.  the resulting collection will assume an x
+            % coordinate of 0.  Rotation will be applied later to evaluate
+            % PSF's that are off-axis.
+            %
             %pSY = 0.01:.3:2;
             %pSZ = -102 * ones(length(pSY), 1);
             %pSLocations = [zeros(length(pSY), 1) pSY' pSZ];
-
-           pSZ = obj.depths * ones(length(obj.fieldPositions), 1);
-           pSLocations =  [zeros(length(obj.fieldPositions), 1) obj.fieldPositions'  pSZ];
+            
+            if (ieNotDefined('depthIndex')), depthIndex = 1;
+            end
+            
+            %error checking
+            assert(depthIndex > 0 && depthIndex <= length(obj.depths), 'depthIndex out of range');
+            
+            pSZ = obj.depths(depthIndex) * ones(length(obj.fieldPositions), 1);
+            pSLocations =  [zeros(length(obj.fieldPositions), 1) obj.fieldPositions'  pSZ];
         end
     end
     
@@ -61,6 +75,12 @@ classdef VoLTC < clonableHandleObject
             switch pName
                 case 'lens'
                     res = obj.lens;
+                case 'depths'
+                    res = obj.depths;
+                case 'numdepths'
+                    res = length(obj.depths);
+                case 'numfieldpositions'
+                    res = length(obj.fieldPositions);
                 case 'acollection'
                     if(obj.AMatricesUpdated)
                         res = obj.ACollection;
@@ -80,9 +100,13 @@ classdef VoLTC < clonableHandleObject
                         error('A Matrices have not been recalculated.  Run VoLTC.calculateMatrices() first');
                     end
                 case 'pslocations'
-                    res = obj.getPSLocations();
+                    if (length(varargin) >= 1)
+                        res = obj.getPSLocations(varargin{1});
+                    else
+                        res = obj.getPSLocations();
+                    end
                 case 'fieldpositions'
-                    res = obj.fieldPositions();
+                    res = obj.fieldPositions;
                 %case {'nsurfaces','numels'}
                     % Should be nsurfaces
                 %    res = length(obj.surfaceArray);

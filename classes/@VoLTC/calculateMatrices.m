@@ -67,69 +67,73 @@ function obj = calculateMatrices(obj)
 
 %% Initialize complete matrices
 
-pSLocations = obj.get('pSLocations');
-obj.ACollection = zeros(4, 4, length(pSLocations));
-obj.A1stCollection = zeros(4, 4, length(pSLocations));
-obj.A2ndCollection = zeros(4, 4, length(pSLocations));
+depths = obj.get('depths');
+fieldPositions = obj.get('fieldPositions');
+
+obj.ACollection = zeros(4, 4, length(fieldPositions), length(depths));
+obj.A1stCollection = zeros(4, 4, length(fieldPositions), length(depths));
+obj.A2ndCollection = zeros(4, 4, length(fieldPositions), length(depths));
 
 %% Loop on points and make the various matrices
 
-for pSIndex = 1:length(pSLocations)
-    
-    
-    %% point sources (units are mm)
-    pointSource = pSLocations(pSIndex, :);
-    
-    [ppsf, x, b, bMiddle] = s3dVOLTRTOnePoint(pointSource, obj.film, obj.lens);
-    
-    %%  We wonder about the full linear relationship
-    %  b = Ax
-    % To solve, we would compute
-    % A = b\x
-    
-    % A = (x'\b')';
-    % bEst = A * x;
-    
-    A = b/x;
-    bEst = A * x;
-    
-    % Scatter plot of positions
-    for ii=1:4
-        vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
-        grid on;
-        
-        meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
-        averageAmp = mean(abs(b(ii,:)));
-        meanPercentError = meanAbsError/averageAmp * 100
-    end
-    
-    obj.ACollection(:,:,pSIndex) = A;
-    
-    %% Calculate split A's: one for each half of the lens, divided by the middle aperture
-    
-    A1st = bMiddle/x;
-    obj.A1stCollection(:,:, pSIndex) = A1st;
-    bMiddleEst = A1st * x;
-    
-    A2nd = b/bMiddle;
-    obj.A2ndCollection(:,:, pSIndex) = A2nd;
-    
-    %calculate final result
-    bEst = A2nd * A1st * x;
-    
-    for ii=1:4
-        ii
-        vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
-        grid on;
-        
-        meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)))
-        averageAmpSplit = mean(abs(b(ii,:)));
-        meanPercentErrorSplit = meanAbsError/averageAmpSplit * 100
-    end
-    
-    close all;
-end
+for depthIndex = 1:length(depths)
+    pSLocations = obj.get('pSLocations', depthIndex);
+    for pSIndex = 1:length(pSLocations)
 
+
+        %% point sources (units are mm)
+        pointSource = pSLocations(pSIndex, :);
+
+        [ppsf, x, b, bMiddle] = s3dVOLTRTOnePoint(pointSource, obj.film, obj.lens);
+
+        %%  We wonder about the full linear relationship
+        %  b = Ax
+        % To solve, we would compute
+        % A = b\x
+
+        % A = (x'\b')';
+        % bEst = A * x;
+
+        A = b/x;
+        bEst = A * x;
+
+        % Scatter plot of positions
+        for ii=1:4
+            vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
+            grid on;
+
+            meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
+            averageAmp = mean(abs(b(ii,:)));
+            meanPercentError = meanAbsError/averageAmp * 100
+        end
+
+        obj.ACollection(:,:,pSIndex, depthIndex) = A;
+
+        %% Calculate split A's: one for each half of the lens, divided by the middle aperture
+
+        A1st = bMiddle/x;
+        obj.A1stCollection(:,:, pSIndex, depthIndex) = A1st;
+        bMiddleEst = A1st * x;
+
+        A2nd = b/bMiddle;
+        obj.A2ndCollection(:,:, pSIndex, depthIndex) = A2nd;
+
+        %calculate final result
+        bEst = A2nd * A1st * x;
+
+        for ii=1:4
+            ii
+            vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
+            grid on;
+
+            meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)))
+            averageAmpSplit = mean(abs(b(ii,:)));
+            meanPercentErrorSplit = meanAbsError/averageAmpSplit * 100
+        end
+
+        close all;
+    end
+end
 obj.AMatricesUpdated = true;
 end
 

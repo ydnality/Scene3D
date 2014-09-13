@@ -73,12 +73,16 @@ s_initISET
 %
 % At this moment, we only change in field height, not yet depth.
 pSY = 0.01:.3:2;
-pSZ = -102 * ones(length(pSY), 1);
+%pSZ = -102 * ones(length(pSY), 1);
+pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 
-pSLocations = [zeros(length(pSY), 1) pSY' pSZ];
+%!!weird observation: when the z spacing is too far apart, the PSF becomes
+%elongated!! try to figure out why!!
+
+%pSLocations = [zeros(length(pSY), 1) pSY' pSZ];
 
 %desired pSLocation for interpolation
-wantedPSLocation = 1.7;
+wantedPSLocation = [0 1.7 -102.9];
 
 %% Define the Lens and Film
 
@@ -135,7 +139,7 @@ film = pbrtFilmC('position', [0 0 100 ], ...
 % Currently the VOLT model accomodates changes in field position ONLY.
 % Depth variation will come later.
 
-VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', -102); 
+VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ); 
 VoLTObject.calculateMatrices();
 
 %[AComplete A1stComplete A2ndComplete] = s3dVOLTCreateModel(lens, film, pSLocations);
@@ -164,9 +168,11 @@ AComplete = VoLTObject.get('ACollection');
 mn = min(AComplete(:));
 mx = max(AComplete(:));
 az = -37; el = 80;
+depthIndex = 1;  %look at depth 1 for now... 
+
 % caxis([mn mx]);
 for ii=1:size(AComplete,3)
-    surf(AComplete(:,:,ii)); set(gca,'zlim',[mn mx/4])
+    surf(AComplete(:,:,ii,depthIndex)); set(gca,'zlim',[mn mx/4])
     view(az,el);
     shading interp
     title(sprintf('%.2f',pSY(ii)));
@@ -183,8 +189,7 @@ end
 % For this moment, we only run at one depth
 % We set the wanted field height to the second coordinate,
 % The first coordinate is always 0.
-pointSource    = pSLocations(1,:);
-pointSource(2) = wantedPSLocation;
+pointSource = wantedPSLocation;
 
 % Compute the plenoptic pointspread that has the light field information
 [ppsf, x, b, bMiddle, xOrig, bOrig, ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens);
