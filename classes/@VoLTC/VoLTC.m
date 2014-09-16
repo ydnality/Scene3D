@@ -10,7 +10,7 @@ classdef VoLTC < clonableHandleObject
         lens; %lens to use for the VoLT model
         film; %see if you can remove this later - a film should not be necessary to calculate this linear transform... think about this...
         
-        wavelengths = 400:100:700;
+        wave = 400:100:700;
         depths = -100;
         fieldPositions = linspace(.00001,2, 5);  %1-dimension implies rotationally symmetric, and use of rotation transform 2-dimension implies not rotationally symemetric
         ACollection; %must have the same dimensions as depths, wavelengths, field position
@@ -59,8 +59,8 @@ classdef VoLTC < clonableHandleObject
                         obj.fieldPositions = varargin{ii+1};
                     case 'depths'
                         obj.depths = varargin{ii+1};
-                    case 'wavelengths'
-                        obj.wavelengths = varargin{ii+1};
+                    case 'wave'  %somehow syncrhonize this...
+                        obj.wave = varargin{ii+1};
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
@@ -75,6 +75,8 @@ classdef VoLTC < clonableHandleObject
             switch pName
                 case 'lens'
                     res = obj.lens;
+                case 'wave'
+                    res = obj.wave;
                 case 'depths'
                     res = obj.depths;
                 case 'numdepths'

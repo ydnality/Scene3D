@@ -1,4 +1,4 @@
-function [ AInterp A1stInterp A2ndInterp ] = interpolateA( obj, wantedPSLocation, wavelength )
+function [ AInterp A1stInterp A2ndInterp ] = interpolateA( obj, wantedPSLocation, wantedWavelength )
 %INTERPOLATEA Summary of this function goes here
 %   Detailed explanation goes here 
 %   wavelength is ignored for now.  TODO: deal with wavelength and depth
@@ -9,6 +9,14 @@ function [ AInterp A1stInterp A2ndInterp ] = interpolateA( obj, wantedPSLocation
 
 % This is going to be the basis of the 'get' part of the VOLT class, when
 % we return an interpolated linear transformation
+
+%% parameter testing
+
+if (ieNotDefined('wantedWavelength'))
+    wantedWavelength = 550;
+end
+    
+%% 
 AInterp = zeros(4,4);
 A1stInterp = zeros(4,4);
 A2ndInterp = zeros(4,4);
@@ -19,32 +27,33 @@ A2ndComplete = obj.get('A2ndCollection');
 
 numDepths = obj.get('numDepths');
 numPositions = obj.get('numFieldPositions');
+numWaves = length(obj.get('wave'));
 pSY = obj.get('fieldPositions');
 pSZ = obj.get('depths');
-
-[meshY, meshZ] = meshgrid(pSY,pSZ);
+pSW = obj.get('wave');
+[meshY, meshZ, pSW] = meshgrid(pSY,pSZ, pSW);
 
 
 for i = 1:4
     for j = 1:4
-        coefValues = AComplete(i,j,:,:);
+        coefValues = AComplete(i,j,:,:,:);
         %coefValues = coefValues(:);
         %coefValues dimensions: (1,1, #fieldPositions, #depths);
-        coefValues = reshape(coefValues, numDepths, numPositions);
-        yi = interp2(meshY, meshZ, coefValues, wantedPSLocation(2), wantedPSLocation(3));
+        coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
+        yi = interp3(meshY, meshZ, pSW, coefValues, wantedPSLocation(2), wantedPSLocation(3), wantedWavelength);
         AInterp(i,j) = yi;
         
-        coefValues = A1stComplete(i,j,:,:);
+        coefValues = A1stComplete(i,j,:,:,:);
         %coefValues = coefValues(:);
-        coefValues = reshape(coefValues, numDepths, numPositions);
-        yi = interp2(meshY, meshZ, coefValues, wantedPSLocation(2), wantedPSLocation(3));
+        coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
+        yi = interp3(meshY, meshZ, pSW, coefValues, wantedPSLocation(2), wantedPSLocation(3), wantedWavelength);
         A1stInterp(i,j) = yi;
         
-        coefValues = A2ndComplete(i,j,:,:);
+        coefValues = A2ndComplete(i,j,:,:,:);
         %coefValues = coefValues(:);
         %yi = interp1(pSY,coefValues, wantedPSLocation);
-        coefValues = reshape(coefValues, numDepths, numPositions);
-        yi = interp2(meshY, meshZ, coefValues, wantedPSLocation(2), wantedPSLocation(3));
+        coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
+        yi = interp3(meshY, meshZ, pSW, coefValues, wantedPSLocation(2), wantedPSLocation(3), wantedWavelength);
         A2ndInterp(i,j) = yi;
     end
 end   

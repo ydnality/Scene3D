@@ -1,4 +1,4 @@
-function obj = calculateMatrices(obj)
+function obj = calculateMatrices(obj, debugPlots)
 %tackle wavelength problem first...
 %assume only 1 depth for now... to keep things simple
 
@@ -63,16 +63,19 @@ function obj = calculateMatrices(obj)
 
 %% Argument checking here
 
-
+if (ieNotDefined('debugPlots'))
+    debugPlots = false;
+end
 
 %% Initialize complete matrices
 
 depths = obj.get('depths');
 fieldPositions = obj.get('fieldPositions');
+wave = obj.get('wave');
 
-obj.ACollection = zeros(4, 4, length(fieldPositions), length(depths));
-obj.A1stCollection = zeros(4, 4, length(fieldPositions), length(depths));
-obj.A2ndCollection = zeros(4, 4, length(fieldPositions), length(depths));
+obj.ACollection = zeros(4, 4, length(fieldPositions), length(depths), length(wave));
+obj.A1stCollection = zeros(4, 4, length(fieldPositions), length(depths), length(wave));
+obj.A2ndCollection = zeros(4, 4, length(fieldPositions), length(depths), length(wave));
 
 %% Loop on points and make the various matrices
 
@@ -85,53 +88,74 @@ for depthIndex = 1:length(depths)
         pointSource = pSLocations(pSIndex, :);
 
         [ppsf, x, b, bMiddle] = s3dVOLTRTOnePoint(pointSource, obj.film, obj.lens);
+        xFull = x;
+        bFull = b;
+        bMiddleFull = bMiddle;
+        
+        %% Do a speparate linear calculation for each wavelength.  
+        % Split rays by wavelenghts and loop.
+        
+        for w = 1:length(wave)
+            %%  We wonder about the full linear relationship
+            %  b = Ax
+            % To solve, we would compute
+            % A = b\x
 
-        %%  We wonder about the full linear relationship
-        %  b = Ax
-        % To solve, we would compute
-        % A = b\x
+            % A = (x'\b')';
+            % bEst = A * x;
+            
+            %only take data belonging to current wavelength
+            
+            waveIndex = ppsf.get('waveIndex');
+            survivedWaveInd = waveIndex(ppsf.get('liveindices')); %remove nans to be on par with b and x
+            
+            %only use the x and b for the specific waveInd
+            b = bFull(:, survivedWaveInd == w);  %this might be a cumbersome way to do this.  consider using bOrig
+            x = xFull(:, survivedWaveInd == w);   %but see if this works first.  
+            bMiddle = bMiddleFull(:, survivedWaveInd == w);
+            
+            A = b/x;
+            bEst = A * x;
 
-        % A = (x'\b')';
-        % bEst = A * x;
+            % Scatter plot of positions
+            for ii=1:4
+                if(debugPlots)
+                    vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
+                    grid on;
+                end
+                
+                meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
+                averageAmp = mean(abs(b(ii,:)));
+                meanPercentError = meanAbsError/averageAmp * 100
+            end
 
-        A = b/x;
-        bEst = A * x;
+            obj.ACollection(:,:, pSIndex, depthIndex, w) = A;
 
-        % Scatter plot of positions
-        for ii=1:4
-            vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
-            grid on;
+            %% Calculate split A's: one for each half of the lens, divided by the middle aperture
 
-            meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
-            averageAmp = mean(abs(b(ii,:)));
-            meanPercentError = meanAbsError/averageAmp * 100
+            A1st = bMiddle/x;
+            obj.A1stCollection(:,:, pSIndex, depthIndex, w) = A1st;
+            bMiddleEst = A1st * x;
+
+            A2nd = b/bMiddle;
+            obj.A2ndCollection(:,:, pSIndex, depthIndex, w) = A2nd;
+
+            %calculate final result
+            bEst = A2nd * A1st * x;
+
+            for ii=1:4
+                ii
+                if debugPlots
+                    vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
+                    grid on;
+                end
+                meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)))
+                averageAmpSplit = mean(abs(b(ii,:)));
+                meanPercentErrorSplit = meanAbsError/averageAmpSplit * 100
+            end
+
+            close all;
         end
-
-        obj.ACollection(:,:,pSIndex, depthIndex) = A;
-
-        %% Calculate split A's: one for each half of the lens, divided by the middle aperture
-
-        A1st = bMiddle/x;
-        obj.A1stCollection(:,:, pSIndex, depthIndex) = A1st;
-        bMiddleEst = A1st * x;
-
-        A2nd = b/bMiddle;
-        obj.A2ndCollection(:,:, pSIndex, depthIndex) = A2nd;
-
-        %calculate final result
-        bEst = A2nd * A1st * x;
-
-        for ii=1:4
-            ii
-            vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
-            grid on;
-
-            meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)))
-            averageAmpSplit = mean(abs(b(ii,:)));
-            meanPercentErrorSplit = meanAbsError/averageAmpSplit * 100
-        end
-
-        close all;
     end
 end
 obj.AMatricesUpdated = true;

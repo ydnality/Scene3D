@@ -83,7 +83,7 @@ pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 
 %desired pSLocation for interpolation
 wantedPSLocation = [0 1.7 -102.9];
-
+wantedWavelength = 550;
 %% Define the Lens and Film
 
 % diffractionEnabled = false;
@@ -139,7 +139,7 @@ film = pbrtFilmC('position', [0 0 100 ], ...
 % Currently the VOLT model accomodates changes in field position ONLY.
 % Depth variation will come later.
 
-VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ); 
+VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', lens.get('wave')); 
 VoLTObject.calculateMatrices();
 
 %[AComplete A1stComplete A2ndComplete] = s3dVOLTCreateModel(lens, film, pSLocations);
@@ -162,27 +162,31 @@ VoLTObject.calculateMatrices();
 % not;
 
 %this may go in part of the VoLTC
-vcNewGraphWin; colormap(hot);
 
-AComplete = VoLTObject.get('ACollection');
-mn = min(AComplete(:));
-mx = max(AComplete(:));
-az = -37; el = 80;
-depthIndex = 1;  %look at depth 1 for now... 
 
-% caxis([mn mx]);
-for ii=1:size(AComplete,3)
-    surf(AComplete(:,:,ii,depthIndex)); set(gca,'zlim',[mn mx/4])
-    view(az,el);
-    shading interp
-    title(sprintf('%.2f',pSY(ii)));
-    pause(0.5);
-end
+%**not sure if this works for multi-dimentional stuff anymore... must rework
+
+% vcNewGraphWin; colormap(hot);
+% 
+% AComplete = VoLTObject.get('ACollection');
+% mn = min(AComplete(:));
+% mx = max(AComplete(:));
+% az = -37; el = 80;
+% depthIndex = 1;  %look at depth 1 for now... 
+% 
+% % caxis([mn mx]);
+% for ii=1:size(AComplete,3)
+%     surf(AComplete(:,:,ii,depthIndex)); set(gca,'zlim',[mn mx/4])
+%     view(az,el);
+%     shading interp
+%     title(sprintf('%.2f',pSY(ii)));
+%     pause(0.5);
+% end
 % [az el] = view;
 
 %% Obtain an A given a wanted pSLocation by linear interpolation
 
-[ AInterp, A1stInterp, A2ndInterp ] = VoLTObject.interpolateA(wantedPSLocation);
+[ AInterp, A1stInterp, A2ndInterp ] = VoLTObject.interpolateA(wantedPSLocation, wantedWavelength);
 
 %% Compute ground truth LF at the WANTED Point source Field Height
 
@@ -328,4 +332,9 @@ oi = ppsfCamera.oiCreate;
 vcAddObject(oi); oiWindow;
 plotOI(oi,'illuminance mesh linear');
 
-%% End
+%% Interpolate a collection of A matrices for different wavelengths.  
+% Next, use those to produce psf's at different wavelengths on 1 oi
+
+% we have to concatenate the b matrix
+
+%% End 

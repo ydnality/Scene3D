@@ -94,6 +94,8 @@ classdef lensC <  handle
             switch pName
                 case 'name'
                     res = obj.name;
+                case 'wave'
+                    res = obj.wave;
                 case 'type'
                     res = obj.type;
                 case {'nsurfaces','numels'}
