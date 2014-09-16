@@ -1,11 +1,18 @@
-function ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp, withinAperture)
+function ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp, withinAperture, waveIndexIn)
 % ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp)
 % given a bEstInterp vector (containing the lightfield at the sensor), and
 % a ppsfCamera, use the light field rays and reproject them to construct a
 % PSF for visualization.  Also plot the phase space at the sensor.
 % TODO: consider putting this in a class later (either ppsfCamera, ppsf, or
 % something else)
-
+% TODO: this still needs to be cleaned up.  Maybe there's a better way to
+% accomplish what this function accomplishes
+%
+% waveIndexIn: sometimes a new waveIndex must be specified, depending how
+% bEstInterp was constructed.  In multiple wavelength mode, we will
+% concatenate rays from different wavelenghts.  This is kept track of using
+% a custom waveIndex list.  This is when this would be used
+%
     %find the z position of rays
     zPos = ppsfCamera.film.position(3);
 
@@ -26,7 +33,11 @@ function ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp, withinApert
     if(ieNotDefined('withinAperture'))
         waveIndex = waveIndex(~isnan(waveIndex));  %remove nans - aperture NOT specified.  just get rid of nan's
     else
-        waveIndex = waveIndex(withinAperture);  %remove nans if aperture is specified
+        if (ieNotDefined('waveIndexIn'));
+            waveIndex = waveIndex(withinAperture);  %remove nans if aperture is specified
+        else
+            waveIndex = waveIndexIn;
+        end
     end
     
     calculatedRays = rayC('origin', rayOrigin', 'direction', rayDir', 'wave', wave, 'waveIndex', waveIndex);

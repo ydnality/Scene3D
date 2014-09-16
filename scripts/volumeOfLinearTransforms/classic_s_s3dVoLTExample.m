@@ -83,7 +83,7 @@ pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 
 %desired pSLocation for interpolation
 wantedPSLocation = [0 1.7 -102.9];
-
+wantedWavelength = 550;
 %% Define the Lens and Film
 
 % diffractionEnabled = false;
@@ -105,8 +105,6 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
 
-wave = lens.get('wave');
-
 % lens.draw();
 %2 element lens
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
@@ -120,9 +118,7 @@ wave = lens.get('wave');
 % wavelength samples
 film = pbrtFilmC('position', [0 0 100 ], ...
     'size', [10 10], ...
-    'wave', wave);
-
-
+    'wave', 400:50:700);
 
 %% Compute VOLT model
 %
@@ -143,7 +139,7 @@ film = pbrtFilmC('position', [0 0 100 ], ...
 % Currently the VOLT model accomodates changes in field position ONLY.
 % Depth variation will come later.
 
-VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', wave); 
+VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', lens.get('wave')); 
 VoLTObject.calculateMatrices();
 
 %[AComplete A1stComplete A2ndComplete] = s3dVOLTCreateModel(lens, film, pSLocations);
@@ -190,19 +186,7 @@ VoLTObject.calculateMatrices();
 
 %% Obtain an A given a wanted pSLocation by linear interpolation
 
-wantedWavelength = 550;
-
-AInterp = zeros(4,4, length(wave));
-A1stInterp = zeros(4,4, length(wave));
-A2ndInterp = zeros(4,4, length(wave));
-
-for w = 1:length(wave)
-    [AInterp1Wave, A1stInterpCurrentWave, A2ndInterpCurrentWave ] = VoLTObject.interpolateA(wantedPSLocation, wave(w));
-    AInterp(:,:,w) = AInterp1Wave;
-    A1stInterp(:,:,w) = A1stInterpCurrentWave;
-    A2ndInterp(:,:,w) = A2ndInterpCurrentWave;
-end
-
+[ AInterp, A1stInterp, A2ndInterp ] = VoLTObject.interpolateA(wantedPSLocation, wantedWavelength);
 
 %% Compute ground truth LF at the WANTED Point source Field Height
 
@@ -221,6 +205,75 @@ close all;
 % Plot phase space and visual PSF of linear interpolation model output
 ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, b);
 
+oi = ppsfCamera.oiCreate;
+vcAddObject(oi); oiWindow;
+plotOI(oi,'illuminance mesh linear');
+
+%% Calculate the PSF using the INTERPOLATED A Matrix 
+
+% The PSF for the interpolated should be close to the ground truth we just
+% computed
+%
+
+% N.B. We are "cheating" in a sense because we are using the ground truth
+% effective aperture information to determine which rays make it through
+% the lens.
+%
+% FURTHER:  There is a brightness difference.  In one example, AL and I saw
+% a 550 Lux vs. a 700 Lux output.  Some normalization in the interpolation
+% process?  
+
+bEstInterp = AInterp * x;
+
+% Calculate errors
+% Scatter plot of positions
+for ii=1:4
+    vcNewGraphWin; plot(b(ii,:),bEstInterp(ii,:),'o');
+    grid on;
+    
+    meanAbsError = mean(abs(bEstInterp(ii,:) - b(ii,:)));
+    averageAmp = mean(abs(b(ii,:)));
+    meanPercentError = meanAbsError/averageAmp * 100
+end
+
+% Plot phase space and visual PSF of linear interpolation model output
+ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp)
+oi = ppsfCamera.oiCreate;
+vcAddObject(oi); oiWindow;
+plotOI(oi,'illuminance mesh linear');
+
+
+%% Calculate the PSF again, but using the 2 different A matrices (1st, 2nd)
+
+% These matrices are again interpolated
+%
+% Once again, this result should not be too much different from the ground
+% truth PSF.  The 2 interpolated A matrix split the lens into 2 halves, the
+% first one from the front-most lens element to the aperture, and the
+% second one from the aperture to the back-most lens element.
+%
+% However, we are "cheating" in a sense because we are using the ground
+% truth effective aperture information to determine which rays make it
+% through the lens.
+
+% close all;
+
+bEstInterp = A2ndInterp * (A1stInterp * x);
+
+% calculate errors
+% Scatter plot of positions
+for ii=1:4
+    ii
+    vcNewGraphWin; plot(b(ii,:),bEstInterp(ii,:),'o');
+    grid on;
+    
+    meanAbsError = mean(abs(bEstInterp(ii,:) - b(ii,:)));
+    averageAmp = mean(abs(b(ii,:)));
+    meanPercentErrorSplit = meanAbsError/averageAmp * 100
+end
+
+% Plot phase space and visual PSF of linear interpolation model output
+ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp)
 oi = ppsfCamera.oiCreate;
 vcAddObject(oi); oiWindow;
 plotOI(oi,'illuminance mesh linear');
@@ -248,47 +301,33 @@ plotOI(oi,'illuminance mesh linear');
 
 %*** change this parameter to change the size of the middle aperture for the
 %lens
-adjustedMiddleApertureRadius = 4;
+adjustedMiddleAperture = 2;
 close all;
 
 middleXY = ppsf.aEntranceInt.XY;
-%withinAperture = middleXY(:,1).^2 + middleXY(:,2).^2 <= adjustedMiddleApertureRadius.^2;%apertureMiddleD/2;
-finalB = [];
-waveIndex = [];
-%loops through all different waves
-for w = 1:length(wave)
+withinAperture = middleXY(:,1).^2 + middleXY(:,2).^2 <= adjustedMiddleAperture.^2;%apertureMiddleD/2;
+%middleAperture = diag(middleAperture);
+
+firstHalf = A1stInterp * xOrig;
+firstHalfBlock = firstHalf(:, withinAperture); %Apply aperture to rays from the first half
+bEstInterp = A2ndInterp * firstHalfBlock;
+
+bOrigCropped = bOrig(:, withinAperture); %ground truth rays
+
+% Calculate errors
+% Scatter plot of positions
+for ii=1:4
+    ii
+    vcNewGraphWin; plot(bOrigCropped(ii,:),bEstInterp(ii,:),'o');
+    grid on;
     
-    inCurrentWaveBand = (ppsf.waveIndex == w);
-    xCurrentWave = xOrig(:,inCurrentWaveBand);  %sifts out rays that only of the current wave band
-    middleXYCurrentWave = middleXY(inCurrentWaveBand,:);
-    withinAperture = middleXYCurrentWave(:,1).^2 + middleXYCurrentWave(:,2).^2 <= adjustedMiddleApertureRadius.^2;
-    
-    A1stInterpCurrentWave = A1stInterp(:,:,w);  %use 2 dimensions of the matrices for multiplication
-    A2ndInterpCurrentWave = A2ndInterp(:,:,w);
-    firstHalf = A1stInterpCurrentWave * xCurrentWave;
-    firstHalfBlock = firstHalf(:, withinAperture); %Apply aperture to rays from the first half
-    bEstInterp = A2ndInterpCurrentWave * firstHalfBlock;
-    
-    bOrigMaskedCurrentWave = bOrig(:, withinAperture); %ground truth rays
-    finalB = cat(2, finalB, bEstInterp);   %concatenate interpolatedB to final B list
-    waveIndex = cat(1, waveIndex, ones(size(bEstInterp,2), 1)* w); %keep track of waveIndex
+    meanAbsError = mean(abs(bEstInterp(ii,:) - bOrigCropped(ii,:)));
+    averageAmp = mean(abs(bOrigCropped(ii,:)));
+    meanPercentErrorSplit = meanAbsError/averageAmp * 100
 end
 
-
-% % Calculate errors
-% % Scatter plot of positions
-% for ii=1:4
-%     ii
-%     vcNewGraphWin; plot(bOrigMasked(ii,:),bEstInterp(ii,:),'o');
-%     grid on;
-%     
-%     meanAbsError = mean(abs(bEstInterp(ii,:) - bOrigMasked(ii,:)));
-%     averageAmp = mean(abs(bOrigMasked(ii,:)));
-%     meanPercentErrorSplit = meanAbsError/averageAmp * 100
-% end
-
 % Visualize PSF and phase space
-ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, finalB, withinAperture, waveIndex)
+ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp, withinAperture)
 oi = ppsfCamera.oiCreate;
 vcAddObject(oi); oiWindow;
 plotOI(oi,'illuminance mesh linear');
