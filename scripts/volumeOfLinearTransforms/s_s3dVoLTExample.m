@@ -122,8 +122,6 @@ film = pbrtFilmC('position', [0 0 100 ], ...
     'size', [10 10], ...
     'wave', wave);
 
-
-
 %% Compute VOLT model
 %
 % The VOLT model consists of a collection of 4x4 A matrices that
@@ -189,12 +187,18 @@ VoLTObject.calculateMatrices();
 % [az el] = view;
 
 %% Obtain an A given a wanted pSLocation by linear interpolation
+% A different A matrix will be calculated for each wavelengths.  We will
+% loop through all the wavelengths.  The wave samples assumed are the ones
+% from the lens.  These should be synchronized with everything else.  
 
-wantedWavelength = 550;
+%wantedWavelength = 550;
 
-AInterp = zeros(4,4, length(wave));
-A1stInterp = zeros(4,4, length(wave));
-A2ndInterp = zeros(4,4, length(wave));
+%full model from front-most element to back-most element
+AInterp = zeros(4,4, length(wave));  
+%half the model from the front-most element to the middle aperture
+A1stInterp = zeros(4,4, length(wave));  
+%the second half of the model from the middle aperture to the back-most element
+A2ndInterp = zeros(4,4, length(wave));  
 
 for w = 1:length(wave)
     [AInterp1Wave, A1stInterpCurrentWave, A2ndInterpCurrentWave ] = VoLTObject.interpolateA(wantedPSLocation, wave(w));
@@ -292,10 +296,4 @@ ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, finalB, withinAperture, waveInde
 oi = ppsfCamera.oiCreate;
 vcAddObject(oi); oiWindow;
 plotOI(oi,'illuminance mesh linear');
-
-%% Interpolate a collection of A matrices for different wavelengths.  
-% Next, use those to produce psf's at different wavelengths on 1 oi
-
-% we have to concatenate the b matrix
-
 %% End 
