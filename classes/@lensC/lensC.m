@@ -127,6 +127,12 @@ classdef lensC <  handle
                     else this = varargin{1};
                     end
                     res = obj.surfaceArray(this).apertureD;
+                    
+                case {'middleapertured','aperturemiddled'}
+                    % The diameter of the middle aperture
+                    % units are mm
+                    res = obj.apertureMiddleD;
+                    
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end
