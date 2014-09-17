@@ -82,7 +82,7 @@ pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 %pSLocations = [zeros(length(pSY), 1) pSY' pSZ];
 
 %desired pSLocation for interpolation
-wantedPSLocation = [0 1.7 -102.9];
+wantedPSLocation = [0 1.7 -103];
 
 %% Define the Lens and Film
 
