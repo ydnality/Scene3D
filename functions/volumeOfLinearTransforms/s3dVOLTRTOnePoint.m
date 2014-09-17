@@ -1,4 +1,4 @@
-function [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens)    
+function [ppsf inLF outLF middleLF inLFOrig outLFOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens)    
     % [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens)  
     %
     % This function performs the ray-trace for one point source, and
@@ -70,7 +70,7 @@ function [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSour
     % This is the effective aperture
     vcNewGraphWin;
     whichElement = 1;
-    r = lens.get('sdiameter',whichElement)/2; [x,y] = circlePoints([],r); plot(x,y,'.');
+    r = lens.get('sdiameter',whichElement)/2; [inLF,y] = circlePoints([],r); plot(inLF,y,'.');
     hold on; plot(cAEntranceXY(1,:),cAEntranceXY(2,:),'o'); axis equal
     grid on
     title(sprintf('Entrance points that make it to the exit'));
@@ -94,8 +94,7 @@ function [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSour
         ppsf.aEntranceInt.Z * ones(size(cAEntranceXYOrig(1,:))) - ppsf.pointSourceLocation(3)];
     entDirMatrixOrig = normvec(entDirMatrixOrig, 'dim', 1);
     
-    
-    
+
     % Here we have (x,y,z) positions in the entrace aperture.
     % We also have the first two entries of the unit length vector direction of
     % the ray.  Maybe we want the two angles of that ray.
@@ -104,19 +103,24 @@ function [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSour
     %     ppsf.aEntranceInt.Z * ones(size(cAEntranceXY(1,:)));
     %     entDirMatrix(1, :);
     %     entDirMatrix(2,:)];
-    x = [cAEntranceXY(1,:);
-        cAEntranceXY(2,:);
-        entDirMatrix(1, :);
-        entDirMatrix(2,:)];
+    
+    inLF = s3dVOLTLFFromPosDir(cAEntranceXY, entDirMatrix);
+    
+    inLFOrig = s3dVOLTLFFromPosDir(cAEntranceXYOrig, entDirMatrixOrig);
+    
+%     inLF = [cAEntranceXY(1,:);
+%         cAEntranceXY(2,:);
+%         entDirMatrix(1, :);
+%         entDirMatrix(2,:)];
 
-    xOrig = [cAEntranceXYOrig(1,:);
-        cAEntranceXYOrig(2,:);
-        entDirMatrixOrig(1, :);
-        entDirMatrixOrig(2,:)];
+%     inLFOrig = [cAEntranceXYOrig(1,:);
+%         cAEntranceXYOrig(2,:);
+%         entDirMatrixOrig(1, :);
+%         entDirMatrixOrig(2,:)];
     
     % Distribution of one of the angles 
-    vcNewGraphWin;
-    hist(entDirMatrix(1,:),100);
+%     vcNewGraphWin;
+%     hist(entDirMatrix(1,:),100);
 
     %% All the ray directions from a common point
     %     vcNewGraphWin;
@@ -145,11 +149,12 @@ function [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSour
     middleXY = ppsf.aMiddleInt.XY';
     middleXY = middleXY(:, survivedRays);
     
-    bMiddle =  [middleXY(1,:);
-        middleXY(2,:);
-        middleDir(1, :);
-        middleDir(2,:)];
+    middleLF = s3dVOLTLFFromPosDir(middleXY, middleDir);
     
+%     middleLF =  [middleXY(1,:);
+%         middleXY(2,:);
+%         middleDir(1, :);
+%         middleDir(2,:)];
     
     %% Compute exit lightfield
     cAExitXYOrig = ppsf.aExitInt.XY';
@@ -157,17 +162,16 @@ function [ppsf x b bMiddle xOrig bOrig ppsfCamera] = s3dVOLTRTOnePoint(pointSour
 
     exitDirMatrixOrig = ppsf.aExitDir';
     exitDirMatrix = exitDirMatrixOrig(:, survivedRays);
-    % b = [cAExitXY(1,:);
-    %     cAExitXY(2,:);
-    %     ppsf.aExitInt.Z * ones(size(cAExitXY(1,:)));
-    %     exitDirMatrix(1, :);
-    %     exitDirMatrix(2,:)];
-    b = [cAExitXY(1,:);
-        cAExitXY(2,:);
-        exitDirMatrix(1, :);
-        exitDirMatrix(2,:)];
+
+    outLF = s3dVOLTLFFromPosDir(cAExitXY, exitDirMatrix);
+    outLFOrig = s3dVOLTLFFromPosDir(cAExitXYOrig, exitDirMatrixOrig);
     
-    bOrig = [cAExitXYOrig(1,:);
-        cAExitXYOrig(2,:);
-        exitDirMatrixOrig(1, :);
-        exitDirMatrixOrig(2,:)];
+%     outLF = [cAExitXY(1,:);
+%         cAExitXY(2,:);
+%         exitDirMatrix(1, :);
+%         exitDirMatrix(2,:)];
+    
+%     outLFOrig = [cAExitXYOrig(1,:);
+%         cAExitXYOrig(2,:);
+%         exitDirMatrixOrig(1, :);
+%         exitDirMatrixOrig(2,:)];

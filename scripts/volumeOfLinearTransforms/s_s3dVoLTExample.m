@@ -255,7 +255,7 @@ plotOI(oi,'illuminance mesh linear');
 adjustedMiddleApertureRadius = 4;
 close all;
 
-middleXY = ppsf.aEntranceInt.XY;
+middleXY = ppsf.aMiddleInt.XY;
 %withinAperture = middleXY(:,1).^2 + middleXY(:,2).^2 <= adjustedMiddleApertureRadius.^2;%apertureMiddleD/2;
 finalB = [];
 waveIndex = [];
