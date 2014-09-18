@@ -121,7 +121,9 @@ classdef VoLTC < clonableHandleObject
                     end
                 case 'fieldpositions'
                     res = obj.fieldPositions;
-
+                %TODO (maybe not): have a get A matrix for a particular field pos,
+                %depth, wavelength.
+                %coefValues dimensions: (4,4, #fieldPositions, #depths, #wavelengths);
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end

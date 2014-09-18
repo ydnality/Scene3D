@@ -38,7 +38,7 @@ numWaves = length(obj.get('wave'));
 pSY = obj.get('fieldPositions');
 pSZ = obj.get('depths');
 pSW = obj.get('wave');
-[meshY, meshZ, pSW] = meshgrid(pSY,pSZ, pSW);
+[meshZ, meshY, meshW] = meshgrid(pSZ , pSY, pSW);
 
 % Could we do a single interp, instead of a separate one for every entry?
 % for fp
@@ -56,21 +56,24 @@ for i = 1:4
     for j = 1:4
         coefValues = AComplete(i,j,:,:,:);
         %coefValues dimensions: (1,1, #fieldPositions, #depths, #wavelengths);
-        coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
-        yi = interp3(meshY, meshZ, pSW, coefValues, wantedPSLocation(2), wantedPSLocation(3), wantedWavelength);
+        %coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
+        coefValues = squeeze(coefValues); 
+        yi = interp3(meshZ,meshY,  meshW, coefValues, wantedPSLocation(3),wantedPSLocation(2),  wantedWavelength);
         AInterp(i,j) = yi;
         
         coefValues = A1stComplete(i,j,:,:,:);
         %coefValues = coefValues(:);
-        coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
-        yi = interp3(meshY, meshZ, pSW, coefValues, wantedPSLocation(2), wantedPSLocation(3), wantedWavelength);
+        %coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
+        coefValues = squeeze(coefValues); 
+        yi = interp3(meshZ,meshY,  meshW, coefValues, wantedPSLocation(3), wantedPSLocation(2), wantedWavelength);
         A1stInterp(i,j) = yi;
         
         coefValues = A2ndComplete(i,j,:,:,:);
         %coefValues = coefValues(:);
         %yi = interp1(pSY,coefValues, wantedPSLocation);
-        coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
-        yi = interp3(meshY, meshZ, pSW, coefValues, wantedPSLocation(2), wantedPSLocation(3), wantedWavelength);
+       % coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
+        coefValues = squeeze(coefValues);
+        yi = interp3( meshZ,meshY, meshW, coefValues, wantedPSLocation(3), wantedPSLocation(2),  wantedWavelength);
         A2ndInterp(i,j) = yi;
     end
 end   
