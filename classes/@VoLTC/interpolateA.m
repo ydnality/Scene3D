@@ -1,22 +1,26 @@
-function [ AInterp A1stInterp A2ndInterp ] = interpolateA( obj, wantedPSLocation, wantedWavelength )
-%INTERPOLATEA Summary of this function goes here
-%   Detailed explanation goes here 
-%   wavelength is ignored for now.  TODO: deal with wavelength and depth
+function [ AInterp, A1stInterp, A2ndInterp ] = interpolateA(obj, wantedPSLocation, wantedWavelength )
+% Interpolate the A matrices to the specified locations
 %
-%   For now - we will assume that x coordinates are 0 and interpolation can
-%   only be done on the y axis and depth.  TODO: allow for rotations for
-%   anything out of this plane.
-
+% The three different matrices (all the way, front to middle, middle to
+% exit) are all returned
+%
+% The positions and wantedPSLocations are (x,y,z) locations.  We really
+% only use the (y,z) values.  Let's think about that.
+%
+% For now - we will assume that x coordinates are 0 and interpolation can
+% only be done on the y axis and depth.  TODO: allow for rotations for
+% anything out of this plane.
+%
 % This is going to be the basis of the 'get' part of the VOLT class, when
 % we return an interpolated linear transformation
+%
+% AL VISTASOFT 2014
 
 %% parameter testing
-
-if (ieNotDefined('wantedWavelength'))
-    wantedWavelength = 550;
-end
+if (ieNotDefined('wantedWavelength')), wantedWavelength = 550; end
     
-%% 
+%% Interpolate the three types of A matrices
+
 AInterp = zeros(4,4);
 A1stInterp = zeros(4,4);
 A2ndInterp = zeros(4,4);
@@ -24,6 +28,9 @@ A2ndInterp = zeros(4,4);
 AComplete = obj.get('ACollection');
 A1stComplete = obj.get('A1stCollection');
 A2ndComplete = obj.get('A2ndCollection');
+
+% [x,y,z] = obj.get('ps locations')
+%  w = obj.get('wave')
 
 numDepths = obj.get('numDepths');
 numPositions = obj.get('numFieldPositions');
@@ -33,12 +40,22 @@ pSZ = obj.get('depths');
 pSW = obj.get('wave');
 [meshY, meshZ, pSW] = meshgrid(pSY,pSZ, pSW);
 
+% Could we do a single interp, instead of a separate one for every entry?
+% for fp
+%     for depths
+%         for wave
+%             this() = [fp,depth,wave]
+%             allCoefs = [allCoef,coef(:)]
+%         end
+%     end
+% end
+% 
+
 
 for i = 1:4
     for j = 1:4
         coefValues = AComplete(i,j,:,:,:);
-        %coefValues = coefValues(:);
-        %coefValues dimensions: (1,1, #fieldPositions, #depths);
+        %coefValues dimensions: (1,1, #fieldPositions, #depths, #wavelengths);
         coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
         yi = interp3(meshY, meshZ, pSW, coefValues, wantedPSLocation(2), wantedPSLocation(3), wantedWavelength);
         AInterp(i,j) = yi;

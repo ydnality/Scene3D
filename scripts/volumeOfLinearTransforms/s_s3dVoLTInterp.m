@@ -9,11 +9,13 @@
 s_initISET
 
 %% Specify different point source positions in the object volume
+pSY = [1.51 1.65 1.81];
+pSZ = [-103];   %values must be monotonically increasing!!
 
 % We compute a linear transform for three field heights
-pSY = [1.5 1.7 1.9];
-pSZ = [-102.75];   %values must be monotonically increasing!!
-wave = 550;
+% pSY = [1.5 1.7 1.9];
+% pSZ = [-102.75];   %values must be monotonically increasing!!
+wave = [550];
 
 %% Define the Lens and Film
 
@@ -37,23 +39,54 @@ film = pbrtFilmC('position', [0 0 100 ], ...
     'wave', wave);
 
 %% Compute VOLT model
-VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', wave); 
-VoLTObject.calculateMatrices();
+VoLT = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', wave); 
+VoLT.calculateMatrices();
 
 vcNewGraphWin([],'tall');
 for ii=1:3
-    subplot(3,1,ii); surf(VoLTObject.ACollection(:,:,ii));
+    subplot(3,1,ii); surf(VoLT.ACollection(:,:,ii));
 end
 
-0.5*(VoLTObject.ACollection(:,:,1) + VoLTObject.ACollection(:,:,3)) - ...
-    VoLTObject.ACollection(:,:,2)
+err = 0.5*(VoLT.ACollection(:,:,1) + ...
+    VoLT.ACollection(:,:,3)) - ...
+    VoLT.ACollection(:,:,2)
+
+%% Interpolate to a the middle position
+
+% A different A matrix will be calculated for each wavelengths.  We will
+% loop through all the wavelengths.  The wave samples assumed are the ones
+% from the lens.  These should be synchronized with everything else.  
+
+A       = VoLT.interpolateA([0 1.65 -103])
+
+psf     = VoLT.psf(somePosition)
+% intVoLT = VoLT.interpolate(newPositions)
+
+
+%wantedWavelength = 550;
+
+%full model from front-most element to back-most element
+AInterp = zeros(4,4, length(wave));  
+%half the model from the front-most element to the middle aperture
+A1stInterp = zeros(4,4, length(wave));  
+%the second half of the model from the middle aperture to the back-most element
+A2ndInterp = zeros(4,4, length(wave));  
+
+for w = 1:length(wave)
+    [AInterp1Wave, A1stInterpCurrentWave, A2ndInterpCurrentWave ] = ...
+        VoLT.interpolateA(wantedPSLocation, wave(w));
+    AInterp(:,:,w) = AInterp1Wave;
+    A1stInterp(:,:,w) = A1stInterpCurrentWave;
+    A2ndInterp(:,:,w) = A2ndInterpCurrentWave;
+end
+
 
 %%  Compare the PSF from the interpolated and ray-traced
 
 % First, take the rays at the entrance pupil and transform them to the
 % middle aperture.
 
-lt1 = VoLTObject.A1stCollection(:,:,2);
+lt1 = VoLT.A1stCollection(:,:,2);
 apSize = lens.get('middle aperture d');
 
 middleXY = ppsf.aEntranceInt.XY;
@@ -98,7 +131,7 @@ A1stInterp = zeros(4,4, length(wave));
 A2ndInterp = zeros(4,4, length(wave));  
 
 for w = 1:length(wave)
-    [AInterp1Wave, A1stInterpCurrentWave, A2ndInterpCurrentWave ] = VoLTObject.interpolateA(wantedPSLocation, wave(w));
+    [AInterp1Wave, A1stInterpCurrentWave, A2ndInterpCurrentWave ] = VoLT.interpolateA(wantedPSLocation, wave(w));
     AInterp(:,:,w) = AInterp1Wave;
     A1stInterp(:,:,w) = A1stInterpCurrentWave;
     A2ndInterp(:,:,w) = A2ndInterpCurrentWave;

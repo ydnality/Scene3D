@@ -12,8 +12,14 @@ classdef VoLTC < clonableHandleObject
         
         wave = 400:100:700;
         depths = -100;
-        fieldPositions = linspace(.00001,2, 5);  %1-dimension implies rotationally symmetric, and use of rotation transform 2-dimension implies not rotationally symemetric
-        ACollection; %must have the same dimensions as depths, wavelengths, field position
+        % If fieldPositions is 
+        %   1-dimension implies rotationally symmetric, and use of rotation
+        % transform 
+        %   2-dimension implies not rotationally symemetric 
+        % Only 1-dimension currently implemented
+        fieldPositions = linspace(.00001,2, 5);  
+        % Must have the same dimensions as depths, wavelengths, field position
+        ACollection; 
         A1stCollection;
         A2ndCollection;
     end
@@ -46,8 +52,9 @@ classdef VoLTC < clonableHandleObject
     end
     
     methods
+        
         function obj = VoLTC(varargin)
-            
+        % Initialization of the Volume of Linear Transformations object    
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
                 switch p
@@ -68,7 +75,7 @@ classdef VoLTC < clonableHandleObject
         end        
         
         
-        % Get properties
+        % Get VoLT properties
         function res = get(obj,pName,varargin)
             % Get various derived lens properties though this call
             pName = ieParamFormat(pName);
@@ -82,26 +89,31 @@ classdef VoLTC < clonableHandleObject
                 case 'numdepths'
                     res = length(obj.depths);
                 case 'numfieldpositions'
+                    % Number of field heights
                     res = length(obj.fieldPositions);
                 case 'acollection'
+                    % A transforms from entrance to exit pupil
                     if(obj.AMatricesUpdated)
                         res = obj.ACollection;
                     else
                         error('A Matrices have not been recalculated.  Run VoLTC.calculateMatrices() first');
                     end
                 case 'a1stcollection'
+                    % A transforms from entrance to middle aperture
                     if(obj.AMatricesUpdated)
                         res = obj.A1stCollection;
                     else
                         error('A Matrices have not been recalculated.  Run VoLTC.calculateMatrices() first');
                     end
                 case 'a2ndcollection'
+                    % A transforms from middle aperture to exit pupil
                     if(obj.AMatricesUpdated)
                         res = obj.A2ndCollection;
                     else 
                         error('A Matrices have not been recalculated.  Run VoLTC.calculateMatrices() first');
                     end
                 case 'pslocations'
+                    % VoLT.get('psLocations')
                     if (length(varargin) >= 1)
                         res = obj.getPSLocations(varargin{1});
                     else
@@ -109,9 +121,7 @@ classdef VoLTC < clonableHandleObject
                     end
                 case 'fieldpositions'
                     res = obj.fieldPositions;
-                %case {'nsurfaces','numels'}
-                    % Should be nsurfaces
-                %    res = length(obj.surfaceArray);
+
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end

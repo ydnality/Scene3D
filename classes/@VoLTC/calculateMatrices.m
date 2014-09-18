@@ -1,24 +1,15 @@
 function obj = calculateMatrices(obj, debugPlots)
-%tackle wavelength problem first...
-%assume only 1 depth for now... to keep things simple
-
-%formerly
-%function [ obj.ACollection, obj.A1stCollection, obj.A2ndCollection ] = s3dVOLTCreateModel(lens, film, pSLocations)
-% Create a volume of linear transformations for optics
+% Calculate the Volume of Linear Transformations from a VoLT object
 %
-%  [obj.ACollection obj.A1stCollection obj.A2ndCollection] = s3dVOLTCreateModel(lens, film, pSLocations)
+%     VoLT.calculateMatrices
 %
-% Creates a collection of linear transforms to summarize a lens. This
-% particular function will only use 1 single depth, but multiple field
-% heights.
+% The linear transformations explain how to transform the light field from
+% different points into the light field either at the exit plane or from
+% the first surface to the middle aperture or from the middle aperture to
+% the exit pupil.
 %
-% Inputs:
-%   lens:  A lens class object
-%   film:  A film class object that specifies the distance
-%   pSLocations:
-%     An n x 3 matrix that contains the locations of point sources for ray
-%     tracing. A linear model will be computed for each one of these
-%     locations.  These linear models will be placed in a collection.
+% The point source locations are stored in the VoLT object as a series of
+% depths and field heights (positions) in millimeters.
 %
 % Returns:
 %
@@ -87,14 +78,17 @@ for depthIndex = 1:length(depths)
         %% point sources (units are mm)
         pointSource = pSLocations(pSIndex, :);
 
+        % This ray traces the plenoptic point spread function for this
+        % point given the film and lens
         [ppsf, x, b, bMiddle] = s3dVOLTRTOnePoint(pointSource, obj.film, obj.lens);
+        
+        % Store these, and remember they have NaNs in them.
+        % We deal with the NaNs later
         xFull = x;
         bFull = b;
         bMiddleFull = bMiddle;
         
         %% Do a speparate linear calculation for each wavelength.  
-        % Split rays by wavelenghts and loop.
-        
         for w = 1:length(wave)
             %%  We wonder about the full linear relationship
             %  b = Ax
@@ -107,7 +101,9 @@ for depthIndex = 1:length(depths)
             %only take data belonging to current wavelength
             
             waveIndex = ppsf.get('waveIndex');
-            survivedWaveInd = waveIndex(ppsf.get('liveindices')); %remove nans to be on par with b and x
+            % Deal with the NaNs as mentioned above.
+            % Remove nans to be on par with b and x
+            survivedWaveInd = waveIndex(ppsf.get('liveindices')); 
             
             %only use the x and b for the specific waveInd
             b = bFull(:, survivedWaveInd == w);  %this might be a cumbersome way to do this.  consider using bOrig
