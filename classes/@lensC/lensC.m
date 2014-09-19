@@ -94,6 +94,8 @@ classdef lensC <  handle
             switch pName
                 case 'name'
                     res = obj.name;
+                case 'wave'
+                    res = obj.wave;
                 case 'type'
                     res = obj.type;
                 case {'nsurfaces','numels'}
@@ -125,6 +127,12 @@ classdef lensC <  handle
                     else this = varargin{1};
                     end
                     res = obj.surfaceArray(this).apertureD;
+                    
+                case {'middleapertured','aperturemiddled'}
+                    % The diameter of the middle aperture
+                    % units are mm
+                    res = obj.apertureMiddleD;
+                    
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end

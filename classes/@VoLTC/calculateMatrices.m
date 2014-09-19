@@ -1,24 +1,15 @@
-function obj = calculateMatrices(obj)
-%tackle wavelength problem first...
-%assume only 1 depth for now... to keep things simple
-
-%formerly
-%function [ obj.ACollection, obj.A1stCollection, obj.A2ndCollection ] = s3dVOLTCreateModel(lens, film, pSLocations)
-% Create a volume of linear transformations for optics
+function obj = calculateMatrices(obj, debugPlots)
+% Calculate the Volume of Linear Transformations from a VoLT object
 %
-%  [obj.ACollection obj.A1stCollection obj.A2ndCollection] = s3dVOLTCreateModel(lens, film, pSLocations)
+%     VoLT.calculateMatrices
 %
-% Creates a collection of linear transforms to summarize a lens. This
-% particular function will only use 1 single depth, but multiple field
-% heights.
+% The linear transformations explain how to transform the light field from
+% different points into the light field either at the exit plane or from
+% the first surface to the middle aperture or from the middle aperture to
+% the exit pupil.
 %
-% Inputs:
-%   lens:  A lens class object
-%   film:  A film class object that specifies the distance
-%   pSLocations:
-%     An n x 3 matrix that contains the locations of point sources for ray
-%     tracing. A linear model will be computed for each one of these
-%     locations.  These linear models will be placed in a collection.
+% The point source locations are stored in the VoLT object as a series of
+% depths and field heights (positions) in millimeters.
 %
 % Returns:
 %
@@ -63,16 +54,19 @@ function obj = calculateMatrices(obj)
 
 %% Argument checking here
 
-
+if (ieNotDefined('debugPlots'))
+    debugPlots = false;
+end
 
 %% Initialize complete matrices
 
 depths = obj.get('depths');
 fieldPositions = obj.get('fieldPositions');
+wave = obj.get('wave');
 
-obj.ACollection = zeros(4, 4, length(fieldPositions), length(depths));
-obj.A1stCollection = zeros(4, 4, length(fieldPositions), length(depths));
-obj.A2ndCollection = zeros(4, 4, length(fieldPositions), length(depths));
+obj.ACollection = zeros(4, 4, length(fieldPositions), length(depths), length(wave));
+obj.A1stCollection = zeros(4, 4, length(fieldPositions), length(depths), length(wave));
+obj.A2ndCollection = zeros(4, 4, length(fieldPositions), length(depths), length(wave));
 
 %% Loop on points and make the various matrices
 
@@ -84,54 +78,80 @@ for depthIndex = 1:length(depths)
         %% point sources (units are mm)
         pointSource = pSLocations(pSIndex, :);
 
+        % This ray traces the plenoptic point spread function for this
+        % point given the film and lens
         [ppsf, x, b, bMiddle] = s3dVOLTRTOnePoint(pointSource, obj.film, obj.lens);
+        
+        % Store these, and remember they have NaNs in them.
+        % We deal with the NaNs later
+        xFull = x;
+        bFull = b;
+        bMiddleFull = bMiddle;
+        
+        %% Do a speparate linear calculation for each wavelength.  
+        for w = 1:length(wave)
+            %%  We wonder about the full linear relationship
+            %  b = Ax
+            % To solve, we would compute
+            % A = b\x
 
-        %%  We wonder about the full linear relationship
-        %  b = Ax
-        % To solve, we would compute
-        % A = b\x
+            % A = (x'\b')';
+            % bEst = A * x;
+            
+            %only take data belonging to current wavelength
+            
+            waveIndex = ppsf.get('waveIndex');
+            % Deal with the NaNs as mentioned above.
+            % Remove nans to be on par with b and x
+            survivedWaveInd = waveIndex(ppsf.get('liveindices')); 
+            
+            %only use the x and b for the specific waveInd
+            b = bFull(:, survivedWaveInd == w);  %this might be a cumbersome way to do this.  consider using bOrig
+            x = xFull(:, survivedWaveInd == w);   %but see if this works first.  
+            bMiddle = bMiddleFull(:, survivedWaveInd == w);
+            
+            A = b/x;
+            bEst = A * x;
 
-        % A = (x'\b')';
-        % bEst = A * x;
+            % Scatter plot of positions
+            for ii=1:4
+                if(debugPlots)
+                    vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
+                    grid on;
+                end
+                
+                meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
+                averageAmp = mean(abs(b(ii,:)));
+                meanPercentError = meanAbsError/averageAmp * 100
+            end
 
-        A = b/x;
-        bEst = A * x;
+            obj.ACollection(:,:, pSIndex, depthIndex, w) = A;
 
-        % Scatter plot of positions
-        for ii=1:4
-            vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
-            grid on;
+            %% Calculate split A's: one for each half of the lens, divided by the middle aperture
 
-            meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)));
-            averageAmp = mean(abs(b(ii,:)));
-            meanPercentError = meanAbsError/averageAmp * 100
+            A1st = bMiddle/x;
+            obj.A1stCollection(:,:, pSIndex, depthIndex, w) = A1st;
+            bMiddleEst = A1st * x;
+
+            A2nd = b/bMiddle;
+            obj.A2ndCollection(:,:, pSIndex, depthIndex, w) = A2nd;
+
+            %calculate final result
+            bEst = A2nd * A1st * x;
+
+            for ii=1:4
+                ii
+                if debugPlots
+                    vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
+                    grid on;
+                end
+                meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)))
+                averageAmpSplit = mean(abs(b(ii,:)));
+                meanPercentErrorSplit = meanAbsError/averageAmpSplit * 100
+            end
+
+            close all;
         end
-
-        obj.ACollection(:,:,pSIndex, depthIndex) = A;
-
-        %% Calculate split A's: one for each half of the lens, divided by the middle aperture
-
-        A1st = bMiddle/x;
-        obj.A1stCollection(:,:, pSIndex, depthIndex) = A1st;
-        bMiddleEst = A1st * x;
-
-        A2nd = b/bMiddle;
-        obj.A2ndCollection(:,:, pSIndex, depthIndex) = A2nd;
-
-        %calculate final result
-        bEst = A2nd * A1st * x;
-
-        for ii=1:4
-            ii
-            vcNewGraphWin; plot(b(ii,:),bEst(ii,:),'o');
-            grid on;
-
-            meanAbsError = mean(abs(bEst(ii,:) - b(ii,:)))
-            averageAmpSplit = mean(abs(b(ii,:)));
-            meanPercentErrorSplit = meanAbsError/averageAmpSplit * 100
-        end
-
-        close all;
     end
 end
 obj.AMatricesUpdated = true;
