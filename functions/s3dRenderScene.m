@@ -45,7 +45,9 @@ function scene = s3dRenderScene(inputPbrt, sceneName)
     
     
     % Use pinhole and pbrt to create the scene data
-    pbrtExe = fullfile(pbrtRootPath, 'src','bin','pbrt');
+    %pbrtExe = fullfile(pbrtRootPath, 'src','bin','pbrt');
+    pbrtExe = 'pbrt';
+    
     if ~exist(pbrtExe,'file')
         error('PBRT executable not found');
     end

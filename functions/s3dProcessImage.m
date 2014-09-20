@@ -2,6 +2,8 @@ function [vci, transformMatrices ] = s3dProcessImage(sensor, wantedTransformatio
 
     if (ieNotDefined('wantedTransformationMatrices'))
         disp ('transformation Matrix not supplied');
+        %default transforms (identity for all assumed)
+        wantedTransformationMatrices = {eye(3), eye(3), eye(3)};
     end
     
     vci = vcimageCreate;
@@ -20,18 +22,14 @@ function [vci, transformMatrices ] = s3dProcessImage(sensor, wantedTransformatio
     vci = imageSet(vci,'illuminant correction method','None');
     vci = imageSet(vci,'illuminant correction matrix','None');
     vci = imageSet(vci,'internal color space','Sensor');
-
+    vci = imageSet(vci, 'sensorconversionmethod', 'None');
 
 %     vci = vcimageCompute(vci,sensor);;
-   
-    if (~ieNotDefined('wantedTransformationMatrices'))
-        vci = imageSet(vci, 'transforms', wantedTransformationMatrices);
-    end   
+
+    vci = imageSet(vci, 'transforms', wantedTransformationMatrices);  
     
     vci = vcimageCompute(vci,sensor);
-    if (~ieNotDefined('wantedTransformationMatrices'))
-        vci = imageSet(vci, 'transforms', wantedTransformationMatrices);
-    end   
+    vci = imageSet(vci, 'transforms', wantedTransformationMatrices);
     
     
     vci = vcimageCompute(vci,sensor);

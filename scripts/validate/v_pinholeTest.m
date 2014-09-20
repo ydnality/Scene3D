@@ -1,6 +1,13 @@
-%%  Creates a pointArray using point light sources.  
+%%  Creates a pointArray using point light sources
+%
+% PBRT RELATED STUFF.  To comment and check on a unix or AL machine with
+% pbrt.
+%
 % The point light sources are created using tiny spherical area lights 
 % diffraction is turned off in this example!
+%
+% AL VISTASOFT 2014
+
 
 %% make a new pbrt object
 clear curPbrt;

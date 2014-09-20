@@ -26,7 +26,7 @@ pointSources = [ 3 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -58,7 +58,10 @@ tic
 rays = lens.rayTraceSourceToLens(pointSources(1, :));
 
 apertureSamples = lens.apertureSample;
-ppsfRays = ppsfObject(rays.origin, rays.direction, rays.wavelength, pointSourceDepth, pointSourceFieldHeight, apertureSamples);  %think of a best way to put in aperture sample location
+ppsfRays = ppsfC('origin', rays.origin, 'direction', rays.direction, ...
+    'waveIndex', rays.waveIndex, 'pointSourceDepth', pointSourceDepth, ...
+    'pointSourceFieldHeight', pointSourceFieldHeight, ...
+    'aEntranceInt', apertureSamples);  %think of a best way to put in aperture sample location
 toc
 
 %duplicate the existing rays, and creates one for each
@@ -94,7 +97,7 @@ outsideAperture = modifyRays.apertureLocation(:,1).^2 + modifyRays.apertureLocat
 %TODO: make this into a function
 modifyRays.origin(outsideAperture, : ) = [];
 modifyRays.direction(outsideAperture, : ) = [];
-modifyRays.wavelength(outsideAperture) = [];
+%modifyRays.wavelength(outsideAperture) = [];
 modifyRays.waveIndex(outsideAperture) = [];
 modifyRays.apertureLocation(outsideAperture, :) = [];
 modifyRays.apertureSamples.X(outsideAperture) = []; 
@@ -102,7 +105,7 @@ modifyRays.apertureSamples.Y(outsideAperture) = [];
 
 film = cell(1,3);
 %first try at 36.4 sensor distance
-film{1} = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{1} = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic
@@ -110,7 +113,7 @@ modifyRays.recordOnFilm(film{1});
 toc
 
 %38 sensor distance
-film{2} = pbrtFilmObject([0 0 37],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{2} = pbrtFilmC([0 0 37],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic
@@ -118,7 +121,7 @@ modifyRays.recordOnFilm(film{2});
 toc
 
 %35 sensor distance
-film{3} = pbrtFilmObject([0 0 35.5],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{3} = pbrtFilmC([0 0 35.5],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic

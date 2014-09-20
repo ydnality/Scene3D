@@ -33,7 +33,7 @@ pointSources = [ 100 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -56,7 +56,7 @@ lens.drawLens();
 %% ray trace and save ppsf
 s_s3dRayTracePPSFInterpHelper;
 % save ppsf
-firstRays = ppsfObject();
+firstRays = ppsfC();
 firstRays.makeDeepCopy(modifyRays);
 
 
@@ -68,7 +68,7 @@ pointSources = [ 120 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -91,7 +91,7 @@ lens.drawLens();
 %%
 s_s3dRayTracePPSFInterpHelper;
 % save ppsf
-secondRays = ppsfObject();
+secondRays = ppsfC();
 secondRays.makeDeepCopy(modifyRays);
 
 
@@ -105,7 +105,7 @@ pointSources = [ 110 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -128,12 +128,12 @@ lens.drawLens();
 %%
 s_s3dRayTracePPSFInterpHelper;
 % save ppsf
-middleRays = ppsfObject();
+middleRays = ppsfC();
 middleRays.makeDeepCopy(modifyRays);
 
 
 %% Interpolate between 1st and 2nd PPSF to try to produce 3rd one
-averageRays = ppsfObject();
+averageRays = ppsfC();
 averageRays.makeDeepCopy(firstRays);
 %average between the first 2 ppsfs
 averageRays.origin = (firstRays.origin + secondRays.origin)./2;
@@ -143,7 +143,7 @@ averageRays.apertureLocation = (firstRays.apertureLocation + secondRays.aperture
 % ray-trace the last bit - from lens to sensor
 %modify the film and see the consequences on the PSF - these computations
 %should be very fast
-modifyRays = ppsfObject();
+modifyRays = ppsfC();
 modifyRays.makeDeepCopy(averageRays);
 % 
 % newRadius = 2;
@@ -157,7 +157,7 @@ outsideAperture = [];
 %TODO: make this into a function
 modifyRays.origin(outsideAperture, : ) = [];   %this needs to be fixed later
 modifyRays.direction(outsideAperture, : ) = [];
-modifyRays.wavelength(outsideAperture) = [];
+%modifyRays.wavelength(outsideAperture) = [];
 modifyRays.waveIndex(outsideAperture) = [];
 modifyRays.apertureLocation(outsideAperture, :) = [];
 modifyRays.apertureSamples.X(outsideAperture) = []; 
@@ -165,7 +165,7 @@ modifyRays.apertureSamples.Y(outsideAperture) = [];
 
 film = cell(1,1);
 %first try at 36.4 sensor distance
-film{1} = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{1} = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic

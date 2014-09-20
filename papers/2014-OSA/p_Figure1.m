@@ -9,29 +9,31 @@
 %  (z is positive).
 %
 %  
-% AL
+% AL Copyright Vistasoft Team, 2014
 
 %% Initialize ISET
 s_initISET
 
 %% Describe the point sources 
 
-% We will loop through the lens positions
+% We will loop through the point positions
 % pX = 0; pY = 0; pZ = -20000;   % millimeters
 pX = 0:-400:-800; pY = 0; pZ =[-16000 -8000 -4000 -2000 ];% millimeters
 % pX = 0; pY = 0; pZ = [-8000];   % millimeters
+
 [X, Y, Z] = meshgrid(pX,pY,pZ);
-%adjust for approximate difference in field position when Z changes
+
+% BW?? - adjust for approximate difference in field position when Z changes
 for i = 2:length(pZ)
     X(:,:,i) = X(:,:,i) *  pZ(i)/pZ(1); 
 end
 pointSources = [X(:), Y(:), Z(:)];
 
-numDepths = length(pZ);
+numDepths       = length(pZ);
 numFieldHeights = length(pX) * length(pY);
-psfsPerDepth = size(pointSources, 1)/numDepths;
-jitterFlag = true;   %enable jitter for lens front element aperture samples
-nLines = false;  %number of lines to draw for debug illustrations.  
+psfsPerDepth    = size(pointSources, 1)/numDepths;
+jitterFlag      = true;      %enable jitter for lens front element aperture samples
+nLines          = false;     %number of lines to draw for debug illustrations.  
 
 %%  Declare film properties
 wave = 400:100:700;            % Wavelength
@@ -55,7 +57,7 @@ newWidth = .3;    %%mm
 
 % Multicomponent lens properties
 % This goes from the light through the lens to the film
-zPos   = [-3 -1.5 0];   % Z intercept positions of lens surfaces
+zPos     = [-3 -1.5 0];   % Z intercept positions of lens surfaces
 radius   = [67 0 -67];    % Radius of curvature, 0 means aperture
 aperture = [6 4 6];       % Circular apertures, these are the radii in mm
 
@@ -72,13 +74,18 @@ fLength = 50;           % Todo: We should derive this using the lensmaker's equa
 % For multiple lenses, we add up the power using something from the web
 
 % Populate lens surface array ussing given property arrays
-lensSurfaceArray = lensSurfaceObject();
+lensSurfaceArray = surfaceC();
 for i = 1:length(zPos)
-    lensSurfaceArray(i) = lensSurfaceObject('sRadius', radius(i), 'apertureD', aperture(i), 'zPos', zPos(i), 'n', n(:, i));
+    lensSurfaceArray(i) = surfaceC('sRadius', radius(i), ...
+        'apertureD', aperture(i), 'zPos', zPos(i), 'n', n(:, i), 'wave', wave);
 end
 
 % Declare lens
-lens = lensMEObject('surfaceArray', lensSurfaceArray, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', [nSamples nSamples]);
+lens = lensC('surfaceArray', lensSurfaceArray, 'focalLength', fLength, ...
+    'diffractionEnabled', diffractionEnabled, 'wave', wave, ...
+    'aperturesample', [nSamples nSamples]);
+lens.name = 'Two surface';
+
 lens.apertureMiddleD = 4;
 % lens.calculateApertureSample([nSamples nSamples]);
 
@@ -88,9 +95,10 @@ oiList = cell(1,size(pointSources, 1))
 for curInd = 1:size(pointSources, 1)
 % for curInd = 1:1
     %---initial low quality render
-    film = pbrtFilmObject('position', [fX fY fZ], 'size', [fW fH], 'wave', wave, 'resolution', [numPixelsW numPixelsH length(wave)]);
-    psfCamera = psfCameraObject('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
-    oi = psfCamera.estimatePSF();
+    film = pbrtFilmC('position', [fX fY fZ], 'size', [fW fH], 'wave', wave, 'resolution', [numPixelsW numPixelsH length(wave)]);
+    psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
+    psfCamera.estimatePSF();
+    oi = psfCamera.oiCreate;
     vcAddObject(oi); oiWindow;
     
     %---figure out center pos by calculating the centroid of gray image
@@ -110,11 +118,12 @@ for curInd = 1:size(pointSources, 1)
     centroidY = sum(sum(flippedGrayImage .* filmDistanceY));
 
     %---re-render image under new center position and width
-    film = pbrtFilmObject('position', [centroidX centroidY fZ], 'size', [newWidth newWidth], 'wave', wave, 'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
+    film = pbrtFilmC('position', [centroidX centroidY fZ], 'size', [newWidth newWidth], 'wave', wave, 'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
     %use more samples this time for a high quality render
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
-    psfCamera = psfCameraObject('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
-    oiList{curInd} = psfCamera.estimatePSF(nLines, jitterFlag);
+    psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
+    psfCamera.estimatePSF(nLines, jitterFlag);
+    oiList{curInd} = psfCamera.oiCreate;
     vcAddObject(oiList{curInd}); oiWindow;
 end
 
@@ -189,3 +198,5 @@ for waveInd = wList
     imwrite(PSFMosaic, fullfile(s3dRootPath, 'papers', '2014-OSA', [description '.png']));    
     title(description); 
 end
+
+%% End

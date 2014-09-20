@@ -18,6 +18,18 @@ newCamPos =    [0  0 80.0000;
     0 1.00000 0];
 curPbrt.camera.setPosition(newCamPos);
 
+%camera position (top-side-ish view to see what the scene is)
+% newCamPos =    [-240  240 80.0000;
+%     -239   239 79.0000;
+%     0 1.00000 0];
+% curPbrt.camera.setPosition(newCamPos);
+
+
+
+%adjust FOV
+filmDistance = 140;  %filmDistance = 40;  %good for 42.5 degree FOV
+curPbrt.camera.lens.filmDistance = filmDistance;
+
 %depths
 sphereDepths = -170;  %negative is into the screen
 
@@ -25,13 +37,17 @@ sphereDepths = -170;  %negative is into the screen
 flashSeparation = 50;
 
 %scaleFactor
-scaleFactor = (-sphereDepths + 80)/(80);
+scaleFactor = (-sphereDepths + 80)/(80); % good for film distance of 140
+%scaleFactor = (-sphereDepths + 80)/(80) * 4.25;  %good for filim distance
+%of 40
 
 %backdrop Depth
 % backDropDepth = -100 * scaleFactor;  %backdrop distance increases with depth of spheres
 backDropDepth = sphereDepths;  %backdrop distance increases with depth of spheres
 
 %calculate sphere offsets
+% xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
+% yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
 xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
 yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
 [xOffsets yOffsets] = meshgrid(xValues, yValues); 
@@ -120,6 +136,11 @@ curPbrt = pbrtObject();
 
 %new camera position
 curPbrt.camera.setPosition(newCamPos);
+
+
+%adjust FOV
+curPbrt.camera.lens.filmDistance = filmDistance;
+
 
 %calculate sphere offsets
 xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);

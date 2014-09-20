@@ -69,7 +69,7 @@ s_initISET
 
     %% film properties
     %36.4
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -91,11 +91,11 @@ s_initISET
     lens.drawLens();
 
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -105,7 +105,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    lowerRightRays = ppsfObject();
+    lowerRightRays = ppsfC();
     lowerRightRays.makeDeepCopy(modifyRays);
 
 %% --2nd PPSF lower left --
@@ -114,7 +114,7 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -134,11 +134,11 @@ s_initISET
     %lens illustration
     lens.drawLens();
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -148,7 +148,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    lowerLeftRays = ppsfObject();
+    lowerLeftRays = ppsfC();
     lowerLeftRays.makeDeepCopy(modifyRays);
 
 %% --3rd PPSF upper right--
@@ -157,7 +157,7 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -177,11 +177,11 @@ s_initISET
     %lens illustration
     lens.drawLens();
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -191,7 +191,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    upperRightRays = ppsfObject();
+    upperRightRays = ppsfC();
     upperRightRays.makeDeepCopy(modifyRays);
     
 %% --4th PPSF upper left--
@@ -200,7 +200,7 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -220,11 +220,11 @@ s_initISET
     %lens illustration
     lens.drawLens();
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -234,7 +234,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    upperLeftRays = ppsfObject();
+    upperLeftRays = ppsfC();
     upperLeftRays.makeDeepCopy(modifyRays);
 
     
@@ -245,7 +245,7 @@ s_initISET
 
     %% film properties
     %36.4
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -267,11 +267,11 @@ s_initISET
     lens.drawLens();
 
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -281,7 +281,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    lowerRightBackRays = ppsfObject();
+    lowerRightBackRays = ppsfC();
     lowerRightBackRays.makeDeepCopy(modifyRays);
 
 %% --6th PPSF lower left, 2nd depth --
@@ -290,7 +290,7 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -310,11 +310,11 @@ s_initISET
     %lens illustration
     lens.drawLens();
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens to sensor
@@ -324,7 +324,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    lowerLeftBackRays = ppsfObject();
+    lowerLeftBackRays = ppsfC();
     lowerLeftBackRays.makeDeepCopy(modifyRays);
 
 %% --7th PPSF upper right, second depth--
@@ -333,7 +333,7 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -353,11 +353,11 @@ s_initISET
     %lens illustration
     lens.drawLens();
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -367,7 +367,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    upperRightBackRays = ppsfObject();
+    upperRightBackRays = ppsfC();
     upperRightBackRays.makeDeepCopy(modifyRays);
     
 %% --8th PPSF upper left, second depth--
@@ -376,7 +376,7 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -396,11 +396,11 @@ s_initISET
     %lens illustration
     lens.drawLens();
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -410,7 +410,7 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    upperLeftBackRays = ppsfObject();
+    upperLeftBackRays = ppsfC();
     upperLeftBackRays.makeDeepCopy(modifyRays);
     
     
@@ -426,7 +426,7 @@ s_initISET
     % pointSources = [ 0 0 -60];  %short distance test
 
     %% film properties -
-    film = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    film = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
     %% lens properties
     diffractionEnabled = false;   
@@ -446,11 +446,11 @@ s_initISET
     %lens illustration
     lens.drawLens();
     %% ray trace and save ppsf
-    ppsfCamera = ppsfCameraObject(lens, film, pointSources);
+    ppsfCamera = ppsfCameraC(lens, film, pointSources);
     ppsfRays = ppsfCamera.estimatePPSF();
 
     %modify the rays for any aperture changes here
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(ppsfRays);
 
     %trace from end of lens tmato sensor
@@ -460,12 +460,12 @@ s_initISET
     ppsfCamera.showFilm();
 
     % save ppsf
-    middleRays = ppsfObject();
+    middleRays = ppsfC();
     middleRays.makeDeepCopy(modifyRays);
     
 %% --Interpolate between 8 PPSFs to try to produce 9th one--
     %% Average between 8 sets of rays
-    averageRays = ppsfObject();
+    averageRays = ppsfC();
     averageRays.makeDeepCopy(lowerRightRays);
     %average between the first 2 ppsfs
     averageRays.origin = (lowerRightWeight * lowerRightRays.origin + lowerLeftWeight* lowerLeftRays.origin + upperLeftWeight * upperLeftRays.origin + upperRightWeight * upperRightRays.origin) + ...
@@ -478,7 +478,7 @@ s_initISET
     % ray-trace the last bit - from lens to sensor
     %% modify the film and see the consequences on the PSF - these computations
     %should be very fast
-    modifyRays = ppsfObject();
+    modifyRays = ppsfC();
     modifyRays.makeDeepCopy(averageRays);
     % 
     % newRadius = 2;
@@ -492,7 +492,7 @@ s_initISET
     %TODO: make this into a function
     modifyRays.origin(outsideAperture, : ) = [];   %this needs to be fixed later
     modifyRays.direction(outsideAperture, : ) = [];
-    modifyRays.wavelength(outsideAperture) = [];
+    %modifyRays.wavelength(outsideAperture) = [];
     modifyRays.waveIndex(outsideAperture) = [];
     modifyRays.apertureLocation(outsideAperture, :) = [];
     modifyRays.apertureSamples.X(outsideAperture) = []; 
@@ -501,7 +501,7 @@ s_initISET
     %% record on film
     filmCell = cell(1,1);
     %first try at 36.4 sensor distance
-    filmCell{1} = pbrtFilmObject([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+    filmCell{1} = pbrtFilmC([0 0 40 ],[10 10], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
     %intersect with "film" and add to film
     disp('-----record on film-----');
     tic

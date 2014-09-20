@@ -1,0 +1,7 @@
+
+These should become integrated with the pbrt class (@pbrtC).  Things are running now but
+the next time we have patience and interest to neaten, let's move these into @pbrtC and
+make all that work as a single pbrt object.
+
+These are separate objects that will get incorporated into an overall pbrt class.
+Andy understands.  I don't yet.  We will try to coordinate.

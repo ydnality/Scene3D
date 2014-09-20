@@ -1,1 +1,0 @@
-LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [ -56.914787 -105.385544 35.0148] "point to" [-56.487434 -104.481461 34.8 ]

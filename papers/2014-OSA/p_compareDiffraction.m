@@ -5,6 +5,8 @@
 % Uncertainty Ray Bending (HURB).  The second way is the classical way,
 % using theoretical PSF's.
 %
+%  NEEDS TO BE FIXED FOR FINDING THE DATA
+%
 % AL
 
 %% Initialize ISET

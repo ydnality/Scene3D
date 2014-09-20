@@ -1,5 +1,6 @@
 %% oi= s3dRenderOI(fname)
-% fname: file name of the pbrt file to render
+% sceneName: file name of the pbrt file to render (without the .pbrt
+% extension).  sceneName will also be used to name the optical image.
 %
 % This function renders a PBRT oi using the given pbrt object, then
 % returns the data as an optical image. The pbrt file should be previously 
@@ -22,6 +23,7 @@ function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
         sceneName = 'deleteMe';
     end
     
+    % deal with input being either a pbrtObject or a string
     if(isa(inputPbrt, 'pbrtObject'))
         fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
         inputPbrt.writeFile(fullfname);
@@ -32,16 +34,18 @@ function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
         error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
     end
     
+    % make a generated directory.  delete the contents of this directory
+    % first.
     generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
     if exist(generatedDir,'dir')
-        unix(['rm ' generatedDir]);
+        unix(['rm -rf' generatedDir]);
     else
         mkdir(generatedDir);
     end
     outfile  = fullfile(generatedDir, 'temp_out.dat');
 
     % dMapFile = 'temp_out_DM.dat'; 
-    unix([fullfile(pbrtHome, '/src/bin/pbrt ') fullfname ' --outfile ' outfile])
+    unix(['pbrt ' fullfname ' --outfile ' outfile])
 
     % ISET will read the PBRT output
     oi = pbrt2oi(outfile);

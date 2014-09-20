@@ -1,6 +1,11 @@
-%%  Creates a pointArray using point light sources.  
+%%  Creates a pointArray using point light sources
+%
+%  PBRT related
+%
 % The point light sources are created using tiny spherical area lights 
 % diffraction is turned off in this example!
+%
+% AL VISTASOFT 2014
 
 %initialization and directory organization
 % filePath = [datapath '/validate/pbrtObject/']

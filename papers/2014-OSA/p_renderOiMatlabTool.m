@@ -1,9 +1,10 @@
 %% 2014 OSA Conference
 %
 % This script renders some chromatic aberration optical images, given PSFs
-% generated from our Matlab tool.  
+% generated from ISET.
 %
-% This uses the forward calculation.
+% This uses the oiCompute, which is a forward calculation without including
+% depth.
 %
 % AL Vistalab 2014
 %%
@@ -59,6 +60,7 @@ psfFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'PSFCenter_2ElLens_50m
 load(psfFileName);
 oi = opticalimage;
 vcAddObject(oi); oiWindow;
+
 oiPhotons = oiGet(oi, 'photons');
 numPixels = oiGet(oi,'size');
 mPerSample = oiGet(oi, 'height')/numPixels(2);
@@ -89,3 +91,5 @@ vcAddAndSelectObject(oi);
 oiWindow;
 
 % imageMultiview('oi',1:4,1)
+
+%% End

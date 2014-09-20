@@ -21,7 +21,9 @@ newCamPos =    [0  0 80.0000;
     0   0 79.0000;
     0 1.00000 0];
 curPbrt.camera.setPosition(newCamPos);
-filmDistance = 35;  %this allows for a reassonably wide field of view ~50dFOV
+
+filmDistance = 74.3750; %~20 degree FOV
+%35;  %this allows for a reassonably wide field of view ~42.5dFOV
 filmDiag = 43.26;
 pinholeLens = pbrtLensPinholeObject(filmDistance, filmDiag) ;
 curPbrt.camera.setLens(pinholeLens)
@@ -33,7 +35,7 @@ sphereDepths = -170;  %negative is into the screen
 flashSeparation = 50;
 
 %scaleFactor
-scaleFactor = (-sphereDepths + 80)/(80) * 4;
+scaleFactor = (-sphereDepths + 80)/(80)  * 4 * .470;
 
 %backdrop Depth
 % backDropDepth = -100 * scaleFactor;  %backdrop distance increases with depth of spheres

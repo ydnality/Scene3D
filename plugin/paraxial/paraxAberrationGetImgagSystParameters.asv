@@ -1,0 +1,16 @@
+% Function for spectral estimation of material refr. index dispersion
+
+
+function [matrix]=paraxAberrationGetImgagSystParameters(object,ImagSyst)
+
+
+%INPUT
+%object:  structure describing the object which is imaged through the
+%imaging system
+%ImagSyst: imaging system through which the
+
+%OUTPUT
+%n: (Px1) refractive index at the P different wavelength [adim]
+%varargout;  {1} abbe number
+
+%NOTE: Coeff.s have to be consistent with the wavelength ( typically in um)

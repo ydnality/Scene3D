@@ -17,7 +17,9 @@ function output = s3dRenderDepthMap(fullfname, numRenders)
     if (ieNotDefined('numRenders'))
         numRenders = 31;
     end
-    pbrtExe = fullfile(pbrtRootPath, 'src','bin','pbrt');
+    
+    pbrtExe = 'pbrt';
+    
     if ~exist(pbrtExe,'file')
         error('PBRT executable not found');
     end

@@ -11,7 +11,10 @@ tic
 rays = lens.rayTraceSourceToLens(pointSources(1, :));
 
 apertureSamples = lens.apertureSample;
-ppsfRays = ppsfObject(rays.origin, rays.direction, rays.wavelength, pointSourceDepth, pointSourceFieldHeight, apertureSamples);  %think of a best way to put in aperture sample location
+ppsfRays = ppsfC('origin', rays.origin, 'direction', rays.direction, ...
+    'waveIndex', rays.waveIndex, 'pointSourceDepth', pointSourceDepth, ...
+    'pointSourceFieldHeight', pointSourceFieldHeight, ...
+    'aEntranceInt', apertureSamples);  %think of a best way to put in aperture sample location
 toc
 
 %duplicate the existing rays, and creates one for each
@@ -47,7 +50,7 @@ modifyRays.makeDeepCopy(ppsfRays);
 %TODO: make this into a function
 modifyRays.origin(outsideAperture, : ) = [];
 modifyRays.direction(outsideAperture, : ) = [];
-modifyRays.wavelength(outsideAperture) = [];
+%modifyRays.wavelength(outsideAperture) = [];
 modifyRays.waveIndex(outsideAperture) = [];
 modifyRays.apertureLocation(outsideAperture, :) = [];
 modifyRays.apertureSamples.X(outsideAperture) = []; 
@@ -55,7 +58,7 @@ modifyRays.apertureSamples.Y(outsideAperture) = [];
 
 film = cell(1,3);
 %first try at 36.4 sensor distance
-film{1} = pbrtFilmObject([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{1} = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic

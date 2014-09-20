@@ -85,7 +85,7 @@ oiList = cell(1,size(pointSources, 1))
 for curInd = 1:size(pointSources, 1)
     %---initial low quality render
     film = filmObject([fX fY fZ],[fW fH], wave, [wave(:) wList(:)], [numPixelsW numPixelsH length(wave)]);
-    psfCamera = psfCameraObject(lens, film, pointSources(curInd, :));
+    psfCamera = psfCameraC(lens, film, pointSources(curInd, :));
     oi = psfCamera.estimatePSF();
     vcAddObject(oi); oiWindow;
     
@@ -109,7 +109,7 @@ for curInd = 1:size(pointSources, 1)
     film = filmObject([centroidX centroidY fZ],[newWidth newWidth], wave, [wave(:) wList(:)], [numPixelsWHQ numPixelsHHQ length(wave)]);   %large distance
     %use more samples this time for a high quality render
     lens.calculateApertureSample([nSamplesHQ nSamplesHQ], true);
-    psfCamera = psfCameraObject(lens, film, pointSources(curInd, :));
+    psfCamera = psfCameraC(lens, film, pointSources(curInd, :));
     oiList{curInd} = psfCamera.estimatePSF()
     vcAddObject(oiList{curInd}); oiWindow;
     close; close;
