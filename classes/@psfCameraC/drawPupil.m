@@ -1,7 +1,7 @@
 % DRAW the Pupils of the Imaging System
 
 
-function [out]=drawPupil(EnP,ExP,wave0,wave,textFlag)
+function [out]=drawPupil(obj,wave0,wave,textFlag)
 
 % INPUT
 % EnP: Entrance Pupil   .zpos  (optical axis position)
@@ -17,6 +17,12 @@ function [out]=drawPupil(EnP,ExP,wave0,wave,textFlag)
 %OUTPUT
 %out: 0 or 1
 
+
+%% Get Pupil
+
+EnP=obj.bbmGetValue('entrancepupil');
+ExP=obj.bbmGetValue('exitpupil');
+
 %% Plot parameters
 n_sam=100; % num samples
 
@@ -29,7 +35,7 @@ maxDim=2*max(max(overDiam)); %twice the max pupil diameter
 
 %% CHECK if wavelength matches
 
-wave0=550; %nm   select a wavelengt
+% wave0=550; %nm   select a wavelengt
 indW=find(wave==wave0);
 
 if isempty(indW)

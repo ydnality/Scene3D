@@ -116,7 +116,8 @@ end
 
 for li=1:nW
     ExPDiam(li,1)=ImagSyst.object{end}.Radiance.ExP.diam(li,1)-ImagSyst.object{end}.Radiance.ExP.diam(li,2);
-    efl(li,1)=ImagSyst.cardPoints.fi(li,1);
+%     efl(li,1)=ImagSyst.cardPoints.fi(li,1);
+    efl(li,1)=ImagSyst.object{end}.ConjGauss.z_im(li,1)-mean(ImagSyst.object{end}.Radiance.ExP.z_pos(li,:),2);
     [NA(li,:)]=paraxNumAperture(ExPDiam(li,1),efl(li,1),n_im(li,1));
     PhaseDefocus(:,:,li)=paDefocus4thWaveAber(defocusZ(li,1),defocusZ(li,2),NA (li,:),ro,'small');
 %     PhaseDefocus(:,:,li)=paDefocus4thWaveAber(defocusZ(li,1),defocusZ(li,2),NA (li,:),ro,'debug');

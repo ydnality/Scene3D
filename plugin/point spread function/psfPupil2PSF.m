@@ -33,45 +33,69 @@ if (ndims(Pupil)==2)
     else
         fft_type='1d';
     end
+    waveDep=0; %wavelength-dependence [FALSE]
 else
-    error(['Not accepted matrix of ',num2str(ndims(Pupil)),' dimension'])
+    fft_type='2d';
+    waveDep='true'; %wavelength-dependence [TRUE]
+%     error(['Not accepted matrix of ',num2str(ndims(Pupil)),' dimension'])
 end
 
 %% COMPUTE PSF
 
-switch fft_type
-    case {'1d'}
-        PSF0=fftshift(fft(Pupil));
-%         PSF0=(fft(Pupil));
-    case {'2d'}
-        PSF0=fftshift(fft2(Pupil));
-%         PSF0=(fft2(Pupil));
+
+if waveDep
+    nW=size(Pupil,3); % number of wavelength
+    
+    for li=1:nW       
+     switch fft_type
+            case {'1d'}
+                PSF0(:,:,li)=fftshift(fft(Pupil(:,:,li)));
+        %         PSF0=(fft(Pupil));
+            case {'2d'}
+                PSF0(:,:,li)=fftshift(fft2(Pupil(:,:,li)));
+        %         PSF0=(fft2(Pupil));
+        end
+
+        %Illumination condition
+        switch ill_type
+            case {'coherent';'coher'}
+                PSF(:,:,li) = PSF0(:,:,li);
+            case{'incoherent';'incoher'}
+                inten = (PSF0(:,:,li) .* conj(PSF0(:,:,li)));   %intensity
+                psf= real((inten));
+                %DEBUG
+                psf1=abs(PSF0(:,:,li)).^2;
+                %Normalize to have all sum to 1
+                PSF(:,:,li) = psf./sum(sum(psf));
+            otherwise
+                error([ill_type,' is not valid as illumination condition'])
+        end
+    end
+    
+else
+    switch fft_type
+        case {'1d'}
+            PSF0=fftshift(fft(Pupil));
+    %         PSF0=(fft(Pupil));
+        case {'2d'}
+            PSF0=fftshift(fft2(Pupil));
+    %         PSF0=(fft2(Pupil));
+    end
+
+    %Illumination condition
+    switch ill_type
+        case {'coherent';'coher'}
+            PSF = PSF0;
+        case{'incoherent';'incoher'}
+            inten = (PSF0 .* conj(PSF0));   %intensity
+            psf= real((inten));
+            %DEBUG
+            psf1=abs(PSF0).^2;
+            %Normalize to have all sum to 1
+            PSF = psf/sum(sum(psf));
+        otherwise
+            error([ill_type,' is not valid as illumination condition'])
+    end
 end
 
-%Illumination condition
-switch ill_type
-    case {'coherent';'coher'}
-        PSF = PSF0;
-    case{'incoherent';'incoher'}
-        inten = (PSF0 .* conj(PSF0));   %intensity
-        psf= real((inten));
-        %DEBUG
-        psf1=abs(PSF0).^2;
-        %Normalize to have all sum to 1
-        PSF = psf/sum(sum(psf));
-    otherwise
-        error([ill_type,' is not valid as illumination condition'])
-end
 
-% PSF0=(fft2(Pupil(:,:,li)));
-% weight0=1./((wave(li,1).*defocusZ(li,1)).*sqrt(areaExP(li,1)));
-% Coherent PSF
-% PSF_coh(:,:,li)=weight0.*PSF0;
-% Incoherent PSF
-% inten = (PSF0 .* conj(PSF0));   %intensity
-% psf= real(fftshift(inten));
-% psf = psf/sum(sum(psf));
-% PSF_in(:,:,li)=psf;
-%     
-% %     PSF_in(:,:,li)=weight0.^2*abs(PSF0).^2;
-% end

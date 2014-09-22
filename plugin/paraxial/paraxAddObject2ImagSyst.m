@@ -66,8 +66,7 @@ for zi=1:size(ImagSyst.object{index}.z_pos,1)
         if abs(t_obj)<Inf 
             [t_im, m_lat,m_ang]= paraxConjImagingMatrix(ImagSyst,'object',t_obj);
         else
-            %Case of object at infinity, required information about field
-            %eccenttricity
+            %Case of object at infinity, required information about field eccenttricity
             [t_im, m_lat,m_ang]= paraxConjImagingMatrix(ImagSyst,'object',t_obj,ImagSyst.object{end}.u_ecc);
         end
         %append values ob: object point   ; im:image point

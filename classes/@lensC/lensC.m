@@ -46,6 +46,9 @@ classdef lensC <  handle
         apertureMiddleD = 1;       % mm, diameter of the middle aperture
         apertureSample = [11 11];  % Number of spatial samples in the aperture.  Use odd number
         centerZ = 0;    %theoretical center of lens (length-wise) in the z coordinate
+        
+        % Black Box Model
+        BBoxModel=[]; % Empty
     end
     
     properties (SetAccess = private)
@@ -80,6 +83,10 @@ classdef lensC <  handle
                         obj.set('wave', varargin{ii+1});
                     case 'filename'
                         obj.fileRead(varargin{ii+1});
+                        
+                    case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL 
+                        obj.BBoxModel = varargin{ii+1};
+                       
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
@@ -132,6 +139,10 @@ classdef lensC <  handle
                     % The diameter of the middle aperture
                     % units are mm
                     res = obj.apertureMiddleD;
+                 
+                case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL 
+                    fileType=varargin{1};  %witch field of the black box to get
+                    res=bbmGetValue(obj.BBoxModel,fileType);
                     
                 otherwise
                     error('Unknown parameter %s\n',pName);
@@ -157,7 +168,39 @@ classdef lensC <  handle
                     nSurfaces = obj.get('n surfaces');
                     for ii=1:nSurfaces
                         obj.surfaceArray(ii).n = val;
-                    end    
+                    end   
+                case {'effectivefocallength';'efl';'focalradius';'imagefocalpoint';...
+                        'objectfocalpoint';'imageprincipalpoint';'objectprincipalpoint';...
+                        'imagenodalpoint';'objectnodalpoint';'abcd';'abcdmatrix'}
+                    % Build the field to append
+                    obj.bbmSetField(pName,val); 
+                    
+                case {'blackboxmodel';'blackbox';'bbm'}
+                     %Get the parameters from the optical system structure to build an  equivalent Black Box Model of the lens.
+                    % The OptSyst structure has to be built with the function 'paraxCreateOptSyst'
+                    % Get 'new' origin for optical axis 
+                    OptSyst=val;
+                    z0 = OptSyst.cardPoints.lastVertex;
+                    % Variable to append
+                    efl=OptSyst.cardPoints.fi; %focal lenght of the system
+                    obj=obj.bbmSetField('effectivefocallength',efl);
+                    pRad = OptSyst.Petzval.radius; % radius of curvature of focal plane
+                    obj=obj.bbmSetField('focalradius',pRad);
+                    Fi=OptSyst.cardPoints.dFi;     %Focal point in the image space
+                    obj=obj.bbmSetField('imagefocalpoint',Fi);
+                    Hi=OptSyst.cardPoints.dHi; % Principal point in the image space
+                    obj=obj.bbmSetField('imageprincipalpoint',Hi);
+                    Ni=OptSyst.cardPoints.dNi;     % Nodal point in the image space
+                    obj=obj.bbmSetField('imagenodalpoint',Ni);
+                    Fo=OptSyst.cardPoints.dFo-z0; %Focal point in the object space
+                    obj=obj.bbmSetField('objectfocalpoint',Fo);
+                    Ho=OptSyst.cardPoints.dHo-z0; % Principal point in the object space
+                    obj=obj.bbmSetField('objectprincipalpoint',Ho);
+                    No=OptSyst.cardPoints.dNo-z0; % Nodal point in the object space
+                    obj=obj.bbmSetField('objectnodalpoint',No);
+                    M = OptSyst.matrix.abcd; % The 4 coefficients of the ABCD matrix of the overall system
+                    obj=obj.bbmSetField('abcdmatrix',M);
+                    
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end

@@ -2,6 +2,7 @@
 % ExP radius, number of sampling, the defocus (if present) and eventually
 % apodization
 
+% 
 function [PSF_in]=psfCompute(AberCoeff,ExP_Diam,nSample,timesP,defocusZ,varargin)
 
 %INPUT
@@ -20,6 +21,10 @@ function [PSF_in]=psfCompute(AberCoeff,ExP_Diam,nSample,timesP,defocusZ,varargin
 %NOTE:
 % N: number of wavelength sample
 %Assumed CIRCULAR APERTURE
+
+
+%% Obsolete function: substitued by the function ''
+
 %% GET FONDAMENTAL PARAMETERs
 wave=AberCoeff.wave;
 nw=size(wave,2); %number of sample

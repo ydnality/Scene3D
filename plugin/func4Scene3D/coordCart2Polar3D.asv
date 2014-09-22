@@ -1,0 +1,29 @@
+
+
+function  [ro,theta,z]=coordCart2Polar3D(pSourceCart)
+
+%Convert point coordinate from Cartesian (x,y,z) to polar in object/image plane(ro,theta,z)
+
+% INPUT:
+%pSource= [ x, y, z]
+%
+%
+
+% OUTPUT:
+% ro= height eccentricity
+% theta= angular field
+% z= distance
+
+
+% H
+ro =sqrt(pSource(1).^2+pSource(2).^2); %distance of the point source to optical axis
+if not(pSource(2)==0) && not(pSource(1)==0)
+    theta=atan(pSource(2)/pSource(1)); %angle subtended by the point source and the x-axis in the object plane
+else
+    if (pSource(2)==0)
+        theta=0;
+    else
+        ps_angle=pi/2;
+    end
+end
+        

@@ -75,61 +75,66 @@ lens.set('wave', wave);
 n = lens.get('nArray');
 
 %% CREATE IMAGING SYSTEM
-ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
+psfCamera = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 
 %% CALL Function to conversion
 
-[result1]=paraxAnalyzeScene3DSystem('lens',lens);
+[lens1]=paraxAnalyzeScene3DSystem('lens',lens);
 
-[result2]=paraxAnalyzeScene3DSystem('psfCamera',ppsfCamera);
+[psfCamera1]=paraxAnalyzeScene3DSystem('psfCamera',psfCamera);
 
-[result3]=paraxAnalyzeScene3DSystem('specify',lens,film,pointSource);
+[result3]=paraxAnalyzeScene3DSystem('all',lens,film,pointSource);
 
 %% FIND the image point
 
-Hobj=result2.cardinalPoint.ObjectSpace.principalPoint; %principal point in the object space
-Him=result2.cardinalPoint.ImageSpace.principalPoint; %principal point in the image space
+% Hobj=result2.cardinalPoint.ObjectSpace.principalPoint; %principal point in the object space
+% Him=result2.cardinalPoint.ImageSpace.principalPoint; %principal point in the image space
+% focalLength=result2.focallength; %effective focal length
+% magn=result2.magnification.lateral; %lateral magnification
+% abcdMatrix=result2.abcdMatrix; %abcd coeffs
+
 n_ob=1; %refractive index in object space
 n_im=1; %refractive index in image space
-focalLength=result2.focallength; %effective focal length
-magn=result2.magnification.lateral; %lateral magnification
-abcdMatrix=result2.abcdMatrix; %abcd coeffs
 
-[imagePoint]=findImagePoint(pointSource,n_ob,Hobj,Him,n_im,focalLength);
+[imagePoint]=lens1.findImagePoint(pointSource,n_ob,n_im);
+% [imagePoint]=findImagePoint(pointSource,n_ob,Hobj,Him,n_im,focalLength);
 
 %check with estimated result
-result2.imagePoint.position
+psfCamera1.BBoxModel.imageFormation.gaussPoint
 
 
 
 
 %% PLOT the Entrance and Exit Pupil
-EnP=result2.EntrancePupil;
-ExP=result2.ExitPupil;
-
-overDiam=[EnP.diam,ExP.diam];
-maxDim=2*max(max(overDiam)); %twice the max pupil diameter
-
+% EnP=psfCamera1.EntrancePupil;
+% ExP=psfCamera1.ExitPupil;
+% 
+% overDiam=[EnP.diam,ExP.diam];
+% maxDim=2*max(max(overDiam)); %twice the max pupil diameter
+% 
 wave0=550; %nm   select a wavelengt
-
-% set text box
+% 
+% % set text box
 textF='true';
 
 % lens.draw
-ppsfCamera.draw
+psfCamera1.draw
 
 % Graph pupil
-[out1]=drawPupil(EnP,ExP,wave0,wave,textF);
+[out1]=psfCamera1.drawPupil(wave0,wave,textF);
+% [out1]=drawPupil(EnP,ExP,wave0,wave,textF);
 %Point source
-[out2]=drawPoint(pointSource,[],[],'y');
+[out2]=psfCamera1.drawPoint(pointSource,wave0,wave,'y');
 % Limiting rays
-[out3]=drawComaRay(pointSource,EnP,wave0,wave,'y');
+[out3]=psfCamera1.drawComaRay(pointSource,'entrancepupil',wave0,wave,'y');
+% MARGINAL rays
+% [out3a]=psfCamera1.drawMarginalRay(pointSource,'entrancepupil',wave0,wave,'y');
 % and then the image point
-[out4]=drawPoint(imagePoint,wave0,wave,'y');
+[out4]=psfCamera1.drawPoint(imagePoint,wave0,wave,'y');
 % Limiting rays
-[out5]=drawComaRay(imagePoint,ExP,wave0,wave,'y');
+[out5]=psfCamera1.drawComaRay(imagePoint,'exitpupil',wave0,wave,'y');
 
 
 %% EXAMPLE: Image a new point
 pSource0=[100 100 -100000000];
-imagePoint0=findImagePoint(pSource0,n_ob,Hobj,Him,n_im,focalLength);
+[imagePoint0]=lens1.findImagePoint(pSource0,n_ob,n_im);
