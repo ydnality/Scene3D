@@ -162,8 +162,10 @@ close all;
 
 % Now compute the PSF of that ground truth LF
 % Plot phase space and visual PSF of linear interpolation model output
-ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, b);
-oi = ppsfCamera.oiCreate;
+%TODO: have the function return a LFC instead 
+gtLF = LFC('wave', wave, 'waveIndex', ppsfCamera.ppsfRays.get('waveIndex'), 'LF', b);
+oi = gtLF.createPSF(ppsfCamera);
+
 vcAddObject(oi); oiWindow;
 plotOI(oi,'illuminance mesh linear');
 
@@ -194,16 +196,17 @@ adjustedMiddleApertureRadius = 4;
 close all;
 
 %middleXY = ppsf.aMiddleInt.XY;
-waveIndex = ppsf.waveIndex; %is this "cheating"?
+waveIndex = ppsf.waveIndex; %is this "cheating"? I don't believe so...
 inputLF = xOrig;
+inputLFObject = LFC('wave', wave, 'waveIndex', waveIndex, 'LF', inputLF);
+
 % Make an LT (linear transform) object and apply the LT on the inputLF
 LTObject = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
-[outputLF waveIndexPruned] = LTObject.applyOnLF(inputLF, waveIndex, adjustedMiddleApertureRadius);
+outputLFObject = LTObject.applyOnLF(inputLFObject, adjustedMiddleApertureRadius);
 %TODO: de-couple finding the input LF from computing ground truth
 
 % Visualize PSF and phase space
-ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, outputLF) %, withinAperture) %, waveIndexPruned) %TODO: perhaps get rid of withinAperture by pruning waveIndex earlier..
-oi = ppsfCamera.oiCreate;
+oi = outputLFObject.createPSF(ppsfCamera);
 vcAddObject(oi); oiWindow;
 plotOI(oi,'illuminance mesh linear');
 

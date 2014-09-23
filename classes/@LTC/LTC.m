@@ -29,7 +29,7 @@ classdef LTC < clonableHandleObject
             end
         end    
         
-        function [outputLF waveIndex] = applyOnLF(obj, inputLF, waveIndex, apertureRadius)
+        function [outLFObject] = applyOnLF(obj, inputLFObject, apertureRadius)
             %applies the linear transform on an input light-field, and
             %returns the output light=field
             %
@@ -37,6 +37,9 @@ classdef LTC < clonableHandleObject
 
             %withinAperture = middleXY(:,1).^2 + middleXY(:,2).^2 <= adjustedMiddleApertureRadius.^2;%apertureMiddleD/2;
             outputLF = [];
+            outWaveIndex = [];
+            inputLF = inputLFObject.get('LF');
+            waveIndex = inputLFObject.get('waveIndex');
             %loops through all different waves
             for w = 1:length(obj.wave)
                 inCurrentWaveBand = (waveIndex == w);   %todo: perhaps rethink this whole waveband thing...
@@ -59,9 +62,12 @@ classdef LTC < clonableHandleObject
                 %bOrigMaskedCurrentWave = bOrig(:, withinAperture); %ground
                 %truth rays - for debug
                 outputLF = cat(2, outputLF, bEstInterp);   %concatenate interpolatedB to final B list
-                waveIndex = cat(1, waveIndex, ones(size(bEstInterp,2), 1)* w); %keep track of waveIndex
+                outWaveIndex = cat(1, outWaveIndex, ones(size(bEstInterp,2), 1)* w); %keep track of waveIndex
             end
             
+            %create output light field based off the lf matrix and the
+            %waveindex vector
+            outLFObject = LFC('LF', outputLF, 'waveIndex', outWaveIndex, 'wave', obj.wave);
             
             
         end

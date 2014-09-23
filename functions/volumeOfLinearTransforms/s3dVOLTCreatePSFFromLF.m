@@ -30,15 +30,17 @@ function ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp, withinApert
     wave = ppsfCamera.ppsfRays.get('wave');  %check to see if this is right... used to be ppsf.get
     waveIndex = ppsfCamera.ppsfRays.get('waveIndex');
     
-    if(ieNotDefined('withinAperture'))
-        waveIndex = waveIndex(~isnan(waveIndex));  %remove nans - aperture NOT specified.  just get rid of nan's
-    else
-        if (ieNotDefined('waveIndexIn'));
-            waveIndex = waveIndex(withinAperture);  %remove nans if aperture is specified  %TODO: see if this is necessary..
+    
+    if (ieNotDefined('waveIndexIn'))
+        if(ieNotDefined('withinAperture'))
+            waveIndex = waveIndex(~isnan(waveIndex));  %remove nans - aperture NOT specified.  just get rid of nan's
         else
-            waveIndex = waveIndexIn;
+            waveIndex = waveIndex(withinAperture);  %remove nans if aperture is specified  %TODO: see if this is necessary..
         end
+    else
+        waveIndex = waveIndexIn;
     end
+    
     
     calculatedRays = rayC('origin', rayOrigin', 'direction', rayDir', 'wave', wave, 'waveIndex', waveIndex);
     calculatedRays.plotPhaseSpace();
