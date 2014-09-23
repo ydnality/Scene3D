@@ -26,16 +26,16 @@ function obj = calculateMatrices(obj, debugPlots)
 % and depth, and we apply rotation matrices to the transform to get the
 % proper angle corresponding to the (x,y,z) position.
 %
-%   obj.ACollection: a 4 x 4 x n matrix.  Each 4 x 4 layer contains the 4 x 4
+%   obj.ACollection: a 4 x 4 x n x w matrix.  Each 4 x 4 layer contains the 4 x 4
 % linear transform that summarizes light field transforms at that
 % particular point.  (will become 4 x 4 x n x w)
 %
 %   obj.A1stCollection: The lens will be split into 2 layers: the first half
-% leading to the aperture.  This matrix will be a 4 x 4 x n matrix that
+% leading to the aperture.  This matrix will be a 4 x 4 x n x w matrix that
 % will be a collection of A matrices that summarizes the FIRST HALF of the
 % lens only.
 %
-%   obj.A2ndCollection: a 4 x 4 x n matrix that contains a collection of A
+%   obj.A2ndCollection: a 4 x 4 x n x w matrix that contains a collection of A
 %   matrices that summarizes the 2nd half of the lens.
 %
 % See also:

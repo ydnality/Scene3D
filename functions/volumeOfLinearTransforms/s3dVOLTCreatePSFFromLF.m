@@ -34,7 +34,7 @@ function ppsfCamera = s3dVOLTCreatePSFFromLF(ppsfCamera, bEstInterp, withinApert
         waveIndex = waveIndex(~isnan(waveIndex));  %remove nans - aperture NOT specified.  just get rid of nan's
     else
         if (ieNotDefined('waveIndexIn'));
-            waveIndex = waveIndex(withinAperture);  %remove nans if aperture is specified
+            waveIndex = waveIndex(withinAperture);  %remove nans if aperture is specified  %TODO: see if this is necessary..
         else
             waveIndex = waveIndexIn;
         end
