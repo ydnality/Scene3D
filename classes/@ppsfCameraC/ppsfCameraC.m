@@ -37,7 +37,7 @@ classdef ppsfCameraC <  psfCameraC
                     case 'film'
                         film = varargin{ii+1};  %must be a 2 element vector
                     case 'pointsource'
-                        pointSource = varargin{ii+1};
+                        pointSource = varargin{ii+1};                        
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end

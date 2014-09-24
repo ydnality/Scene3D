@@ -81,6 +81,7 @@ pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 %desired pSLocation for interpolation
 wantedPSLocation = [0 1.7 -103];
 
+
 %% Define the Lens and Film
 
 % diffractionEnabled = false;
@@ -119,6 +120,23 @@ film = pbrtFilmC('position', [0 0 100 ], ...
     'size', [10 10], ...
     'wave', wave);
 
+%% Compute Snell's Law PSF at point source hield height
+
+% For this moment, we only run at one depth
+% We set the wanted field height to the second coordinate,
+% The first coordinate is always 0.
+pointSource = wantedPSLocation;
+
+% Compute the plenoptic pointspread that has the light field information
+% using Snell's Law.
+LF  = s3dLightField(pointSource, lens);
+oiG = LF.createOI(lens,film);
+oiG = oiSet(oiG,'name','Snell''s Law');
+vcAddObject(oiG); oiWindow;
+
+uG = plotOI(oiG,'illuminance hline',[1 135]);
+title(sprintf(oiGet(oiG,'name')));
+
 %% Compute VOLT model
 %
 % The VOLT model consists of a collection of 4x4 A matrices that
@@ -148,26 +166,11 @@ VoLTObject.calculateMatrices();
 
 [AInterp, A1stInterp, A2ndInterp ] = VoLTObject.interpolateAllWaves(wantedPSLocation);
 
-%% Compute ground truth LF at the WANTED Point source Field Height and compute PSF
-
-% For this moment, we only run at one depth
-% We set the wanted field height to the second coordinate,
-% The first coordinate is always 0.
-pointSource = wantedPSLocation;
-
-% Compute the plenoptic pointspread that has the light field information
-[ppsf, x, b, bMiddle, xOrig, bOrig, ppsfCamera] = s3dVOLTRTOnePoint(pointSource, film, lens);
-
-close all;
-
-% Now compute the PSF of that ground truth LF
-% Plot phase space and visual PSF of linear interpolation model output
-%TODO: have the function return a LFC instead 
-gtLF = LFC('wave', wave, 'waveIndex', ppsfCamera.ppsfRays.get('waveIndex'), 'LF', b);
-oi = gtLF.createPSF(ppsfCamera);
-
-vcAddObject(oi); oiWindow;
-plotOI(oi,'illuminance mesh linear');
+% t1 = VoLTObject.ACollection(:,:,6,1,1)
+% t2 = AInterp(:,:,1)
+% vcNewGraphWin;
+% plot(t1(:),t2(:),'o');
+% grid on; identityLine;
 
 %% Calculate the PSF, using the 2 A matrices and the aperture in the middle
 
@@ -193,22 +196,30 @@ plotOI(oi,'illuminance mesh linear');
 %*** change this parameter to change the size of the middle aperture for the
 %lens
 adjustedMiddleApertureRadius = 4;
-close all;
 
-%middleXY = ppsf.aMiddleInt.XY;
-waveIndex = ppsf.waveIndex; %is this "cheating"? I don't believe so...
-inputLF = xOrig;
-inputLFObject = LFC('wave', wave, 'waveIndex', waveIndex, 'LF', inputLF);
+[~,~,inputLF]  = s3dLightField(pointSource, lens);
 
 % Make an LT (linear transform) object and apply the LT on the inputLF
 LTObject = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
-outputLFObject = LTObject.applyOnLF(inputLFObject, adjustedMiddleApertureRadius);
+outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
+
 %TODO: de-couple finding the input LF from computing ground truth
 
 % Visualize PSF and phase space
-oi = outputLFObject.createPSF(ppsfCamera);
-vcAddObject(oi); oiWindow;
-plotOI(oi,'illuminance mesh linear');
+oiI = outputLFObject.createOI(lens,film);
+oiI = oiSet(oiI,'name','Light Field');
+vcAddObject(oiI); oiWindow;
+
+uI = plotOI(oiI,'illuminance hline',[1 135]);
+title(sprintf(oiGet(oiI,'name')));
+
+vcNewGraphWin;
+plot(uI.pos,uI.data,'r-',uG.pos,uG.data,'b--');
+grid on; xlabel('position'); ylabel('Illuminance')
+
+vcNewGraphWin; plot(uI.data(:)/max(uI.data(:)),uG.data(:)/max(uG.data(:)),'o')
+grid on; identityLine;
+
 
 %% Scrap
 

@@ -20,6 +20,9 @@ classdef LFC
     methods
         function obj = LFC(varargin)
         % Initialization of the Light Field Class Object
+        %
+        %  LFC('LF',lf,'wave',wave,'waveIdx',waveIdx);
+        %
         
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
@@ -47,6 +50,23 @@ classdef LFC
                     res = obj.waveIndex;
                 case 'wave'
                     res = obj.wave;
+                case 'ray'
+                    % Convert the light field to a ray representation with
+                    % origin and direction
+                    % This should probably become a rayC object that knows
+                    % about its wavelength.
+                    rayOrigin = zeros(3, size(obj.LF, 2));
+                    rayDir = rayOrigin;
+                    
+                    rayOrigin(1,:) = obj.LF(1,:);
+                    rayOrigin(2,:) = obj.LF(2,:);
+                    rayOrigin(3,:) = 0;        % Probably should be a variable name
+                    
+                    rayDir(1,:) = obj.LF(3,:);
+                    rayDir(2,:) = obj.LF(4,:);
+                    rayDir(3,:) = 1 - rayDir(1,:).^2 + rayDir(2,:).^2;
+                    res.rayDir = rayDir; res.rayOrigin = rayOrigin;
+                    
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end

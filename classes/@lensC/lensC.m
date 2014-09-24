@@ -1,7 +1,7 @@
 classdef lensC <  handle
     % Create a multiple element lens object
     %
-    %   lens = lensC(elOffset, elRadius, elAperture, elN, aperture, focalLength, center);  
+    %   lens = lensC(elOffset, elRadius, elAperture, elN, aperture, focalLength, center);
     %
     % Distance units, when not specified, are millimeters.
     %
@@ -45,7 +45,7 @@ classdef lensC <  handle
         focalLength = 50;          % mm, focal length of multi-element lens
         apertureMiddleD = 1;       % mm, diameter of the middle aperture
         apertureSample = [11 11];  % Number of spatial samples in the aperture.  Use odd number
-        centerZ = 0;    %theoretical center of lens (length-wise) in the z coordinate
+        centerZ = 0;               % Theoretical center of lens (length-wise) in the z coordinate
         
         % Black Box Model
         BBoxModel=[]; % Empty
@@ -53,42 +53,49 @@ classdef lensC <  handle
     
     properties (SetAccess = private)
         centerRay = [];   %for use for ideal Lens
-        inFocusPosition = [0 0 0];  
+        inFocusPosition = [0 0 0];
     end
     methods (Access = public)
         %Multiple element lens constructor
         %TODO: error handling
         function obj = lensC(varargin)
-            %  surfaceList = lensReadFile(fName);
-            %  lensME = lensC('surfaceArray',surfList);
+            % Constructor
             
-            for ii=1:2:length(varargin)
-                p = ieParamFormat(varargin{ii});
-                switch p
-                    case 'name'
-                        obj.name = varargin{ii+1};
-                    case 'type'
-                        obj.type = varargin{ii+1};
-                    case 'surfacearray'
-                        obj.surfaceArray = varargin{ii+1};
-                    case 'aperturesample'
-                        obj.apertureSample = varargin{ii+1};  %must be a 2 element vector
-                    case 'aperturemiddled'
-                        obj.apertureMiddleD = varargin{ii+1};
-                    case 'focallength'
-                        obj.focalLength = varargin{ii+1};
-                    case 'diffractionenabled'
-                        obj.diffractionEnabled = varargin{ii+1};
-                    case 'wave'
-                        obj.set('wave', varargin{ii+1});
-                    case 'filename'
-                        obj.fileRead(varargin{ii+1});
-                        
-                    case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL 
-                        obj.BBoxModel = varargin{ii+1};
-                       
-                    otherwise
-                        error('Unknown parameter %s\n',varargin{ii});
+            if isempty(varargin)
+                lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');                
+                obj = lensC('apertureSample', [151 151], ...
+                    'fileName', lensFileName, ...
+                    'apertureMiddleD', 8);
+            else
+                
+                for ii=1:2:length(varargin)
+                    p = ieParamFormat(varargin{ii});
+                    switch p
+                        case 'name'
+                            obj.name = varargin{ii+1};
+                        case 'type'
+                            obj.type = varargin{ii+1};
+                        case 'surfacearray'
+                            obj.surfaceArray = varargin{ii+1};
+                        case 'aperturesample'
+                            obj.apertureSample = varargin{ii+1};  %must be a 2 element vector
+                        case 'aperturemiddled'
+                            obj.apertureMiddleD = varargin{ii+1};
+                        case 'focallength'
+                            obj.focalLength = varargin{ii+1};
+                        case 'diffractionenabled'
+                            obj.diffractionEnabled = varargin{ii+1};
+                        case 'wave'
+                            obj.set('wave', varargin{ii+1});
+                        case 'filename'
+                            obj.fileRead(varargin{ii+1});
+                            
+                        case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
+                            obj.BBoxModel = varargin{ii+1};
+                            
+                        otherwise
+                            error('Unknown parameter %s\n',varargin{ii});
+                    end
                 end
             end
             
@@ -126,8 +133,8 @@ classdef lensC <  handle
                     if isempty(varargin), this = 1;
                     else this = varargin{1};
                     end
-                    res = obj.surfaceArray(this).sRadius; 
-               case 'sdiameter'
+                    res = obj.surfaceArray(this).sRadius;
+                case 'sdiameter'
                     % Aperture diameter of this surface.
                     % lens.get('sradius',whichSurface)
                     if isempty(varargin), this = 1;
@@ -139,8 +146,8 @@ classdef lensC <  handle
                     % The diameter of the middle aperture
                     % units are mm
                     res = obj.apertureMiddleD;
-                 
-                case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL 
+                    
+                case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
                     fileType=varargin{1};  %witch field of the black box to get
                     res=bbmGetValue(obj.BBoxModel,fileType);
                     
@@ -168,17 +175,17 @@ classdef lensC <  handle
                     nSurfaces = obj.get('n surfaces');
                     for ii=1:nSurfaces
                         obj.surfaceArray(ii).n = val;
-                    end   
+                    end
                 case {'effectivefocallength';'efl';'focalradius';'imagefocalpoint';...
                         'objectfocalpoint';'imageprincipalpoint';'objectprincipalpoint';...
                         'imagenodalpoint';'objectnodalpoint';'abcd';'abcdmatrix'}
                     % Build the field to append
-                    obj.bbmSetField(pName,val); 
+                    obj.bbmSetField(pName,val);
                     
                 case {'blackboxmodel';'blackbox';'bbm'}
-                     %Get the parameters from the optical system structure to build an  equivalent Black Box Model of the lens.
+                    %Get the parameters from the optical system structure to build an  equivalent Black Box Model of the lens.
                     % The OptSyst structure has to be built with the function 'paraxCreateOptSyst'
-                    % Get 'new' origin for optical axis 
+                    % Get 'new' origin for optical axis
                     OptSyst=val;
                     z0 = OptSyst.cardPoints.lastVertex;
                     % Variable to append
@@ -208,7 +215,7 @@ classdef lensC <  handle
         end
         
     end
-
+    
     
     % Not sure why these are private. (BW).
     methods (Access = private)
@@ -277,7 +284,7 @@ classdef lensC <  handle
         
         function centers = centersCompute(obj, sOffset, sRadius)
             % Computes the center position of each spherical lens element
-            % from the array of element offsets and radii. 
+            % from the array of element offsets and radii.
             %
             % N.B.  obj is not used here.  Maybe this shouldn't be in
             % the class definition?
@@ -298,7 +305,7 @@ classdef lensC <  handle
             % Centers of the spherical surfaces are stored in this matrix
             % (nSurfaces x 3)
             z = zeros(nSurfaces,1);
-            centers = [z z zIntercept + sRadius];  
+            centers = [z z zIntercept + sRadius];
         end
         
         function elementsSet(obj, sOffset, sRadius, sAperture, sN)
@@ -324,7 +331,7 @@ classdef lensC <  handle
             if (size(sN,2) == 1)
                 sN = repmat(sN, [1 length(obj.wave)]);
             end
-
+            
             
             %create array of surfaces
             obj.surfaceArray = surfaceC();
@@ -343,8 +350,8 @@ classdef lensC <  handle
         
         function obj = rtRealisticThroughLens(obj, rays, nLines)
             % lens.rtRealisticThroughLens(rays,nLines)
-            % 
-            %   ray structure 
+            %
+            %   ray structure
             %   nLines specifies rendering options
             %     This can be a structure with the fields
             %       .spacing ('uniform' or 'random')
@@ -367,7 +374,7 @@ classdef lensC <  handle
             % See also psfCameraC.estimatePSF
             %   In that routine, one can ask that the lines be extended to
             %   the film plane by setting a flag.  The flag adds a final
-            %   surface in the film plane to the surfaceArray 
+            %   surface in the film plane to the surfaceArray
             %
             % TODO:  Simplify this code and add comments.
             %        Especially, use the Wigner/Light field ideas
@@ -380,7 +387,7 @@ classdef lensC <  handle
             
             lWidth = 0.1; lColor = [0 0.5 1]; lStyle = '-';
             % passedCenterAperture = false;  %true if rays are traced through lens aperture
-             
+            
             nRays = rays.get('n rays');
             
             % prevSurfaceZ = -obj.get('totalOffset');
@@ -393,7 +400,7 @@ classdef lensC <  handle
                 % Get the surface data
                 curEl = obj.surfaceArray(lensEl);
                 curAperture = curEl.apertureD/2;
- 
+                
                 % Calculate ray intersection position with lens element or
                 % aperture. In the case of a 0 curvature, the direction
                 % does not change.
@@ -434,7 +441,7 @@ classdef lensC <  handle
                     %is necessary though. Leave it here for now.
                     if (isfield(nLines, 'spacing') && isfield(nLines,'numLines'))
                         % Structure case.
-                        %   .spacing is either 'uniform' or 'random'.  
+                        %   .spacing is either 'uniform' or 'random'.
                         %   .numLines is a positive integer of rays to draw
                         if (nLines.numLines > 0)
                             if lensEl ==1
@@ -458,7 +465,7 @@ classdef lensC <  handle
                             pause(0.1);
                         end
                     else
-                        %nLines is a number 
+                        %nLines is a number
                         % In this case, random sampling is assumed.
                         % If nLines = false, or < 0 no drawing happens
                         if (nLines > 0)
@@ -473,14 +480,14 @@ classdef lensC <  handle
                             xCoordVector = real(xCoordVector(:));
                             yCoordVector = real(yCoordVector(:));
                             figure(rays.plotHandle);
-                            pause(0.1); 
+                            pause(0.1);
                             line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
                         end
-                       
+                        
                     end
                 else
                     % This is an aperture plane.  sRadius == 0
-                    intersectZ = repmat(curEl.sCenter(3), [nRays 1]); 
+                    intersectZ = repmat(curEl.sCenter(3), [nRays 1]);
                     intersectT = (intersectZ - rays.origin(:, 3))./rays.direction(:, 3);
                     repIntersectT = repmat(intersectT, [1 3]);
                     intersectPosition = rays.origin + rays.direction .* repIntersectT;
@@ -495,8 +502,8 @@ classdef lensC <  handle
                         rays.aMiddleInt.XY = 0;
                         rays.aMiddleInt.XY = intersectPosition(:,1:2);  %only X-Y coords
                         rays.aMiddleInt.Z  = intersectZ;    %aperture Z
-
-                        rays.aMiddleDir = rays.direction;                       
+                        
+                        rays.aMiddleDir = rays.direction;
                         % passedCenterAperture = true;
                     end
                 end
@@ -508,15 +515,15 @@ classdef lensC <  handle
                 rays.removeDead(outsideAperture);
                 
                 % Handle special case with ppsfCs
-%                 if(isa(rays,'ppsfC'))
-%                     rays.aEntranceInt.XY(outsideAperture, :) = NaN;
-%                     rays.aMiddleInt.XY(outsideAperture, :) = NaN;                
-%                     rays.aExitInt.XY(outsideAperture, :) = NaN;    
-%                 end
+                %                 if(isa(rays,'ppsfC'))
+                %                     rays.aEntranceInt.XY(outsideAperture, :) = NaN;
+                %                     rays.aMiddleInt.XY(outsideAperture, :) = NaN;
+                %                     rays.aExitInt.XY(outsideAperture, :) = NaN;
+                %                 end
                 
                 % Apply Snell's law to the spherical surface rays.
                 % Determine the new ray directions and origin
-                % 
+                %
                 if(curEl.sRadius ~= 0)
                     %in bounds case - perform vector Snell's law
                     repCenter = repmat(curEl.sCenter, [nRays 1]);
@@ -524,7 +531,7 @@ classdef lensC <  handle
                     normalVec = normalVec./repmat(sqrt(sum(normalVec.*normalVec, 2)),[1 3]); %normalizes each row
                     
                     %This is the correct sign convention
-                    if (curEl.sRadius < 0)  
+                    if (curEl.sRadius < 0)
                         normalVec = -normalVec;
                     end
                     
@@ -537,12 +544,12 @@ classdef lensC <  handle
                     % curN = ones(length(rays.wavelength), 1) * curEl.n;
                     % Snell's law index of refraction ratios at surface
                     % boundary
-                    ratio = prevN./curN;    
+                    ratio = prevN./curN;
                     
                     % Vector form of Snell's Law
                     c = -dot(normalVec, rays.direction, 2);
                     repRatio = repmat(ratio, [1 3]);
-
+                    
                     %update the direction of the ray
                     rays.origin = intersectPosition;
                     
@@ -552,7 +559,7 @@ classdef lensC <  handle
                     if (lensEl ==1 && nLines > 0)
                         rays.plotPhaseSpace();  %this is before the change in position
                     end
-                                
+                    
                     
                     % Use bsx for speed.
                     % Simplify the line
@@ -570,7 +577,7 @@ classdef lensC <  handle
                 
                 % HURB diffraction calculation
                 if (obj.diffractionEnabled)
-                    obj.rtHURB(rays, intersectPosition, curEl.apertureD/2);  
+                    obj.rtHURB(rays, intersectPosition, curEl.apertureD/2);
                 end
             end
         end
@@ -579,9 +586,9 @@ classdef lensC <  handle
             % Traces lens.rays through the ideal lens - what is that?
             % This is different from the Realistic one above, but we should
             % figure out how to make them pretty much the same.
-
+            
             lWidth = 0.5; lColor = [0 0.5 1];
- 
+            
             %---------------- lens refraction code  -----
             %when intersecting ideal lens, change the direction to intersect the
             %inFocusPosition, and update the origin
@@ -602,7 +609,7 @@ classdef lensC <  handle
                 
             end
             
-
+            
             %calculate new direction
             %             newRays = rayObject(); % added
             rays.origin = lensIntersectPosition;
