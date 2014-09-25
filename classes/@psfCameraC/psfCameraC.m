@@ -9,6 +9,9 @@ classdef psfCameraC <  handle
     % Figure out the relationship between these rays and the ppsfRays in
     % the ppsfCameraC.
     properties
+        type = 'psfcamera';
+        name = 'default camera';
+        
         lens;
         film;
         pointSource;

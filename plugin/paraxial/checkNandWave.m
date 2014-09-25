@@ -1,13 +1,20 @@
 function [newN]=checkNandWave(N,wavelength)
-
 %The function checks the size of N and wavelength and corrects if possible
-
+%
+% [newN]=checkNandWave(N,wavelength)
+%
+%  We verify that the wavelength is a column vector  and that the index of
+%  refraction length matches.  If N is only a scalar, we replicate it to
+%  the length of wavelength.
+%
 %INPUT
-%N: scalar or column vector
-%wavelength: scalar o column vector
-
+%  N: scalar or column vector
+%  wavelength: scalar or column vector
+%
 %OUTPUT
-%newN: corrected refractive index vector
+%  newN: corrected refractive index vector
+%
+% MP Vistasoft 2014
 
 
 if size(N,1)==size(wavelength,1)

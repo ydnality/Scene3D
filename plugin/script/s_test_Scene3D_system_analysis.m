@@ -1,7 +1,8 @@
 %s_test_Scene3D_system_analysis.m
-
+%
 %Test the conversion of a system from SCENE 3D to format of PSF3D
-
+%
+% MP Vistasoft, 2014
 
 %% Initialize Iset
 s_initISET
@@ -16,7 +17,7 @@ s_initISET
 % % Percentage of rectangular lens, 0 is middle
 % subSection = [];   % Whole thing
 % subSection = [-.25 -.25 .25 .25];   % Not working
-%subSection = [0 0 .25 .25];   
+% subSection = [0 0 .25 .25];   
 
     %% 1.1 Declare point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
@@ -77,13 +78,27 @@ n = lens.get('nArray');
 %% CREATE IMAGING SYSTEM
 psfCamera = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 
-%% CALL Function to conversion
+%% Add the Black Box Model to the objects (lens or psfCamera or 'all')
 
-[lens1]=paraxAnalyzeScene3DSystem('lens',lens);
+% These three functions convert the Scene3D objects designed around the
+% light field geometric representation into more complex objects that have
+% wavefront information.
 
-[psfCamera1]=paraxAnalyzeScene3DSystem('psfCamera',psfCamera);
+% This one takes a lens with a light field description and fills in the
+% 'black box model (BBoxModel)' to the lens structure.  The black box model
+% is a simplification of the multi-element lens.
+%   
+% There is a bbmGetValue (but we should probably just use 
+% lens.get('bbm XXX') and lens.set('bbm XXX)
 
-[result3]=paraxAnalyzeScene3DSystem('all',lens,film,pointSource);
+% Add the BBoxModel to the lens
+[lens1]      = paraxAnalyzeScene3DSystem('lens',lens);
+
+% Add the BBoxModel to the camera
+[psfCamera1] = paraxAnalyzeScene3DSystem('psfCamera',psfCamera);
+
+% Create a camera with the BBoxModel
+[psfCamera2]    = paraxAnalyzeScene3DSystem('all',lens,film,pointSource);
 
 %% FIND the image point
 
@@ -101,8 +116,6 @@ n_im=1; %refractive index in image space
 
 %check with estimated result
 psfCamera1.BBoxModel.imageFormation.gaussPoint
-
-
 
 
 %% PLOT the Entrance and Exit Pupil
@@ -138,3 +151,5 @@ psfCamera1.draw
 %% EXAMPLE: Image a new point
 pSource0=[100 100 -100000000];
 [imagePoint0]=lens1.findImagePoint(pSource0,n_ob,n_im);
+
+%%

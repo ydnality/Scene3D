@@ -25,20 +25,30 @@ function [result,varargout] = paraxAnalyzeScene3DSystem(type,Syst,varargin)
 %
 %
 % MP Vistasoft 2014
+  
+
+%% TODO
+%
+%  Maybe call this bbmCreate(object, varargin)
+%    type = object.type;
+%
 
 %% CHECK INPUT
+% type = obj.type;
+% 
 
 type = ieParamFormat(type);
 
 unit='mm'; %unit
 
-        
+
+%%        
 switch type
     case 'lens'
         lens0=Syst;
         OptSys = paraxAnalyze(lens0);
         % Equivalent Black Box Model of lens
-        lens0.set('blackboxmodel',OptSys);    
+        lens0.set('black box model',OptSys);    
         % Set OUTPUT
         result=lens0;
        
@@ -55,7 +65,7 @@ switch type
         
         % Equivalent Black Box Model of lens
         OptSys = paraxAnalyze(lens0);
-        lens0.set('blackboxmodel',OptSys);    % Equivalent Black Box Model of lens
+        lens0.set('black box model',OptSys);    % Equivalent Black Box Model of lens
         
         % Build Imaging System composed by Optical System+Film+ pSource
         F.z=film0.position(3)+OptSys.cardPoints.lastVertex;
@@ -67,7 +77,7 @@ switch type
         
         pSpolar(1)=ps_heigth;pSpolar(2)=ps_angle;pSpolar(3)=ps_zpos;
         % Equivalent Black Box Model of Imaging System
-        Syst.set('blackboxmodel',ImagSyst,pSpolar);
+        Syst.set('black box model',ImagSyst,pSpolar);
         
         % SET OUTPUT/s
         result=Syst;              

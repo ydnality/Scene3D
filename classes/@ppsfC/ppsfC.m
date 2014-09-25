@@ -16,25 +16,29 @@ classdef ppsfC < rayC
     % AL Vistasoft Copyright 2014
     
     properties
-          %location of the originating point source scene is -Z direction
-          pointSourceLocation = [ 0 0 -100];
-          
-          %apertureSamples - where rays intersect the front most aperture
-          aEntranceInt = struct('XY', [0 0], 'Z', 0);  
-          
-          %apertureLocation - where rays intersect the actual lens aperture (in the middle usually)
-          aMiddleInt = struct('XY', [0 0], 'Z', 0);   
-          
-          %direction of rays at the middle aperture.  This is useful for
-          %lightfield analysis later.  
-          aMiddleDir = [0 0 1];
-          
-          % Exit positions
-          aExitInt = struct('XY', [0 0], 'Z', 0);
-          
-          %exit direction of light field
-          aExitDir = 0;   
-          
+        
+        type = 'ppsf';
+        name = 'plenoptic psf';
+        
+        %location of the originating point source scene is -Z direction
+        pointSourceLocation = [ 0 0 -100];
+        
+        %apertureSamples - where rays intersect the front most aperture
+        aEntranceInt = struct('XY', [0 0], 'Z', 0);
+        
+        %apertureLocation - where rays intersect the actual lens aperture (in the middle usually)
+        aMiddleInt = struct('XY', [0 0], 'Z', 0);
+        
+        %direction of rays at the middle aperture.  This is useful for
+        %lightfield analysis later.
+        aMiddleDir = [0 0 1];
+        
+        % Exit positions
+        aExitInt = struct('XY', [0 0], 'Z', 0);
+        
+        %exit direction of light field
+        aExitDir = 0;
+        
     end
     
     methods

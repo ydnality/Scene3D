@@ -1,24 +1,30 @@
-
-
-
 function [OptSyst] = paraxAnalyze(lens)
-
-
-% Convert the lens structure of SCENE3D to the Optical System structure to
+% Create the black box model of the lens structure of SCENE3D to the Optical System structure to
 % get its analysis through paraxial approximation (first order optics)
 %
-%  OptSys = bbmConvert(lens)
+%  OptSys = paraxAnalyze(lens)
 %
 %
 %INPUT
 %   lens: lens object of SCENE3D
-
-
-%OUTPUT%
-%   OptSys: Optical System struct. 
 %
+%OUTPUT
+%   OptSys: Optical System structure.
 %
 % MP Vistasoft 2014
+
+
+%% TODO
+%
+% Put paraxAnalyze into the @lensC directory as a function called
+% bbmCreate.  And then the syntax will be
+%
+%   lens.bbmCreate
+%  
+%   Inside of the @lensC directory the function bbmCreate(obj) does what is
+%   in paraxAnalyze.
+%   
+%  
 
 
 %% GET RELEVANT PARAMETERs for the COMPUTATION
@@ -82,8 +88,11 @@ end
 
 %% CREATE OPTICAL SYSTEM
 if nargin>2
-    n_ob=varagin{1};n_im=varargin{2};
+    n_ob=varagin{1};
+    n_im=varargin{2};
 else            
     n_ob=1; n_im=1;
 end
 [OptSyst] = paraxCreateOptSyst(surf,n_ob,n_im,unit,wave);
+
+%% END

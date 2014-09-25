@@ -1,18 +1,20 @@
+function [abcd,allM,varargout]=paraxComputeOptSystMatrix(OptSyst,matrix_type,varargin)
 % Compute the paraxial matrices for each surface and for the overall optical system
-
-function [abcd,allM,varargout]=paraxComputeOptSystMatrix(OptSyst,matrix_type,varargin);
-
+%
+%
+%
 %INPUT
-%OptSyst: Optical System structure
-%matrix_type: string describing which type of matrix has to be computer : %for 'reduced' or 'non-reduced'  parameters
-%varargin: possible inputs
-
+%  OptSyst: Optical System structure
+%  matrix_type: string describing which type of matrix has to be computer : %for 'reduced' or 'non-reduced'  parameters
+%  varargin: possible inputs
+%
 %NB: n_ob and n_im ar column vector sampled at N different wavelength (check it before use the function)
-
+%
 %OUTPUT
 %abcd: (2x2xN): overall system paraxial matrix for the N wavelength
 %varargout{1}: list of M (# of surface) refractive matrices (2x2xN) and M-1 translation matrices (2x2xN)
-
+%
+% MP Vistasoft 2014
 
 %% CHECK if the first and last surfaces are thin or thick lenses and if their optical parameters have been properly computed 
 list=OptSyst.surfs.list;

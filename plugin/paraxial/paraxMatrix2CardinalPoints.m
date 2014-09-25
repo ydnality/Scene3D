@@ -1,21 +1,24 @@
+function [cardPoints]=paraxMatrix2CardinalPoints(M,n_ob,n_im,matrix_type)
 %Find cardinal points and their distance from the first and the last
 %vertices of the optical system described
-function [cardPoints]=paraxMatrix2CardinalPoints(M,n_ob,n_im,matrix_type)
-
+%
+%
 %INPUT
-%M: Parax Matrix with reduced parameter (2x2xN) N wavelength samples
-%n_ob: the refractive index in object space (relative object space). Scalar or columne vector N elements
-%n_im: the refractive index in image space (relative object space). Scalar or columne vector N elements
-%matrix_type: string describing which type of matrix has to be computer : %for 'reduced' or 'non-reduced'  parameters
- 
-
+%  M: Parax Matrix with reduced parameter (2x2xN) N wavelength samples
+%  n_ob: the refractive index in object space (relative object space). Scalar or columne vector N elements
+%  n_im: the refractive index in image space (relative object space). Scalar or columne vector N elements
+%  matrix_type: string describing which type of matrix has to be computer : %for 'reduced' or 'non-reduced'  parameters
+%
+%
 %NB: 'unit' of the distance is which M is computed
-
+%
 %OUTPUT
 %M: (2x2xN): surface paraxial matrix for the N wavelength
 %cardPoints: cardinal points
-    %.ni,.fi,.dFi,.dHi,.dNi,.no.fo,.dFo,.dHo,.dNo,  d_distance from the vertex and refractive index ni, no
-    
+%.ni,.fi,.dFi,.dHi,.dNi,.no.fo,.dFo,.dHo,.dNo,  d_distance from the vertex and refractive index ni, no
+%
+% MP Vistasoft 2014
+
     
 cardPoints.ni=n_im; cardPoints.no=n_ob;
     
@@ -50,4 +53,6 @@ switch matrix_type
         
     otherwise
         warning('Not fount a valid M matrix type!! Returned EMPTY !!')
+end
+
 end

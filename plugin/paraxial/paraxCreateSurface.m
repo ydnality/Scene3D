@@ -1,26 +1,36 @@
-%% Function: Create a Surface of the Optical System
-
-
 function [surface]=paraxCreateSurface(z_pos,diam,unit,wavelength,type,varargin)
-
+% Create a Surface of the Optical System
+%
+%
 %INPUT
-%z_pos: position along the optical axis (z) of the surface
-%diam: aperture diameter of the surface [unit]  in plane perpendicular tothe optical axis
-%unit: unit witch referes to eache distance e.g. 'mm' ,'m'
-%wavelength: (c.v) of the wavelength of refractive indices sampling in unit
-%type: string refering the surface type
-%varargin: depends on the surface type
-%           'refractive':[ varargin{1}=radius of curvature (scalar), varargin{2}= refractive index after surface (c.v.),varargin{3}= abbe number , varargin{4}= aspherical profile]
-%           'mirror': [varargin{1}= radius of curvature (scalar)]
-%           'plane': [varargin{1}= refractive index beyond refraction(c.v.),varargin{2}=refractive index after surface (c.v.)]
-%           'thinlens': [varargin{1}=optical power (scalar,optical power [1/unit]); varargin{2}=refr. index before lens (cv);varargin{3}=refr. index after lens (cv);
-%          'thicklens': [varargin{1}=radii of curvature [2x1] (first and second surface);varargin{2}=thickness [unit] ;varargin{3}=refr. index in the lens; varargin{4}=refr. index before lens (cv);varargin{5}=refr. index after lens (cv);%           
-%           'GRIN': [varigin{1}=string for the profile type('parabolic  n(r)=no(1-1/2*alfa^2*r^2)');varargin{2}= lens thickness; varargin{3}=(profile parameters(n0,alfa);varargin{4}=refr. index before lens (cv);varargin{5}=refr. index after lens (cv)]
-%           'diaphragm': none
+% z_pos: position along the optical axis (z) of the surface
+% diam: aperture diameter of the surface [unit]  in plane perpendicular tothe optical axis
+% unit: unit witch referes to eache distance e.g. 'mm' ,'m'
+% wavelength: (c.v) of the wavelength of refractive indices sampling in unit
+% type: string refering the surface type
+% varargin: depends on the surface type
+%
+%   'refractive':[ varargin{1}=radius of curvature (scalar), varargin{2}= refractive index after surface (c.v.),varargin{3}= abbe number , varargin{4}= aspherical profile]
+%   'mirror':    [varargin{1}= radius of curvature (scalar)]
+%   'plane':     [varargin{1}= refractive index beyond refraction(c.v.),varargin{2}=refractive index after surface (c.v.)]
+%   'thinlens':  [varargin{1}=optical power (scalar,optical power [1/unit]); varargin{2}=refr. index before lens (cv);varargin{3}=refr. index after lens (cv);
+%   'thicklens': [varargin{1}=radii of curvature [2x1] (first and second surface);varargin{2}=thickness [unit] ;varargin{3}=refr. index in the lens; varargin{4}=refr. index before lens (cv);varargin{5}=refr. index after lens (cv);%           
+%   'GRIN':      [varigin{1}=string for the profile type('parabolic  n(r)=no(1-1/2*alfa^2*r^2)');varargin{2}= lens thickness; varargin{3}=(profile parameters(n0,alfa);varargin{4}=refr. index before lens (cv);varargin{5}=refr. index after lens (cv)]
+%   'diaphragm': none
+%
 %OUTPUT
 %surface: struct with the information needed for matrix formulation
+%
+% MP Vistasoft 2014
 
 %c.v. =column vector for wavelenght dependence
+
+%% TODO
+%
+% We should merge MP's larger notion of a surface into our surfaceC class.
+% He has many types of surfaces, which we will account for using a subtype
+% in the surface.
+%
 
 %% CHECK of PREREQUISITEs
 
