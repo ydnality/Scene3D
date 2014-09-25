@@ -1,4 +1,4 @@
-function [AInterp A1stInterp A2ndInterp ] = interpolateAllWaves(obj, wantedPSLocation )
+function [LTObjectInterp ] = interpolateAllWaves(obj, wantedPSLocation )
 %[AInterp A1stInterp A2ndInterp ] = interpolateAllWaves(obj, wantedPSLocation )
 %   interpolates A matrices for all wavelengths.
 %
@@ -38,6 +38,7 @@ for w = 1:length(wave)
     A2ndInterp(:,:,w) = A2ndInterpCurrentWave;
 end
 
+LTObjectInterp = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
 
 
 end

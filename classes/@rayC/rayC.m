@@ -1,7 +1,7 @@
 classdef rayC <  clonableHandleObject
     % Create a ray object
     %
-    % ray = rayObject(origin,direction,wavelength)
+    % ray = rayC('origin', origin,'direction', direction, 'waveIndex', waveIndex, 'wave', wavelength)
     %
     % Example:
     %   r = rayC
@@ -100,6 +100,10 @@ classdef rayC <  clonableHandleObject
         
         function val = get(obj,param,varargin)
             % Get parameters about the rays
+            % Available parameters:
+            %   nRays, sphericalAngles, projectedAngles, wave, waveIndex,
+            %   wavelength, liveindices
+            
             p = ieParamFormat(param);
             switch p
                 case 'nrays'
@@ -120,6 +124,10 @@ classdef rayC <  clonableHandleObject
                     val = val';
                 case 'liveindices'  %return the indices of rays that are still alive
                     val = ~isnan(obj.waveIndex);
+                case 'origin'
+                    val = obj.origin;
+                case 'direction'
+                    val = obj.direction;
                 otherwise
                     error('Unknown parameter %s\n',p);
             end

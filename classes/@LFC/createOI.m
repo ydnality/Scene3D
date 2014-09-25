@@ -12,8 +12,9 @@ function oi = createOI(obj, lens, film)
 %% Parameters
 % Convert from light field format to ray format (origin/direction)
 r         = obj.get('ray');
-rayOrigin = r.rayOrigin;
-rayDir    = r.rayDir;
+
+rayOrigin = r.get('origin');
+rayDir    = r.get('direction');
 
 % Set up the wavelength information
 wave      = obj.get('wave');
@@ -25,8 +26,8 @@ waveIndex = obj.get('waveIndex');
 %   obj2 = obj.removeNans
 %
 %remove nans - aperture NOT specified.  just get rid of nan's
-keep = ~isnan(waveIndex);
-rayOrigin = rayOrigin(:,keep);
+keep = r.get('liveIndices');
+rayOrigin = rayOrigin(:,keep);   %todo: make this cleaner.  perhaps the ray object can return the non nan's automatically
 rayDir    = rayDir(:,keep);
 waveIndex = waveIndex(keep);
 

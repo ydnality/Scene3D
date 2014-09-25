@@ -102,15 +102,7 @@ apertureMiddleD = 8;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
-
 wave = lens.get('wave');
-
-% lens.draw();
-%2 element lens
-% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
-% import = load(lensFile,'lens');
-%thickLens = import.lens;
-% thickLens.apertureMiddleD = 10;
 
 % film (sensor) properties
 % position - relative to center of final lens surface
@@ -164,7 +156,7 @@ VoLTObject.calculateMatrices();
 % loop through all the wavelengths.  The wave samples assumed are the ones
 % from the lens.  These should be synchronized with everything else.  
 
-[AInterp, A1stInterp, A2ndInterp ] = VoLTObject.interpolateAllWaves(wantedPSLocation);
+LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
 
 % t1 = VoLTObject.ACollection(:,:,6,1,1)
 % t2 = AInterp(:,:,1)
@@ -200,7 +192,7 @@ adjustedMiddleApertureRadius = 4;
 [~,~,inputLF]  = s3dLightField(pointSource, lens);
 
 % Make an LT (linear transform) object and apply the LT on the inputLF
-LTObject = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
+%LTObject = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
 outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
 
 %TODO: de-couple finding the input LF from computing ground truth

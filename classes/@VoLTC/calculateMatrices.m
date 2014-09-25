@@ -10,7 +10,7 @@ function obj = calculateMatrices(obj, debugPlots)
 %
 % The point source locations are stored in the VoLT object as a series of
 % depths and field heights (positions) in millimeters.
-%
+%p
 % Returns:
 %
 % The 4-dimensions of each linear transformation convert the
@@ -80,13 +80,20 @@ for depthIndex = 1:length(depths)
 
         % This ray traces the plenoptic point spread function for this
         % point given the film and lens
-        [ppsf, x, b, bMiddle] = s3dVOLTRTOnePoint(pointSource, obj.film, obj.lens);
+        
+        %[ppsf, x, b, bMiddle] = s3dVOLTRTOnePoint(pointSource, obj.film, obj.lens);
+        
+        [outputLF,middleLF,inputLF]  = s3dLightField(pointSource, obj.lens);
         
         % Store these, and remember they have NaNs in them.
         % We deal with the NaNs later
-        xFull = x;
-        bFull = b;
-        bMiddleFull = bMiddle;
+%         xFull = x;
+%         bFull = b;
+%         bMiddleFull = bMiddle;
+        
+        %xFull = inputLF.get('LF');
+        %bFull = outputLF.get('LF');
+        %bMiddleFull = middleLF.get('LF');
         
         %% Do a speparate linear calculation for each wavelength.  
         for w = 1:length(wave)
@@ -100,15 +107,27 @@ for depthIndex = 1:length(depths)
             
             %only take data belonging to current wavelength
             
-            waveIndex = ppsf.get('waveIndex');
+            %waveIndex = ppsf.get('waveIndex');
+            %waveIndex = inputLF.get('waveIndex');
+            
             % Deal with the NaNs as mentioned above.
             % Remove nans to be on par with b and x
-            survivedWaveInd = waveIndex(ppsf.get('liveindices')); 
+            %survivedWaveInd = waveIndex(ppsf.get('liveindices')); 
+            
             
             %only use the x and b for the specific waveInd
-            b = bFull(:, survivedWaveInd == w);  %this might be a cumbersome way to do this.  consider using bOrig
-            x = xFull(:, survivedWaveInd == w);   %but see if this works first.  
-            bMiddle = bMiddleFull(:, survivedWaveInd == w);
+            
+            %b = bFull(:, survivedWaveInd == w);  %this might be a cumbersome way to do this.  consider using bOrig
+            %x = xFull(:, survivedWaveInd == w);   %but see if this works first.  
+            %bMiddle = bMiddleFull(:, survivedWaveInd == w);
+            
+            %b = bFull(:, waveIndex == w);  %TODO: perhaps get this using a get function!  
+            %x = xFull(:, waveIndex == w);
+            %bMiddle = bMiddleFull(:, waveIndex == w);
+            
+            b = outputLF.get('LF', 'waveIndex', w, 'survivedraysonly', true);
+            x = inputLF.get('LF', 'waveIndex', w, 'survivedraysonly', true);
+            bMiddle = middleLF.get('LF', 'waveIndex', w, 'survivedraysonly', true);
             
             A = b/x;
             bEst = A * x;

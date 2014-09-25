@@ -24,28 +24,58 @@ classdef LFC
         %  LFC('LF',lf,'wave',wave,'waveIdx',waveIdx);
         %
         
-            for ii=1:2:length(varargin)
-                p = ieParamFormat(varargin{ii});
-                switch p
-                    case 'lf'  %TODO: error checking for LF matching waveIndex
-                        obj.LF = varargin{ii+1};
-                    case 'waveindex'
-                        obj.waveIndex = varargin{ii+1};
-                    case 'wave'
-                        obj.wave = varargin{ii+1};
-                    otherwise
-                        error('Unknown parameter %s\n',varargin{ii});
-                end
+        for ii=1:2:length(varargin)
+            p = ieParamFormat(varargin{ii});
+            switch p
+                case 'lf'  %TODO: error checking for LF matching waveIndex
+                    obj.LF = varargin{ii+1};
+                case 'waveindex'
+                    obj.waveIndex = varargin{ii+1};
+                case 'wave'
+                    obj.wave = varargin{ii+1};
+                otherwise
+                    error('Unknown parameter %s\n',varargin{ii});
             end
-        end     
+        end
+        end
         
-                % Get VoLT properties
+        % Get VoLT properties
         function res = get(obj,pName,varargin)
             % Get various derived lens properties though this call
             pName = ieParamFormat(pName);
             switch pName
                 case 'lf'
-                    res = obj.LF;
+                    if(length(varargin) <= 0)
+                        res = obj.LF;
+                    elseif (mod(length(varargin), 2) == 0 )
+                        % this part deals with customized gets for specific
+                        % wave indices and survived rays
+                        for ii=1:2:length(varargin)
+                            p = ieParamFormat(varargin{ii});
+                            res = obj.LF;
+                            
+                            switch p
+                                case 'waveindex'
+                                    wantedWaveIndex = varargin{ii+1};
+                                    
+                                    wantedWave = obj.get('waveIndex');
+                                    wantedWave = (wantedWave == wantedWaveIndex);
+                                    res = res(:, wantedWave);
+                                case 'survivedraysonly'
+                                    survivedFlag = varargin{ii+1};
+                                    if(survivedFlag)
+                                       survivedRays = ~isnan(res(1,:)); %removes nans based off first coordinate
+                                       res =  res(:, survivedRays);
+                                    end
+                                otherwise
+                                    error('Unknown parameter %s\n',varargin{ii});
+                            end
+                        end
+                    else
+                        error('Incorrect parameter request. %s\n');
+                    end
+                case 'survivedrays'
+                    res = isnan(obj.waveIndex);
                 case 'waveindex'
                     res = obj.waveIndex;
                 case 'wave'
@@ -65,8 +95,9 @@ classdef LFC
                     rayDir(1,:) = obj.LF(3,:);
                     rayDir(2,:) = obj.LF(4,:);
                     rayDir(3,:) = 1 - rayDir(1,:).^2 + rayDir(2,:).^2;
-                    res.rayDir = rayDir; res.rayOrigin = rayOrigin;
                     
+                    %create a ray object given this information
+                    res = rayC('origin', rayOrigin, 'direction', rayDir, 'waveIndex', obj.get('waveIndex'), 'wave', obj.get('wave'));
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end
