@@ -565,7 +565,12 @@ classdef lensC <  handle
                     % Simplify the line
                     newVec = repRatio .* rays.direction + ...
                         repmat((ratio.*c -sqrt(1 - ratio.^2 .* (1 - c.^2))), [1 3])  .* normalVec;
-                    rays.direction = normvec(newVec,'dim',2);
+                    rays.direction = newVec;
+                    rays.normalizeDir();
+                    
+                    %rays.direction = normvec(newVec,'dim',2);
+                    %rays.normalizeDir();
+                    
                     % newVec2 = newVec./repmat(sqrt(sum(newVec.*newVec, 2)), [1 3]); %normalizes each row
                     % vcNewGraphWin; plot(newVec(:),newVec2(:),'.');
                     prevN = curN;  %note: curN won't change if the aperture is the overall lens aperture

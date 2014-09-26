@@ -45,20 +45,25 @@ classdef LFC
             pName = ieParamFormat(pName);
             switch pName
                 case 'lf'
-                    if(length(varargin) <= 0)
-                        res = obj.LF;
-                    elseif (mod(length(varargin), 2) == 0 )
+                    %if no additional parameters are given, return raw
+                    %lf matrix
+                    
+                    res = obj.LF;
+                    if (mod(length(varargin), 2) ~= 0)
+                        error('Incorrect parameter request. \n');
+                    end
+                    if (~isempty(varargin))
                         % this part deals with customized gets for specific
                         % wave indices and survived rays
                         for ii=1:2:length(varargin)
                             p = ieParamFormat(varargin{ii});
-                            res = obj.LF;
-                            
                             switch p
                                 case 'waveindex'
                                     wantedWaveIndex = varargin{ii+1};
-                                    
                                     wantedWave = obj.get('waveIndex');
+                                    if(~ieNotDefined('survivedFlag') && survivedFlag) %handles case if survivedrays called first
+                                        wantedWave = wantedWave(survivedRays);
+                                    end
                                     wantedWave = (wantedWave == wantedWaveIndex);
                                     res = res(:, wantedWave);
                                 case 'survivedraysonly'
@@ -71,13 +76,37 @@ classdef LFC
                                     error('Unknown parameter %s\n',varargin{ii});
                             end
                         end
-                    else
-                        error('Incorrect parameter request. %s\n');
                     end
                 case 'survivedrays'
                     res = isnan(obj.waveIndex);
                 case 'waveindex'
+                    %if no additional parameters are given, return raw
+                    %waveindex
+                    
                     res = obj.waveIndex;
+                    %if additional parameters are given, "filter out"
+                    %specific wavindex entries.
+                    if (mod(length(varargin), 2) ~= 0)
+                        error('Incorrect parameter request. \n');
+                    end
+                    if (~isempty(varargin))
+                        % this part deals with customized gets for specific
+                        % wave indices and survived rays
+                        for ii=1:2:length(varargin)
+                            p = ieParamFormat(varargin{ii});
+                            switch p
+                                case 'survivedraysonly'
+                                    survivedFlag = varargin{ii+1};
+                                    if(survivedFlag)
+                                       survivedRays = ~isnan(res(:)); %removes nans based off first coordinate
+                                       res =  res(survivedRays);
+                                    end
+                                otherwise
+                                    error('Unknown parameter %s\n',varargin{ii});
+                            end
+                        end
+                    end
+
                 case 'wave'
                     res = obj.wave;
                 case 'ray'

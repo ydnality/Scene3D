@@ -115,7 +115,30 @@ classdef rayC <  clonableHandleObject
                 case 'wave'
                     val = obj.wave;
                 case 'waveindex'
+                    
                     val = obj.waveIndex;
+                    if (mod(length(varargin), 2) ~= 0)
+                        error('Incorrect parameter request. \n');
+                    end
+                    if (~isempty(varargin))
+                        % this part deals with customized gets for specific
+                        % wave indices and survived rays
+                        val = obj.waveIndex;
+                        for ii=1:2:length(varargin)
+                            p = ieParamFormat(varargin{ii});
+                            switch p
+                                case 'survivedraysonly'
+                                    survivedFlag = varargin{ii+1};
+                                    if(survivedFlag)
+                                       survivedRays = ~isnan(val); 
+                                       val =  val(survivedRays);
+                                    end
+                                otherwise
+                                    error('Unknown parameter %s\n',varargin{ii});
+                            end
+                        end
+                    end
+                    
                 case 'wavelength'
                     val = zeros(size(obj.waveIndex));
                     val(isnan(obj.waveIndex)) = NaN;
@@ -125,9 +148,77 @@ classdef rayC <  clonableHandleObject
                 case 'liveindices'  %return the indices of rays that are still alive
                     val = ~isnan(obj.waveIndex);
                 case 'origin'
+
+                    %if no additional parameters are given, return raw
+                    %origin matrix
                     val = obj.origin;
+                    if (mod(length(varargin), 2) ~= 0)
+                        error('Incorrect parameter request. \n');
+                    end
+                    if (~isempty(varargin) )
+                        % this part deals with customized gets for specific
+                        % wave indices and survived rays
+                        
+                        for ii=1:2:length(varargin)
+                            p = ieParamFormat(varargin{ii});
+                            switch p
+                                case 'waveindex'
+                                    wantedWaveIndex = varargin{ii+1};
+                                    wantedWave = obj.get('waveIndex');
+                                    if(~ieNotDefined('survivedFlag') && survivedFlag) %handles case if survivedrays called first
+                                        wantedWave = wantedWave(survivedRays);
+                                    end
+                                    wantedWave = (wantedWave == wantedWaveIndex);
+                                    val = val(:, wantedWave);
+                                case 'survivedraysonly'
+                                    survivedFlag = varargin{ii+1};
+                                    if(survivedFlag)
+                                       survivedRays = ~isnan(val(1,:)); %removes nans based off first coordinate
+                                       val =  val(:, survivedRays);
+                                    end
+                                otherwise
+                                    error('Unknown parameter %s\n',varargin{ii});
+                            end
+                        end
+                    end
+                    
                 case 'direction'
+                    
+                    %if no additional parameters are given, return raw
+                    %direction matrix
+                    %consider putting this in a function so we don't need
+                    %to define twice
                     val = obj.direction;
+                    if (mod(length(varargin), 2) ~= 0)
+                        error('Incorrect parameter request. \n');
+                    end
+                    if (~isempty(varargin))
+                        % this part deals with customized gets for specific
+                        % wave indices and survived rays
+                        
+                        for ii=1:2:length(varargin)
+                            p = ieParamFormat(varargin{ii});
+
+                            switch p
+                                case 'waveindex'
+                                    wantedWaveIndex = varargin{ii+1};
+                                    wantedWave = obj.get('waveIndex');
+                                    if(~ieNotDefined('survivedFlag') && survivedFlag) %handles case if survivedrays called first
+                                        wantedWave = wantedWave(survivedRays);
+                                    end
+                                    wantedWave = (wantedWave == wantedWaveIndex);
+                                    val = val(:, wantedWave);
+                                case 'survivedraysonly'
+                                    survivedFlag = varargin{ii+1};
+                                    if(survivedFlag)
+                                       survivedRays = ~isnan(val(1,:)); %removes nans based off first coordinate
+                                       val =  val(:, survivedRays);
+                                    end
+                                otherwise
+                                    error('Unknown parameter %s\n',varargin{ii});
+                            end
+                        end
+                    end
                 otherwise
                     error('Unknown parameter %s\n',p);
             end
@@ -146,6 +237,12 @@ classdef rayC <  clonableHandleObject
                 otherwise
                     error('Unknown parameter %s\n',p);
             end
+        end
+        
+        function obj = normalizeDir(obj)
+           %obj = normalizeDir(obj)
+           %normalizes all direction vectors so that the 2 norm is 1 
+           obj.direction = normvec(obj.direction,'p',2,'dim',2);
         end
         
         function obj = projectOnPlane(obj, planeLocation)
@@ -178,6 +275,7 @@ classdef rayC <  clonableHandleObject
             
             %parameters for plotting from lens to sensor
             lWidth = 0.1; lColor = [0 0.5 1]; lStyle = '-';
+            
             
             
             %make a clone of the rays
