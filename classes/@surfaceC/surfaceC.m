@@ -76,7 +76,7 @@ classdef surfaceC <  handle
                         % wavelength
                         obj.n = varargin{ii+1};
                         if length(obj.n) ~= length(obj.wave)
-                            warning('Index of refraction vector does not match wavelength');
+                            error('Index of refraction vector length does not match wavelength vector length');
                         end
                         
                     otherwise
@@ -96,6 +96,8 @@ classdef surfaceC <  handle
                     res = obj.type;
                 case 'wave'
                     res = obj.wave;
+                case 'n'
+                    res = obj.n;
                 case 'zintercept'
                     %assumes a centered lens on the y = 0 axis;
                     res = obj.sCenter(3) - obj.sRadius;
@@ -107,11 +109,36 @@ classdef surfaceC <  handle
          function set(obj,pName,val,varargin)
             pName = ieParamFormat(pName);
             switch pName
+                
+                case {'apertured','aperturediameter'}
+                    % Units are mm
+                    obj.apertureD = val;
+                    
+                case 'sradius'
+                    obj.sRadius = val;
+                    
+                case 'scenter'
+                    obj.sCenter = val;
+                case {'zpos','zposition'}
+                    %**MUST be assigned after sCenter is assigned
+                    %assumes that lenses are centered on z axis
+                    zPos = val;
+                    obj.sCenter = [ 0 0 obj.centerComputeFromZSRadius(zPos)];
+                    
                 case 'wave'
                     % The wavelength is annoying.
                     prevWave = obj.wave;
                     obj.wave = val;
                     obj.n = interp1(prevWave, obj.n, obj.wave, 'linear', 'extrap');
+                    
+                case 'n' % Index of refraction
+                    % There should be one index of refraction for each
+                    % wavelength
+                    obj.n = val;
+                    if length(obj.n) ~= length(obj.wave)
+                        error('Index of refraction vector length does not match wavelength vector length');
+                    end
+                        
                 otherwise
                     error('Unknown parameter %s\n',pName);
             end

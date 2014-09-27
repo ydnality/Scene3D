@@ -73,14 +73,10 @@ s_initISET
 %
 % At this moment, we only change in field height, not yet depth.
 pSY = 0.01:.3:2;
-%pSZ = -102 * ones(length(pSY), 1);
 pSZ = [-103 -102.75];   %values must be monotonically increasing!!
-
-%pSLocations = [zeros(length(pSY), 1) pSY' pSZ];
 
 %desired pSLocation for interpolation
 wantedPSLocation = [0 1.7 -103];
-
 
 %% Define the Lens and Film
 
@@ -94,7 +90,6 @@ wantedPSLocation = [0 1.7 -103];
 
 %initialize and read multi-element lens from file
 
-% both of these lenses work for this example
 %lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
@@ -104,6 +99,26 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
 wave = lens.get('wave');
+
+%have index of refraction change with wavelength, to allow for color
+%separation
+%for 2 element lens
+%nVector = linspace(1.5, 1.8, length(wave));
+%lens.surfaceArray(1).set('n', nVector);
+%lens.surfaceArray(2).set('n', nVector);
+
+%allow for color separation with all lenses in general
+%TODO: put this into a function for lens
+numSurfaces = lens.get('nsurfaces');
+offset = .05;
+for i = 1:numSurfaces
+   curN = lens.surfaceArray(i).get('n');
+   
+   if (curN(1)~=0 && curN(1)~=1)
+       nVector = linspace(curN(1) - offset, curN(1) + offset, length(wave));
+       lens.surfaceArray(i).set('n', nVector);
+   end
+end
 
 % film (sensor) properties
 % position - relative to center of final lens surface
@@ -151,7 +166,6 @@ title(sprintf(oiGet(oiG,'name')));
 
 VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', wave); 
 VoLTObject.calculateMatrices();
-%[AComplete A1stComplete A2ndComplete] = s3dVOLTCreateModel(lens, film, pSLocations);
 %% Obtain an A given a wanted pSLocation by linear interpolation
 % A different A matrix will be calculated for each wavelengths.  We will
 % loop through all the wavelengths.  The wave samples assumed are the ones
@@ -164,7 +178,6 @@ LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
 % vcNewGraphWin;
 % plot(t1(:),t2(:),'o');
 % grid on; identityLine;
-
 %% Calculate the PSF, using the 2 A matrices and the aperture in the middle
 
 % This illustrates that the aperture can be changed quickly in the
@@ -182,7 +195,6 @@ LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
 % this system.  For middle apertures that are smaller than the other
 % apertures, this assumption should be valid.
 
-
 % Break this out into a separate couple of scripts that illustrate changing
 % the properties of the aperture
 
@@ -195,8 +207,6 @@ adjustedMiddleApertureRadius = 4;
 % Make an LT (linear transform) object and apply the LT on the inputLF
 %LTObject = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
 outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
-
-%TODO: de-couple finding the input LF from computing ground truth
 
 % Visualize PSF and phase space
 oiI = outputLFObject.createOI(lens,film);
@@ -212,60 +222,3 @@ grid on; xlabel('position'); ylabel('Illuminance')
 
 vcNewGraphWin; plot(uI.data(:)/max(uI.data(:)),uG.data(:)/max(uG.data(:)),'o')
 grid on; identityLine;
-
-
-%% Scrap
-
-%% Interpret A matrices - let's see if they vary slowly as expected
-
-% Does A agree with MP's predict calculation from the
-% method he uses?
-
-% %% compare how A coefficients change
-% for i = 1:4
-%     for j = 1:4
-%         ASerial = AComplete(i,j, :);
-%         ASerial = ASerial(:);
-%         figure; plot(pSLocations, ASerial);
-%     end
-% end
-
-% Make an A movie - this is to see if the A coefficients vary slowly or
-% not;
-
-%this may go in part of the VoLTC
-
-
-%**not sure if this works for multi-dimentional stuff anymore... must rework
-
-% vcNewGraphWin; colormap(hot);
-% 
-% AComplete = VoLTObject.get('ACollection');
-% mn = min(AComplete(:));
-% mx = max(AComplete(:));
-% az = -37; el = 80;
-% depthIndex = 1;  %look at depth 1 for now... 
-% 
-% % caxis([mn mx]);
-% for ii=1:size(AComplete,3)
-%     surf(AComplete(:,:,ii,depthIndex)); set(gca,'zlim',[mn mx/4])
-%     view(az,el);
-%     shading interp
-%     title(sprintf('%.2f',pSY(ii)));
-%     pause(0.5);
-% end
-% [az el] = view;
-
-
-
-%% Calculate errors
-% % Scatter plot of positions
-% for ii=1:4
-%     ii
-%     vcNewGraphWin; plot(bOrigMasked(ii,:),bEstInterp(ii,:),'o');
-%     grid on;
-%     
-%     meanAbsError = mean(abs(bEstInterp(ii,:) - bOrigMasked(ii,:)));
-%     averageAmp = mean(abs(bOrigMasked(ii,:)));
-%     meanPercentErrorSplit = meanAbsError/averageAmp * 100
-% end
