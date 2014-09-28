@@ -1,10 +1,12 @@
-%Compute the Defocus Coeffs for the normalized coordinate
-% based on different level of approxiamtion of Nijboer-Zernike Theory
 
-% ADVICE: select 'highNA' as method to compute NA
 
 function [Coeff]=paEstimateDefocusCoeff(zI,zG,NA,n_im,approx_method,varargin)
-
+%Compute the Defocus Coeffs for the normalized coordinate
+% based on different level of approxiamtion of Nijboer-Zernike Theory
+% ADVICE: select 'highNA' as method to compute NA
+%
+% function [Coeff]=paEstimateDefocusCoeff(zI,zG,NA,n_im,approx_method,varargin)
+%
 %INPUT
 %zI: position of image plane
 %zG: position of Gaussian point
@@ -13,12 +15,13 @@ function [Coeff]=paEstimateDefocusCoeff(zI,zG,NA,n_im,approx_method,varargin)
 %n_im: refractive index in the image space
 %vararging {1}: method of approximation
 
-
 %OUTPUT
 %W: Term of Defocused 4th order Wavefront aberration
 
 %NOTE:
 % NA, zI and zG has to be scalar not allow to be wavelength dependent
+%
+% MP Vistasoft 2014
 
 %% See APPENDIX A: 
 %%Braat, Joseph, Peter Dirksen, and Augustus JEM Janssen. "Assessment of an extended Nijboer–Zernike approach for the computation of optical point-spread functions." JOSA A 19.5 (2002): 858-870.

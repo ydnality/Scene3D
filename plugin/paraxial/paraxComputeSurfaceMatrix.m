@@ -1,7 +1,10 @@
-% Compute the paraxial matrix for the given surface
 
-function [M,varargout]=paraxComputeSurfaceMatrix(surf,n_ob,matrix_type,varagin);
 
+function [M,varargout]=paraxComputeSurfaceMatrix(surf,n_ob,matrix_type,varagin)
+%  Compute the paraxial matrix for the given surface
+%
+%  function [M,varargout]=paraxComputeSurfaceMatrix(surf,n_ob,matrix_type,varagin)
+%
 %INPUT
 %surf: surface structure
 %n_ob: the refractive index before the surface (relative object space)
@@ -14,7 +17,8 @@ function [M,varargout]=paraxComputeSurfaceMatrix(surf,n_ob,matrix_type,varagin);
 %M: (2x2xN): surface paraxial matrix for the N wavelength
 %varargout {1} cardinal points
 %.ni,.fi,.dFi,.dHi,.dNi,.no.fo,.dFo,.dHo,.dNo,  d_distance from the vertex and refractive index ni, no
-
+%
+% MP Vistasoft 2014
 %% COMPUTE M Matrix for the given surface structure with reduced parameters
 
 
@@ -103,7 +107,7 @@ end
 
 if nargout>1
     % matrix_type0='reduced';
-    matrix_type0='notred'
+    matrix_type0='notred';
     % varargout{1}=paraxMatrix2CardinalPoints(Mred,n_ob,n_im,matrix_type0);
     varargout{1}=paraxMatrix2CardinalPoints(paraxMatrixRed2NotRed_red(Mred,n_ob,n_im),n_ob,n_im,matrix_type0);
 end

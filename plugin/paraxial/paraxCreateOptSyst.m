@@ -29,6 +29,9 @@ OptSyst.wave = wavelength;
 %Unit
 OptSyst.unit=unit;
 
+%Type
+OptSyst.type='Optical System';
+
 %Refractive index of image and object space
 [n_ob]=checkNandWave(n_ob,wavelength);
 [n_im]=checkNandWave(n_im,wavelength);
@@ -116,37 +119,37 @@ else
 end
 OptSyst.matrix.computed_order=OptSyst.surfs.order;% It indicates the order of the surfaces used to compute the abcd Matrix
 
-%% FIND CARDINAL POINTS from ABCD matrices
-
-% These might all be bbm get calls, so we can't have any inconsistencies.
-
-[OptSyst.cardPoints] = ...
-    paraxMatrix2CardinalPoints(OptSyst.matrix.abcd_red,OptSyst.n_ob,OptSyst.n_im,'reduced');
-
-% Add vertices of first and last surfaces (useful to find the 
-% position of cardinal point along the optical axis
-OptSyst.cardPoints.firstVertex = OptSyst.surfs.list{OptSyst.surfs.order(1)}.z_pos;
-OptSyst.cardPoints.lastVertex  = OptSyst.surfs.list{OptSyst.surfs.order(end)}.z_pos;
+% %% FIND CARDINAL POINTS from ABCD matrices
+% 
+% % These might all be bbm get calls, so we can't have any inconsistencies.
+% 
+% [OptSyst.cardPoints] = ...
+%     paraxMatrix2CardinalPoints(OptSyst.matrix.abcd_red,OptSyst.n_ob,OptSyst.n_im,'reduced');
+% 
+% % Add vertices of first and last surfaces (useful to find the 
+% % position of cardinal point along the optical axis
+% OptSyst.cardPoints.firstVertex = OptSyst.surfs.list{OptSyst.surfs.order(1)}.z_pos;
+% OptSyst.cardPoints.lastVertex  = OptSyst.surfs.list{OptSyst.surfs.order(end)}.z_pos;
 
 
 %% Compute the possible Entrance Pupils (EnP) and Exit Pupils (ExP)
 
-% We need these so that we can determine which is the smallest pupil.  
-pupil_type1 = 'EnP';
-EnPs=paraxFindPupils(OptSyst,pupil_type1);
+% % We need these so that we can determine which is the smallest pupil.  
+% pupil_type1 = 'EnP';
+% EnPs=paraxFindPupils(OptSyst,pupil_type1);
+% 
+% pupil_type2 = 'ExP';
+% ExPs=paraxFindPupils(OptSyst,pupil_type2);
+% 
+% OptSyst.Pupils.EnPs=EnPs;
+% OptSyst.Pupils.ExPs=ExPs;
+% 
+% % It indicates the order of the surface by which En and Ex Pupils refer to
+% OptSyst.Pupils.computed_order = OptSyst.surfs.order;
 
-pupil_type2 = 'ExP';
-ExPs=paraxFindPupils(OptSyst,pupil_type2);
-
-OptSyst.Pupils.EnPs=EnPs;
-OptSyst.Pupils.ExPs=ExPs;
-
-% It indicates the order of the surface by which En and Ex Pupils refer to
-OptSyst.Pupils.computed_order = OptSyst.surfs.order;
-
-%% Compute Petzval SUM to find curvature of the image plane
-[OptSyst.Petzval] = ...
-    paraxComputePetzvalSum(OptSyst.surfs,OptSyst.n_ob,OptSyst.n_im,OptSyst.cardPoints.fi,OptSyst.wave);
-
+% %% Compute Petzval SUM to find curvature of the image plane
+% [OptSyst.Petzval] = ...
+%     paraxComputePetzvalSum(OptSyst.surfs,OptSyst.n_ob,OptSyst.n_im,OptSyst.cardPoints.fi,OptSyst.wave);
+% 
 
 %% END

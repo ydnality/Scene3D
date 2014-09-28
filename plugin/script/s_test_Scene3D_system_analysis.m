@@ -22,7 +22,7 @@ s_initISET
     %% 1.1 Declare point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
 % and pointing towards -z.  We are using a right-handed coordinate system.
-pointSource = [10 20 -1000];
+pointSource = [10 20 -10000000];
 
 %% Declare camera properties
 
@@ -76,7 +76,7 @@ lens.set('wave', wave);
 n = lens.get('nArray');
 
 %% CREATE IMAGING SYSTEM
-psfCamera = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
+psfCamera1 = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 
 %% Add the Black Box Model to the objects (lens or psfCamera or 'all')
 
@@ -91,14 +91,29 @@ psfCamera = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 % There is a bbmGetValue (but we should probably just use 
 % lens.get('bbm XXX') and lens.set('bbm XXX)
 
-% Add the BBoxModel to the lens
-[lens1]      = paraxAnalyzeScene3DSystem('lens',lens);
+%Refractive indices
+n_ob=1; %object space
+n_im=1; %image space
 
+% Add the BBoxModel to the lens
+% [lens1]      = paraxAnalyzeScene3DSystem('lens',lens);
+lens1=lens;
+lens1.bbmCreate(n_ob,n_im);
+% ALTERNATIVE [OptSyst1]=lens1.bbmCreate(n_ob,n_im);
 % Add the BBoxModel to the camera
-[psfCamera1] = paraxAnalyzeScene3DSystem('psfCamera',psfCamera);
+psfCamera1.bbmCreate(n_ob,n_im)
+% ALTERNATIVE [ImgSyst1]=psfCamera1.bbmCreate(n_ob,n_im);
 
 % Create a camera with the BBoxModel
-[psfCamera2]    = paraxAnalyzeScene3DSystem('all',lens,film,pointSource);
+% [psfCamera2]    = paraxAnalyzeScene3DSystem('all',lens,film,pointSource);
+psfCamera2=lens1.bbmCreate ('all',pointSource,film,n_ob,n_im);
+
+%% GET SEVERAL FIELDs
+Hobj=psfCamera1.get('bbm','object principal point'); %principal point in the object space
+Him=psfCamera1.get('bbm','image principal point'); %principal point in the image space
+focalLength=psfCamera1.get('bbm','effective focal length'); %effective focal length
+magn=psfCamera1.get('bbm','lateral magnification'); %lateral magnification
+abcdMatrix=psfCamera1.get('bbm','abcd matrix'); %abcd coeffs
 
 %% FIND the image point
 
@@ -107,16 +122,14 @@ psfCamera = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 % focalLength=result2.focallength; %effective focal length
 % magn=result2.magnification.lateral; %lateral magnification
 % abcdMatrix=result2.abcdMatrix; %abcd coeffs
+psfCamera1.get('bbm','gaussianimagepoint')
 
-n_ob=1; %refractive index in object space
-n_im=1; %refractive index in image space
 
 [imagePoint]=lens1.findImagePoint(pointSource,n_ob,n_im);
 % [imagePoint]=findImagePoint(pointSource,n_ob,Hobj,Him,n_im,focalLength);
 
-%check with estimated result
-psfCamera1.BBoxModel.imageFormation.gaussPoint
-
+%check with  already estimated imagepoint (through .psf)
+psfCamera1.get('bbm','gaussianimagepoint')
 
 %% PLOT the Entrance and Exit Pupil
 % EnP=psfCamera1.EntrancePupil;
@@ -152,4 +165,4 @@ psfCamera1.draw
 pSource0=[100 100 -100000000];
 [imagePoint0]=lens1.findImagePoint(pSource0,n_ob,n_im);
 
-%%
+

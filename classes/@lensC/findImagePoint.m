@@ -6,14 +6,18 @@ function [iPoint]=findImagePoint(obj,pSource,n_ob,n_im)
 % Find the image point for a given object point thought the 
 % imaging system specify by the principal points (in object space and image
 % space), focal lenght
-
+%
+%   function [iPoint]=findImagePoint(obj,pSource,n_ob,n_im)
+%
 % INPUT
 % pSource: point source coordinate [ x y z]
 % n_ob: refractive index in the object space
 % n_im: refractive index in the image space
-
+%
 %OUTPUT
 %[iPoint]= [x y z]
+%
+%  MP Vistasoft 2014
 
 
 

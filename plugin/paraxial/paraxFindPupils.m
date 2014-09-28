@@ -1,16 +1,19 @@
-% Find the Pupils (entrance or exit) for an optical system
+
 
 function  [Pupils,varargout]=paraxFindPupils(OptSyst,pupil_type,varargin)
 
+% Find the Pupils (entrance or exit) for an optical system
+%
+%       function  [Pupils,varargout]=paraxFindPupils(OptSyst,pupil_type,varargin)
 %INPUT
 %OptSyst: Optical system structure
-
+%
 %OUTPUT
 %Pupils: pupils location for each wavelength .z_pos(NxK)
-
-
+%
 %NOTE:  N Sampled wavelegth; K system apertures
-
+%
+% MP Vistasoft 2014
 
 switch pupil_type
     case {'entrance','Entrance','EntrPupil','EnP'}

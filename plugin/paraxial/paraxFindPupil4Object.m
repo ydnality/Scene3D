@@ -1,3 +1,6 @@
+
+function [Radiance]=paraxFindPupil4Object(ImagSystPupil,Object,OptSystlist,wave)
+
 %% Find the Entrance Pupil (aperture stop, the exit pupil) for a given obejct and optical system  % FIND PUPILs  {METHOD from Principles of Optics -Born and Wolf)
 %For ON Axis object point (Po), the stop (considering also the lens/mirror) rims determines the cross-section of the
 %image-forming pencil, and it is called APERTURE STOP. To determine its
@@ -8,11 +11,9 @@
 %4) The ANGULAR APERTURE on THE OBJECT SIDE (AN) is given by the double of the subtended angle
 %5) The image of the aperture STOP formed by the part of the system which follows it is know as EXIT PUPIL
 %6)The double angle subtended at P1(conj point) from the exit pupil is the angulas aperture on the image side (projection angle)
-
-
-
-function [Radiance]=paraxFindPupil4Object(ImagSystPupil,Object,OptSystlist,wave)
-
+%
+%       function [Radiance]=paraxFindPupil4Object(ImagSystPupil,Object,OptSystlist,wave)
+%
 %INPUT
 %ImagSystPupil: is a structure containing the following information of the optical system
 %       .EnPs: possible entrance pupils position (.z_pos), lateral magnification (.m_lat), and edge (.diam)
@@ -27,8 +28,6 @@ function [Radiance]=paraxFindPupil4Object(ImagSystPupil,Object,OptSystlist,wave)
 %
 %OptSystlist: structure containing the list of the surface in the optical system
 %wave:  sampling wavelength  
-
-
 
 %Object: 
 %
@@ -45,6 +44,8 @@ function [Radiance]=paraxFindPupil4Object(ImagSystPupil,Object,OptSystlist,wave)
 
 % NOTE: all coordinates, distances and wavelengths are consistence with
 % [unit] of the Imaging System field used as input
+%
+% MP Vistasoft 2014
 
 %% CHECK INPUT FIELD
 if not(isfield (ImagSystPupil,'EnPs'))
@@ -62,6 +63,7 @@ end
 %% FIND PUPILS
 
 %STEP 1
+
 for k=1:length(ImagSystPupil.computed_order)
     if abs(ImagSystPupil.EnPs{k}.z_pos-Object.ConjGauss.z_ob(1))<0
         %If object at finite distance use Entrance Pupil to find Aperture Stop

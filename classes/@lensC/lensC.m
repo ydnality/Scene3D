@@ -186,26 +186,35 @@ classdef lensC <  handle
                     %Get the parameters from the optical system structure to build an  equivalent Black Box Model of the lens.
                     % The OptSyst structure has to be built with the function 'paraxCreateOptSyst'
                     % Get 'new' origin for optical axis
-                    OptSyst=val;
-                    z0 = OptSyst.cardPoints.lastVertex;
+                    OptSyst=val;                    
+%                     z0 = OptSyst.cardPoints.lastVertex;
+                    z0=paraxGet(OptSyst,'lastVertex');
                     % Variable to append
-                    efl=OptSyst.cardPoints.fi; %focal lenght of the system
+%                     efl=OptSyst.cardPoints.fi; %focal lenght of the system
+                    efl=paraxGet(OptSyst,'efl');
                     obj=obj.bbmSetField('effectivefocallength',efl);
-                    pRad = OptSyst.Petzval.radius; % radius of curvature of focal plane
+%                     pRad = OptSyst.Petzval.radius; % radius of curvature of focal plane
+                    pRad = paraxGet(OptSyst,'focalradius'); % radius of curvature of focal plane
                     obj=obj.bbmSetField('focalradius',pRad);
-                    Fi=OptSyst.cardPoints.dFi;     %Focal point in the image space
+%                     Fi=OptSyst.cardPoints.dFi;     %Focal point in the image space
+                    Fi= paraxGet(OptSyst,'imagefocalpoint')-z0;     %Focal point in the image space
                     obj=obj.bbmSetField('imagefocalpoint',Fi);
-                    Hi=OptSyst.cardPoints.dHi; % Principal point in the image space
+%                     Hi=OptSyst.cardPoints.dHi; % Principal point in the image space
+                    Hi= paraxGet(OptSyst,'imageprincipalpoint')-z0; % Principal point in the image space
                     obj=obj.bbmSetField('imageprincipalpoint',Hi);
-                    Ni=OptSyst.cardPoints.dNi;     % Nodal point in the image space
+%                     Ni=OptSyst.cardPoints.dNi;     % Nodal point in the image space
+                    Ni=paraxGet(OptSyst,'imagenodalpoint')-z0;    % Nodal point in the image space
                     obj=obj.bbmSetField('imagenodalpoint',Ni);
-                    Fo=OptSyst.cardPoints.dFo-z0; %Focal point in the object space
+%                     Fo=OptSyst.cardPoints.dFo-z0; %Focal point in the object space
+                    Fo=paraxGet(OptSyst,'objectfocalpoint')-z0; %Focal point in the object space
                     obj=obj.bbmSetField('objectfocalpoint',Fo);
-                    Ho=OptSyst.cardPoints.dHo-z0; % Principal point in the object space
+%                     Ho=OptSyst.cardPoints.dHo-z0; % Principal point in the object space
+                    Ho=paraxGet(OptSyst,'objectprincipalpoint')-z0; % Principal point in the object space
                     obj=obj.bbmSetField('objectprincipalpoint',Ho);
-                    No=OptSyst.cardPoints.dNo-z0; % Nodal point in the object space
+%                     No=OptSyst.cardPoints.dNo-z0; % Nodal point in the object space
+                    No=paraxGet(OptSyst,'objectnodalpoint')-z0; % Nodal point in the object space
                     obj=obj.bbmSetField('objectnodalpoint',No);
-                    M = OptSyst.matrix.abcd; % The 4 coefficients of the ABCD matrix of the overall system
+                    M = paraxGet(OptSyst,'imagenodalpoint'); % The 4 coefficients of the ABCD matrix of the overall system
                     obj=obj.bbmSetField('abcdmatrix',M);
                     
                 otherwise

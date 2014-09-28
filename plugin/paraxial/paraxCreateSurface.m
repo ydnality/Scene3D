@@ -1,6 +1,7 @@
 function [surface]=paraxCreateSurface(z_pos,diam,unit,wavelength,type,varargin)
 % Create a Surface of the Optical System
 %
+%       [surface]=paraxCreateSurface(z_pos,diam,unit,wavelength,type,varargin)
 %
 %INPUT
 % z_pos: position along the optical axis (z) of the surface

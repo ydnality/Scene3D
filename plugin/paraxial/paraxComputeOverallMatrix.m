@@ -1,23 +1,23 @@
-% Compute System Matrix
-
-function [Mt,varargout]=paraxComputeOverallMatrix(comp_type,varargin);
 
 
+function [Mt,varargout]=paraxComputeOverallMatrix(comp_type,varargin)
+%  Compute System Matrix
+%
+%       function [Mt,varargout]=paraxComputeOverallMatrix(comp_type,varargin)
+%
 %INPUT
 %comp_type:  type of system to compute
      %      'OpticalSystem':  vararging{1}: cell of K surface
      %          transformations (2x2xN) N  sampling; varargin{2}: cell of K-1
      %          translation matrix; varargin{3}: cell of K augmented parameters
-     %          for the relative surface transformation
-     
-     
-     
+     %          for the relative surface transformation     
 %OUTPUT
 %Mt: (2x2xN) output matrix
-
-
+%
 % NOTE: K # of non-translation transoformation; N # of wavelength for the system sampling
 %       all the matrices should be built homogenously
+%
+% MP Vistasoft 2014
 
 
 switch comp_type

@@ -2,21 +2,20 @@
 function [out]=drawMarginalRay(obj,pointSource,pupilname,wave0,wave,coord_type)
 
 % DRAW the marginal rays from the point source to the rims of the specify pupil
-
+%
 % [out]=drawComaRay(obj,pointSource,pupilname,wave0,wave,coord_type)
-
-
+%
 % INPUT
 % pointSource: [x,y,z]
 % pupilname: 'entrance' or 'exit' pupil
 % wave0: specify the wavelength to plot
 % wave: set of all possible wavelength
 % coord_type: specify which coordinate to plot {'x';'y'}
-                      
-
-%OUTPUT
+ %                  
+ %OUTPUT
 %out: 0 or 1
-
+%
+% MP Vistasoft 2014
 
 
 

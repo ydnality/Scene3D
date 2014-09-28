@@ -1,9 +1,11 @@
 
-%Find Gaussian Point for a  Optical system decribed in conjugate condition
 
 function  [t_out, varargout]= paraxConjImagingMatrix(Syst,type_conj,t_in,varargin)
 
-
+%%Find Gaussian Point for a  Optical system decribed in conjugate condition
+%
+%       function  [t_out, varargout]= paraxConjImagingMatrix(Syst,type_conj,t_in,varargin)
+%
 %INPUT
 %Syst: structure (Optical System or Sub System)
 %type_conj: define if we are looking for the image distance (given the
@@ -12,12 +14,13 @@ function  [t_out, varargout]= paraxConjImagingMatrix(Syst,type_conj,t_in,varargi
 %vertex of the system or t_im: distance from last vertex of the system and
 %the image.
 %varargin:  {1} field eccentricity(needs when object located ad infinity
-
+%
 %OUTPUT
 %t_out: distance as output of the conjugate functions
 %varargout{1}: .m_lat: lateral magnification (case direct obj->imag); inverse lateral magnification (case inverse imag->obj)
 %varargout{2}: .m_ang: angular magnification  (case direct obj->imag); inverse lateral magnification (case inverse imag->obj)
-
+%
+% MP Vistasoft 2014
 
 
 switch type_conj

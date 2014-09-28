@@ -1,20 +1,23 @@
-%Compute the Defocus Coeffs for the normalized coordinate
-% based on different level of approxiamtion of Nijboer-Zernike Theory
 
-% ADVICE: select 'highNA' as method to compute NA
 
 function [defocusCoeff] = paEstimateDefocus(ImagSyst,Obj,varargin)
-
+%Compute the Defocus Coeffs for the normalized coordinate
+% based on different level of approxiamtion of Nijboer-Zernike Theory
+% ADVICE: select 'highNA' as method to compute NA
+%
+% function [defocusCoeff] = paEstimateDefocus(ImagSyst,Obj,varargin)
+%
 %INPUT
 %ImagSyst: image system struct
 %Obj:      point source object structure  {.z: position along optical axis; .y:height eccentricity}
 %vararging {1}: method of approximation of the defocus phase aberration
 %function
-
-
+%
 %OUTPUT
 %Coeff: coeffs for defocus (accordin to the selected method can be from 1
 %to 3 coeffs)
+%
+% MP Vistasoft 2014
 
 
 %% See APPENDIX A: 
@@ -43,7 +46,8 @@ profile1='point';
 
 %% Get parameters from the Imaging System
 if size(ImagSyst.film{end}.z_pos,1)==nW
-    defocusZ(:,1)=ImagSyst.film{end}.z_pos; %last film
+%     defocusZ(:,1)=ImagSyst.film{end}.z_pos; %last film
+    defocusZ(:,1)=paraxGet(ImagSyst,'film position');  %last film
 else
     defocusZ(:,1)=repmat(ImagSyst.film{end}.z_pos,nW,1);
 end
@@ -56,7 +60,9 @@ end
 
 for li=1:nW
     ExPDiam(li,1)=ImagSyst.object{end}.Radiance.ExP.diam(li,1)-ImagSyst.object{end}.Radiance.ExP.diam(li,2);
-    efl(li,1)=ImagSyst.cardPoints.fi(li,1);
+    fi=paraxGet(ImagSyst,'effectivefocallength');
+%     efl(li,1)=ImagSyst.cardPoints.fi(li,1);
+    efl(li,1)=fi(li,1);
     [NA(li,1)]=paraxNumAperture(ExPDiam(li,1),efl(li,1),ImagSyst.n_im(li,1));
      if nargin >3
          approx_method=varargin{1};

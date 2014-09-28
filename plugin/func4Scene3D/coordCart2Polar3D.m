@@ -3,7 +3,9 @@
 function  [ro,theta,zOUT]=coordCart2Polar3D(x,y,z)
 
 %Convert point coordinate from Cartesian (x,y,z) to polar in object/image plane(ro,theta,z)
-
+%
+%       function  [ro,theta,zOUT]=coordCart2Polar3D(x,y,z)
+%
 % INPUT:
 % x
 % y
@@ -13,6 +15,8 @@ function  [ro,theta,zOUT]=coordCart2Polar3D(x,y,z)
 % ro= height eccentricity
 % theta= angular eccentricity
 % z= distance along optical axis 
+%
+%  MP Vistasoft 2014
 
 
 %% HEIGHT ECCENTRICITY

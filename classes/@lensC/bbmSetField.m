@@ -1,5 +1,4 @@
 
-
 function [obj]=bbmSetField(obj,pName,val)
 
 % Build the field to append to Black Box Model 

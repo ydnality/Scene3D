@@ -43,7 +43,7 @@ classdef psfCameraC <  handle
             
         end
         
-        function val = get(obj,param)
+        function val = get(obj,param,varargin)
             % psfCamera.get('parameter name')
             % Start to set up the gets for this object
             val = [];
@@ -78,6 +78,16 @@ classdef psfCameraC <  handle
                     val.X = sum(sum(img .* filmDistanceX));
                     val.Y = sum(sum(img .* filmDistanceY));
                     
+                 case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
+                     if nargin>2
+                         fileType=varargin{1};  %witch field of the black box to get
+                     else
+                         error(['Specify also the field of the Black Box Model!'])
+                     end
+                     
+%                     val=obj.bbmGetValue(obj.BBoxModel,fileType);
+                        val=obj.bbmGetValue(fileType);
+                    
                 otherwise
                     error('unknown parameter %s\n',param)
             end
@@ -97,25 +107,28 @@ classdef psfCameraC <  handle
                     % INPUT
                     % val= ImagSyst struct
                     % varargin {1}: polar coordinate of pointSource [ro, theta, z]
+                    %
+                    % MP Vistasoft 2014
+                    %
                     ImagSyst=val;
                     psPolar=varargin{1};
-                    z0 = ImagSyst.cardPoints.lastVertex;
+                    z0 = paraxGet(ImagSyst,'lastvertex');
                     % Variable to append
-                    efl=ImagSyst.cardPoints.fi; %focal lenght of the system
+                    efl=paraxGet(ImagSyst,'effectivefocallength'); %focal lenght of the system
                     obj=obj.bbmSetField('effectivefocallength',efl);
-                    pRad = ImagSyst.Petzval.radius; % radius of curvature of focal plane
+                    pRad = paraxGet(ImagSyst,'effectivefocallength'); % radius of curvature of focal plane
                     obj=obj.bbmSetField('focalradius',pRad);
-                    Fi=ImagSyst.cardPoints.dFi;     %Focal point in the image space
+                    Fi=paraxGet(ImagSyst,'imagefocalpoint')-z0;     %Focal point in the image space
                     obj=obj.bbmSetField('imagefocalpoint',Fi);
-                    Hi=ImagSyst.cardPoints.dHi; % Principal point in the image space
+                    Hi=paraxGet(ImagSyst,'imageprincipalpoint')-z0; % Principal point in the image space
                     obj=obj.bbmSetField('imageprincipalpoint',Hi);
-                    Ni=ImagSyst.cardPoints.dNi;     % Nodal point in the image space
+                    Ni=paraxGet(ImagSyst,'imagenodalpoint')-z0;     % Nodal point in the image space
                     obj=obj.bbmSetField('imagenodalpoint',Ni);
-                    Fo=ImagSyst.cardPoints.dFo-z0; %Focal point in the object space
+                    Fo=paraxGet(ImagSyst,'objectfocalpoint')-z0; %Focal point in the object space
                     obj=obj.bbmSetField('objectfocalpoint',Fo);
-                    Ho=ImagSyst.cardPoints.dHo-z0; % Principal point in the object space
+                    Ho=paraxGet(ImagSyst,'objectprincipalpoint')-z0; % Principal point in the object space
                     obj=obj.bbmSetField('objectprincipalpoint',Ho);
-                    No=ImagSyst.cardPoints.dNo-z0; % Nodal point in the object space
+                    No=paraxGet(ImagSyst,'objectnodalpoint')-z0; % Nodal point in the object space
                     obj=obj.bbmSetField('objectnodalpoint',No);
                     % abcd Matrix (Paraxial)
                     M = ImagSyst.matrix.abcd; % The 4 coefficients of the ABCD matrix of the overall system
@@ -135,11 +148,11 @@ classdef psfCameraC <  handle
                     magn_lateral=ImagSyst.object{end}.ConjGauss.m_lat; %
                     obj=obj.bbmSetField('lateralmagnification',magn_lateral);                                   
                     % Exit Pupil
-                    ExitPupil.zpos=mean(ImagSyst.object{end}.Radiance.ExP.z_pos,2);
+                    ExitPupil.zpos=mean(ImagSyst.object{end}.Radiance.ExP.z_pos,2)-z0;
                     ExitPupil.diam=ImagSyst.object{end}.Radiance.ExP.diam(:,1)-ImagSyst.object{end}.Radiance.ExP.diam(:,2);
                     obj=obj.bbmSetField('exitpupil',ExitPupil);
                     % Entrance Pupil
-                    EntrancePupil.zpos=mean(ImagSyst.object{end}.Radiance.EnP.z_pos,2);
+                    EntrancePupil.zpos=mean(ImagSyst.object{end}.Radiance.EnP.z_pos,2)-z0;
                     EntrancePupil.diam=ImagSyst.object{end}.Radiance.EnP.diam(:,1)-ImagSyst.object{end}.Radiance.EnP.diam(:,2);
                     obj=obj.bbmSetField('entrancepupil',EntrancePupil);                    
                     % Gaussian Image Point

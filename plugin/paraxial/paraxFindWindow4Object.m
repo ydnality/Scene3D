@@ -1,3 +1,8 @@
+
+
+
+
+function [Field]=paraxFindWindow4Object(ObjectEnP,ObjectExP,ImagSystPupil,Film,Surfslist,wave)
 %% FIND FIELD STOPs
 % Field stops determine what proportion of the surface of an extended
 % object is image by the instrument
@@ -11,11 +16,9 @@
 %called the EXIT WINDOW.
 %12) the double of the angle subtended at the center of the EXIT PUPIL by
 %the EXIT WINDOW is the IAMGE FILED ANGLE
-
-
-
-function [Field]=paraxFindWindow4Object(ObjectEnP,ObjectExP,ImagSystPupil,Film,Surfslist,wave)
-
+%
+%   function [Field]=paraxFindWindow4Object(ObjectEnP,ObjectExP,ImagSystPupil,Film,Surfslist,wave)
+%
 %INPUT
 
 % ObjectEnP: the entrance pupil for the given object point
@@ -36,20 +39,17 @@ function [Field]=paraxFindWindow4Object(ObjectEnP,ObjectExP,ImagSystPupil,Film,S
 %           .order
 %
 %wave: sampling wavelength  
-
 %
-
 %Field: structure with
 %       .Stop (field stop)
 %       .EnW (entrance window)
 %       .ExW  (exit window)
 %       .FoV.objectSpace (field of view in the object space)
 %       .FoV.imageSpace  (field of view in the image space)
-
-
-
 % NOTE: all coordinates, distances and wavelengths are consistence with
 % [unit] of the Imaging System field used as input
+%
+% % MP Vistasoft 2014
 
 
 %% CHECK INPUT FIELD
@@ -243,11 +243,11 @@ else
 end
 %COMPUTE THE FIELD of VIEW
 %In object space
-Field.FoV.obj_rad=abs(FoV_obj_rad(:,1))+abs(FoV_obj_rad(:,2)); % in [rad] add the field of view for upper and lower angle
-Field.FoV.obj_deg=Field.FoV.obj_rad*180/pi; %in [deg]
+Field.FoV.obSpace.rad=abs(FoV_obj_rad(:,1))+abs(FoV_obj_rad(:,2)); % in [rad] add the field of view for upper and lower angle
+Field.FoV.obSpace.deg=Field.FoV.obSpace.rad*180/pi; %in [deg]
 %In image space
-Field.FoV.im_rad=abs(FoV_im_rad(:,1))+abs(FoV_im_rad(:,2)); % in [rad] add the field of view for upper and lower angle
-Field.FoV.im_deg=Field.FoV.im_rad*180/pi; %in [deg]
+Field.FoV.imSpace.rad=abs(FoV_im_rad(:,1))+abs(FoV_im_rad(:,2)); % in [rad] add the field of view for upper and lower angle
+Field.FoV.imSpace.deg=Field.FoV.imSpace.rad*180/pi; %in [deg]
 
 %Numerical Aperture :describe the amount of light gathered by the optical
 %system from the Entrance Windows

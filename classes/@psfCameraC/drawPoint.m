@@ -1,18 +1,23 @@
-% DRAW the source the specify point
+
 
 
 function [out]=drawPoint(obj,pointSource,wave0,wave,coord_type)
 
+% DRAW the specify point
+%
+%   [out]=drawPoint(obj,pointSource,wave0,wave,coord_type)
+%
 % INPUT
 % Pupil: struct   .zpos  (optical axis position)
                       % .diam   (diameter)
 % wave0: specify the wavelength to plot
 % wave: set of all possible wavelength
 % coord_type: specify which coordinate to plot {'x';'y'}
-                      
-
+%                
 %OUTPUT
 %out: 0 or 1
+%
+% MP Vistasoft 2014
 
 
 %% Select wavelength

@@ -2,10 +2,9 @@
 function [out]=drawComaRay(obj,pointSource,pupilname,wave0,wave,coord_type)
 
 % DRAW the coma rays from the point source to the rims of the specify pupil
-
-% [out]=drawComaRay(obj,pointSource,pupilname,wave0,wave,coord_type)
-
-
+%
+%[out]=drawComaRay(obj,pointSource,pupilname,wave0,wave,coord_type)
+%
 % INPUT
 % pointSource: [x,y,z]
 % pupilname: 'entrance' or 'exit' pupil
@@ -13,9 +12,10 @@ function [out]=drawComaRay(obj,pointSource,pupilname,wave0,wave,coord_type)
 % wave: set of all possible wavelength
 % coord_type: specify which coordinate to plot {'x';'y'}
                       
-
 %OUTPUT
 %out: 0 or 1
+%
+% % MP Vistasoft 2014
 
 
 

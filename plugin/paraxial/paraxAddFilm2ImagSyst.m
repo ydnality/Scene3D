@@ -51,8 +51,9 @@ switch ImagSyst.film{index}.profile
         %modify X,Y coordinate according to augmented parameter  and the film
         %orientation
         
-        
-        th=ImagSyst.film{index}.z_pos-ImagSyst.cardPoints.lastVertex;
+        lV=paraxGet(ImagSyst,'lastvertex');
+        th=ImagSyst.film{index}.z_pos-lV;
+%         th=ImagSyst.film{index}.z_pos-ImagSyst.cardPoints.lastVertex;
         M_red=paraxComputeTranslationMatrix(th,ImagSyst.n_im,'reduced');
         M=paraxComputeTranslationMatrix(th,ImagSyst.n_im,'not-reduced');
         %with augmented parameter       
@@ -79,7 +80,9 @@ switch ImagSyst.film{index}.profile
         %modify X,Y coordinate according to augmented parameter  and the film
         %orientation
         %%%%%%
-        th=ImagSyst.film{index}.z_pos-ImagSyst.cardPoints.lastVertex;
+        lV=paraxGet(ImagSyst,'lastvertex');
+        th=ImagSyst.film{index}.z_pos-lV;
+%         th=ImagSyst.film{index}.z_pos-ImagSyst.cardPoints.lastVertex;
         M_red=paraxComputeTranslationMatrix(th,ImagSyst.n_im,'reduced');
         M=paraxComputeTranslationMatrix(th,ImagSyst.n_im,'not-reduced');
         %with augmented parameter       

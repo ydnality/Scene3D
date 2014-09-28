@@ -30,6 +30,9 @@ ImagSyst.wave=OptSyst.wave;
 %Unit
 ImagSyst.unit=OptSyst.unit;
 
+% Type
+ImagSyst.type='Imaging System';
+
 %Chech augParam for Film 
 if ~exist('augParam_Film','var')    
     augParam_Film=[0;0];
@@ -48,9 +51,10 @@ ImagSyst.n_ob=OptSyst.n_ob;
 ImagSyst.n_im=OptSyst.n_im;
 ImagSyst.surfs=OptSyst.surfs;
 ImagSyst.matrix=OptSyst.matrix;
-ImagSyst.cardPoints=OptSyst.cardPoints;
-ImagSyst.Pupils=OptSyst.Pupils;
-ImagSyst.Petzval=OptSyst.Petzval;
+% ImagSyst.cardPoints=OptSyst.cardPoints;
+% ImagSyst.Pupils=OptSyst.Pupils;
+ImagSyst.Pupils=paraxGet(OptSyst,'pupils');
+% ImagSyst.Petzval=OptSyst.Petzval;
 
 %% Append parameter about the sensor
 

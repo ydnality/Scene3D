@@ -1,21 +1,25 @@
+
+
+function [surfslist]=paraxCheckSurfaceList(surfsIN,n_ob,n_im)
+
 % Several elements of an Optical System are related to its neighbourhood.
 % For instance the diaphragm hasn't the field about the refractive index (N) needs for computation of ABCD
 % The thick and thin lenses shown an optical power related to the medium
 % before and after the lens.
 %This function check the current elements congruence, fixing if not
 %present, as well as filling the missing field
-
-function [surfslist]=paraxCheckSurfaceList(surfsIN,n_ob,n_im)
-
-
+%
+%       function [surfslist]=paraxCheckSurfaceList(surfsIN,n_ob,n_im)
+%
 %INPUT
 %surfs: structure with different fields for multi-surface {.list: list of the surface;  .order: surface order along the optical axis}
 %n_ob: refractive index of the object space(column vector for dispersion)
 %n_im: refractive index of the image space (column vector for dispersion)
-
+%
 %OUTPUT
 % surfs: struncture with fixed and filled surfaces
-
+%
+% MP Vistasoft 2014
 
 for si=1:length(surfsIN.order)
   

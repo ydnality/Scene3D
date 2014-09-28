@@ -1,7 +1,11 @@
+
+
+function  [M]=paraxMatrixRed2NotRed(M_red,n_ob,n_im)
+
 % Convert Reduced Matrix to Not Reduced Matrix
-
-function  [M]=paraxMatrixRed2NotRed(M_red,n_ob,n_im);
-
+%
+%function  [M]=paraxMatrixRed2NotRed(M_red,n_ob,n_im)
+%
 %INPUT
 %M_red: 2x2xN or 3x3xN for augmented matrix
 %n_ob: column vector (N element) refractive index of the object space
@@ -11,6 +15,9 @@ function  [M]=paraxMatrixRed2NotRed(M_red,n_ob,n_im);
 
 %OUTPUT
 %M: (2x2xN): N sampled wavelength
+%
+% MP Vistasoft 2014
+
 
 %% CHECK sampling of the matrix
 Mred_size=size(M_red,3);nob_size=size(n_ob,1);nim_size=size(n_im,1);

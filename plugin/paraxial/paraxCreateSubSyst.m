@@ -1,8 +1,12 @@
-%% Function: Create an SubSystem from an Optical System
 
 
-function [SubSyst]=paraxCreateSubSyst(OptSyst,sub_index,n_ob,n_im,varargin)
 
+function [SubSyst] = paraxCreateSubSyst(OptSyst,sub_index,n_ob,n_im,varargin)
+
+% Function: Create an SubSystem from an Optical System
+%
+%       function [SubSyst] = paraxCreateSubSyst(OptSyst,sub_index,n_ob,n_im,varargin)
+%
 %INPUT
 %OptSyst:optical system structure with K surface
 %sub_index: vector (1xL) with the surface number to be included in the sub
@@ -13,6 +17,8 @@ function [SubSyst]=paraxCreateSubSyst(OptSyst,sub_index,n_ob,n_im,varargin)
 
 %NOTE =L<K  subsystem composed with less surfaces that original system
 %       sub_index refer to the number of the elements before sorting
+%
+% MP Vistasoft 2014
 
 
 %% SET VALUEs

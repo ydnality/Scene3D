@@ -1,8 +1,11 @@
-% DRAW the Pupils of the Imaging System
 
 
 function [out]=drawPupil(obj,wave0,wave,textFlag)
 
+% DRAW the Pupils of the Imaging System
+%
+%function [out]=drawPupil(obj,wave0,wave,textFlag)
+%
 % INPUT
 % EnP: Entrance Pupil   .zpos  (optical axis position)
                       % .diam   (diameter)
@@ -12,10 +15,11 @@ function [out]=drawPupil(obj,wave0,wave,textFlag)
 % wave: set of all possible wavelength
 % textFlag: flag to include or not the label of the 'entrance' and 'exit
 % pupil'
-                      
-
+%                  
 %OUTPUT
 %out: 0 or 1
+%
+% MP Vistasoft 2014
 
 
 %% Get Pupil

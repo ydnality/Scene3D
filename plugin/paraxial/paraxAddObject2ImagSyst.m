@@ -62,7 +62,7 @@ end
 % #sample along z is equal to #sample for z_ecc
 
 for zi=1:size(ImagSyst.object{index}.z_pos,1) 
-        t_obj=ImagSyst.cardPoints.firstVertex-ImagSyst.object{index}.z_pos;
+        t_obj=paraxGet(ImagSyst,'firstvertex')-ImagSyst.object{index}.z_pos;
         if abs(t_obj)<Inf 
             [t_im, m_lat,m_ang]= paraxConjImagingMatrix(ImagSyst,'object',t_obj);
         else
@@ -75,7 +75,7 @@ for zi=1:size(ImagSyst.object{index}.z_pos,1)
         
         %Position of the conjugate points
         ImagSyst.object{index}.ConjGauss.z_ob(:,zi)=ImagSyst.object{index}.z_pos;
-        ImagSyst.object{index}.ConjGauss.z_im(:,zi)=t_im+ImagSyst.cardPoints.lastVertex;
+        ImagSyst.object{index}.ConjGauss.z_im(:,zi)=t_im+paraxGet(ImagSyst,'lastvertex');
        
         if abs(ImagSyst.object{index}.ConjGauss.t_ob)<Inf 
             %Magnification
@@ -106,7 +106,16 @@ end
 %5) The image of the aperture STOP formed by the part of the system which follows it is know as EXIT PUPIL
 %6)The double angle subtended at P1(conj point) from the exit pupil is the angulas aperture on the image side (projection angle)
 
-[ImagSyst.object{index}.Radiance]=paraxFindPupil4Object(ImagSyst.Pupils,ImagSyst.object{index},ImagSyst.surfs.list,ImagSyst.wave);
+%Possible Entrance and Exit Pupils
+pupil1=paraxGet(ImagSyst,'pupils');
+wave1=paraxGet(ImagSyst,'wave');
+object1=paraxGet(ImagSyst,'object',index);
+list1=paraxGet(ImagSyst,'surflist');
+% Pupil.EnPs=paraxGet(ImagSyst,'entrancepupils'); 
+% Pupil.ExPs=paraxGet(ImagSyst,'exitpupils'); 
+% Pupil.computed_order=paraxGet(ImagSyst,'surforder');
+% [ImagSyst.object{index}.Radiance]=paraxFindPupil4Object(Pupil,ImagSyst.object{index},ImagSyst.surfs.list,ImagSyst.wave);
+[ImagSyst.object{index}.Radiance]=paraxFindPupil4Object(pupil1,object1,list1,wave1);
 
 %Other parameters are estimated: 
 
@@ -119,9 +128,13 @@ ImagSyst.object{index}.Radiance.efl=ImagSyst.object{index}.ConjGauss.z_im-ImagSy
 ImagSyst.object{index}.Radiance.RatioPupils=(ImagSyst.object{index}.Radiance.ExP.diam(:,1)-ImagSyst.object{index}.Radiance.ExP.diam(:,2))./(ImagSyst.object{index}.Radiance.EnP.diam(:,1)-ImagSyst.object{index}.Radiance.EnP.diam(:,2));
 %F-number
 %ideal f-number  (distance(ExP-focalPoint)/(Diam ExP)
-ImagSyst.object{index}.Radiance.Fnumber.ideal=(ImagSyst.cardPoints.lastVertex+ImagSyst.cardPoints.dFi-mean(ImagSyst.object{index}.Radiance.ExP.z_pos,2))./abs(ImagSyst.object{index}.Radiance.ExP.diam(:,1)-ImagSyst.object{index}.Radiance.ExP.diam(:,2));
+% ImagSyst.object{index}.Radiance.Fnumber.ideal=(ImagSyst.cardPoints.lastVertex+ImagSyst.cardPoints.dFi-mean(ImagSyst.object{index}.Radiance.ExP.z_pos,2))./abs(ImagSyst.object{index}.Radiance.ExP.diam(:,1)-ImagSyst.object{index}.Radiance.ExP.diam(:,2));
+ImagSyst.object{index}.Radiance.Fnumber.ideal=(paraxGet(ImagSyst,'imagefocalpoint')-mean(ImagSyst.object{index}.Radiance.ExP.z_pos,2))./abs(ImagSyst.object{index}.Radiance.ExP.diam(:,1)-ImagSyst.object{index}.Radiance.ExP.diam(:,2));
+
 %effective f-number (distance(ExP-imagePoint)/(Diam ExP)
+% ImagSyst.object{index}.Radiance.Fnumber.eff=(ImagSyst.object{index}.Radiance.efl)./abs(ImagSyst.object{index}.Radiance.ExP.diam(:,1)-ImagSyst.object{index}.Radiance.ExP.diam(:,2));
 ImagSyst.object{index}.Radiance.Fnumber.eff=(ImagSyst.object{index}.Radiance.efl)./abs(ImagSyst.object{index}.Radiance.ExP.diam(:,1)-ImagSyst.object{index}.Radiance.ExP.diam(:,2));
+
 % %% SPECIAL RAYs
 % %7) For a point (also OFF AXIS) the ray passing through the center of the entrance pupi (aka PRINCIPAL RAY or CHIEF RAY or REFERENCE RAY)
 % %The chief ray, in absence of aberrations, will pass through the center of
@@ -173,7 +186,8 @@ else
     film_index=varargin{1};
 end
 
-[Field]=paraxFindWindow4Object(ImagSyst.object{index}.Radiance.EnP,ImagSyst.object{index}.Radiance.ExP,ImagSyst.Pupils,ImagSyst.film{film_index},ImagSyst.surfs,ImagSyst.wave);
+Pupils=paraxGet(ImagSyst,'pupils');
+[Field]=paraxFindWindow4Object(ImagSyst.object{index}.Radiance.EnP,ImagSyst.object{index}.Radiance.ExP,Pupils,ImagSyst.film{film_index},ImagSyst.surfs,ImagSyst.wave);
 %Append to output
 ImagSyst.object{index}.Radiance.EnW=Field.EnW;
 ImagSyst.object{index}.Radiance.ExW=Field.ExW;
@@ -185,7 +199,7 @@ ImagSyst.object{index}.Radiance.FoV=Field.FoV;
 %The chief ray, in absence of aberrations, will pass through the center of
 %the APERTURE STOP and through the center of the EXIT PUPIL
 
-[ImagSyst.object{index}.meridionalPlane]=paraxFindMeridionalSpecialRays(ImagSyst.object{index},ImagSyst.cardPoints);
+[ImagSyst.object{index}.meridionalPlane]=paraxFindMeridionalSpecialRays(ImagSyst.object{index},paraxGet(ImagSyst,'cardpoint'));
 %Numerical Aperture
 % teta_comaRay(1)=
 % ImagSyst.object{index}.meridionaPlane.NumApert=

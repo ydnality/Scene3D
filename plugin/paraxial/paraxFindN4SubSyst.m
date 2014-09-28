@@ -1,17 +1,21 @@
 
 
 function [n,varargout]=paraxFindN4SubSyst(OptSyst,index,l,space_type)
-
+%  Check refractive index for image/object space in the case of sub-system
+%
+%       function [n,varargout]=paraxFindN4SubSyst(OptSyst,index,l,space_type)
+%
 %INPUT:
 %OptSyst: structure of the optical system
 %index: element of the optical system at the edge of the subsystem
 %l: distanza to search desidered refractive index
 %space_type: looking for image space or object space
-
+%
 %OUTPUT:
 % n: refractive index of the searched space (i.e. object or image)
 %varargout {1}= l_out
-
+%
+% MP Vistasoft 2014
 
 switch space_type
     

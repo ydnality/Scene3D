@@ -24,7 +24,9 @@ switch object.profile
     
     case {'point','pointsource','point source'}
         if object.z_pos<Inf
-            th=ImagSyst.cardPoints.firstVertex-object.z_pos;
+            fV=paraxGet(ImagSyst,'firstvertex');
+            th=fV-object.z_pos;
+%             th=ImagSyst.cardPoints.firstVertex-object.z_pos;
             M_red=paraxComputeTranslationMatrix(th,ImagSyst.n_ob,'reduced');
             M=paraxComputeTranslationMatrix(th,ImagSyst.n_ob,'not-reduced');
             %with augmented parameter       
@@ -54,7 +56,9 @@ switch object.profile
         warning ('This section has to be completed!! Missing multi-dependent thickness')
         
         if object.z_pos<Inf
-            th=ImagSyst.cardPoints.firstVertex-object.z_pos;
+            fV=paraxGet(ImagSyst,'firstvertex');
+            th=fV-object.z_pos;
+%             th=ImagSyst.cardPoints.firstVertex-object.z_pos;
             M_red=paraxComputeTranslationMatrix(th,ImagSyst.n_ob,'reduced');
             M=paraxComputeTranslationMatrix(th,ImagSyst.n_ob,'not-reduced');
             %with augmented parameter       

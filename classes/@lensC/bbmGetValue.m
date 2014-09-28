@@ -1,6 +1,4 @@
 
-
-
 function val=bbmGetValue(obj,fileType)
 
 % Get the corresponding field value for th given Black Box Model 

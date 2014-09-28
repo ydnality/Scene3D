@@ -44,7 +44,7 @@ switch fileType
         val.imPoint=BBoxModel.imSpace.focalPoint; %focal point in image space
         val.obPoint=BBoxModel.obSpace.focalPoint; %focal point in object space
     case {'imagefocalpoint'}
-        val=BBoxModel.imSpace.focalPoint; %focal point in image space
+        val=BBoxModel.imSpace.focalPoint; %focal point in image space        
     case {'objectfocalpoint'}
         val=BBoxModel.imSpace.focalPoint; %focal point in object space
     case {'principalpoint'}
@@ -70,7 +70,7 @@ switch fileType
         val=BBoxModel.imageFormation.NA; % numerical aperure 
     case {'fieldofview';'FoV';'fov'}
         val=BBoxModel.imageFormation.FoV; % field of view
-    case {'lateralmagnification';'latmagn';'latmagnification';'lat_magn'}
+    case {'lateralmagnification';'latmagn';'latmagnification';'lat_magn';'magnification'}
         val=BBoxModel.imageFormation.magn_lat; % lateral magnification
     case {'exitpupil';'ExP';'ExitPupil'}
         val=BBoxModel.imageFormation.Pupil.ExP; % exit pupil

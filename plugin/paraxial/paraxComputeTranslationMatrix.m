@@ -1,7 +1,10 @@
+
+
+function [M]=paraxComputeTranslationMatrix(th,n,matrix_type,varagin)
 % Compute the paraxial matrix for the given translation
-
-function [M]=paraxComputeTranslationMatrix(th,n,matrix_type,varagin);
-
+%
+%   function [M]=paraxComputeTranslationMatrix(th,n,matrix_type,varagin)
+%
 %INPUT
 %th: thickness of the translation 
 %n: column vector of N sampled wavelength, the refractive index in the translation 
@@ -11,7 +14,8 @@ function [M]=paraxComputeTranslationMatrix(th,n,matrix_type,varagin);
 
 %OUTPUT
 %M: (2x2xN): surface paraxial matrix for the N wavelength
-
+%
+% MP Vistasoft 2014
 
 %% COMPUTE M Matrix for the given surface structure with reduced parameters
 

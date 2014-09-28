@@ -98,22 +98,22 @@ end
 switch angle_type % Compute the transfer accorting to the angle (approximated or not)
     case {'parax';'paraxial'}
         %Principal ray or Chief ray            
-        th_CR=ImagSyst.cardPoints.firstVertex-RayCR.z; %distance from first surface to the ray source
+        th_CR=paraxGet(ImagSyst,'firstvertex')-RayCR.z; %distance from first surface to the ray source
         [M_CR]=paraxComputeTranslationMatrix(th_CR,ImagSyst.n_ob,'not-reduced');       
         [CR_0]=paraxMatrixTransformation(M_CR,CR_init);
         %Marginal Ray or Secondary Ray
-        th_MR=ImagSyst.cardPoints.firstVertex-RayMR.z; %distance from first surface to the ray source
+        th_MR=paraxGet(ImagSyst,'firstvertex')-RayMR.z; %distance from first surface to the ray source
         [M_MR]=paraxComputeTranslationMatrix(th_MR,ImagSyst.n_ob,'not-reduced');
         [MR_0]=paraxMatrixTransformation(M_MR,MR_init);
 
     case {'real';'non-approx';'non-paraxial'}
         warning('TO BE COMPLETED!! Computed through PARAXIAL Ray Tracing')
          %Principal ray or Chief ray            
-        th_CR=ImagSyst.cardPoints.firstVertex-RayCR.z; %distance from first surface to the ray source
+        th_CR=paraxGet(ImagSyst,'firstvertex')-RayCR.z; %distance from first surface to the ray source
         [M_CR]=paraxComputeTranslationMatrix(th_CR,ImagSyst.n_ob,'not-reduced');       
         [CR_0]=paraxMatrixTransformation(M_CR,CR_init);
         %Marginal Ray or Secondary Ray
-        th_MR=ImagSyst.cardPoints.firstVertex-RayMR.z; %distance from first surface to the ray source
+        th_MR=paraxGet(ImagSyst,'firstvertex')-RayMR.z; %distance from first surface to the ray source
         [M_MR]=paraxComputeTranslationMatrix(th_MR,ImagSyst.n_ob,'not-reduced');
         [MR_0]=paraxMatrixTransformation(M_MR,MR_init);
         
