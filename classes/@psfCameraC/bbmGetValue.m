@@ -62,7 +62,7 @@ switch fileType
     case {'objectnodalpoint';'objnodalpoint'}
         val=BBoxModel.imSpace.nodalPoint; %principal point in image space
     case {'abcd';'abcdmatrix';'abcdMatrix'}
-        val=BBoxModel.abcdMatrix; %abcd Matrix 
+        val=BBoxModel.abcd; %abcd Matrix 
        % Image formation
    case {'fnumber';'fnum';'f-num'}
         val=BBoxModel.imageFormation.Fnum; % effective F number    

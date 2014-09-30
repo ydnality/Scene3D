@@ -1,24 +1,28 @@
-
-function val=bbmGetValue(obj,fileType)
-
+function val = bbmGetValue(obj,param)
 % Get the corresponding field value for th given Black Box Model 
 %
-%  function val=bbmGetValue(BBoxModel,fileType)
+%  val = bbmGetValue(BBoxModel,param)
 %
+% Either copy or calculate values from the BBM structure
+% Note that this should bbmGet for now and ultimately bbm should become and
+% object and this should be bbm.get(param).
 %
 %INPUT
-
 % 
-%fileType: specify which field {'all';'focallength';'focalradius';'imagefocalpoint';'imageprincipalpoint';'imagenodalpoint';'objectfocalpoint';'objectprincipalpoint';'objectnodalpoint';'abcd'}
+%params: 
+%     {'all';
+%      'focallength';
+%      'focalradius';
+%      'imagefocalpoint';...
+%      'imageprincipalpoint';
+%      'imagenodalpoint';
+%      'objectfocalpoint';...
+%      'objectprincipalpoint';
+%      'objectnodalpoint';
+%      'abcd'}
 %
-% OUTPUT
-%   val : selected value
-%
-% MP Vistasoft 2014
-
-% Get Black Box equivalente Model
-BBoxModel=obj.BBoxModel;
-%BBoxModel: struct
+% Required fields
+% BBoxModel: struct
 %              .focal.length: focal length; 
 %              .focal.radius: focal plane radius;
 %              .imSpace.focalPoint: focal point in image space
@@ -28,15 +32,33 @@ BBoxModel=obj.BBoxModel;
 %              .obSpace.principalPoint: principal point in object space
 %              .obSpace.nodalPoint: principal point in object space
 %              .abcdMatrix: abcd equivalent matrix; 
+%
+%
+% OUTPUT
+%   val : selected value
+%
+% Example:
+%   lens.get('bbm','efl');
+%
+% MP Vistasoft 2014
 
-switch fileType
+% Get Black Box equivalente Model
+BBoxModel = obj.BBoxModel;
+
+param = ieParamFormat(param);
+switch param
     case {'focal'}
         val.length=BBoxModel.focal.length; %focal length
         val.radius=BBoxModel.focal.radius; %focal plane radius
         val.imPoint=BBoxModel.imSpace.focalPoint; %focal point in image space
         val.obPoint=BBoxModel.obSpace.focalPoint; %focal point in object space
     case {'effectivefocallength';'efl'}
-        val=BBoxModel.focal.length; %focal length
+        % This can be calculated, and it should be rather than stored IMHO.
+        % BW
+        % The formula is
+        % the distance between the focal point and the principal point
+        val = obj.bbmGetValue('image focal point') - obj.bbmGetValue('image principal point');
+        % val=BBoxModel.focal.length; %focal length
     case {'focalradius'}
         val=BBoxModel.focal.radius; %focal plane radius
     case {'focalpoint'}
@@ -65,5 +87,5 @@ switch fileType
     case {'all'}
         val=BBoxModel; %all struct
     otherwise
-        error (['Not valid: ',fileType,' as field of Black Box Model'])
+        error (['Not valid: ',param,' as field of Black Box Model'])
 end

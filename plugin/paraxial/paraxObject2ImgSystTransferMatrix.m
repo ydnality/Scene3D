@@ -53,7 +53,7 @@ switch object.profile
         
     case {'flat','plane'} %all pixel are at the same distance from the last vertex of the Optical System
         
-        warning ('This section has to be completed!! Missing multi-dependent thickness')
+%         warning ('This section has to be completed!! Missing multi-dependent thickness')
         
         if object.z_pos<Inf
             fV=paraxGet(ImagSyst,'firstvertex');
@@ -84,7 +84,7 @@ switch object.profile
 
     case {'spherical','sphere'} %all pixel are at difference distance from the last vertex of the Optical System
         
-        warning ('This section has to be completed!! Missing spherical-dependent thickness')
+%         warning ('This section has to be completed!! Missing spherical-dependent thickness')
         
         if object.z_pos<Inf
             th=ImagSyst.cardPoints.firstVertex-Objectz_pos;
