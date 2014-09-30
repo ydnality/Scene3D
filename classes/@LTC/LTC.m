@@ -4,9 +4,9 @@ classdef LTC < clonableHandleObject
     
     properties
         wave;
-        AInterp; 
-        A1stInterp; 
-        A2ndInterp; 
+        AInterp = 1; 
+        A1stInterp = []; 
+        A2ndInterp = []; 
     end
     
     methods
@@ -27,13 +27,15 @@ classdef LTC < clonableHandleObject
                         error('Unknown parameter %s\n',varargin{ii});
                 end
             end
+            
         end    
         
         function [outLFObject] = applyOnLF(obj, inputLFObject, apertureRadius)
             %applies the linear transform on an input light-field, and
             %returns the output light=field
             %
-            %
+            %if either A1stInterp or A2ndInterp are not defined (empty),
+            %then AInterp will be applied instead.  
 
             %withinAperture = middleXY(:,1).^2 + middleXY(:,2).^2 <= adjustedMiddleApertureRadius.^2;%apertureMiddleD/2;
             outputLF = [];
@@ -50,14 +52,25 @@ classdef LTC < clonableHandleObject
                 %middleXYCurrentWave = middleXY(inCurrentWaveBand,:);
                 %withinAperture = middleXYCurrentWave(:,1).^2 + middleXYCurrentWave(:,2).^2 <= apertureRadius.^2;
                 
-                A1stInterpCurrentWave = obj.A1stInterp(:,:,w);  %use 2 dimensions of the matrices for multiplication
-                A2ndInterpCurrentWave = obj.A2ndInterp(:,:,w);
-                firstHalf = A1stInterpCurrentWave * xCurrentWave;
-                
-                withinAperture = firstHalf(1,:).^2 + firstHalf(2,:).^2 <= apertureRadius.^2;
-                
-                firstHalfBlock = firstHalf(:, withinAperture); %Apply aperture to rays from the first half
-                bEstInterp = A2ndInterpCurrentWave * firstHalfBlock;
+                if(~isempty(obj.A1stInterp) && ~isempty(obj.A2ndInterp))
+                    %case where both A1stInterp and A2ndInterp are
+                    %specified
+                    A1stInterpCurrentWave = obj.A1stInterp(:,:,w);  %use 2 dimensions of the matrices for multiplication
+                    A2ndInterpCurrentWave = obj.A2ndInterp(:,:,w);
+                    firstHalf = A1stInterpCurrentWave * xCurrentWave;
+
+                    withinAperture = firstHalf(1,:).^2 + firstHalf(2,:).^2 <= apertureRadius.^2;
+
+                    firstHalfBlock = firstHalf(:, withinAperture); %Apply aperture to rays from the first half
+                    bEstInterp = A2ndInterpCurrentWave * firstHalfBlock;
+                elseif(~isempty(obj.AInterp))
+                    %case where AInterp is defined
+                    AInterpCurrentWave = obj.AInterp(:,:,w);
+                    bEstInterp = AInterpCurrentWave * xCurrentWave; 
+                else
+                    warning('All linear transforms are not specified.  No transform will be applied.');
+                    bEstInterp = xCurrentWave;
+                end
                 
                 %bOrigMaskedCurrentWave = bOrig(:, withinAperture); %ground
                 %truth rays - for debug
