@@ -50,11 +50,14 @@ s_initISET
 % We compute a linear transform for each of these sample positions
 %
 % At this moment, we only change in field height, not yet depth.
-pSY = 0.01:.3:2;
+%pSY = 0.01:.3:2;
+pSY = 2.01:.3:4;
 pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 
 %desired pSLocation for interpolation
-wantedPSLocation = [0 1.7 -103];
+wantedPSLocation = [0 3.8 -103];
+
+theta = -120;
 
 %% Define the Lens and Film
 
@@ -186,7 +189,7 @@ adjustedMiddleApertureRadius = 4;
 outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
 
 % Apply linear rotation transform on LF
-theta = -45;
+
 theta = theta/180 * pi;
 rotationMatrix = [cos(theta)    sin(theta)      0           0;
                   -sin(theta)   cos(theta)      0           0;
