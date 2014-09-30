@@ -33,7 +33,7 @@ ImagSyst.film{index}.pixel_pitch=Film.size_unit./Film.size_pixel;
 if isfield(Film,'mapX')
     ImagSyst.film{index}.map.X=Film.mapX;ImagSyst.film{1}.map.Y=Film.mapY;ImagSyst.film{1}.map.Z=Film.mapZ;
 else
-    warning ('Film MESH  is not AVAILABLE!')
+%     warning ('Film MESH  is not AVAILABLE!')
 end
 
 
@@ -158,9 +158,9 @@ if isfield(ImagSyst,'realWorldTransf')
     %world coords
     %The augmented parameters ar used to take into account the possible
     %tilting (deltaU) and not-centering (deltaY_ecc)
-    warning ('For real world coordinates the code has to be COMPLETED!')
+%     warning ('For real world coordinates the code has to be COMPLETED!')
 else
-    warning ('The radius of the circle inscribed in the film has been selected!')
+%     warning ('The radius of the circle inscribed in the film has been selected!')
     diam_film1= min(ImagSyst.film{index}.size_unit).*m_lat_film1.*cos(augParam_Film(2)); %smallest diameter tilted by deltaU
     diam_up1=diam_film1/2+augParam_Film(1); %upper limit
     diam_down1=-diam_film1/2+augParam_Film(1); %lower limit
@@ -217,9 +217,9 @@ if isfield(ImagSyst,'realWorldTransf')
     %world coords
     %The augmented parameters ar used to take into account the possible
     %tilting (deltaU) and not-centering (deltaY_ecc)
-    warning ('For real world coordinates the code has to be COMPLETED!')
+%     warning ('For real world coordinates the code has to be COMPLETED!')
 else
-    warning ('The radius of the circle inscribed in the film has been selected!')
+%     warning ('The radius of the circle inscribed in the film has been selected!')
     diam_film2= min(ImagSyst.film{index}.size_unit).*m_lat_film2.*cos(augParam_Film(2)); %smallest diameter tilted by deltaU
     diam_up2=diam_film2/2+augParam_Film(1); %upper limit
     diam_down2=-diam_film2/2+augParam_Film(1); %lower limit

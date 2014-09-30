@@ -150,6 +150,19 @@ classdef lensC <  handle
                 case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
                     param=varargin{1};  %witch field of the black box to get
                     res = obj.bbmGetValue(param);
+                
+                case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'} 
+                    % Get the equivalent optical system structure generated
+                    % by Michael's script      
+                    % Can be specify refractive indices for object and
+                    % image space as varargin {1} and {2}
+                    if nargin >2
+                        n_ob=varargin{1};    n_im=varargin{2};
+                        OptSyst=obj.bbmComputeOptSyst(n_ob,n_im);
+                    else
+                        OptSyst=obj.bbmComputeOptSyst();
+                    end
+                    res = OptSyst;
                     
                 otherwise
                     error('Unknown parameter %s\n',pName);
@@ -215,7 +228,7 @@ classdef lensC <  handle
                     No=paraxGet(OptSyst,'objectnodalpoint')-z0; % Nodal point in the object space
                     obj=obj.bbmSetField('objectnodalpoint',No);
                     M = paraxGet(OptSyst,'imagenodalpoint'); % The 4 coefficients of the ABCD matrix of the overall system
-                    obj=obj.bbmSetField('abcdmatrix',M);
+                    obj=obj.bbmSetField('abcd',M);
                     
                 otherwise
                     error('Unknown parameter %s\n',pName);

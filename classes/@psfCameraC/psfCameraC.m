@@ -88,13 +88,55 @@ classdef psfCameraC <  handle
                     
                  case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
                      if nargin>2
-                         fileType=varargin{1};  %witch field of the black box to get
+                         fileType = varargin{1};  %witch field of the black box to get
                      else
                          error(['Specify also the field of the Black Box Model!'])
                      end
                      
 %                     val=obj.bbmGetValue(obj.BBoxModel,fileType);
                         val=obj.bbmGetValue(fileType);
+                        
+                   case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'} 
+                    % Get the equivalent optical system structure generated
+                    % by Michael's script      
+                    % Can be specify refractive indices for object and
+                    % image space as varargin {1} and {2}
+                    lens=obj.lens;
+                    if nargin >2
+                        n_ob = varargin{1};    n_im = varargin{2};
+                        OptSyst = lens.bbmComputeOptSyst(n_ob,n_im);
+                    else
+                        OptSyst = lens.bbmComputeOptSyst();                    
+                    end
+                    val = OptSyst;
+                    
+                 case {'imagingsystem'; 'imgsyst';'imagingsyst';'imaging system structure'} 
+                    % Get the equivalent imaging system structure generated
+                    % by Michael's script      
+                    % Can be specify refractive indices for object and
+                    % image space as varargin {1} and {2}
+                    %% Get inputs
+                    lens=obj.lens;
+                    film=obj.film;
+                    pSource=obj.pointSource;
+                    %COMPUTE OPTICAL SYSTEM
+                    if nargin >2
+                        n_ob = varargin{1};    n_im = varargin{2};
+                        OptSyst = lens.get('optical system',n_ob,n_im);
+                    else
+                        OptSyst = lens.get('optical system');                  
+                    end
+                    unit=paraxGet(OptSyst,'unit');
+                    % GET USEFUL PARAMETERs
+                    lV=paraxGet(OptSyst,'lastvertex'); % last vertex of the optical system
+                    F.z=film.position(3)+lV;
+                    F.res=film.resolution(1:2);F.pp=film.size; %um x um
+                    
+                    %CREATE an Imaging System
+                   [ImagSyst]=paraxOpt2Imag(OptSyst,F,pSource,unit);       
+                   
+                   % SET OUTPUT
+                    val = ImagSyst;
                     
                 otherwise
                     error('unknown parameter %s\n',param)
@@ -140,7 +182,7 @@ classdef psfCameraC <  handle
                     obj=obj.bbmSetField('objectnodalpoint',No);
                     % abcd Matrix (Paraxial)
                     M = ImagSyst.matrix.abcd; % The 4 coefficients of the ABCD matrix of the overall system
-                    obj=obj.bbmSetField('abcdmatrix',M);
+                    obj=obj.bbmSetField('abcd',M);
                     
                     % IMAGE FORMATION                    
                     % Effective F number

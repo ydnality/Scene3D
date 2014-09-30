@@ -53,7 +53,7 @@ function [obj]=bbmSetField(obj,pName,val)
         case {'objectnodalpoint';'objnodalpoint'}
             obj.BBoxModel.obSpace.nodalPoint=val; %principal point in image space
         case {'abcd';'abcdmatrix';'abcdMatrix'}
-            obj.BBoxModel.abcdMatrix=val; %abcd Matrix             
+            obj.BBoxModel.abcd=val; %abcd Matrix             
         case {'fnumber';'fnum';'effectivefnumber';'f-number'}
             obj.BBoxModel.imageFormation.Fnum=val; % effective F number
         case {'numericalaperture';'numapert';'NA';'na'}

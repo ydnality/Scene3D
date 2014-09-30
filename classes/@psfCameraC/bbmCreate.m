@@ -18,10 +18,11 @@ function [varargout] = bbmCreate(obj,varargin)
  
 
 %% Get inputs
-lens=obj.lens;
-film=obj.film;
+% lens=obj.lens; %NOT NEEDED in this function
+% film=obj.film;  %NOT NEEDED in this function
 pSource=obj.pointSource;
 
+%%  CHECK number of INPUTs and set refractive indices of the medium
 if nargin>1
     n_ob=varargin{1}; %refractive index in object space
     n_im=varargin{2}; %n_im refractive index in image space
@@ -29,21 +30,36 @@ else
     n_ob=1; n_im=1;
 end
 
-%% Equivalent Black Box Model of lens
-%     OptSys = paraxAnalyze(lens0);
-%  lens0.set('black box model',OptSys);    % Equivalent Black Box Model of lens
+% %% Get Optical System from the lens in the psfCamera [ Michael's script]
+% OptSyst=obj.get('optical system',n_ob,n_im);
+% 
+% unit=paraxGet(OptSys,'unit');
+% 
+% % Build Imaging System composed by Optical System+Film+ pSource
+% 
+% lV=paraxGet(OptSys,'lastvertex'); % last vertex of the optical system
+% F.z=film.position(3)+lV;
+% 
+% F.res=film.resolution(1:2);F.pp=film.size; %um x um
+% 
+% % %% Equivalent Black Box Model of lens
+% % lens.bbmCreate(n_ob,n_im); 
+% % 
+% % %Get Optical System from Michael's script
+% % [OptSys]=lens.get('optical system');
+% % 
+% % unit=paraxGet(OptSys,'unit');
+% 
+% [ImagSyst]=paraxOpt2Imag(OptSys,F,pSource,unit); 
 
-[OptSys]=lens.bbmCreate(n_ob,n_im); 
-unit=paraxGet(OptSys,'unit');
-% Build Imaging System composed by Optical System+Film+ pSource
-lV=paraxGet(OptSys,'lastvertex'); % last vertex of the optical system
-F.z=film.position(3)+lV;
-% F.z=film0.position(3)+OptSys.cardPoints.lastVertex;
-F.res=film.resolution(1:2);F.pp=film.size; %um x um
+%% GET (by compute) the IMAGING SYSTEM
+ImagSyst=obj.get('imaging system',n_ob,n_im);
 
-[ImagSyst]=paraxOpt2Imag(OptSys,F,pSource,unit); 
 
-[ps_heigth,ps_angle,ps_zpos]=coordCart2Polar3D(pSource(1),pSource(2),pSource(3)); %get image coordinate in polar coordinate
+
+% OLD FUNCTIONs [ps_heigth,ps_angle,ps_zpos]=coordCart2Polar3D(pSource(1),pSource(2),pSource(3)); %get image coordinate in polar coordinate
+[ps_heigth,ps_angle,ps_zpos]=cart2pol(pSource(1),pSource(2),pSource(3)); %get image coordinate in polar coordinate
+
 
 pSpolar(1)=ps_heigth;pSpolar(2)=ps_angle;pSpolar(3)=ps_zpos;
 %  Equivalent Black Box Model of Imaging System
@@ -51,7 +67,7 @@ obj.set('black box model',ImagSyst,pSpolar);
 
 %%    SET OUTPUT/s
 if nargout>0
-    varargout{1}=ImagSyst;
+    varargout{1}=obj.get('black box model','all');
 end
 
 

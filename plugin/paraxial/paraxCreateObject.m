@@ -30,7 +30,7 @@ if abs(z_pos)<Inf
             Obj.u_ecc=atan(y_ecc./z_pos); %angular eccentricity
         case {'flat','spherical'}
             %using varargin{...} specifying how to sample the plane source
-            warning('To be completed! It is considered as a Point Source')
+%             warning('To be completed! It is considered as a Point Source')
             %%%%% then to be substitute and differenciated between flat and
             %%%%% spherical
             Obj.z_pos=z_pos;
@@ -48,7 +48,7 @@ else
             Obj.y_ecc=NaN;
     case {'flat','spherical'}
         %using varargin{...} specifying how to sample the plane source
-        warning('To be completed! It is considered as a Point Source')
+%         warning('To be completed! It is considered as a Point Source')
         %%%%% then to be substitute and differenciated between flat and
         %%%%% spherical
         Obj.z_pos=z_pos;
