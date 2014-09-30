@@ -148,8 +148,8 @@ classdef lensC <  handle
                     res = obj.apertureMiddleD;
                     
                 case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
-                    fileType=varargin{1};  %witch field of the black box to get
-                    res=bbmGetValue(obj.BBoxModel,fileType);
+                    param=varargin{1};  %witch field of the black box to get
+                    res = obj.bbmGetValue(param);
                     
                 otherwise
                     error('Unknown parameter %s\n',pName);

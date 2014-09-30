@@ -49,6 +49,14 @@ classdef psfCameraC <  handle
             val = [];
             param = ieParamFormat(param);
             switch param
+                case {'wave','wavelength'}
+                    val1 = obj.lens.wave(:);
+                    val2 = obj.film.wave(:);
+                    if isequal(val1,val2), val = val1; return;
+                    else warning('Lens and film wavelength differ.  Using lens.');
+                    end
+                    val = val1;
+                    
                 case 'spacing'
                     % Millimeters per sample
                     r = obj.film.resolution(1);
