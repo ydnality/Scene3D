@@ -51,11 +51,11 @@ s_initISET
 %
 % At this moment, we only change in field height, not yet depth.
 %pSY = 0.01:.3:2;
-pSY = 2.01:.3:4;
+pSY = 6.01:.3:8;
 pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 
 %desired pSLocation for interpolation
-wantedPSLocation = [0 3.8 -103];
+wantedPSLocation = [0 7.8 -103];
 
 theta = -120;
 
@@ -106,7 +106,7 @@ end
 % size - 'mm'
 % wavelength samples
 film = pbrtFilmC('position', [0 0 100 ], ...
-    'size', [10 10], ...
+    'size', [20 20], ...
     'wave', wave);
 
 %% Compute Snell's Law PSF at point source hield height
@@ -190,11 +190,11 @@ outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
 
 % Apply linear rotation transform on LF
 
-theta = theta/180 * pi;
-rotationMatrix = [cos(theta)    sin(theta)      0           0;
-                  -sin(theta)   cos(theta)      0           0;
-                  0             0               cos(theta)  sin(theta)
-                  0             0               -sin(theta) cos(theta)];
+thetaRad = theta/180 * pi;
+rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
+                  -sin(thetaRad)   cos(thetaRad)      0           0;
+                  0             0               cos(thetaRad)  sin(thetaRad)
+                  0             0               -sin(thetaRad) cos(thetaRad)];
               
 
 rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);              
