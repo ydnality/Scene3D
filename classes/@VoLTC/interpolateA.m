@@ -32,13 +32,25 @@ A2ndComplete = obj.get('A2ndCollection');
 % [x,y,z] = obj.get('ps locations')
 %  w = obj.get('wave')
 
-numDepths = obj.get('numDepths');
-numPositions = obj.get('numFieldPositions');
-numWaves = length(obj.get('wave'));
+
 pSY = obj.get('fieldPositions');
 pSZ = obj.get('depths');
 pSW = obj.get('wave');
+rep = [ 1 1 1 1 1];
+if length(pSZ) == 1, pSZ = [pSZ, pSZ + pSZ*1e-12]; rep = [1 1 1 2 1]; end
+if length(pSY) == 1, pSY = [pSY, pSY + pSY*1e-12]; rep = [1 1 2 1 1]; end
+if length(pSW) == 1, pSW = [pSW, pSW + pSW*1e-12]; rep = [1 1 1 1 2]; end
 [meshZ, meshY, meshW] = meshgrid(pSZ , pSY, pSW);
+
+if wantedPSLocation(2) < min(pSY) || wantedPSLocation(2) > max(pSY)
+    error('wanted field height out of range %.2f\n',pSY); 
+end
+if wantedPSLocation(3) < min(pSZ) || wantedPSLocation(3) > max(pSZ) 
+    error('wanted depth out of range'); 
+end
+if wantedWavelength < min(pSW) || wantedWavelength > max(pSW)
+    error('wanted wavelength out of range');
+end
 
 % Could we do a single interp, instead of a separate one for every entry?
 % for fp
@@ -51,29 +63,43 @@ pSW = obj.get('wave');
 % end
 % 
 
+%% We need to deal with the case in which there is only 1 value in a dim
 
 for i = 1:4
     for j = 1:4
         coefValues = AComplete(i,j,:,:,:);
+        if ~isequal(rep,ones(1,5))
+            coefValues = repmat(coefValues,rep);
+        end
+        
         %coefValues dimensions: (1,1, #fieldPositions, #depths, #wavelengths);
         %coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
-        coefValues = squeeze(coefValues); 
-        yi = interp3(meshZ,meshY,  meshW, coefValues, wantedPSLocation(3),wantedPSLocation(2),  wantedWavelength);
+        coefValues = squeeze(coefValues);
+         yi = interp3(meshZ,meshY,meshW, coefValues, ...
+            wantedPSLocation(3),wantedPSLocation(2),  wantedWavelength);
         AInterp(i,j) = yi;
         
         coefValues = A1stComplete(i,j,:,:,:);
+        if ~isequal(rep,ones(1,5))
+            coefValues = repmat(coefValues,rep);
+        end
         %coefValues = coefValues(:);
         %coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
         coefValues = squeeze(coefValues); 
-        yi = interp3(meshZ,meshY,  meshW, coefValues, wantedPSLocation(3), wantedPSLocation(2), wantedWavelength);
+        yi = interp3(meshZ,meshY,meshW,coefValues, ...
+            wantedPSLocation(3), wantedPSLocation(2), wantedWavelength);
         A1stInterp(i,j) = yi;
         
         coefValues = A2ndComplete(i,j,:,:,:);
+        if ~isequal(rep,ones(1,5))
+            coefValues = repmat(coefValues,rep);
+        end
         %coefValues = coefValues(:);
         %yi = interp1(pSY,coefValues, wantedPSLocation);
-       % coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
+        % coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
         coefValues = squeeze(coefValues);
-        yi = interp3( meshZ,meshY, meshW, coefValues, wantedPSLocation(3), wantedPSLocation(2),  wantedWavelength);
+        yi = interp3( meshZ,meshY,meshW, coefValues, ...
+            wantedPSLocation(3), wantedPSLocation(2),  wantedWavelength);
         A2ndInterp(i,j) = yi;
     end
 end   
