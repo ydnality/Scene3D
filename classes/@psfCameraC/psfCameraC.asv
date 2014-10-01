@@ -140,13 +140,8 @@ classdef psfCameraC <  handle
                     
                  case {'film'} 
                     % get the film structure   
-                    val = obj.film;                    
-                case {'pointsource';'psource';'lightsource'} 
-                    % get the point source in the psfCamera   
-                    val = obj.pointSource;
-                case {'lens'} 
-                    % get the lens the psfCamera   
-                     val = obj.lens;
+                    val = obj.film;
+                    
                 otherwise
                     error('unknown parameter %s\n',param)
             end
@@ -159,12 +154,9 @@ classdef psfCameraC <  handle
 %             val = [];
             param = ieParamFormat(param);
             switch param
-                case {'pointsource';'psource';'lightsource'} 
-                    % set the point source in the psfCamera   
-                    obj.pointSource= val;
-                case {'lens'} 
-                    % set the filmin the psfCamera   
-                    obj.lens= val;
+                case {'film'} 
+                    % set the film in the psfCamera   
+                    obj.film = val;
                 case {'film'} 
                     % set the film in the psfCamera   
                     obj.film = val;

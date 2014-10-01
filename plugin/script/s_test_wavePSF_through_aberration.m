@@ -1,20 +1,27 @@
-%s_test_Scene3D_system_analysis.m
+%s_test_wavePSF__through_aberration.m
 %
-%Test the conversion of a system from SCENE 3D to format of PSF3D
+%Compute the wave PSF for a psfCamera (in Scene3D). 
+% The implemented method is the following:
+% 1) Estimate the wavefront aberration (seidel aberration)
+% 2) Exploit the Fourier Optics, for incoherent light, to compute the PSF 
 %
 % MP Vistasoft, 2014
 
 %% Initialize Iset
 s_initISET
 
-%% 1.1 Declare point source in object space
+%% 1.1 Declare point source in object space  and refractive indices of both object and image space
 
 % The center of the first camera aperture is usually at [0 0 0].
 % The object positions data are in -z.  We are using a right-handed
 % coordinate system. 
 pointSource = [10 20 -10000000];  % A very distant point.
+%Refractive indices
+n_ob = 1 ; %object space
+n_im = 1; %image space
 
-%% Declare camera properties
+
+%% 1.2 Create a multiple lens system declaring camera properties
 
 wave = 400:50:600;
 
@@ -26,22 +33,6 @@ filmDiag = 3;  % Millimeters
 filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 resolution =  [300 300 length(wave)];
 film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
-
-% Declare Lens
-% diffractionEnabled = false;   %diffraction causes imaginary directions!! TODO:  INVESTIGATE THIS!!
-% apertureDiameterMM = 2.2727;  %f/22 
-% % apertureDiameterMM = 3.1250;  %f/16
-% % apertureDiameterMM = 4.5455;  %f/11
-% fLength = 50;
-% apertureSamples = [51 51];
-% name = 'idealLensTest';
-% type = 'idealLens';
-% jitterFlag = true;
-% thinlens = lensC('name', name, 'type', type, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', apertureSamples);
-
-% Make a function that goes gets a lens from a file, say
-% lens = lensC('filename',fname);
-%  That should go and see if there is a file called fname.
 %
 lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
@@ -54,45 +45,15 @@ lens.set('wave', wave);
 % Apertures are 0
 n = lens.get('nArray');
 
-%% CREATE IMAGING SYSTEM
+%% 1.3 CREATE a psfCamera structure (lightSource+lens+film [sensor])
 psfCamera1 = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 
-%% Add the Black Box Model to the objects (lens or psfCamera or 'all')
+% DO YOU WANT THE FILM IN FOCUS????  SPECIFY THE WAVELENGTH
+wave0=500; %nm
+psfCamera1.autofocus(wave0,'nm',n_ob,n_im);
 
-% These three functions convert the Scene3D objects designed around the
-% light field geometric representation into more complex objects that have
-% wavefront information.
-
-% This one takes a lens with a light field description and fills in the
-% 'black box model (BBoxModel)' to the lens structure.  The black box model
-% is a simplification of the multi-element lens.
-%   
-% There is a bbmGetValue (but we should probably just use 
-% lens.get('bbm XXX') and lens.set('bbm XXX)
-
-%Refractive indices
-n_ob = 1 ; %object space
-n_im = 1; %image space
-
-% Add the BBoxModel to the lens
-% [lens1]      = paraxAnalyzeScene3DSystem('lens',lens);
-lens1=lens;
-lens1.bbmCreate(n_ob,n_im);
-% ALTERNATIVE 
-bbm_lens1=lens1.bbmCreate(n_ob,n_im);
-
-% GET OPTICAL SYSTEM STRUCTURE ( used at data source for Black Box Model
-% Field)
-OptSyst1=lens1.bbmCreate(n_ob,n_im);
-
-% Add the BBoxModel to the camera
+%% 1.4 Compute and append the Black Box Model of the psfCamera 
 psfCamera1.bbmCreate(n_ob,n_im);
-bbm_psfC1= psfCamera1.bbmCreate(n_ob,n_im);
-% ALTERNATIVE [ImgSyst1]=psfCamera1.bbmCreate(n_ob,n_im);
-
-% Create a camera with the BBoxModel
-% [psfCamera2]    = paraxAnalyzeScene3DSystem('all',lens,film,pointSource);
-psfCamera2=lens1.bbmCreate('all',pointSource,film,n_ob,n_im);
 
 %% GET SEVERAL FIELDs
 %
@@ -107,15 +68,10 @@ Hobj = psfCamera1.get('bbm','object principal point');       %principal point in
 Him  = psfCamera1.get('bbm','image principal point');        %principal point in the image space
 focalLength = psfCamera1.get('bbm','effective focal length');%effective focal length
 magn        = psfCamera1.get('bbm','lateral magnification'); %lateral magnification
-abcdMatrix  = psfCamera1.get('bbm','abcd matrix');           %abcd coeffs
+abcd  = psfCamera1.get('bbm','abcd matrix');                 %abcd matrix coeffs
 
 %% FIND the image point
 
-% Hobj=result2.cardinalPoint.ObjectSpace.principalPoint; %principal point in the object space
-% Him=result2.cardinalPoint.ImageSpace.principalPoint; %principal point in the image space
-% focalLength=result2.focallength; %effective focal length
-% magn=result2.magnification.lateral; %lateral magnification
-% abcdMatrix=result2.abcdMatrix; %abcd coeffs
 %
 % These are lambda x position, so each row is one wavelength
 w = psfCamera1.get('wavelength');

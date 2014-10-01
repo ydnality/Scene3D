@@ -16,7 +16,7 @@ function [defocusCoeff] = paEstimateDefocus(ImagSyst,Obj,varargin)
 %OUTPUT
 %Coeff: coeffs for defocus (accordin to the selected method can be from 1
 %to 3 coeffs)
-%
+%varargout{1}: distance between gaussian image point and film position
 % MP Vistasoft 2014
 
 
@@ -87,3 +87,6 @@ for ni=1:nterms
     defocusCoeff=setfield(defocusCoeff,field_name,Coeff(:,ni)); % set defocus term
 end
 
+if nargout>1
+    varargout{1}=dZ;
+end
