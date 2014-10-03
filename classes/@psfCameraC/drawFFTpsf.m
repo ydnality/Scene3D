@@ -113,15 +113,15 @@ FontSize1=12;
 
 
 switch plotType
-    case {'surf'},surf(X,Y,PSF)
+    case {'surf'}
+        surf(X,Y,PSF); shading('interp');
     case {'contour'},contour (X,Y,PSF)
     case {'contour3'},contour3 (X,Y,PSF)
     case {'contourf'},contourf (X,Y,PSF)
        
 end
 % set(gca,'LineWidth',LineWidth,'LineStyle','--')
-% colormap hot
-colorbar
+colormap('jet'); colorbar
 title(['PSF at ',num2str(wave0),'nm'])
 xlabel(['x [mm]']),ylabel(['y [mm]'])
 zlabel('Normalized intensity')

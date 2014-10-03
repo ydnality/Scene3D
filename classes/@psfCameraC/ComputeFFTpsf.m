@@ -44,6 +44,11 @@ nW=size(wave(:),1); %number of sample
 unit='mm';
 wave_mm=wave*1e-6; % in mm
 %% GET INPUT
+
+% These are the default number of samples in one dimension of the pupil
+% aperture. 
+% def_ntim is the window is 2x the size of pupil.
+% More comments to follow (MP)
 def_nSample=128; def_ntim=2; def_unit='mm';
 switch nargin
     case 1
@@ -96,6 +101,7 @@ theta=atan2(Yn,Xn); % theta
 % II) Apodization (assumed uniform for all the wavelength)
 typeApod='uniform';
 [ApodW]=psfGetApodFun(typeApod,ro,theta,0);
+% vcNewGraphWin; imagesc(ApodW)
 
 % III) Phase Function = Seidel Aberration + Defocus
 % Wavelength dependence (included in the function)
@@ -112,6 +118,7 @@ W_pa=psfGetPhaseFun(CoeffPA,'primary aberration',ro,theta);
 % IV) PUPIL FUNCTION= APODIZATION * EXP (-i*k*PHASE_FUNCTION)
 % Wavelength dependence (included in the function)
 [PupilFun]=psfGetPupilFun(ApodW,W_pa,W_def,wave_mm);
+% vcNewGraphWin; imagesc(abs(PupilFun(:,:,1)))
 
 %% COMPUTE POINT SPREAD FUNCTION (PSF)
 light_type='incoherent';
