@@ -51,13 +51,13 @@ s_initISET
 %
 % At this moment, we only change in field height, not yet depth.
 %pSY = 0.01:.3:2;
-pSY = 6.01:.3:8;
+pSY = 15:.3:17;
 pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 
 %desired pSLocation for interpolation
-wantedPSLocation = [0 7.8 -103];
+wantedPSLocation = [0 15.8 -103];
 
-theta = -120;
+theta = -90;
 
 %% Define the Lens and Film
 
@@ -90,6 +90,7 @@ wave = lens.get('wave');
 
 %allow for color separation with all lenses in general
 %TODO: put this into a function for lens
+
 numSurfaces = lens.get('nsurfaces');
 offset = .05;
 for i = 1:numSurfaces
@@ -106,10 +107,10 @@ end
 % size - 'mm'
 % wavelength samples
 film = pbrtFilmC('position', [0 0 100 ], ...
-    'size', [20 20], ...
+    'size', [40 40], ...
     'wave', wave);
 
-%% Compute Snell's Law PSF at point source hield height
+%% Compute Snell's Law PSF at point source field height
 
 % For this moment, we only run at one depth
 % We set the wanted field height to the second coordinate,
@@ -121,7 +122,7 @@ pointSource = wantedPSLocation;
 LF  = s3dLightField(pointSource, lens);
 oiG = LF.createOI(lens,film);
 oiG = oiSet(oiG,'name','Snell''s Law');
-vcAddObject(oiG); oiWindow;
+vcAddObject(oiG); oiWindow;     
 
 uG = plotOI(oiG,'illuminance hline',[1 135]);
 title(sprintf(oiGet(oiG,'name')));
@@ -181,6 +182,14 @@ LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
 
 %*** change this parameter to change the size of the middle aperture for the
 %lens
+
+
+% new film...
+film = pbrtFilmC('position', [0 0 100 ], ...
+    'size', [40 40], ...
+    'wave', wave);
+
+
 adjustedMiddleApertureRadius = 4;
 
 [~,~,inputLF]  = s3dLightField(pointSource, lens);
@@ -190,6 +199,7 @@ outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
 
 % Apply linear rotation transform on LF
 
+theta = 0;
 thetaRad = theta/180 * pi;
 rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
                   -sin(thetaRad)   cos(thetaRad)      0           0;
@@ -206,12 +216,29 @@ oiI = rotatedLFObject.createOI(lens,film);
 oiI = oiSet(oiI,'name','Light Field');
 vcAddObject(oiI); oiWindow;
 
-uI = plotOI(oiI,'illuminance hline',[1 135]);
-title(sprintf(oiGet(oiI,'name')));
+theta = 270;
+thetaRad = theta/180 * pi;
+rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
+                  -sin(thetaRad)   cos(thetaRad)      0           0;
+                  0             0               cos(thetaRad)  sin(thetaRad)
+                  0             0               -sin(thetaRad) cos(thetaRad)];
+              
 
-vcNewGraphWin;
-plot(uI.pos,uI.data,'r-',uG.pos,uG.data,'b--');
-grid on; xlabel('position'); ylabel('Illuminance')
+rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);              
+RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
+rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
+              
+% Visualize PSF and phase space
+oiI = rotatedLFObject.createOI(lens,film);
+oiI = oiSet(oiI,'name','Light Field');
+vcAddObject(oiI); oiWindow;
 
-vcNewGraphWin; plot(uI.data(:)/max(uI.data(:)),uG.data(:)/max(uG.data(:)),'o')
-grid on; identityLine;
+% uI = plotOI(oiI,'illuminance hline',[1 135]);
+% title(sprintf(oiGet(oiI,'name')));
+% 
+% vcNewGraphWin;
+% plot(uI.pos,uI.data,'r-',uG.pos,uG.data,'b--');
+% grid on; xlabel('position'); ylabel('Illuminance')
+
+% vcNewGraphWin; plot(uI.data(:)/max(uI.data(:)),uG.data(:)/max(uG.data(:)),'o')
+% grid on; identityLine;

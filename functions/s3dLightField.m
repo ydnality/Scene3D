@@ -26,7 +26,7 @@ film = pbrtFilmC;
 ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 
 % Plenoptic point spread calculated with Snell's Law
-ppsf = ppsfCamera.estimatePPSF(0, true);  %0 debug lines; jitter set to true
+ppsf = ppsfCamera.estimatePPSF(20, true);  %0 debug lines; jitter set to true
 
 
 %% Calculate light fields
