@@ -22,7 +22,7 @@ nfname=length(fnames);
 nfs=struct;
 for ai=1:nfname
     switch fnames{ai}
-        case{'unit';'wave'}
+        case{'unit';'wave';'note';'type'}
         otherwise
             value=getfield(Coeff,fnames{ai});
             nfs=setfield(nfs,fnames{ai},value);

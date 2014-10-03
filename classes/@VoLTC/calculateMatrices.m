@@ -72,7 +72,7 @@ obj.A2ndCollection = zeros(4, 4, length(fieldPositions), length(depths), length(
 
 for depthIndex = 1:length(depths)
     pSLocations = obj.get('pSLocations', depthIndex);
-    for pSIndex = 1:length(pSLocations)
+    for pSIndex = 1:size(pSLocations,1)
 
 
         %% point sources (units are mm)
@@ -86,11 +86,11 @@ for depthIndex = 1:length(depths)
         [outputLF,middleLF,inputLF]  = s3dLightField(pointSource, obj.lens);
         
         % Store these, and remember they have NaNs in them.
-        % We deal with the NaNs later
-%         xFull = x;
-%         bFull = b;
-%         bMiddleFull = bMiddle;
-        
+        %         We deal with the NaNs later
+        %         xFull = x;
+        %         bFull = b;
+        %         bMiddleFull = bMiddle;
+        %
         %xFull = inputLF.get('LF');
         %bFull = outputLF.get('LF');
         %bMiddleFull = middleLF.get('LF');

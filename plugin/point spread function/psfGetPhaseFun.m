@@ -52,23 +52,29 @@ switch type
         PhaseW=squeeze(sum(WB,3));
 
     case {'def';'defocus'}
-        nW=size(Coeff,1); %wavelength dependence 
+        [fname]=paGetFieldNames(Coeff);
+        numF=length(fname); %number of coeffs
+        nW=size(getfield(Coeff,'wave'),1); %wavelength dependence 
+%         nW=size(Coeff,1); %wavelength dependence 
         for ci=1:size(Coeff,2)
+            value(:,ci)=getfield(Coeff,fname{ci});%weight for normalized coordinate
             B(:,:,ci)=pa4thWaveAber(ci*2,0,ro,theta); %bases
             for li=1:nW
-%                 WB(:,:,ci,li)=Coeff(li,ci).*B(:,:,ci);
-                WB(:,:,ci,li)=Coeff(li,ci).*B(:,:,ci).*Mask;
+              WB(:,:,ci,li)=value(li,ci).*B(:,:,ci).*Mask;
+%                 WB(:,:,ci,li)=Coeff(li,ci).*B(:,:,ci).*Mask;
             end            
         end 
         PhaseW=squeeze(sum(WB,3));
     case {'defocusBraat';'defocus Braat';'def Braat'}
-        
-        nW=size(Coeff,1); %wavelength dependence 
+        [fname]=paGetFieldNames(Coeff);
+        numF=length(fname); %number of coeffs
+        nW=size(getfield(Coeff,'wave'),1); %wavelength dependence 
         for ci=1:size(Coeff,2)
+            value(:,ci)=getfield(Coeff,fname{ci});%weight for normalized coordinate
             B(:,:,ci)=pa4thWaveAber((ci-1)*2,0,ro,theta); %bases
             for li=1:nW
-%                 WB(:,:,ci,li)=Coeff(li,ci).*B(:,:,ci);
-                WB(:,:,ci,li)=Coeff(li,ci).*B(:,:,ci).*Mask;
+%                 WB(:,:,ci,li)=Coeff(li,ci).*B(:,:,ci).*Mask;
+                WB(:,:,ci,li)=value(li,ci).*B(:,:,ci).*Mask;
             end            
         end 
         PhaseW=squeeze(sum(WB,3));

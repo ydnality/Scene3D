@@ -62,9 +62,10 @@ end
 switch pupilname
     case {'entrancepupil';'EnP';'EntrancePupil';'EntPupil'}
         [Pupil]=obj.bbmGetValue('entrancepupil');
-        
+        colorLine='--r'; %black line
     case {'exitpupil';'ExP';'ExitPupil'}
         [Pupil]=obj.bbmGetValue('exitpupil');
+        colorLine='--m'; %black line
     otherwise
         error(['Not valid "',pupilname,'" as pupil type'])
 end
@@ -75,7 +76,7 @@ P_loH=-mean(Pupil.diam(indW,:))/2; % lower rim of the pupil
 
 
 %% Parameters for the PLOT
-colorLine='--g'; %black line
+% colorLine='--g'; %black line
 Lwidth=2; %line width
 
 % Upper Coma Ray

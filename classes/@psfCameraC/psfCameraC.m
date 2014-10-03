@@ -17,6 +17,7 @@ classdef psfCameraC <  handle
         pointSource;
         rays;
         BBoxModel;
+        fftPSF;
     end
     
     methods (Access = public)
@@ -36,6 +37,8 @@ classdef psfCameraC <  handle
                         obj.pointSource = varargin{ii+1};
                     case {'blackboxmodel';'blackbox';'bbm'}
                        obj.BBoxModel = varargin{ii+1};
+                    case {'fftpsf';'fftPSF'}
+                        obj.lens = varargin{ii+1};
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
@@ -43,7 +46,7 @@ classdef psfCameraC <  handle
             
         end
         
-        function val = get(obj,param,varargin)
+        function [val] = get(obj,param,varargin)
             % psfCamera.get('parameter name')
             % Start to set up the gets for this object
             val = [];
@@ -93,8 +96,13 @@ classdef psfCameraC <  handle
                          error(['Specify also the field of the Black Box Model!'])
                      end
                      
+                     if nargin>3                         
+                        [val]=obj.bbmGetValue(fileType,varargin{2});
+                     else                         
+                        [val]=obj.bbmGetValue(fileType);
+                     end
+                     
 %                     val=obj.bbmGetValue(obj.BBoxModel,fileType);
-                        val=obj.bbmGetValue(fileType);
                         
                    case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'} 
                     % Get the equivalent optical system structure generated
@@ -129,6 +137,7 @@ classdef psfCameraC <  handle
                     unit=paraxGet(OptSyst,'unit');
                     % GET USEFUL PARAMETERs
                     lV=paraxGet(OptSyst,'lastvertex'); % last vertex of the optical system
+%                     lV=0;                    
                     F.z=film.position(3)+lV;
                     F.res=film.resolution(1:2);F.pp=film.size; %um x um
                     
@@ -138,6 +147,51 @@ classdef psfCameraC <  handle
                    % SET OUTPUT
                     val = ImagSyst;
                     
+                 case {'film'} 
+                    % get the film structure   
+                    val = obj.film;                    
+                case {'pointsource';'psource';'lightsource'} 
+                    % get the point source in the psfCamera   
+                    val = obj.pointSource;
+                case {'lens'} 
+                    % get the lens the psfCamera   
+                     val = obj.lens;
+                case {'fftpsf';'psffft'} 
+                    % get the fftPSF 
+                     val = obj.fftPSF;   
+                 case {'fftpsfmodulus';'psffftvalue'} 
+                      % get the fftPSF modolus, 
+                      % Specifying the wavelength if you want a specific PSF
+                    if nargin>2
+                        wave0=varargin{1};
+                        waveV=obj.get('wave');
+                        indW0=find(wave==wave0);
+                        if isempty(indW0)
+                            val=obj.fftPSF.abs;
+                            warning (['The specified wavelength does match with the available ones: ',num2str(wave) ,' nm'])
+                        else
+                            val=obj.fftPSF.abs(:,:,indW0);
+                        end
+                    end
+                    val=obj.fftPSF.abs;
+                    case {'fftpsfcoordinate';'psffftcoord'} 
+                      % get the fftPSF coord, 
+                      % Specifying the wavelength if you want a specific PSF
+                    if nargin>2
+                        wave0=varargin{1};
+                        waveV=obj.get('wave');
+                        indW0=find(wave==wave0);
+                        if isempty(indW0)
+                            val.x=obj.fftPSF.x;
+                            val.y=obj.fftPSF.y;
+                            warning (['The specified wavelength does match with the available ones: ',num2str(wave) ,' nm'])
+                        else
+                            val.x=obj.fftPSF.x(:,:,indW0);
+                            val.y=obj.fftPSF.y(:,:,indW0);
+                        end
+                    end
+                    val.x=obj.fftPSF.x;
+                    val.y=obj.fftPSF.y;
                 otherwise
                     error('unknown parameter %s\n',param)
             end
@@ -150,6 +204,15 @@ classdef psfCameraC <  handle
 %             val = [];
             param = ieParamFormat(param);
             switch param
+                case {'pointsource';'psource';'lightsource'} 
+                    % set the point source in the psfCamera   
+                    obj.pointSource= val;
+                case {'lens'} 
+                    % set the filmin the psfCamera   
+                    obj.lens= val;
+                case {'film'} 
+                    % set the film in the psfCamera   
+                    obj.film = val;
                 case {'blackboxmodel';'blackbox';'bbm'};
                     %Get the parameters from the imaging system structure to build an  equivalent Black Box Model of the lens.
                     % The ImagSyst structure has to be built with the function 'paraxCreateImagSyst'
@@ -216,9 +279,56 @@ classdef psfCameraC <  handle
                     obj=obj.bbmSetField('primaryaberration',paCoeff);
                     % Defocus
                     [obj_x,obj_y,obj_z]=coordPolar2Cart3D(psPolar(1),psPolar(2),psPolar(3)); 
-                    Obj.z=obj_z; Obj.y=obj_y;
+%                     Obj.z=obj_z; Obj.y=obj_y;                    
+                    Obj.z=obj_z+paraxGet(ImagSyst,'lastVertex'); 
+                    Obj.y=sqrt(obj_x.^+obj_y.^2); % eccentricity (height)
                     [defCoeff] = paEstimateDefocus(ImagSyst,Obj,'best');
                     obj=obj.bbmSetField('defocus',defCoeff);
+                                        
+                    % REFRACTIVE INDEX
+                    % object space
+                    n_ob=ImagSyst.n_ob;
+                    obj=obj.bbmSetField('n_ob',n_ob);
+                    % image space
+                    n_im=ImagSyst.n_im;
+                    obj=obj.bbmSetField('n_im',n_im);
+                    
+                case {'fftpsf';'psffft'} 
+                % get the fftPSF 
+                  obj.fftPSF=val;   
+                 case {'fftpsfmodulus';'psffftvalue'} 
+                      % get the fftPSF modolus, 
+                      % Specifying the wavelength if you want a specific PSF
+                    if nargin>3
+                        wave0=varargin{1};
+                        waveV=obj.get('wave');
+                        indW0=find(wave==wave0);
+                        if isempty(indW0)
+                            obj.fftPSF.abs=val;
+                            warning (['The specified wavelength does match with the available ones: ',num2str(wave) ,' nm'])
+                        else
+                            obj.fftPSF.abs(:,:,indW0)=val;
+                        end
+                    end
+                    obj.fftPSF.abs=val;
+                    case {'fftpsfcoordinate';'psffftcoord'} 
+                      % get the fftPSF coord, 
+                      % Specifying the wavelength if you want a specific PSF
+                    if nargin>3
+                        wave0=varargin{1};
+                        waveV=obj.get('wave');
+                        indW0=find(wave==wave0);
+                        if isempty(indW0)
+                            obj.fftPSF.x=val.x;
+                            obj.fftPSF.y=val.y;
+                            warning (['The specified wavelength does match with the available ones: ',num2str(wave) ,' nm'])
+                        else
+                            obj.fftPSF.x(:,:,indW0)=val.x;
+                            obj.fftPSF.y(:,:,indW0)=val.y;
+                        end
+                    end
+                    obj.fftPSF.x=val.x;
+                    obj.fftPSF.y=val.y;
                     
                 otherwise
                     error('unknown parameter %s\n',param)

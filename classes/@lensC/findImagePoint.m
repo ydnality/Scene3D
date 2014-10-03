@@ -19,6 +19,13 @@ function [iPoint]=findImagePoint(obj,pSource,n_ob,n_im)
 %  MP Vistasoft 2014
 
 
+%% CHECK IF BLACK BOX MODEL is EMPTY and (eventually) FILL THAT
+
+if isempty(obj.BBoxModel)
+    obj.bbmCreate(n_ob,n_im);
+end
+
+
 %% GET POINT SOURCE POLAR COORDINATEs
 
 %get image coordinate in polar coordinate

@@ -48,6 +48,7 @@ profile='flat'; resFilm=F.res; pixel_pitch=F.pp; %um x um
 % end
 lV=paraxGet(OptSys,'lastvertex'); % last vertex of the optical system
 ps_zpos=zOUT+lV; %point source position along the optical axis
+profile='point';
 [pSourceObj]=paraxCreateObject(ps_zpos,ps_height,profile,unit);
 %Add to the Imaging System
 [ImagSyst]=paraxAddObject2ImagSyst(ImagSyst,pSourceObj);

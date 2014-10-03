@@ -40,6 +40,7 @@ switch type_conj
             end
         else
             t_im=Syst.cardPoints.dFi; %set at focal point
+            t_im=paraxGet(Syst,'image focal point'); %set at focal point
             if nargout>1
                 if nargin>3
                     u_ecc=varargin{1};

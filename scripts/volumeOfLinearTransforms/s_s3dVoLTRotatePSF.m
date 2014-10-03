@@ -51,6 +51,7 @@ s_initISET
 %
 % At this moment, we only change in field height, not yet depth.
 %pSY = 0.01:.3:2;
+
 pSY = 15:.3:17;
 pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 
@@ -59,17 +60,8 @@ wantedPSLocation = [0 15.8 -103];
 
 theta = -90;
 
+
 %% Define the Lens and Film
-
-% diffractionEnabled = false;
-%turning on diffraction does NOT make sense yet since we have not modeled
-%the transformation of uncertainty from the middle aperture to the end of the lens
-
-%TODO: add diffraction into this somehow
-%      Create a function lens.write() that makes a file from a lens
-%      object.
-
-%initialize and read multi-element lens from file
 
 %lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
@@ -81,14 +73,7 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'apertureMiddleD', apertureMiddleD);
 wave = lens.get('wave');
 
-%have index of refraction change with wavelength, to allow for color
-%separation
-%for 2 element lens
-%nVector = linspace(1.5, 1.8, length(wave));
-%lens.surfaceArray(1).set('n', nVector);
-%lens.surfaceArray(2).set('n', nVector);
-
-%allow for color separation with all lenses in general
+% Change the index of refraction for the surfaces
 %TODO: put this into a function for lens
 
 numSurfaces = lens.get('nsurfaces');
@@ -155,11 +140,6 @@ VoLTObject.calculateMatrices();
 
 LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
 
-% t1 = VoLTObject.ACollection(:,:,6,1,1)
-% t2 = AInterp(:,:,1)
-% vcNewGraphWin;
-% plot(t1(:),t2(:),'o');
-% grid on; identityLine;
 %% Calculate the PSF, using the 2 A matrices and the aperture in the middle
 
 % This illustrates that the aperture can be changed quickly in the

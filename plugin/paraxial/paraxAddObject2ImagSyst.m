@@ -95,6 +95,7 @@ for zi=1:size(ImagSyst.object{index}.z_pos,1)
 end
 
 
+
 %% FIND PUPILs  {METHOD from Principles of Optics -Born and Wolf)
 %For ON Axis object point (Po), the stop (considering also the lens/mirror) rims determines the cross-section of the
 %image-forming pencil, and it is called APERTURE STOP. To determine its

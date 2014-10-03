@@ -30,27 +30,7 @@ else
     n_ob=1; n_im=1;
 end
 
-% %% Get Optical System from the lens in the psfCamera [ Michael's script]
-% OptSyst=obj.get('optical system',n_ob,n_im);
-% 
-% unit=paraxGet(OptSys,'unit');
-% 
-% % Build Imaging System composed by Optical System+Film+ pSource
-% 
-% lV=paraxGet(OptSys,'lastvertex'); % last vertex of the optical system
-% F.z=film.position(3)+lV;
-% 
-% F.res=film.resolution(1:2);F.pp=film.size; %um x um
-% 
-% % %% Equivalent Black Box Model of lens
-% % lens.bbmCreate(n_ob,n_im); 
-% % 
-% % %Get Optical System from Michael's script
-% % [OptSys]=lens.get('optical system');
-% % 
-% % unit=paraxGet(OptSys,'unit');
-% 
-% [ImagSyst]=paraxOpt2Imag(OptSys,F,pSource,unit); 
+
 
 %% GET (by compute) the IMAGING SYSTEM
 ImagSyst=obj.get('imaging system',n_ob,n_im);

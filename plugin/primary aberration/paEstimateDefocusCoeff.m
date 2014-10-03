@@ -1,6 +1,6 @@
 
 
-function [Coeff]=paEstimateDefocusCoeff(zI,zG,NA,n_im,approx_method,varargin)
+function [Coeff,varargout]=paEstimateDefocusCoeff(zI,zG,NA,n_im,approx_method,varargin)
 %Compute the Defocus Coeffs for the normalized coordinate
 % based on different level of approxiamtion of Nijboer-Zernike Theory
 % ADVICE: select 'highNA' as method to compute NA
@@ -17,6 +17,7 @@ function [Coeff]=paEstimateDefocusCoeff(zI,zG,NA,n_im,approx_method,varargin)
 
 %OUTPUT
 %W: Term of Defocused 4th order Wavefront aberration
+% varargout {1}: defocus distance
 
 %NOTE:
 % NA, zI and zG has to be scalar not allow to be wavelength dependent
@@ -158,4 +159,10 @@ switch approx_method
         
     otherwise
         error (['Not accepted ',approx_method,' as method to approx defocus!'])
+end
+
+
+%% SET OUTPUT
+if nargout>1
+    varargout{1}=dZ;
 end
