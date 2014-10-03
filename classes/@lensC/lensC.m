@@ -150,6 +150,30 @@ classdef lensC <  handle
                 case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
                     param=varargin{1};  %witch field of the black box to get
                     res = obj.bbmGetValue(param);
+                    
+                case {'lightfieldtransformation';'lightfieldtransf';'lightfield'} % equivalent BLACK BOX MODEL
+                    if nargin >2
+                        param = varargin{1};  %witch field of the black box to get
+                        param = ieParamFormat(param);
+                        switch param
+                            case {'2d'}
+                                res = obj.bbmGetValue('abcd');
+                            case {'4d'}
+                                abcd = obj.bbmGetValue('abcd');
+                                nW=size(abcd,3);
+                                dummy=eye(4);
+                                for li=1:nW
+                                    abcd_out(:,:,li)=dummy;
+                                    abcd_out(1:2,1:2,li)=abcd(:,:,li);
+                                end
+                                res=abcd_out;                                
+                            otherwise
+                                error(['Not valid :',param ,' as type for  Light Field tranformation']); 
+                        end
+                    else
+                        res = obj.bbmGetValue('abcd');
+                    end
+                        
                 
                 case {'opticalsystem'; 'optsyst';'opticalsyst';'optical system structure'} 
                     % Get the equivalent optical system structure generated
@@ -227,7 +251,7 @@ classdef lensC <  handle
 %                     No=OptSyst.cardPoints.dNo-z0; % Nodal point in the object space
                     No=paraxGet(OptSyst,'objectnodalpoint')-z0; % Nodal point in the object space
                     obj=obj.bbmSetField('objectnodalpoint',No);
-                    M = paraxGet(OptSyst,'imagenodalpoint'); % The 4 coefficients of the ABCD matrix of the overall system
+                    M = paraxGet(OptSyst,'abcd'); % The 4 coefficients of the ABCD matrix of the overall system
                     obj=obj.bbmSetField('abcd',M);
                     
                 otherwise

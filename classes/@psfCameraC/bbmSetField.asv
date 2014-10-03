@@ -19,13 +19,13 @@ function [obj]=bbmSetField(obj,pName,val)
 %             focal plane radius->   .focal.radius
 %             abcd equivalent matrix-> .abcdMatrix
 %       IMAGE SPACE
-%              n_im->   .obSpace.n_im  
+%             n_im->  
 %             focal point ->  .imSpace.focalPoint
 %             principal point ->  .imSpace.principalPoint 
 %             principal point ->  .imSpace.nodalPoint
 %
 %       OBJECT SPACE
-%             n_ob->   .obSpace.n_ob
+%             n_im->  
 %             focal point -> .obSpace.focalPoint
 %             principal point -> .obSpace.principalPoint 
 %             principal point ->.obSpace.nodalPoint
@@ -43,10 +43,6 @@ function [obj]=bbmSetField(obj,pName,val)
             obj.BBoxModel.focal.length=val; %focal length
         case {'focalradius'}
             obj.BBoxModel.focal.radius=val; %focal plane radius
-        case {'imagerefractiveindex';'imagerefind';'n_im'}
-            obj.BBoxModel.imSpace.n_im=val; %refractive index in image space
-        case {'objectrefractiveindex';'objectrefind';'n_ob'}
-            obj.BBoxModel.imSpace.n_ob=val; %refractive index in image space
         case {'imagefocalpoint'}
             obj.BBoxModel.imSpace.focalPoint=val; %focal point in image space
         case {'objectfocalpoint'}

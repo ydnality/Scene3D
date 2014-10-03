@@ -1,4 +1,4 @@
-function autofocus(obj,wave0, waveUnit,varargin)
+function varargout=autofocus(obj,wave0, waveUnit,varargin)
 % Set the film of the camera in focus for the specified wavelength
 %
 %   psfCamera.autofocus(wave0, waveUnit)
@@ -17,7 +17,7 @@ function autofocus(obj,wave0, waveUnit,varargin)
 
 
 % OUTPUT
-%
+% varargout{1}: new film position
 %
 %
 
@@ -83,8 +83,13 @@ dist0=imagePoint(ind0,3); % z position
 oldPos=obj.get('film');
 
 % Set new distance
-oldPos.position(3)=dist0;
+newPos=oldPos;
+newPos.position(3)=dist0;
 
 % film=pbrtFilmC('position', oldPos, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 %% SET THE NEW FILM
-obj.set('film',oldPos);
+obj.set('film',newPos);
+
+if nargout>0
+    varargout{1}=dist0;
+end

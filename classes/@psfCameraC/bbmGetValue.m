@@ -1,7 +1,7 @@
 
 
 
-function val=bbmGetValue(obj,fileType)
+function [val]=bbmGetValue(obj,fileType,varargin)
 
 % Get the corresponding field value for th given Black Box Model 
 %
@@ -10,7 +10,8 @@ function val=bbmGetValue(obj,fileType)
 %
 %INPUT
 %fileType: specify which field {'all';'focallength';'focalradius';'imagefocalpoint';'imageprincipalpoint';'imagenodalpoint';'objectfocalpoint';'objectprincipalpoint';'objectnodalpoint';'abcd'}
-%
+% varargin{1}  for 'defocus' or 'primaryaberration', specify the unit of
+% the output coeffs  ('mm' or '#wave')
 % OUTPUT
 %   val : selected value
 %
@@ -40,6 +41,10 @@ switch fileType
         val=BBoxModel.focal.length; %focal length
     case {'focalradius'}
         val=BBoxModel.focal.radius; %focal plane radius
+    case {'imagerefractiveindex';'imagerefind';'n_im'}
+         val =    obj.BBoxModel.imSpace.n_im; %refractive index in image space
+    case {'objectrefractiveindex';'objectrefind';'n_ob'}
+         val =   obj.BBoxModel.imSpace.n_ob ; %refractive index in object space       
     case {'focalpoint'}
         val.imPoint=BBoxModel.imSpace.focalPoint; %focal point in image space
         val.obPoint=BBoxModel.obSpace.focalPoint; %focal point in object space
@@ -79,9 +84,34 @@ switch fileType
     case {'gaussianimagepoint';'gaussianpoint';'gausspoint'}
         val=BBoxModel.imageFormation.gaussPoint; % gaussian image point
     case {'primaryaberration';'seidelaberration';'4thorderwaveaberration'}
-        val=BBoxModel.aberration.paCoeff; % primary aberration
+        A=BBoxModel.aberration.paCoeff; % primary aberration
+        if nargin>2
+            switch varargin{1}
+                case {'#wave'; 'numwave'}                    
+                    val=paUnit2NumWave(A);
+                otherwise % as 'mm'
+                    val=A;
+            end
+        else
+            val=A;
+        end
     case {'defocus'}
-        val=BBoxModel.aberration.defocusCoeff; % defocus coeff for aberration
+        A=BBoxModel.aberration.defocusCoeff;
+        if nargin>2
+            switch varargin{1}
+                case {'#wave'; 'numwave'}                    
+                    val=paUnit2NumWave(A);
+                otherwise % as 'mm'
+                    val=A;
+            end
+        else
+            val=A;
+        end
+    case {'defocusshift'}
+        defCoeff=BBoxModel.aberration.defocusCoeff.W20;
+        n_im=BBoxModel.imSpace.n_im;
+        NA=BBoxModel.imageFormation.NA;
+        val=2*defCoeff.*(n_im./NA).^2; % shift
     case {'all'}
         val=BBoxModel; %all struct
     otherwise

@@ -1,4 +1,4 @@
-%s_test_Scene3D_system_analysis.m
+%s_test_mainrays.m
 %
 %Test the conversion of a system from SCENE 3D to format of PSF3D
 %
@@ -12,7 +12,7 @@ s_initISET
 % The center of the first camera aperture is usually at [0 0 0].
 % The object positions data are in -z.  We are using a right-handed
 % coordinate system. 
-pointSource = [10 20 -10000000];  % A very distant point.
+pointSource = [10 20 -1000];  % A very distant point.
 
 %% Declare camera properties
 
@@ -43,8 +43,8 @@ film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'reso
 % lens = lensC('filename',fname);
 %  That should go and see if there is a file called fname.
 %
-lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
-% lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
+% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
+lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import = load(lensFile,'lens');
 lens = import.lens;
 lens.apertureMiddleD = 4;
@@ -150,8 +150,8 @@ wave0=550; %nm   select a wavelengt
 % % set text box
 textF='true';
 
-% lens.draw
-psfCamera1.draw
+lens.draw
+% psfCamera1.draw
 
 % Graph pupil
 [out1]=psfCamera1.drawPupil(wave0,wave,textF);
@@ -159,15 +159,18 @@ psfCamera1.draw
 %Point source
 [out2]=psfCamera1.drawPoint(pointSource,wave0,wave,'y');
 % Limiting rays
-[out3]=psfCamera1.drawComaRay(pointSource,'entrancepupil',wave0,wave,'y');
+% [out3]=psfCamera1.drawComaRay(pointSource,'entrancepupil',wave0,wave,'y');
 % MARGINAL rays
-% [out3a]=psfCamera1.drawMarginalRay(pointSource,'entrancepupil',wave0,wave,'y');
+[out3a]=psfCamera1.drawMarginalRay(pointSource,'entrancepupil',wave0,wave,'y');
+% MARGINAL rays
+[out3b]=psfCamera1.drawMarginalRay(imagePoint,'exitpupil',wave0,wave,'y');
 % and then the image point
 [out4]=psfCamera1.drawPoint(imagePoint,wave0,wave,'y');
 % Limiting rays
-[out5]=psfCamera1.drawComaRay(imagePoint,'exitpupil',wave0,wave,'y');
-%
+% [out5]=psfCamera1.drawComaRay(imagePoint,'exitpupil',wave0,wave,'y');
 
-
+% PRincipal ray
+[out5]=psfCamera1.drawPrincipalRay(pointSource,'entrancepupil',wave0,wave,'y');
+[out6]=psfCamera1.drawPrincipalRay(imagePoint,'exitpupil',wave0,wave,'y');
 
 

@@ -43,7 +43,11 @@ function val = bbmGetValue(obj,param)
 % MP Vistasoft 2014
 
 % Get Black Box equivalente Model
+
 BBoxModel = obj.BBoxModel;
+if isempty (BBoxModel)
+    error( 'The Black Box Model is empty! Please call lens.bbmCreate()')
+end
 
 param = ieParamFormat(param);
 switch param
@@ -83,7 +87,7 @@ switch param
     case {'objectnodalpoint';'objnodalpoint'}
         val=BBoxModel.imSpace.nodalPoint; %principal point in image space
     case {'abcd';'abcdmatrix';'abcdMatrix'}
-        val=BBoxModel.abcdMatrix; %abcd Matrix 
+        val=BBoxModel.abcd; %abcd Matrix 
     case {'all'}
         val=BBoxModel; %all struct
     otherwise

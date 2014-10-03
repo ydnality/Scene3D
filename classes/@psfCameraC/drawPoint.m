@@ -1,7 +1,7 @@
 
 
 
-function [out]=drawPoint(obj,pointSource,wave0,wave,coord_type)
+function [out]=drawPoint(obj,pointSource,wave0,wave,coord_type,varargin)
 
 % DRAW the specify point
 %
@@ -66,7 +66,6 @@ end
 
 
 
-
 %% Parameters for the PLOT
 colorLine='--g'; %black line
 Lwidth=2; %line width
@@ -76,6 +75,13 @@ Mcolor=''; %mark colour
 hold on
 stem(pZ,pH,colorLine,...
     'MarkerFaceColor','red','MarkerEdgeColor','blue','MarkerSize',Msize,'LineWidth',Lwidth)
+if nargin>5
+    labelT=varargin{1};
+    text(pZ,pH*1.1,...
+        [labelT],'FontSize',10,'VerticalAlignment','cap') 
+end
+   
+
 
 
 %% SET OUTPUT

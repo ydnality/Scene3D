@@ -1,6 +1,6 @@
 
 
-function [Coeff]=paEstimateDefocusCoeff(zI,zG,NA,n_im,approx_method,varargin)
+function [Coeff,varargout]=paEstimateDefocusCoeff(zI,zG,NA,n_im,approx_method,varargin)
 %Compute the Defocus Coeffs for the normalized coordinate
 % based on different level of approxiamtion of Nijboer-Zernike Theory
 % ADVICE: select 'highNA' as method to compute NA

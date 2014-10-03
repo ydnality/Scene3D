@@ -1,4 +1,4 @@
-%s_test_Scene3D_system_analysis.m
+%s_test_findImagePoint.m
 %
 %Test the conversion of a system from SCENE 3D to format of PSF3D
 %
@@ -12,7 +12,7 @@ s_initISET
 % The center of the first camera aperture is usually at [0 0 0].
 % The object positions data are in -z.  We are using a right-handed
 % coordinate system. 
-pointSource = [10 20 -10000000];  % A very distant point.
+pointSource = [10 20 -500];  % A very distant point.
 
 %% Declare camera properties
 
@@ -43,8 +43,8 @@ film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'reso
 % lens = lensC('filename',fname);
 %  That should go and see if there is a file called fname.
 %
-lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
-% lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
+% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
+lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import = load(lensFile,'lens');
 lens = import.lens;
 lens.apertureMiddleD = 4;
@@ -81,11 +81,6 @@ lens1.bbmCreate(n_ob,n_im);
 % ALTERNATIVE 
 bbm_lens1=lens1.bbmCreate(n_ob,n_im);
 
-
-abcd=lens.get('light field');
-
-abcd4D=lens.get('light field','4d');
-
 % GET OPTICAL SYSTEM STRUCTURE ( used at data source for Black Box Model Field)
 OptSyst1=lens1.bbmCreate(n_ob,n_im);
 
@@ -94,7 +89,7 @@ psfCamera1.bbmCreate(n_ob,n_im);
 % ALTERNATIVE 
 bbm_psfC1= psfCamera1.bbmCreate(n_ob,n_im);
 % GET OPTICAL SYSTEM STRUCTURE ( used at data source for Black Box Model Field)
-
+[ImgSyst1]=psfCamera1.bbmCreate(n_ob,n_im);
 
 % Create a camera throught the BBoxModel of lens
 % [psfCamera2]    = paraxAnalyzeScene3DSystem('all',lens,film,pointSource);
@@ -121,10 +116,6 @@ abcd  = psfCamera1.get('bbm','abcd matrix');                 %abcd matrix coeffs
 % These are lambda x position, so each row is one wavelength
 w = psfCamera1.get('wavelength');
 p = psfCamera1.get('bbm','gaussian image point');
-% p = psfCamera1.get('bbm','fnumber');
-% p = psfCamera1.get('bbm','numerical aperture');
-% p = psfCamera1.get('bbm','field of view');
-
 [w,p]
 
 % This is the location of the in focus image point given the point source
@@ -154,20 +145,16 @@ textF='true';
 psfCamera1.draw
 
 % Graph pupil
-[out1]=psfCamera1.drawPupil(wave0,wave,textF);
-% [out1]=drawPupil(EnP,ExP,wave0,wave,textF);
-%Point source
-[out2]=psfCamera1.drawPoint(pointSource,wave0,wave,'y');
-% Limiting rays
+% [out1]=psfCamera1.drawPupil(wave0,wave,textF);
+% %Point source
+[out2]=psfCamera1.drawPoint(pointSource,wave0,wave,'y','Point Source');
+% % Limiting rays
 [out3]=psfCamera1.drawComaRay(pointSource,'entrancepupil',wave0,wave,'y');
-% MARGINAL rays
-% [out3a]=psfCamera1.drawMarginalRay(pointSource,'entrancepupil',wave0,wave,'y');
-% and then the image point
-[out4]=psfCamera1.drawPoint(imagePoint,wave0,wave,'y');
-% Limiting rays
+% % MARGINAL rays
+% % [out3a]=psfCamera1.drawMarginalRay(pointSource,'entrancepupil',wave0,wave,'y');
+% % and then the image point
+[out4]=psfCamera1.drawPoint(imagePoint,wave0,wave,'y','Image Point');
+% % Limiting rays
 [out5]=psfCamera1.drawComaRay(imagePoint,'exitpupil',wave0,wave,'y');
-%
-
-
 
 

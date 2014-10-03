@@ -1,9 +1,8 @@
+function [out]=drawPrincipalRay(obj,pointSource,pupilname,wave0,wave,coord_type)
 
-function [out]=drawMarginalRay(obj,pointSource,pupilname,wave0,wave,coord_type)
-
-% DRAW the marginal rays from the projection of the  point  on the optical axis to the rims of the specify pupil
+% DRAW the principal rays from the point  to the center of the specify pupil
 %
-% [out]=MarginalRay(obj,pointSource,pupilname,wave0,wave,coord_type)
+% [out]=drawPrincipalRay(obj,pointSource,pupilname,wave0,wave,coord_type)
 %
 % INPUT
 % pointSource: [x,y,z]
@@ -74,24 +73,14 @@ P_loH=-mean(Pupil.diam(indW,:))/2; % lower rim of the pupil
 
 
 %% Parameters for the PLOT
-switch pupilname
-    case {'entrancepupil';'EnP';'EntrancePupil';'EntPupil'}
-        [Pupil]=obj.bbmGetValue('entrancepupil');
-        colorLine='--r'; %black line
-    case {'exitpupil';'ExP';'ExitPupil'}
-        [Pupil]=obj.bbmGetValue('exitpupil');
-        colorLine='--m'; %black line
-    otherwise
-        error(['Not valid "',pupilname,'" as pupil type'])
-end
-
+colorLine='--b'; %black line
 Lwidth=2; %line width
 
 % Upper Coma Ray
 hold on
-plot([pZ P_zpos],[0 P_upH],colorLine,'LineWidth',Lwidth)
+plot([pZ P_zpos],[pH 0],colorLine,'LineWidth',Lwidth)
 % LowerComa Ray
-plot([pZ P_zpos],[0 P_loH],colorLine,'LineWidth',Lwidth)
+plot([pZ P_zpos],[pH 0],colorLine,'LineWidth',Lwidth)
 
 %% SET OUTPUT
 out=1;

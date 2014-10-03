@@ -1,4 +1,4 @@
-%s_test_wavePSF__through_aberration.m
+%s_test_Airy disk.m
 %
 %Compute the wave PSF for a psfCamera (in Scene3D). 
 % The implemented method is the following:
@@ -62,8 +62,12 @@ psfCamera1 = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 
 bbmOLD=psfCamera1.bbmCreate(n_ob,n_im);
 defocusOLD=psfCamera1.get('bbm','defocus','#wave');
-paOLD=psfCamera1.get('bbm','primaryaberration','#wave');
 
+paOLD=psfCamera1.get('bbm','primaryaberration');
+%% SET all the primary aberration to 0
+psfCamera1.bbmSetAberration('allzero');
+
+paOLD=psfCamera1.get('bbm','primaryaberration');
 
 %% GET the PSF
 nSample=256; % power of 2 for Fast Fourier Transform
@@ -89,13 +93,13 @@ psfCamera1.drawFFTpsf(wave0,plotType,limit)
 title (['Wavelength: ',num2str(wave0),' [nm]', ' NOT IN FOCUS'])
 
 % SET the film in focus for the given wavelength
-
 psfCamera1.autofocus(wave0,'nm',n_ob,n_im);
 % Then Updata the 'Black Box Model'
 bbmNEW=psfCamera1.bbmCreate(n_ob,n_im);
-
 defocusNEW=psfCamera1.get('bbm','defocus','#wave');
-paNEW=psfCamera1.get('bbm','primaryaberration','#wave');
+paNEW=psfCamera1.get('bbm','primaryaberration');
+% Set all aberration to zero
+psfCamera1.bbmSetAberration('allzero');
 %Re-Compute PSF
 % ntime=8;  % window width= ntime*normalized_ExPdiameter
 [fftPSF,x_im,y_im] = psfCamera1.ComputeFFTpsf(nSample,ntime);
@@ -105,26 +109,4 @@ subplot(1,2,2)
 psfCamera1.drawFFTpsf(wave0,plotType,limit)
 % psfCamera1.drawFFTpsf(wave1,plotType)
 title (['Wavelength: ',num2str(wave0),' [nm]', ' IN FOCUS'])
-
-% % % set text box
-textF='true';
-imagePoint  = psfCamera1.get('bbm','gaussian image point')
-figure
-lens.draw
-% psfCamera1.draw
-
-% Graph pupil
-[out1]=psfCamera1.drawPupil(wave0,wave,textF);
-% [out1]=drawPupil(EnP,ExP,wave0,wave,textF);
-%Point source
-[out2]=psfCamera1.drawPoint(pointSource,wave0,wave,'y');
-% Limiting rays
-[out3]=psfCamera1.drawComaRay(pointSource,'entrancepupil',wave0,wave,'y');
-% MARGINAL rays
-% [out3a]=psfCamera1.drawMarginalRay(pointSource,'entrancepupil',wave0,wave,'y');
-% and then the image point
-[out4]=psfCamera1.drawPoint(imagePoint,wave0,wave,'y');
-% Limiting rays
-[out5]=psfCamera1.drawComaRay(imagePoint,'exitpupil',wave0,wave,'y');
-
 
