@@ -1,62 +1,66 @@
-% Get the parameters of the imaging system required to estimate tha
-% aberration for a given object (point source)
-
-
 function [CR_0,MR_0,N,abbeNumber,C,k,augmParam_list,Msurf,Mtrans]=paGetImagSystParameters(object,ImagSyst,angle_type,varargin)
-% 
-% [CR_0,MR_0,N,abbeNumber,C,k,augmParam_list,Msurf,Mtrans]=paraxAberrationGetImagSystParameters(object,ImagSyst,angle_type,special_rays,special_param);
-
-
+% Get the parameters of the imaging system required to estimate the aberration for a given object (point source)
+%
+%
+%  [CR_0,MR_0,N,abbeNumber,C,k,augmParam_list,Msurf,Mtrans] = ...
+%       paraxAberrationGetImagSystParameters(object,ImagSyst,angle_type,...
+%           special_rays,special_param);
+%  
+%TODO
+%  Various little programming clean ups required in here
+%
 %INPUT
-%object:  structure describing the object which is imaged through the
-%imaging system
-%ImagSyst: imaging system through which theobject is imaged
+% object:  structure describing the object which is imaged through the
+%          imaging system
+% ImagSyst: imaging system through which theobject is imaged
 % angle_type: type of angle to get and compute: [paraxial or real (non-paraxial)]
 % varargin rays type  {1}{1}: principal ray; {1}{2} secondary ray
-%                      {2}{1}: principal ray secondary parameters
-%                      (case:marginal -upper,-lower)
-%                       {2}{2}: secondary ray secondary parameters
-%                      (case:marginal -upper,-lower)
+%                     {2}{1}: principal ray secondary parameters
+%                     (case:marginal -upper,-lower)
+%                     {2}{2}: secondary ray secondary parameters
+%                     (case:marginal -upper,-lower)
 %                      
-
+%
 %OUTPUT
-%CR_0:[2xN] chief ray coordinates (in phase space) af first surface. 
-%MR_0: margina ray coordinates (in phase space) at first surface.
-%N: [NxM+2] refractive index from object to image space
-%abbeNumer [1xM+2]: dispesione coeffs for the medium
-%C[1xM]:  curvature
-%k[1xM]; conic parameter for surface
-%augmParam_list: [2xM] parameter of quasi symmetry
-%Msurf:[M][2x2xN] list of transformation at the surface
-%Mtrans:[M-1][2x2xN] list of transformation at the surface
-
+%  CR_0:[2xN] chief ray coordinates (in phase space) af first surface. 
+%  MR_0: margina ray coordinates (in phase space) at first surface.
+%  N: [NxM+2] refractive index from object to image space
+%  abbeNumer [1xM+2]: dispesione coeffs for the medium (http://en.wikipedia.org/wiki/Abbe_number)
+%  C[1xM]:  curvature
+%  k[1xM]; conic parameter for surface
+%  augmParam_list: [2xM] parameter of quasi symmetry
+%  Msurf:[M][2x2xN] list of transformation at the surface
+%  Mtrans:[M-1][2x2xN] list of transformation at the surface
+%
 %NOTE: N: #sampling wavelength
 %      M: #of surface
+%
+% MP Vistasoft Copyright 2014
 
+%% Initialize parameters
 
-%% INITIATE PARAMETES
-augParam='false';
+augParam = 'false';
 
 if all(ImagSyst.n_ob==1)
-    [a,abbeNumber_ob]=RefractiveIndexDispersion(586.7*1e-6,'mm','air0'); %default air    
+    [a,abbeNumber_ob] = RefractiveIndexDispersion(586.7*1e-6,'mm','air0'); %default air    
 elseif isfield(ImagSyst,'Vd_ob')
     abbeNumber_ob=Vd_ob; % abbe Number of the object space medium
 else
-    warning('Abbe number of the object space medium  is not AVAILABLE!')
+    % warning('Abbe number of the object space medium  is not AVAILABLE!')
     abbeNumber_ob=[];
 end
 
 if all(ImagSyst.n_im==1)
     [a,abbeNumber_im]=RefractiveIndexDispersion(586.7*1e-6,'mm','air0'); %default air    
 elseif isfield(ImagSyst,'Vd_im')
-    abbeNumber_im=Vd_im; % abbe Number of the object space medium
+    abbeNumber_im=Vd_im; % Abbe Number of the object space medium
 else
-    warning('Abbe number of the image space medium  is not AVAILABLE!')
+    % warning('Abbe number of the image space medium  is not AVAILABLE!')
     abbeNumber_im=[];
 end
 
 
-%% CHECKthe type of rays is specify
+%% CHECK the type of rays is specify
 
 if nargin>3
     rays_typeCR=varargin{1}{1}; %principal ray
@@ -83,6 +87,10 @@ end
 
 
 %% Arrange starting point
+
+% Initialize the arrays here
+
+% Then loop
 for li=1:size(ImagSyst.wave,1)
     %Chief Ray or Principal Ray
     CR_init(1,li)=[RayCR.y(li,1)];
@@ -153,10 +161,12 @@ for si=1:length(ImagSyst.surfs.order)
     % create a cell for describing quasi-rotational simmetry
     augmParam_list(:,si)=ImagSyst.surfs.augParam.list{ImagSyst.surfs.order(si)};
 end
+
 % and image space
 N(:,end+1)=ImagSyst.n_im;
 % abbeNumber(end+1)=abbeNumber_im;
 
-if not(exist('abbeNumber'))
-    abbeNumber=[];
+if not(exist('abbeNumber','var')), abbeNumber=[]; end
+
 end
+

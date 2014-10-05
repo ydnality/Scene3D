@@ -1,6 +1,6 @@
-%s_test_findImagePoint.m
+% s_test_findImagePoint.m
 %
-%Test the conversion of a system from SCENE 3D to format of PSF3D
+% Test the conversion of a system from SCENE 3D to format of PSF3D
 %
 % MP Vistasoft, 2014
 
@@ -12,50 +12,44 @@ s_initISET
 % The center of the first camera aperture is usually at [0 0 0].
 % The object positions data are in -z.  We are using a right-handed
 % coordinate system. 
-pointSource = [10 20 -500];  % A very distant point.
+p = psCreate(0,0,-50);
+pointSource = p{1};  % A very distant point.
 
-%% Declare camera properties
+%% Declare film and lens 
 
-wave = 400:50:600;
+% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
+lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 
-% Declare film
-filmPosition = [0 0 51.2821	];  % Good for 2Elens
-% filmPosition = [0 0 37.4];        % Good for dgauss.50mm.  True focal about 37.3mm
-% filmPosition = [0 0 107]; 
+% Loading this twice works, but the first time it fails.  No idea why. (BW)
+load(lensFile,'lens');
+lens.apertureMiddleD = 4;
+wave = lens.get('wave');
+
+% Declare film.  Match aspects of it to the lens
+% filmPosition = [0 0 51.2821	];  % Good for 2Elens
+filmPosition = [0 0 37.4];        % Good for dgauss.50mm.  True focal about 37.3mm
 filmDiag = 3;  % Millimeters
 filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 resolution =  [300 300 length(wave)];
 film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
-% Declare Lens
-% diffractionEnabled = false;   %diffraction causes imaginary directions!! TODO:  INVESTIGATE THIS!!
-% apertureDiameterMM = 2.2727;  %f/22 
-% % apertureDiameterMM = 3.1250;  %f/16
-% % apertureDiameterMM = 4.5455;  %f/11
-% fLength = 50;
-% apertureSamples = [51 51];
-% name = 'idealLensTest';
-% type = 'idealLens';
-% jitterFlag = true;
-% thinlens = lensC('name', name, 'type', type, 'focalLength', fLength, 'diffractionEnabled', diffractionEnabled, 'wave', wave, 'aperturesample', apertureSamples);
-
-% Make a function that goes gets a lens from a file, say
-% lens = lensC('filename',fname);
-%  That should go and see if there is a file called fname.
-%
-% lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
-lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
-import = load(lensFile,'lens');
-lens = import.lens;
-lens.apertureMiddleD = 4;
-lens.set('wave', wave);
-
 % Matrix of n for each surface element.
 % Apertures are 0
-n = lens.get('nArray');
+% n = lens.get('nArray');
 
-%% CREATE IMAGING SYSTEM
+%% Create an imaging system with a black box model
+
 psfCamera1 = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
+psfCamera1.bbmCreate;
+disp(psfCamera1)
+disp(psfCamera1.BBoxModel)
+
+%
+n_ob = 1; n_im = 1.3;  % Like air to eye interface
+psfCamera1.bbmCreate(n_ob,n_im);
+disp(psfCamera1)
+disp(psfCamera1.BBoxModel)
+
 
 %% Add the Black Box Model to the objects (lens or psfCamera or 'all')
 
@@ -76,24 +70,29 @@ n_im = 1; %image space
 
 % Add the BBoxModel to the lens
 % [lens1]      = paraxAnalyzeScene3DSystem('lens',lens);
-lens1=lens;
+lens1 = lens;
 lens1.bbmCreate(n_ob,n_im);
-% ALTERNATIVE 
-bbm_lens1=lens1.bbmCreate(n_ob,n_im);
+disp(lens1)
 
-% GET OPTICAL SYSTEM STRUCTURE ( used at data source for Black Box Model Field)
-OptSyst1=lens1.bbmCreate(n_ob,n_im);
+% ALTERNATIVE 
+bbm_lens1 = lens1.bbmCreate(n_ob,n_im);
+disp(bbm_lens1)
+
+
+% GET OPTICAL SYSTEM STRUCTURE (used at data source for Black Box Model Field)
+OptSyst1 = lens1.bbmCreate(n_ob,n_im);
 
 % Add the BBoxModel to the camera
-psfCamera1.bbmCreate(n_ob,n_im);
+% psfCamera1.bbmCreate(n_ob,n_im);
 % ALTERNATIVE 
-bbm_psfC1= psfCamera1.bbmCreate(n_ob,n_im);
+bbm_psfC1 = psfCamera1.bbmCreate(n_ob,n_im);
 % GET OPTICAL SYSTEM STRUCTURE ( used at data source for Black Box Model Field)
-[ImgSyst1]=psfCamera1.bbmCreate(n_ob,n_im);
+% ImgSyst1 = psfCamera1.bbmCreate(n_ob,n_im);
 
 % Create a camera throught the BBoxModel of lens
+% That's weird (BW).
 % [psfCamera2]    = paraxAnalyzeScene3DSystem('all',lens,film,pointSource);
-psfCamera2=lens1.bbmCreate('all',pointSource,film,n_ob,n_im);
+psfCamera2 = lens1.bbmCreate('all',pointSource,film,n_ob,n_im);
 
 %% GET SEVERAL FIELDs
 %
@@ -130,6 +129,7 @@ imagePoint2 = psfCamera1.get('bbm','gaussian image point')
 imagePoint = imagePoint2
 
 %% PLOT the Entrance and Exit Pupil
+%
 % EnP=psfCamera1.EntrancePupil;
 % ExP=psfCamera1.ExitPupil;
 % 

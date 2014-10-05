@@ -27,7 +27,8 @@
 %
 % MP Vistasoft, 2014
 
-%% Initialize Iset
+%% Initialize ISET
+
 s_initISET
 
 %% Specify the point source
@@ -91,26 +92,6 @@ psfCamera1.film.position
 
 psfCamera1.bbmCreate;
 
-% THIS FUNCTION IS NOT WORKING CORRECTLY.  SO, BW IS SCREWING AROUND TRYING
-% TO UNDERSTAND WHY (October, 2014).
-% Problem seems to be when the distance is too small (see up above).
-% 
-% psfCamera1.autofocus(wave0,'nm',n_ob,n_im);
-% psfCamera1.film.position(3) = -1*psfCamera1.film.position(3);
-% 
-% imagePoint = psfCamera1.lens.findImagePoint(pointSource,n_ob,n_im)
-
-%% Not sure why these were here.
-% bbmOLD     = psfCamera1.bbmCreate(n_ob,n_im);
-% defocusOLD = psfCamera1.get('bbm','defocus','#wave');
-% paOLD      = psfCamera1.get('bbm','primary aberration');
-
-%% SET all the primary aberration to 0
-
-% We should eliminate this.  MP used it to set the aberrations to zero, but
-% these should always be derived, really.
-% psfCamera1.bbmSetAberration('all zero');
-
 %% Compute and plot the PSF
 
 % Computing and plotting the Seidel wavefront aberrations can be based on
@@ -120,43 +101,38 @@ psfCamera1.bbmCreate;
 % general.  The current situation is a hack
 nSample = 512; % power of 2 for Fast Fourier Transform
 ntime   = 32;  % window width= ntime*normalized_ExPdiameter
-[fftPSF, x_im, y_im] = psfCamera1.ComputeFFTpsf(nSample,ntime); %#ok<NASGU,ASGLU>
-% tmp = fftPSF(:,:,1);
+[psf, x_im, y_im] = psfCamera1.ComputeFFTpsf(nSample,ntime); %#ok<NASGU,ASGLU>
+% tmp = psf(:,:,1);
 % vcNewGraphWin;
 % surf(x_im(1,:),y_im(1,:),tmp)
 
+% Select a wavelength
+wave0 = 500; %nm
 plotType='surf';
 limit=[];
-% Select a wavelength
-vcNewGraphWin;
-wave0=500; %nm
 psfCamera1.drawFFTpsf(wave0,plotType,limit);  % Should recompute the PSF
 title (['Wavelength: ',num2str(wave0),' [nm]', ' NOT IN FOCUS'])
 
 %% Autofocus
 
-% Set the film position into the focus for the given wavelength and update
-% the black box model.
-% This should produce an Airy Disk when the aperture diameter is small.
-psfCamera1.autofocus(wave0,'nm',n_ob,n_im);
+% Place the film distance to be in focus for this wavelength
+inFocusWave = 500;
+psfCamera1.autofocus(inFocusWave,'nm',n_ob,n_im);
+imagePoint = psfCamera1.lens.findImagePoint(pointSource,n_ob,n_im);
 
-bbmNEW     = psfCamera1.bbmCreate(n_ob,n_im);
-defocusNEW = psfCamera1.get('bbm','defocus','#wave');
-paNEW      = psfCamera1.get('bbm','primary aberration');
+% These should be the same
+disp(imagePoint(1,3))
+disp(psfCamera1.film.position(3))
 
-% % Set all aberration to zero
-% psfCamera1.bbmSetAberration('all zero');
-
-%Re-Compute PSF
-% ntime=8;  
-% window width= ntime*normalized_ExPdiameter
-%
-[fftPSF,x_im,y_im] = psfCamera1.ComputeFFTpsf(nSample,ntime);
+% Rebuild the bbm
+% AND Re-Compute PSF
+% This shouldn't really be necessary.  When we reposition the film, all the
+% old stuff should be cleared!
+psfCamera1.bbmCreate;
+[psf,x_im,y_im] = psfCamera1.ComputeFFTpsf(nSample,ntime);
 
 % PLOT
-vcNewGraphWin;
 psfCamera1.drawFFTpsf(wave0,plotType,limit)
-% psfCamera1.drawFFTpsf(wave1,plotType)
 title (['Wavelength: ',num2str(wave0),' [nm]', ' IN FOCUS'])
 
 %% END

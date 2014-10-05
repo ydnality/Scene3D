@@ -8,6 +8,8 @@ function points = psCreate(pX,pY,pZ)
 %
 % The image side has negative numbers, so pZ < 0
 %
+% ????Should this be a cell array or a matrix?????
+%
 % Examples:
 %   pZ = -100:20:-40
 %   points = psCreate([],[],pZ);
@@ -21,7 +23,7 @@ function points = psCreate(pX,pY,pZ)
 
 if ieNotDefined('pX'), pX = 0; end
 if ieNotDefined('pY'), pY = 0; end
-if ieNotDefined('pZ'), pZ = -50; end
+if ieNotDefined('pZ'), pZ = -500; end
 
 nFH    = length(pX) * length(pY);
 nDepth = length(pZ);

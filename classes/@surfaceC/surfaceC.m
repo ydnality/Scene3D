@@ -35,7 +35,7 @@ classdef surfaceC <  handle
         sCenter = [0 0 0];          % Sphere's center position
         wave = 400:50:700;          % nm
         apertureD = 1;              % mm diameter
-        n =  ones(7,1)              % index of refraction
+        n =  ones(length(wave),1);  % index of refraction
         
     end
     

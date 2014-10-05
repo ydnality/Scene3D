@@ -7,7 +7,7 @@ function ImagSyst = bbmCreate(obj,varargin)
 %   ImagSyst = psfCamera.bbmCreate (varargin)
 %
 %INPUT
-%   obj: lens object of SCENE3D
+%   obj:          lens object 
 %   varargin {1}: n_ob refractive index in object space
 %   varargin {2}: n_im refractive index in image space
 %
@@ -19,12 +19,12 @@ function ImagSyst = bbmCreate(obj,varargin)
 %% Get inputs
 % lens=obj.lens; %NOT NEEDED in this function
 % film=obj.film;  %NOT NEEDED in this function
-pSource=obj.pointSource;
+pSource = obj.pointSource;
 
 %%  CHECK number of INPUTs and set refractive indices of the medium
 if nargin>1
-    n_ob=varargin{1}; %refractive index in object space
-    n_im=varargin{2}; %n_im refractive index in image space
+    n_ob = varargin{1}; %refractive index in object space
+    n_im = varargin{2}; %n_im refractive index in image space
 else
     n_ob=1; n_im=1;
 end
@@ -41,12 +41,13 @@ ImagSyst=obj.get('imaging system',n_ob,n_im);
 % [ps_heigth,ps_angle,ps_zpos] = cart2pol(pSource(1),pSource(2),pSource(3)); 
 
 pSpolar(1) = ps_heigth;
-pSpolar(2) = ps_angle;pSpolar(3)=ps_zpos;
+pSpolar(2) = ps_angle;
+pSpolar(3) = ps_zpos;
 
 %  Equivalent Black Box Model of Imaging System
 obj.set('black box model',ImagSyst,pSpolar);
 
-%%    SET OUTPUT/s
+%%    SET OUTPUT
 if nargout > 0, ImagSyst=obj.get('black box model','all'); end
 
 end

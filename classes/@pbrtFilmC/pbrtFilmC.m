@@ -26,7 +26,7 @@ classdef pbrtFilmC <  clonableHandleObject
     properties
         position = [ 0 0 100];
         size = [48 48];            % in mm (Too big).
-        wave = 400:100:700;
+        wave = 400:50:700;
         resolution = [200 200];  
         image;
     end

@@ -1,63 +1,50 @@
-function  drawFFTpsf(obj,wave0,varargin)
+function hdl = drawFFTpsf(obj, wave0, plotType, limit)
 % Draw the PSF for the selected wavelength
 %
-%
-%   psfCamera.autofocus(wave0, waveUnit)
-
-%Examples
-%   1:    drawFFTpsf(500)
-%   2:    drawFFTpsf(500)
-%   3:    drawFFTpsf(500)
-%   4:    drawFFTpsf(500)
-%
+%   psfCamera.drawFFTpsf(wave0, [plotType='surf'],[limit=[]])
 %
 % INPUT
-% wave0        : specify the wavelength to plot [in 'nm']
-% varargin  {1}: plotType  { surf,contour,contour3,contourf}
-% varargin  {2}:  limit the image sampling grid (in unit)
-
+%   wave0:       specify the wavelength to plot [in 'nm']
+%   plotType:    {surf,contour,contour3,contourf}
+%   limit:       the image sampling grid (in unit)
+%
 % OUTPUT
-
-
-
+%   hdl:   Figure handle, contains data in userdata field
+%
+%Examples
+%   psfC = psfCameraC('lens',lensC,'film',pbrtFilmC,'pointsource',pointSource);
+%   psfC.drawFFTpsf(500)
+%   psfC.drawFFTpsf(500,'surf')
+%   psfC.drawFFTpsf(500,'surf',[])
+%
 % MP Vistasoft Team, Copyright 2014
 
-
 %% GET wavelength vector
-wave=obj.get('wave');
-nW=size(wave(:),1); %number of sample
-unit='mm';
-%% CHECK INPUT
-inW0=find(wave==wave0);
 
-if isempty(inW0)
-    error(['The select wavelength does NOT match with any sample: ',num2str(wave),' nm'])
-else
-    inW0=inW0(1);
+% nW=size(wave(:),1); %number of sample
+% unit='mm';
+
+wave = obj.get('wave');
+inW0 = find(wave==wave0);  % Index
+if isempty(inW0), error('No wavelength match: %.1f',wave)
+else              inW0 = inW0(1);
 end
 
-if nargin>2
-    plotType=varargin{1};
-else
-    plotType='surf';
-end
-
-if nargin>3
-    limit=varargin{2};
-else
-    limit=[];
-end
+if ~exist('plotType','var') || isempty(plotType), plotType = 'surf'; end
+if ~exist('limit','var'), limit = []; end
 
 %% GET THE INPUT: PSF
-PSF=obj.get('fftpsfmodulus');
+PSF=obj.get('fft psf modulus');
 
-%% GET and CHECK INPUT coordinate:
-% if Nw=number of wavelength and Ns=number of grid sampling
+%% GET and CHECK INPUT coordinate
+
+% if Nw = number of wavelength and Ns=number of grid sampling
 % Possibility 1: x & y : [Nw x Ns]  -> create mesh for the selected wavelength
 % Possibility 2: x & y : [Ns x Ns x Nw]  -> just selected wavelength
 
-coord=obj.get('fftpsfcoordinate');
-x_im=coord.x; y_im=coord.y;
+coord = obj.get('fftpsfcoordinate');
+x_im  = coord.x; 
+y_im  = coord.y;
 
 if not(ndims(x_im)==ndims(y_im))
     error (' INPUT dimensions for x- and y- coordinate DO NOT MATCH !!')
@@ -69,14 +56,14 @@ elseif ndims(x_im)==2 %y_im dimension is the same of x_im
         indy=1:length(y_im);
     elseif length(limit)==1
         indx=(abs(x_im)<=limit);
-        indy=indx;    
+        indy=indx;
     else
         indx=(abs(x_im)<=limit(1));
         indy=(abs(y_im)<=limit(2));
     end
-
+    
     %% CREATE MESH FOR PLOT
-    [X,Y]=meshgrid(x_im(indx),y_im(indy));    
+    [X,Y]=meshgrid(x_im(indx),y_im(indy));
     
 elseif ndims(x_im)==3 %y_im dimension is the same of x_im
     % input coordinate dimension  x_im=[My,Mx,N]; y_im=[My,Mx,N]
@@ -84,47 +71,53 @@ elseif ndims(x_im)==3 %y_im dimension is the same of x_im
     %Check homogenity in input coordinate dimension
     if not(ndims(x_im)==ndims(y_im))
         error(['input coord dimension DO NOT MATCH, x_im: ',num2str(ndims(x_im)),' y_im: ',num2str(ndims(y_im))])
-    end    
-   
+    end
+    
     if isempty (limit)
         indx=1:size(x_im,2);
         indy=1:size(y_im,1);
     elseif length(limit)==1
         [indy0,indx]=find(abs(x_im)<=limit);
-        [indy,indx0]=find(abs(x_im)<=limit);   
+        [indy,indx0]=find(abs(x_im)<=limit);
     else
         [indy0,indx]=find(abs(x_im)<=limit(1));
-        [indy,indx0]=find(abs(x_im)<=limit(2)); 
+        [indy,indx0]=find(abs(x_im)<=limit(2));
     end
     indy=squeeze(indy); indx=squeeze(indx);
     %% CREATE MESH FOR PLOT
-    X=x_im(indy,indx);Y=y_im(indy,indx);    
+    X=x_im(indy,indx);Y=y_im(indy,indx);
     
 else
     error ('the dimension of the input coordinate exceed the limit (2 or 3) !')
 end
 
 %% GET THE PSF
-PSF=PSF(indy,indx,inW0);
+PSF = PSF(indy,indx,inW0);
 
 %% PLOT
-%TITLE
-FontSize1=12;
+% TITLE
+% FontSize1=12;
 
-
+hdl = vcNewGraphWin;
 switch plotType
     case {'surf'}
         surf(X,Y,PSF); shading('interp');
-    case {'contour'},contour (X,Y,PSF)
+    case {'contour'}, contour (X,Y,PSF)
     case {'contour3'},contour3 (X,Y,PSF)
     case {'contourf'},contourf (X,Y,PSF)
-       
 end
+udata.X = X; udata.Y = Y; udata.PSF = PSF;
+set(hdl,'userdata',udata);
+
 % set(gca,'LineWidth',LineWidth,'LineStyle','--')
-colormap('jet'); colorbar
 title(['PSF at ',num2str(wave0),'nm'])
-xlabel(['x [mm]']),ylabel(['y [mm]'])
+xlabel('x [mm]')
+ylabel('y [mm]')
 zlabel('Normalized intensity')
+
+colormap('jet'); colorbar
+
+end
 
 
 

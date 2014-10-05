@@ -38,9 +38,9 @@ classdef lensC <  handle
     
     properties
         name = 'default';
-        type = 'multi element lens';            % We might be removing this soon (why? - BW)
+        type = 'multi element lens';   % We might be removing this soon (why? - BW)
         surfaceArray = surfaceC();     % Set of spherical surfaces and apertures
-        diffractionEnabled = false;% Not implemented yet
+        diffractionEnabled = false;    % Not implemented yet
         wave = 400:50:700;         % nm
         focalLength = 50;          % mm, focal length of multi-element lens
         apertureMiddleD = 1;       % mm, diameter of the middle aperture
