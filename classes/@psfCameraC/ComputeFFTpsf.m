@@ -1,10 +1,10 @@
-function [PSF,varargout] = ComputeFFTpsf(obj,varargin)
-% Compute the PSF using the Fourier Optics method:
-% PSF=|PupilFunction|^2
+function [PSF,x_im,y_im] = ComputeFFTpsf(obj,varargin)
+% Compute the PSF using the Fourier Optics method: PSF=|PupilFunction|^2
 %
-% If you specify the number of samples, select a power of 2 (for Fast Fourier Trasform computation) 
+% If you specify the number of samples, select a power of 2 (for Fast
+% Fourier Trasform computation)  
 %
-% ASSUMED no APODIZATION (pupil illumination is uniform!!!
+% ASSUMED no APODIZATION (pupil illumination is uniform)
 %
 %   psfCamera.ComputeFFTpsf(nSample, ntime,unit)
 %
@@ -20,16 +20,12 @@ function [PSF,varargout] = ComputeFFTpsf(obj,varargin)
 % varargin  {1}: number of sample of pupil function  [128x128 by default] [
 % varargin  {2}:  % width of the window to sampling the pupil function  (normalized to ExP radius)  [from 1 to N] [2times by default]
 % varargin  {3}: distance unit  ['mm' by default]
-
-
-
+%
 % OUTPUT
 % varargout {1}:PSF = (nSample x nSample x num_wavelength)
 % varargout {2}: x-coord (image space)  [Vector beacuse used equal sampling in both coordinate axis]
 % varargout {3}: y-coord (image space) [Vector beacuse used equal  sampling in both coordinate axis]
 %
-
-
 % MP Vistasoft Team, Copyright 2014
 
 %% TODO
@@ -121,8 +117,8 @@ W_pa=psfGetPhaseFun(CoeffPA,'primary aberration',ro,theta);
 % vcNewGraphWin; imagesc(abs(PupilFun(:,:,1)))
 
 %% COMPUTE POINT SPREAD FUNCTION (PSF)
-light_type='incoherent';
-[PSF]=psfPupil2PSF(PupilFun,light_type);
+light_type = 'incoherent';
+[PSF] = psfPupil2PSF(PupilFun,light_type);
 
 %% Get GRID sampling for Image Space
 % Get ImagSyst
@@ -134,25 +130,25 @@ light_type='incoherent';
 % Obj.y=sqrt(pSource(1).^+pSource(2).^2); % eccentricity (height)
 % % Numerical Aperture
 % [NA]=paraxEstimateNumAperture(ImagSyst,Obj);
-NA=obj.get('bbm','numerical aperture');
+NA = obj.get('bbm','numerical aperture');
 % Sampling GRID for image Space
-coordType='normalized polar';
+coordType = 'normalized polar';
 
-[x_im,y_im]=psfEstimateImageCoord(coordType,ro_v,theta_v,wave_mm,NA);
+[x_im,y_im] = psfEstimateImageCoord(coordType,ro_v,theta_v,wave_mm,NA);
 
 
 %% SET OUTPUT
 
-obj.set('fftpsfmodulus',PSF);
-coord.x=x_im;coord.y=y_im;
-obj.set('fftpsfcoordinate',coord);
+obj.set('fft psf modulus',PSF);
+coord.x = x_im;
+coord.y = y_im;
+obj.set('fft psf coordinate',coord);
 
-
-if nargout>1
-    varargout{1}=PSF;
-    varargout{2}=x_im;
-    varargout{3}=y_im;
-end
+% if nargout>1
+%     varargout{1} = PSF;
+%     varargout{2} = x_im;
+%     varargout{3} = y_im;
+% end
 
 
 end
