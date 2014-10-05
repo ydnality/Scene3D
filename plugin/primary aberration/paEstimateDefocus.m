@@ -1,5 +1,3 @@
-
-
 function [defocusCoeff,varargout] = paEstimateDefocus(ImagSyst,Obj,varargin)
 %Compute the Defocus Coeffs for the normalized coordinate
 % based on different level of approxiamtion of Nijboer-Zernike Theory
@@ -8,15 +6,16 @@ function [defocusCoeff,varargout] = paEstimateDefocus(ImagSyst,Obj,varargin)
 % function [defocusCoeff] = paEstimateDefocus(ImagSyst,Obj,varargin)
 %
 %INPUT
-%ImagSyst: image system struct
-%Obj:      point source object structure  {.z: position along optical axis; .y:height eccentricity}
-%vararging {1}: method of approximation of the defocus phase aberration
-%function
+%  ImagSyst: image system struct
+%  Obj:      point source object structure  {.z: position along optical axis; .y:height eccentricity}
+%  vararging {1}: method of approximation of the defocus phase aberration
+%                  function
 %
 %OUTPUT
-%Coeff: coeffs for defocus (accordin to the selected method can be from 1
-%to 3 coeffs)
-%varargout{1}: distance between gaussian image point and film position
+%   Coeff: coeffs for defocus (accordin to the selected method can be from 1
+%          to 3 coeffs)
+%    varargout{1}: distance between gaussian image point and film position
+%
 % MP Vistasoft 2014
 
 
@@ -49,7 +48,7 @@ if size(ImagSyst.film{end}.z_pos,1)==nW
 %     defocusZ(:,1)=ImagSyst.film{end}.z_pos; %last film
     defocusZ(:,1)=paraxGet(ImagSyst,'film position');  %last film
 else
-    defocusZ(:,1)=repmat(paraxGet(ImagSyst,'film position'),nW,1);
+    defocusZ(:,1)=repmat(paraxGet(ImagSyst,'film position'),[nW,1]);
 end
 if isinf(ImagSyst.object{end}.z_pos)
     defocusZ(:,2)=paraxGet(ImagSyst,'image focal point'); 
