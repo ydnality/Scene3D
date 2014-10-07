@@ -196,7 +196,7 @@ oiI = rotatedLFObject.createOI(lens,film);
 oiI = oiSet(oiI,'name','Light Field');
 vcAddAndSelectObject(oiI); oiWindow;
 
-theta = 270;
+theta = -310;
 thetaRad = theta/180 * pi;
 rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
                   -sin(thetaRad)   cos(thetaRad)      0           0;

@@ -119,11 +119,13 @@ classdef LFC
                     
                     rayOrigin(1,:) = obj.LF(1,:);
                     rayOrigin(2,:) = obj.LF(2,:);
-                    rayOrigin(3,:) = 0;        % Probably should be a variable name
+                    rayOrigin(3,:) = 0;        
+                    % TODO: Probably should be a variable name. 
+                    % For now, this is ok since the exit plane is assumed to be at z = 0
                     
                     rayDir(1,:) = obj.LF(3,:);
                     rayDir(2,:) = obj.LF(4,:);
-                    rayDir(3,:) = 1 - rayDir(1,:).^2 + rayDir(2,:).^2;
+                    rayDir(3,:) = sqrt(1 - rayDir(1,:).^2 - rayDir(2,:).^2);
                     
                     %create a ray object given this information
                     res = rayC('origin', rayOrigin, 'direction', rayDir, 'waveIndex', obj.get('waveIndex'), 'wave', obj.get('wave'));
