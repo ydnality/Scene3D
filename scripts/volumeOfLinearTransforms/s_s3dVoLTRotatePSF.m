@@ -107,7 +107,7 @@ pointSource = wantedPSLocation;
 LF  = s3dLightField(pointSource, lens);
 oiG = LF.createOI(lens,film);
 oiG = oiSet(oiG,'name','Snell''s Law');
-vcAddObject(oiG); oiWindow;     
+vcAddAndSelectObject(oiG); oiWindow;     
 
 uG = plotOI(oiG,'illuminance hline',[1 135]);
 title(sprintf(oiGet(oiG,'name')));
@@ -194,7 +194,7 @@ rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertur
 % Visualize PSF and phase space
 oiI = rotatedLFObject.createOI(lens,film);
 oiI = oiSet(oiI,'name','Light Field');
-vcAddObject(oiI); oiWindow;
+vcAddAndSelectObject(oiI); oiWindow;
 
 theta = 270;
 thetaRad = theta/180 * pi;
@@ -211,7 +211,7 @@ rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertur
 % Visualize PSF and phase space
 oiI = rotatedLFObject.createOI(lens,film);
 oiI = oiSet(oiI,'name','Light Field');
-vcAddObject(oiI); oiWindow;
+vcAddAndSelectObject(oiI); oiWindow;
 
 % uI = plotOI(oiI,'illuminance hline',[1 135]);
 % title(sprintf(oiGet(oiI,'name')));

@@ -35,7 +35,7 @@ classdef surfaceC <  handle
         sCenter = [0 0 0];          % Sphere's center position
         wave = 400:50:700;          % nm
         apertureD = 1;              % mm diameter
-        n =  ones(length(wave),1);  % index of refraction
+        n =  ones(7,1);  % index of refraction
         
     end
     
@@ -47,7 +47,7 @@ classdef surfaceC <  handle
             %in parameter declaration order).  Zpos assumes that lenses are
             %centered on z-axis.
             
-            if isempty(varargin), return; end
+            %if isempty(varargin), return; end
             
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
@@ -64,6 +64,12 @@ classdef surfaceC <  handle
                         
                     case 'wave'
                         obj.wave = varargin{ii+1};
+                        %obj.n =  ones(length(obj.wave),1);  % index of refraction
+                        % There should be one index of refraction for each
+                        % wavelength
+                        if length(obj.n) ~= length(obj.wave)
+                            warning('Index of refraction vector length does not match wavelength vector length');
+                        end
                         
                     case {'zpos','zposition'}
                         %**MUST be assigned after sCenter is assigned
