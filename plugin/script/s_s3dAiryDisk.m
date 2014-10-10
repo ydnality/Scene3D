@@ -87,10 +87,10 @@ film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'reso
 
 % At this point the film is not yet in the perfect focus plane.  It is just
 % some film somewhere.
-psfCamera1 = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
-psfCamera1.film.position
+camera = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
+camera.film.position
 
-psfCamera1.bbmCreate;
+camera.bbmCreate;
 
 %% Compute and plot the PSF
 
@@ -101,7 +101,7 @@ psfCamera1.bbmCreate;
 % general.  The current situation is a hack
 nSample = 512; % power of 2 for Fast Fourier Transform
 ntime   = 32;  % window width= ntime*normalized_ExPdiameter
-[psf, x_im, y_im] = psfCamera1.ComputeFFTpsf(nSample,ntime); %#ok<NASGU,ASGLU>
+[psf, x_im, y_im] = camera.ComputeFFTpsf(nSample,ntime); %#ok<NASGU,ASGLU>
 % tmp = psf(:,:,1);
 % vcNewGraphWin;
 % surf(x_im(1,:),y_im(1,:),tmp)
@@ -110,29 +110,29 @@ ntime   = 32;  % window width= ntime*normalized_ExPdiameter
 wave0 = 500; %nm
 plotType='surf';
 limit=[];
-psfCamera1.drawFFTpsf(wave0,plotType,limit);  % Should recompute the PSF
+camera.drawFFTpsf(wave0,plotType,limit);  % Should recompute the PSF
 title (['Wavelength: ',num2str(wave0),' [nm]', ' NOT IN FOCUS'])
 
 %% Autofocus
 
 % Place the film distance to be in focus for this wavelength
 inFocusWave = 500;
-psfCamera1.autofocus(inFocusWave,'nm',n_ob,n_im);
-imagePoint = psfCamera1.lens.findImagePoint(pointSource,n_ob,n_im);
+camera.autofocus(inFocusWave,'nm',n_ob,n_im);
+imagePoint = camera.lens.findImagePoint(pointSource,n_ob,n_im);
 
 % These should be the same
 disp(imagePoint(1,3))
-disp(psfCamera1.film.position(3))
+disp(camera.film.position(3))
 
 % Rebuild the bbm
 % AND Re-Compute PSF
 % This shouldn't really be necessary.  When we reposition the film, all the
 % old stuff should be cleared!
-psfCamera1.bbmCreate;
-[psf,x_im,y_im] = psfCamera1.ComputeFFTpsf(nSample,ntime);
+camera.bbmCreate;
+[psf,x_im,y_im] = camera.ComputeFFTpsf(nSample,ntime);
 
 % PLOT
-psfCamera1.drawFFTpsf(wave0,plotType,limit)
+camera.drawFFTpsf(wave0,plotType,limit)
 title (['Wavelength: ',num2str(wave0),' [nm]', ' IN FOCUS'])
 
 %% END
