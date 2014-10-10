@@ -83,6 +83,10 @@ filmSize   = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 resolution =  [300 300 length(wave)];
 film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
+
+
+
+
 %% Create psfCamera structure (point source + lens + film [sensor])
 
 % At this point the film is not yet in the perfect focus plane.  It is just
