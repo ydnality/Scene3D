@@ -12,19 +12,20 @@
 s_initISET
 
 %% Render a pinhole scene.  It can be treated as the scene radiance
-% 
+
 % %TODO: save these scenes and depth maps so that brian can import them
 % sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinhole.pbrt');
 % scene = s3dRenderScene(sceneName, 'indObj');
-% vcAddObject(scene); sceneWindow;
 % 
 % %% Render the depthmap for that pinhole scene
 % sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinholeDepth.pbrt');
 % depthMap = s3dRenderDepthMap(sceneName, 1);
+% 
 % figure; imagesc(depthMap);
 % title('Depth-map For Indestructible Object(units mm)');
 % colorbar;
 % scene = sceneSet(scene, 'depthmap', depthMap);
+% vcAddAndSelectObject(scene); sceneWindow;
 
 %% If modded pbrt is NOT installed on this system, run this command to 
 % load a scene file
@@ -34,7 +35,7 @@ sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObjec
 
 scene = load(sceneFileName);
 scene = scene.scene;
-vcAddObject(scene); sceneWindow;
+vcAddAndSelectObject(scene); sceneWindow;
 %% Basic point source properties (distances)
 
 wave = 400:100:700;            % Wavelength

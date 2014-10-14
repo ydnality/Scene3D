@@ -39,6 +39,7 @@ function scene = s3dRenderScene(inputPbrt, sceneName)
             error('PBRT full file name required.  File not found');
         end
         %if inputPbrt is a char, then it becomes the input file
+        fullfname = inputPbrt;
     else
         error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
     end

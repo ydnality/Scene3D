@@ -1,4 +1,4 @@
-function [LFout, LFmid, LFin] = s3dLightField(pointSource, lens)
+function [LFin] = s3dLightFieldEntrance(pointSource, lens)
 % Create a light field object for the input (point source) and lens
 %
 % LF = s3dLightField(pointSource, lens)
@@ -26,13 +26,11 @@ film = pbrtFilmC;
 ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 
 % Plenoptic point spread calculated with Snell's Law
-ppsf = ppsfCamera.estimatePPSF(0, true);  %0 debug lines; jitter set to true
+ppsf = ppsfCamera.traceToEntrance(0, true);  %0 debug lines; jitter set to true
 
 
 %% Calculate light fields
     
 LFin  = ppsf.LF('in');
-LFmid = ppsf.LF('middle');
-LFout = ppsf.LF('out');
 
 end
