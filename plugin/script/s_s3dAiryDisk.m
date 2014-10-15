@@ -1,17 +1,21 @@
-%s_test_Airy disk.m
+%s_s3dAiryDisk.m
 %
-%  A lens is a set of surfaces without a point or film.  The properties of
-%  the lens independent of the point or film are computed with the lens
-%  function.  These include properties such as the ABCD matrix.  Maybe some
-%  other stuff.  In the lens BBM, there is a relatively few number of
-%  properties that depend only on the lens itself.
+% Show a point source that is out of focus first.  Then move the film plane
+% to the in focus position and compute the point focus again.  This will
+% produce an Airy Disk.
+%
+% A lens is a set of surfaces without a point or film.  The properties of
+% the lens independent of the point or film are computed with the lens
+% function.  These include properties such as the ABCD matrix.  In the lens
+% BBM, there is a relatively few number of properties that depend only on
+% the lens itself. 
 %  
-%  When you make a psfCamera, it has the lens above and also a point and a
-%  film plane.  This permits MP to calculate many more aspects of the
-%  imaging system that require knowledge of the film plane and the object
-%  point.  For example, the Seidel aberrations for that point can be
-%  calculated.  So the BBM for the psfCamera is bigger with more
-%  information in it than the BBM for the lens alone.
+% A psfCamera has the lens and a point and a film plane.  This permits MP
+% to calculate many more aspects of the imaging system that require
+% knowledge of the film plane and the object point.  For example, the
+% Seidel aberrations for that point can be calculated.  So the BBM for the
+% psfCamera is has more information in it than the BBM for the lens
+% alone.
 %
 % PROBLEMS
 %  There are serious problems when the point source distance and film
@@ -84,13 +88,10 @@ resolution =  [300 300 length(wave)];
 film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
 
-
-
-
 %% Create psfCamera structure (point source + lens + film [sensor])
 
-% At this point the film is not yet in the perfect focus plane.  It is just
-% some film somewhere.
+% The film is not yet in the perfect focus plane.  It is just some film
+% somewhere.
 camera = psfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 camera.film.position
 
@@ -111,16 +112,15 @@ ntime   = 32;  % window width= ntime*normalized_ExPdiameter
 % surf(x_im(1,:),y_im(1,:),tmp)
 
 % Select a wavelength
-wave0 = 500; %nm
+inFocusWave = 500; %nm
 plotType='surf';
 limit=[];
-camera.drawFFTpsf(wave0,plotType,limit);  % Should recompute the PSF
-title (['Wavelength: ',num2str(wave0),' [nm]', ' NOT IN FOCUS'])
+camera.drawFFTpsf(inFocusWave,plotType,limit);  % Should recompute the PSF
+title (['Wavelength: ',num2str(inFocusWave),' [nm]', ' NOT IN FOCUS'])
 
 %% Autofocus
 
 % Place the film distance to be in focus for this wavelength
-inFocusWave = 500;
 camera.autofocus(inFocusWave,'nm',n_ob,n_im);
 imagePoint = camera.lens.findImagePoint(pointSource,n_ob,n_im);
 
@@ -136,7 +136,7 @@ camera.bbmCreate;
 [psf,x_im,y_im] = camera.ComputeFFTpsf(nSample,ntime);
 
 % PLOT
-camera.drawFFTpsf(wave0,plotType,limit)
-title (['Wavelength: ',num2str(wave0),' [nm]', ' IN FOCUS'])
+camera.drawFFTpsf(inFocusWave,plotType,limit)
+title (['Wavelength: ',num2str(inFocusWave),' [nm]', ' IN FOCUS'])
 
 %% END
