@@ -110,6 +110,8 @@ classdef lensC <  handle
                     res = obj.name;
                 case 'wave'
                     res = obj.wave;
+                case 'nwave'
+                    res = length(obj.wave);
                 case 'type'
                     res = obj.type;
                 case {'nsurfaces','numels'}

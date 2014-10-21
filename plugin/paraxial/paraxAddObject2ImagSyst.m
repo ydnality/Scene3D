@@ -1,7 +1,6 @@
-%% Add an Object to an Imaging System
-
 function [ImagSyst]=paraxAddObject2ImagSyst(ImagSyst,Obj,varargin)
-
+% Add an Object to an Imaging System
+%
 % %INPUT
 % %ImagSyst: Structures of the ImagSyst system
 % %Obj: Object to be imaged
@@ -10,7 +9,7 @@ function [ImagSyst]=paraxAddObject2ImagSyst(ImagSyst,Obj,varargin)
 % %OUTPUT
 % %ImagSyst: struct of the imagSyst with a new object
 % 
-
+% MP
 
 %Check unit homogenity
 if Obj.unit~=ImagSyst.unit
@@ -220,7 +219,12 @@ ImagSyst.object{index}.meridionalPlane.NumericalAperture.onaxis=paraxEffectiveNu
 typ_comp='paraxial';
 ImagSyst.object{index}.meridionalPlane.NumericalAperture.offaxis_parax=paraxEffectiveNumericalAperture(ImagSyst.n_ob,ImagSyst.object{index}.meridionalPlane.referenceRay.angleParax,ImagSyst.object{index}.meridionalPlane.comaRay.upper.angleParax,typ_comp);
 typ_comp='paraxial';
-ImagSyst.object{index}.meridionalPlane.NumericalAperture.offaxis=paraxEffectiveNumericalAperture(ImagSyst.n_ob,ImagSyst.object{index}.meridionalPlane.referenceRay.angle,ImagSyst.object{index}.meridionalPlane.comaRay.upper.angle,typ_comp);
+
+ImagSyst.object{index}.meridionalPlane.NumericalAperture.offaxis = ...
+    paraxEffectiveNumericalAperture(ImagSyst.n_ob,...
+        ImagSyst.object{index}.meridionalPlane.referenceRay.angle,...
+        ImagSyst.object{index}.meridionalPlane.comaRay.upper.angle,...
+        typ_comp);
 
 
 %% ABERRATION

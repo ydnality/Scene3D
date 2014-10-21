@@ -28,10 +28,10 @@ function val = bbmGetValue(obj,param)
 %              .imSpace.focalPoint: focal point in image space
 %              .imSpace.principalPoint: principal point in image space
 %              .imSpace.nodalPoint: principal point in image space
-%              .obSpace.focalPoint: focal point in object space
+%              .obSpace.focalPoint:     focal point in object space
 %              .obSpace.principalPoint: principal point in object space
-%              .obSpace.nodalPoint: principal point in object space
-%              .abcdMatrix: abcd equivalent matrix; 
+%              .obSpace.nodalPoint:     principal point in object space
+%              .abcdMatrix:             abcd equivalent matrix; 
 %
 %
 % OUTPUT
@@ -52,10 +52,10 @@ end
 param = ieParamFormat(param);
 switch param
     case {'focal'}
-        val.length=BBoxModel.focal.length; %focal length
-        val.radius=BBoxModel.focal.radius; %focal plane radius
-        val.imPoint=BBoxModel.imSpace.focalPoint; %focal point in image space
-        val.obPoint=BBoxModel.obSpace.focalPoint; %focal point in object space
+        val.length  = BBoxModel.focal.length;       %focal length
+        val.radius  = BBoxModel.focal.radius;       %focal plane radius
+        val.imPoint = BBoxModel.imSpace.focalPoint; %focal point in image space
+        val.obPoint = BBoxModel.obSpace.focalPoint; %focal point in object space
     case {'effectivefocallength';'efl'}
         % This can be calculated, and it should be rather than stored IMHO.
         % BW

@@ -1,29 +1,32 @@
+function [SeidelCoeff,log]=paSeidelSum(object,ImagSyst,angle_type,varargin)
 % Compute the Seidel Coeffs for the imaging system highlighting the contribution
 % of each elements usign two rays (principal ray or chief ray, and
 % secondary ray or marginal ray)
-
-function [SeidelCoeff,log]=paSeidelSum(object,ImagSyst,angle_type,varargin)
-
-
+%
+% PROGRAMMING BUG -  See comments towards end about A4, and the hack BW
+% introduced here to make this run for the 2-element lens
+%
 %INPUT
-
+%
 %object:  structure describing the object which is imaged through the
 %imaging system
 %ImagSyst: imaging system through which theobject is imaged
 % varargin {1} abbenumber of the object space; {2} abbenumber of the image
 % space
-
-
+%
+%
 %OUTPUT
 %SeidelCoeffs:structure with the seidel coeffs of the overal system
 %log: descrive each elements 
-
+%
 %NOTE: N: #sampling wavelength
 %      M: #of surface
 % The Seidel Sum is computed usign two different rays (called here as CHIEF
 % RAY/principal ray and MARGINAL RAY/secondary ray).
 % The secondary ray can be selected to be the REAL marginal ray of the
 % system or the a ZONAL rays
+%
+% MP Vistasoft Team, Copyright 2014
 
 
 %% CHECK INPUT
@@ -98,7 +101,10 @@ SV2=zeros(nw,length(C));
 
 for si=1:length(C)
     
-    %Aspherical contribution- Aspherical Lens{http://www.edmundoptics.com/technical-resources-center/optics/all-about-aspheric-lenses/}
+    % Aspherical contribution - 
+    % Aspherical Lens{http://www.edmundoptics.com/technical-resources-center/optics/all-about-aspheric-lenses/}
+    % Sometimes C is infinite (2 element lens case) which produces A4 as a
+    % NaN and creates problems with any(A4) ~=0 below.
     A4(si)=(k(si).*C(si).^3)/8;
     
     %% Paraxial ray tracing: REFRACTION
@@ -236,7 +242,9 @@ log.principalRay.name=special_rays{1}; %name of principal ray
 log.secondaryRay.name=special_rays{2}; %name of secondary ray
 log.principalRay.selection=special_param{1}; %extra parameter for the selection of  principal ray
 log.secondaryRay.selection=special_param{2}; %extra parameter for the selection of  secondary ray
-if any(A4~=0)
+
+l = (A4 ~= 0);
+if ~isnan(A4(l))
     log.asphericalCoeff.SI=dSI;log.asphericalCoeff.SII=dSII;
     log.asphericalCoeff.SIII=dSIII;log.asphericalCoeff.SIV=dSIV;
     log.asphericalCoeff.SV=dSV;log.asphericalCoeff.SVI=dSVI;
