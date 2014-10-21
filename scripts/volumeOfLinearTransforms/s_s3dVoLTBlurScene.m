@@ -241,16 +241,19 @@ for i = 1:oiSize(1)
         
         %convert this to the PSF location in 3 space... somehow... using
         %the depth map and some geometry
-        
-        
         wantedPSLocation = [0 0 0];
         wantedPSLocation(3) = -103;
-        wantedPSLocation(2) = fieldHeight/2;
+        %wantedPSLocation(2) = fieldHeight/2;  %works as a placeholder
         %wantedPSLocation(2) = fieldHeight/oiSize(2) * resizedDepth(i,j)/filmDistance;
-        %wantedPsLocation(3) = -resizedDepth(i,j);
-       
         
-        %wantedPSLocation = [0 15 -103];
+        %this gives the current angle with respect to optical axis, when
+        %using the radially symmetric field height (in radians)
+        currentAngle = fieldHeight/oiSize(2)/2 * hfov/2 * pi/180; 
+        currentDepth = 103; %assumed to be 103 for now for simplicity
+        wantedPSLocation(2) = tan(currentAngle) * currentDepth;
+        
+        %wantedPsLocation(3) = -resizedDepth(i,j);
+        %wantedPSLocation = [0 15 -103]; %some testing with PS locations
         
         
         % --- figure out PSF for current point in scene ---
