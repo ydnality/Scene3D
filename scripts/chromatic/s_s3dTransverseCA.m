@@ -35,5 +35,8 @@ ppsfCamera.bbmCreate;
 % Still doesn't work.  Ask MP what's going on
 ppsfCamera.bbmGetValue('focal')
 
+ppsfCamera.bbmGetValue('effective focal length')
+
+
 
 %% End
