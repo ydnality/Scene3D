@@ -205,7 +205,7 @@ adjustedMiddleApertureRadius = 4;
 [~,~,inputLF]  = s3dLightField(pointSource, lens);
 
 % Make an LT (linear transform) object and apply the LT on the inputLF
-%LTObject = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
+LTObject = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
 outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
 
 % Visualize PSF and phase space

@@ -52,7 +52,7 @@ s_initISET
 % At this moment, we only change in field height, not yet depth.
 %pSY = 0.01:.3:2;
 
-pSY = 15:.3:17;
+pSY = 0:3:18;
 pSZ = [-103 -102.75];   %values must be monotonically increasing!!
 
 %desired pSLocation for interpolation
@@ -91,8 +91,9 @@ end
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
+filmResolution = [50 50];
 film = pbrtFilmC('position', [0 0 100 ], ...
-    'size', [40 40], 'resolution', [50 50],  ...
+    'size', [40 40], 'resolution', filmResolution,  ...
     'wave', wave);
 
 %% Compute Snell's Law PSF at point source field height
@@ -221,12 +222,16 @@ for i = 1:oiSize(1)
     i
     for j = 1:oiSize(2)
         
+        film = pbrtFilmC('position', [0 0 100 ], ...
+        'size', [40 40], 'resolution', filmResolution,  ...
+        'wave', wave);
+        
         %figure out rotation of pixel
         %this will be the rotation from the positive y = 0 line in a
         %counter-clockwise fashion
         x = i - center(2);  %consider vectorizing for speed
         y = j - center(1);
-        thetaRad = atan(y/x);
+        thetaRad = atan2(y,x);
         thetaDeg = thetaRad/pi * 180;
         
         %figure out field height
@@ -240,10 +245,12 @@ for i = 1:oiSize(1)
         
         wantedPSLocation = [0 0 0];
         wantedPSLocation(3) = -103;
+        wantedPSLocation(2) = fieldHeight/2;
         %wantedPSLocation(2) = fieldHeight/oiSize(2) * resizedDepth(i,j)/filmDistance;
         %wantedPsLocation(3) = -resizedDepth(i,j);
+       
         
-        wantedPSLocation = [0 15 -103];
+        %wantedPSLocation = [0 15 -103];
         
         
         % --- figure out PSF for current point in scene ---
@@ -253,7 +260,9 @@ for i = 1:oiSize(1)
         
         %calculate the lightfield from this particular point source
         adjustedMiddleApertureRadius = 4;
-        [inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
+        %[inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
+        [~,~,inputLF]  = s3dLightField(wantedPSLocation, lens);   %traces rays to entrance only. 
+        
         
         % Make an LT (linear transform) object and apply the LT on the inputLF
         outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
@@ -264,7 +273,6 @@ for i = 1:oiSize(1)
             -sin(thetaRad)   cos(thetaRad)      0           0;
             0             0               cos(thetaRad)  sin(thetaRad)
             0             0               -sin(thetaRad) cos(thetaRad)];
-        
         
         rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);
         RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
