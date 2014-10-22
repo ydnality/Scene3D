@@ -81,6 +81,8 @@ classdef lensC <  handle
                             obj.apertureSample = varargin{ii+1};  %must be a 2 element vector
                         case 'aperturemiddled'
                             obj.apertureMiddleD = varargin{ii+1};
+                        case 'apertureindex'
+                            obj.apertureIndex(varargin{ii+1});
                         case 'focallength'
                             obj.focalLength = varargin{ii+1};
                         case 'diffractionenabled'
@@ -224,6 +226,10 @@ classdef lensC <  handle
                 case 'surfacearray'
                     % lens.set('surface array',val);
                     obj.surfaceArray = val;
+                case 'surfacearrayindex'
+                    index=varargin{1};
+                    % lens.set('surface array',val);
+                    obj.surfaceArray(index) = val;
                 case 'nall'
                     % Set the index of refraction to all the surfaces
                     nSurfaces = obj.get('n surfaces');
