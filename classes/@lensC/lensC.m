@@ -118,9 +118,18 @@ classdef lensC <  handle
                     % Should be nsurfaces
                     res = length(obj.surfaceArray);
                 case 'totaloffset'
-                    res = -(obj.surfaceArray(1).sCenter(3) - obj.surfaceArray(1).sRadius);
+                    % This is the size (in mm) from the front surface to
+                    % the back surface.  The last surface is at 0, so the
+                    % position of the first surface is the total size.
+                    sArray = obj.surfaceArray;
+                    res    = -1*sArray(1).get('zpos');
+                    % res = -(obj.surfaceArray(1).sCenter(3) - obj.surfaceArray(1).sRadius);
                 case 'surfacearray'
-                    res = obj.surfaceArray;
+                    % lens.get('surface array',[which surface])
+                    if isempty(varargin), res = obj.surfaceArray;
+                    else                  res = obj.surfaceArray(varargin{1});
+                    end
+                    
                 case {'indexofrefraction','narray'}
                     nSurf = obj.get('nsurfaces');
                     sWave  = obj.surfaceArray(1).wave;
@@ -196,19 +205,25 @@ classdef lensC <  handle
         end
         
         %% Set
-        % This could go away some day.  But for now, the wavelength set is
-        % ridiculous because there are so many copies of wave.  So, we
-        % should set it here rather than addressing every surface element.
+
         function set(obj,pName,val,varargin)
             pName = ieParamFormat(pName);
             switch pName
                 case 'wave'
+                    % lens.set('wave',val);
                     % The wavelength is annoying.
+                    % This could go away some day.  But for now, the wavelength set is
+                    % ridiculous because there are so many copies of wave.  So, we
+                    % should set it here rather than addressing every surface element.
+                    % (BW)
                     obj.wave = val;
                     nSurfaces = obj.get('n surfaces');
                     for ii=1:nSurfaces
                         obj.surfaceArray(ii).set('wave', val);
                     end
+                case 'surfacearray'
+                    % lens.set('surface array',val);
+                    obj.surfaceArray = val;
                 case 'nall'
                     % Set the index of refraction to all the surfaces
                     nSurfaces = obj.get('n surfaces');
@@ -222,9 +237,11 @@ classdef lensC <  handle
                     obj.bbmSetField(pName,val);
                     
                 case {'blackboxmodel';'blackbox';'bbm'}
-                    %Get the parameters from the optical system structure to build an  equivalent Black Box Model of the lens.
-                    % The OptSyst structure has to be built with the function 'paraxCreateOptSyst'
-                    % Get 'new' origin for optical axis
+                    % Get the parameters from the optical system structure
+                    % to build an  equivalent Black Box Model of the lens.
+                    % The OptSyst structure has to be built with the
+                    % function 'paraxCreateOptSyst' Get 'new' origin for
+                    % optical axis
                     OptSyst=val;                    
 %                     z0 = OptSyst.cardPoints.lastVertex;
                     z0=paraxGet(OptSyst,'lastVertex');

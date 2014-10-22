@@ -72,8 +72,11 @@ classdef surfaceC <  handle
                         end
                         
                     case {'zpos','zposition'}
-                        %**MUST be assigned after sCenter is assigned
-                        %assumes that lenses are centered on z axis
+                        % Sets the center of the sphere position from the
+                        % position (z) of the surface and the surface
+                        % radius.
+                        % This can only be calculated after setting sRadius
+                        % assumes that lenses are centered on z axis
                         zPos = varargin{ii+1};
                         obj.sCenter = [ 0 0 obj.centerComputeFromZSRadius(zPos)];
                         
@@ -104,8 +107,12 @@ classdef surfaceC <  handle
                     res = obj.wave;
                 case 'n'
                     res = obj.n;
-                case 'zintercept'
-                    %assumes a centered lens on the y = 0 axis;
+                case {'zpos','zintercept'}
+                    % The z-position of the surface.  
+                    % The surface is a sphere.  We know the position of the
+                    % sphere center. We subtract the sphere radius to find
+                    % the position of the surface, centered on the y = 0
+                    % axis.
                     res = obj.sCenter(3) - obj.sRadius;
                 otherwise
                     error('Unknown parameter %s\n',pName);
