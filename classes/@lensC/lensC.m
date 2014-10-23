@@ -229,7 +229,10 @@ classdef lensC <  handle
                 case 'surfacearrayindex'
                     index=varargin{1};
                     % lens.set('surface array',val);
-                    obj.surfaceArray(index) = val;
+                    obj.surfaceArray(index) = val;                    
+                case 'apertureindex'
+                    index=val;
+                    obj.apertureIndex(index); % Set the surface (specify by varargin) as aperture                    
                 case 'nall'
                     % Set the index of refraction to all the surfaces
                     nSurfaces = obj.get('n surfaces');
