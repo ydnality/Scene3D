@@ -45,13 +45,12 @@ ppsfCamera.estimatePSF(nLines,jitterFlag);
 oi = ppsfCamera.oiCreate;
 vcAddObject(oi); oiWindow;
 
-%% 
+%% Shifting the aperture position to create transverse CA
 
 s = lens.get('surface array',2);
 p = s.get('zpos');
-s.set('zpos',p - 15)
+s.set('zpos',p - 22)
 lens.sortSurfaceOrder;
-
 
 nLines = 0; jitterFlag = true;
 

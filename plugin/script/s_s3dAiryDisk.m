@@ -72,8 +72,7 @@ lens.set('wave', wave);
 
 %Specify which surface works as diaphragm
 apertureIndex=6;
-lens.set('apertureindex', apertureIndex);
-
+lens.set('aperture index', apertureIndex);
 
 n = lens.get('nArray');
 

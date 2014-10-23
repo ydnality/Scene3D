@@ -40,11 +40,8 @@ ppsfCamera = ppsfCameraC('lens',lens,'film',film,'point source',ps);
 %% Ray trace
 
 
-%% Problem with bbm 
+%% Using bbm 
 ppsfCamera.bbmCreate;
-
-% Still doesn't work.  Ask MP what's going on
-% ppsfCamera.bbmGetValue('focal')
 
 ppsfCamera.bbmGetValue('effective focal length')
 
