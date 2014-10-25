@@ -233,7 +233,8 @@ classdef lensC <  handle
                 case 'apertureindex'
                     % lens.set('aperture index',val);
                     % Indicates which of the surfaces is the aperture.
-                    obj.apertureIndex(val); % Set the surface (specify by varargin) as aperture                    
+                    index=val;
+                    obj.apertureIndex(index); % Set the surface (specify by varargin) as aperture                    
                 case 'nall'
                     % Set the index of refraction to all the surfaces
                     nSurfaces = obj.get('n surfaces');
