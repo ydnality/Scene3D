@@ -69,6 +69,11 @@ lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import   = load(lensFile,'lens');
 lens     = import.lens;
 lens.set('wave', wave);
+
+%Specify which surface works as diaphragm
+apertureIndex=6;
+lens.set('aperture index', apertureIndex);
+
 n = lens.get('nArray');
 
 % If the aperture is very small then the lens will be approximately

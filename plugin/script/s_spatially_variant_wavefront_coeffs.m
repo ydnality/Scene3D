@@ -68,8 +68,8 @@ for fi=1:length(angle_field)
         spher(fi,di,:)=paO.W40; %spherical aberration
         petzval(fi,di,:)=paO.W20; %petzval
         astig(fi,di,:)=paO.W22; %astigm
-        coma(fi,di,:)=paO.W31; %astigm
-        dist(fi,di,:)=paO.W11; %astigm
+        coma(fi,di,:)=paO.W31; %coma
+        dist(fi,di,:)=paO.W11; %distorsion
     end   
     
 end

@@ -151,6 +151,10 @@ classdef surfaceC <  handle
                     if length(obj.n) ~= length(obj.wave)
                         error('Index of refraction vector length does not match wavelength vector length');
                     end
+                    
+                case {'subtype'}
+                    % Type of surface
+                    obj.subtype = val;
                         
                 otherwise
                     error('Unknown parameter %s\n',pName);

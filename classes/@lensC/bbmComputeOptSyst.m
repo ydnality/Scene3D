@@ -34,27 +34,32 @@ N=ones(nw,nelem);
 inD=1;
 
 %% Get the parameter to build the Optical System
+ 
+%USING SUBTYPE
 for ni=1:nelem
     %Get the structure
     S=obj.surfaceArray(ni);
-    if all(S.n==0)
-        surftype{ni}='diaphragm';  
-        if (S.apertureD==obj.apertureMiddleD) %Check if the aperture size is changed
-            Diam(ni)=S.apertureD; %aperture diameter
-        else
-            Diam(ni)=obj.apertureMiddleD; %set aperture change
-        end
-        %save indices of the aperture
-        indDiaph(inD)=ni;
-        inD=inD+1;
+    switch S.subtype
+        case {'diaphragm';'diaphr'}
+            surftype{ni}='diaphragm';  
+            if (S.apertureD==obj.apertureMiddleD) %Check if the aperture size is changed
+                Diam(ni)=S.apertureD; %aperture diameter
+            else
+                Diam(ni)=obj.apertureMiddleD; %set aperture change
+            end
+            %save indices of the aperture
+            indDiaph(inD)=ni;
+            inD=inD+1;
 
-        if ni>1
-            N(:,ni)=N(:,ni-1); %refractive indices
-       end
-    else
-        surftype{ni}='refr';
-        N(:,ni)=S.n';           %refractive indices                
-        Diam(ni)=S.apertureD; %aperture diameter
+            if ni>1
+                N(:,ni)=N(:,ni-1); %refractive indices
+           end
+        case {'refractive';'refr'}
+            surftype{ni}='refr';
+            N(:,ni)=S.n';           %refractive indices                
+            Diam(ni)=S.apertureD; %aperture diameter
+        otherwise
+            error (['NOT VALID ',S.subtype,' as surface subtype'])
     end
     Radius(ni)=S.sRadius; %radius of curvature
     posZ(ni)=S.get('zintercept');
@@ -62,6 +67,41 @@ for ni=1:nelem
     %asphericity (conical parameter)
     
 end
+
+
+ 
+%OLD VERSION: diaphragm was recognized as the refractive surface with the
+%refrctive index equal to zero
+
+% for ni=1:nelem
+%     %Get the structure
+%     S=obj.surfaceArray(ni);
+%     if all(S.n==0)
+%         surftype{ni}='diaphragm';  
+%         if (S.apertureD==obj.apertureMiddleD) %Check if the aperture size is changed
+%             Diam(ni)=S.apertureD; %aperture diameter
+%         else
+%             Diam(ni)=obj.apertureMiddleD; %set aperture change
+%         end
+%         %save indices of the aperture
+%         indDiaph(inD)=ni;
+%         inD=inD+1;
+% 
+%         if ni>1
+%             N(:,ni)=N(:,ni-1); %refractive indices
+%        end
+%     else
+%         surftype{ni}='refr';
+%         N(:,ni)=S.n';           %refractive indices                
+%         Diam(ni)=S.apertureD; %aperture diameter
+%     end
+%     Radius(ni)=S.sRadius; %radius of curvature
+%     posZ(ni)=S.get('zintercept');
+%     %% OTHER FIELDs
+%     %asphericity (conical parameter)
+%     
+% end
+
 % Set new origin as the First Surface
 PosZ=posZ-posZ(1);
 

@@ -54,7 +54,7 @@ s_initISET
 
 pSY = .1:3:31;
 pSY = [0 pSY];
-pSZ = [-110 -103 -70];   %values must be monotonically increasing!!
+pSZ = [-110 -103 -60];   %values must be monotonically increasing!!
 
 %desired pSLocation for interpolation
 wantedPSLocation = [0 15.8 -103];
@@ -231,7 +231,7 @@ for i = 1:oiSize(2)
         %using the radially symmetric field height (in radians)
         currentAngle = fieldHeight/(oiSize(2)/2) * (sceneHFOV/2) * (pi/180);   % figure out FOV stuff... do we use scene FOV or oi FOV?
         %currentDepth = 110; %assumed to be 103 for now for simplicity
-        currentDepth = resizedDepth(j,i);
+        currentDepth = resizedDepth(i,j);
         wantedPSLocation(3) = -currentDepth;
         wantedPSLocation(2) = tan(currentAngle) * currentDepth;
         

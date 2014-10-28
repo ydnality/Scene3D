@@ -14,8 +14,12 @@ s_initISET
 %% Make a lens with an aperture in the middle.
 lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 apertureD = 8;
-lens = lensC('fileName', lensFileName,'aperture middle d',apertureD);
+apertureINDEX=6; %the aperture is the  6th surface so its subtype will be 'diaphram'
+lens = lensC('fileName', lensFileName,'aperture middle d',apertureD,'aperture index',apertureINDEX);
 lens.draw;
+
+% 
+% lens.surfaceArray(6).subtype='diaphragm';
 
 % Set the n values for all the lenses to range from 1.3 to 1.7
 % Should the aperture (n = 6) have all ones?
@@ -29,18 +33,15 @@ end
 film = pbrtFilmC;
 
 % Make a point source
-ps = [20 0 -200];
+ps = [20 0 -2000000000];
 
 ppsfCamera = ppsfCameraC('lens',lens,'film',film,'point source',ps);
 
 %% Ray trace
 
 
-%% Problem with bbm 
+%% Using bbm 
 ppsfCamera.bbmCreate;
-
-% Still doesn't work.  Ask MP what's going on
-% ppsfCamera.bbmGetValue('focal')
 
 ppsfCamera.bbmGetValue('effective focal length')
 
