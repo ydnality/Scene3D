@@ -30,7 +30,8 @@ obj.ppsfRays.expandWavelengths(obj.lens.wave);
 
 %project rays onto the z = 0 plane for a proper light field
 %obj.ppsfRays.projectOnPlane(0);
-%obj.ppsfRays.pointSourceLocation = obj.pointSource;
+
+obj.ppsfRays.pointSourceLocation = obj.pointSource;
 ppsfReturn = obj.ppsfRays;
 
 end

@@ -152,7 +152,8 @@ classdef lensC <  handle
                     else this = varargin{1};
                     end
                     res = obj.surfaceArray(this).apertureD;
-                    
+                case 'aperturesample'
+                    res =  obj.apertureSample ;    
                 case {'middleapertured','aperturemiddled'}
                     % The diameter of the middle aperture
                     % units are mm
@@ -224,6 +225,8 @@ classdef lensC <  handle
                 case 'surfacearray'
                     % lens.set('surface array',val);
                     obj.surfaceArray = val;
+                case 'aperturesample'
+                            obj.apertureSample = val; 
                 case 'nall'
                     % Set the index of refraction to all the surfaces
                     nSurfaces = obj.get('n surfaces');

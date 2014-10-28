@@ -60,6 +60,14 @@ classdef pbrtFilmC <  clonableHandleObject
             obj.image = zeros(obj.resolution);
         end
         
+        function clear(obj)
+            %clears the content of the film
+            %
+            %Example: film.clear();
+            %
+            
+           obj.image = zeros(size(obj.image)); 
+        end
         
     end
     

@@ -52,11 +52,13 @@ s_initISET
 % At this moment, we only change in field height, not yet depth.
 %pSY = 0.01:.3:2;
 
-pSY = 0:3:18;
-pSZ = [-103 -102.75];   %values must be monotonically increasing!!
+pSY = .1:3:31;
+pSY = [0 pSY];
+pSZ = [-110 -103 -70];   %values must be monotonically increasing!!
 
 %desired pSLocation for interpolation
 wantedPSLocation = [0 15.8 -103];
+%NOTE: there is something funky going at the 0 location...
 
 theta = -90;
 
@@ -66,7 +68,7 @@ theta = -90;
 %lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
-nSamples = 151;
+nSamples = 11;
 apertureMiddleD = 8;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
@@ -91,7 +93,7 @@ end
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
-filmResolution = [50 50];
+filmResolution = [100 100];
 film = pbrtFilmC('position', [0 0 100 ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
     'wave', wave);
@@ -135,8 +137,6 @@ vcAddAndSelectObject(oiG); oiWindow;
 VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', wave); 
 VoLTObject.calculateMatrices();
 
-
-
 %% Read the Scene
 % If modded pbrt is NOT installed on this system, run this command to 
 % load a scene file
@@ -148,7 +148,7 @@ scene = load(sceneFileName);
 scene = scene.scene;
 vcAddAndSelectObject(scene); sceneWindow;
 
-%% Determine the size of the output image
+%% Some bookkeeping for scene and oi size
 
 % Dimensions of scene data
 numRows = sceneGet(scene, 'rows');
@@ -159,56 +159,38 @@ numCols = sceneGet(scene,'cols');
 psfFilmPixelSize = film.size(1)/film.resolution(1);     %mm consider putting this in a function
 
 % Size of scene sample pixel
-%largePixelSize = 70/sqrt(2)/numRows;  %mm   
 renderWave = film.wave;
-
-%should match the PSFStructure film Z to be consistent
-filmDistance = film.position(3); 
-
-%70/sqrt(2) represents row size/diagonal  TODO: find a way to automate this
-%This size should correspond to the size sensor you wish to use for the
-%forward calculation.  
 
 % Amount that PSF film needs to be scaled to be equivalent to scene sample
 %size
 %scaleFactor = smallPixelSize/largePixelSize;
 sceneSize = sceneGet(scene, 'size');
-scaleFactor = film.resolution(1)/sceneSize(1); %conversion factor from scene scale to film scale
-
-% Create an oi
-oi = oiCreate;
-oi = initDefaultSpectrum(oi);
 
 % Use scene data as photons first
 scene = sceneSet(scene,'wave', renderWave);
 dM = sceneGet(scene, 'depthmap');
-photons = sceneGet(scene, 'photons');
-oi = oiSet(oi, 'wave', renderWave);
-oi = oiSet(oi, 'cphotons', photons);
+unBlurredPhotons = sceneGet(scene, 'photons');
+vcAddAndSelectObject(scene); sceneWindow;
 
+%Calculate approximate FOV of lens and film.  Does Michael's bbox model
+%improve upon this?
+%hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
 
-%experimental  - this is copied from psfCamera.oiCreate.  Is this correct?
-%What are some non ideal behavior?   do we take from size(1), or size(2)?
-%for horizontal FOV?  
-hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
-oi = oiSet(oi,'hfov', hfov);
+% we need to take into account the magnification (wikipedia)
+% alpha = 2arctan(d/2F(1 + m), where m = S2/S1 ... where 1/S2 (film distance) + 1/S1 = 1/f
+objectFocusPosition = 1/(1/lens.focalLength - 1/film.position(3)); %this is the position in the scene that will result in theoreitcal perfect focus in scene
+hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength * (1  + film.position(3)/objectFocusPosition)));
+hfov = hfov * .75; %for padding - we have issues with it going off the oi right now...
+
+% set the fov of scene so that the cropping approximately fits fov of oi (given the focal length of lens and size of film)
+scene = sceneSet(scene, 'hfov', hfov);  
 filmDistance = film.position(3);
 
-
-% Pad the oi for future processing
-% padAmount = (round(size(PSFStructure.film.image,1) * scaleFactor) * 2);
-% oi = oiPad(oi, [padAmount padAmount]);
-
-% Obtain unblurred image, to be used later
-unBlurredPhotons = oiGet(oi, 'photons');
-photonSum = zeros(size(oiGet(oi,'photons')));
-
-vcAddObject(oi); oiWindow;
-
 %% Blur the scene - this is for a circularly symmetric lens
+tic
 
 %resize scene to the size of film
-unBlurredPhotons = oiGet(oi, 'photons');
+unBlurredPhotons = sceneGet(scene, 'photons');
 unBlurredPhotons = imresize(unBlurredPhotons, [film.resolution(1), film.resolution(2)]);
 resizedDepth = imresize(sceneGet(scene, 'depth map'), [film.resolution(1), film.resolution(2)]);
 blurredPhotons = zeros(size(unBlurredPhotons));
@@ -217,21 +199,20 @@ blurredPhotons = zeros(size(unBlurredPhotons));
 %for each pixel...
 oiSize = size(unBlurredPhotons); 
 center = oiSize./2;
+sceneHFOV = sceneGet(scene, 'hfov');
 
-for i = 1:oiSize(1)
+%TODO: parfor - 8x faster! (in theory.. .and if we can get this to work..)
+for i = 1:oiSize(2)
     i
-    for j = 1:oiSize(2)
-        
-        film = pbrtFilmC('position', [0 0 100 ], ...
-        'size', [40 40], 'resolution', filmResolution,  ...
-        'wave', wave);
+    for j = 1:oiSize(1)
+        film.clear();
         
         %figure out rotation of pixel
         %this will be the rotation from the positive y = 0 line in a
         %counter-clockwise fashion
-        x = i - center(2);  %consider vectorizing for speed
-        y = j - center(1);
-        thetaRad = atan2(y,x);
+        x = -(j - center(2));  %consider vectorizing for speed
+        y = i - center(1);
+        thetaRad = atan2(x,y);
         thetaDeg = thetaRad/pi * 180;
         
         %figure out field height
@@ -242,30 +223,32 @@ for i = 1:oiSize(1)
         %convert this to the PSF location in 3 space... somehow... using
         %the depth map and some geometry
         wantedPSLocation = [0 0 0];
-        wantedPSLocation(3) = -103;
+        
         %wantedPSLocation(2) = fieldHeight/2;  %works as a placeholder
         %wantedPSLocation(2) = fieldHeight/oiSize(2) * resizedDepth(i,j)/filmDistance;
         
         %this gives the current angle with respect to optical axis, when
         %using the radially symmetric field height (in radians)
-        currentAngle = fieldHeight/oiSize(2)/2 * hfov/2 * pi/180; 
-        currentDepth = 103; %assumed to be 103 for now for simplicity
+        currentAngle = fieldHeight/(oiSize(2)/2) * (sceneHFOV/2) * (pi/180);   % figure out FOV stuff... do we use scene FOV or oi FOV?
+        %currentDepth = 110; %assumed to be 103 for now for simplicity
+        currentDepth = resizedDepth(j,i);
+        wantedPSLocation(3) = -currentDepth;
         wantedPSLocation(2) = tan(currentAngle) * currentDepth;
+        
         
         %wantedPsLocation(3) = -resizedDepth(i,j);
         %wantedPSLocation = [0 15 -103]; %some testing with PS locations
         
-        
         % --- figure out PSF for current point in scene ---
-        
         %first get the linear transform
         LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
         
         %calculate the lightfield from this particular point source
         adjustedMiddleApertureRadius = 4;
-        %[inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
-        [~,~,inputLF]  = s3dLightField(wantedPSLocation, lens);   %traces rays to entrance only. 
         
+        %TODO: get the s3dLightFieldEntrance function working!
+        %[inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
+        [inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
         
         % Make an LT (linear transform) object and apply the LT on the inputLF
         outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
@@ -282,16 +265,22 @@ for i = 1:oiSize(1)
         rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
         
         % Visualize PSF and phase space
-        oiI = rotatedLFObject.createOI(lens,film);  %has 7 channels for some reason
+        oiI = rotatedLFObject.createOI(lens,film);
         psfPhotons = oiGet(oiI, 'photons');
-        
         
         %convert the oi of the PSF and multiply by spectral radiance of the
         %scene, and add together, in order to blur the scene
         
+        if(isnan(psfPhotons(:)))
+            warning('nan photons');   
+            %problem: when oiI is all 0's... for whatever reason, the min
+            %and max is not set correctly and results in nans.  Investigate
+            %this in the future;
+            psfPhotons = zeros(size(psfPhotons));   %this is a hack for now
+        end
+        
         illuminanceWeight = repmat(unBlurredPhotons(i,j, :), [size(psfPhotons, 1) size(psfPhotons, 2)]);
         blurredPhotons = blurredPhotons + psfPhotons .* illuminanceWeight; 
-
     end
 end
 
@@ -299,95 +288,106 @@ end
 maxVal = max(max(blurredPhotons(:,:,1)));
 figure; imshow(blurredPhotons(:,:,1)/maxVal);
 
-%% 
-% Obtain an A given a wanted pSLocation by linear interpolation
-% A different A matrix will be calculated for each wavelengths.  We will
-% loop through all the wavelengths.  The wave samples assumed are the ones
-% from the lens.  These should be synchronized with everything else.  
+% Create an oi and assign blurred photons to oi
+oi = oiCreate;
+oi = initDefaultSpectrum(oi);
+oi = oiSet(oi, 'wave', renderWave);
+oi = oiSet(oi, 'cphotons', blurredPhotons);
+oi = oiSet(oi,'hfov', hfov);
 
-LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
+vcAddObject(oi); oiWindow;
 
-% Calculate the PSF, using the 2 A matrices and the aperture in the middle
+toc
 
-% This illustrates that the aperture can be changed quickly in the
-% simulation, without recomputing the VOLT class
-%
-% Once again, this result should not be too much different from the ground
-% truth PSF, unless adjustedMiddleAperture was changed.
-%
-% This experiment demonstrates the flexibility of the transform method.  We
-% can quickly produce PSFs at arbitrary field heights, and aperture shapes
-% and sizes, given the VOLT model.
-%
-% We are no longer "cheating" in this experiemnt because we are using the
-% assumption that ONLY the middle aperture will constrict light flow in
-% this system.  For middle apertures that are smaller than the other
-% apertures, this assumption should be valid.
-
-% Break this out into a separate couple of scripts that illustrate changing
-% the properties of the aperture
-
-%*** change this parameter to change the size of the middle aperture for the
-%lens
-
-
-% new film...
-film = pbrtFilmC('position', [0 0 100 ], ...
-    'size', [40 40], ...
-    'wave', wave);
-
-
-adjustedMiddleApertureRadius = 4;
-
-[~,~,inputLF]  = s3dLightField(pointSource, lens);
-
-% Make an LT (linear transform) object and apply the LT on the inputLF
-outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
-
-% Apply linear rotation transform on LF
-thetaRad = theta/180 * pi;
-rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
-                  -sin(thetaRad)   cos(thetaRad)      0           0;
-                  0             0               cos(thetaRad)  sin(thetaRad)
-                  0             0               -sin(thetaRad) cos(thetaRad)];
-              
-
-rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);              
-RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
-rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
-              
-% Visualize PSF and phase space
-oiI = rotatedLFObject.createOI(lens,film);
-oiI = oiSet(oiI,'name','Light Field');
-vcAddAndSelectObject(oiI); oiWindow;
-
-theta = -310;
-thetaRad = theta/180 * pi;
-rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
-                  -sin(thetaRad)   cos(thetaRad)      0           0;
-                  0             0               cos(thetaRad)  sin(thetaRad)
-                  0             0               -sin(thetaRad) cos(thetaRad)];
-              
-
-rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);              
-RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
-rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
-              
-
-
-
-
-% Visualize PSF and phase space
-oiI = rotatedLFObject.createOI(lens,film);
-oiI = oiSet(oiI,'name','Light Field');
-vcAddAndSelectObject(oiI); oiWindow;
-
-% uI = plotOI(oiI,'illuminance hline',[1 135]);
-% title(sprintf(oiGet(oiI,'name')));
+% %% 
+% % Obtain an A given a wanted pSLocation by linear interpolation
+% % A different A matrix will be calculated for each wavelengths.  We will
+% % loop through all the wavelengths.  The wave samples assumed are the ones
+% % from the lens.  These should be synchronized with everything else.  
 % 
-% vcNewGraphWin;
-% plot(uI.pos,uI.data,'r-',uG.pos,uG.data,'b--');
-% grid on; xlabel('position'); ylabel('Illuminance')
-
-% vcNewGraphWin; plot(uI.data(:)/max(uI.data(:)),uG.data(:)/max(uG.data(:)),'o')
-% grid on; identityLine;
+% LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
+% 
+% % Calculate the PSF, using the 2 A matrices and the aperture in the middle
+% 
+% % This illustrates that the aperture can be changed quickly in the
+% % simulation, without recomputing the VOLT class
+% %
+% % Once again, this result should not be too much different from the ground
+% % truth PSF, unless adjustedMiddleAperture was changed.
+% %
+% % This experiment demonstrates the flexibility of the transform method.  We
+% % can quickly produce PSFs at arbitrary field heights, and aperture shapes
+% % and sizes, given the VOLT model.
+% %
+% % We are no longer "cheating" in this experiemnt because we are using the
+% % assumption that ONLY the middle aperture will constrict light flow in
+% % this system.  For middle apertures that are smaller than the other
+% % apertures, this assumption should be valid.
+% 
+% % Break this out into a separate couple of scripts that illustrate changing
+% % the properties of the aperture
+% 
+% %*** change this parameter to change the size of the middle aperture for the
+% %lens
+% 
+% 
+% % new film...
+% film = pbrtFilmC('position', [0 0 100 ], ...
+%     'size', [40 40], ...
+%     'wave', wave);
+% 
+% 
+% adjustedMiddleApertureRadius = 4;
+% 
+% [~,~,inputLF]  = s3dLightField(pointSource, lens);
+% 
+% % Make an LT (linear transform) object and apply the LT on the inputLF
+% outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
+% 
+% % Apply linear rotation transform on LF
+% thetaRad = theta/180 * pi;
+% rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
+%                   -sin(thetaRad)   cos(thetaRad)      0           0;
+%                   0             0               cos(thetaRad)  sin(thetaRad)
+%                   0             0               -sin(thetaRad) cos(thetaRad)];
+%               
+% 
+% rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);              
+% RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
+% rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
+%               
+% % Visualize PSF and phase space
+% oiI = rotatedLFObject.createOI(lens,film);
+% oiI = oiSet(oiI,'name','Light Field');
+% vcAddAndSelectObject(oiI); oiWindow;
+% 
+% theta = -310;
+% thetaRad = theta/180 * pi;
+% rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
+%                   -sin(thetaRad)   cos(thetaRad)      0           0;
+%                   0             0               cos(thetaRad)  sin(thetaRad)
+%                   0             0               -sin(thetaRad) cos(thetaRad)];
+%               
+% 
+% rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);              
+% RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
+% rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
+%               
+% 
+% 
+% 
+% 
+% % Visualize PSF and phase space
+% oiI = rotatedLFObject.createOI(lens,film);
+% oiI = oiSet(oiI,'name','Light Field');
+% vcAddAndSelectObject(oiI); oiWindow;
+% 
+% % uI = plotOI(oiI,'illuminance hline',[1 135]);
+% % title(sprintf(oiGet(oiI,'name')));
+% % 
+% % vcNewGraphWin;
+% % plot(uI.pos,uI.data,'r-',uG.pos,uG.data,'b--');
+% % grid on; xlabel('position'); ylabel('Illuminance')
+% 
+% % vcNewGraphWin; plot(uI.data(:)/max(uI.data(:)),uG.data(:)/max(uG.data(:)),'o')
+% % grid on; identityLine;
