@@ -28,21 +28,20 @@ firstColumn = import{1};
 % The current test is just to see if the word radius is on the
 % line.  This might be improved.
 continu = true;
-i = 1;
-while(continu && i <= length(firstColumn))
-    compare = regexp(firstColumn(i), 'radius');
+dStart = 1;   % Row where the data entries begin
+while(continu && dStart <= length(firstColumn))
+    compare = regexp(firstColumn(dStart), 'radius');
     if(~(isempty(compare{1})))
         continu = false;
     end
-    i = i+1;
+    dStart = dStart+1;
 end
 % i is the row where the data begin
 
 % The next lens are the matrix data
 % put data into lens object
 radius = str2double(import{1});
-radius = radius(i:length(firstColumn));
-
+radius = radius(dStart:length(firstColumn));
 
 % Change from pbrt Scene3D format to raytrace Scene3D format
 % In PBRT, the row has the offset from the previous surface.  In
@@ -53,19 +52,28 @@ radius = radius(i:length(firstColumn));
 % So, the offsets are shifted down.  This means:
 %
 offset = str2double(import{2});
-offset = offset(i:length(firstColumn));
+offset = offset(dStart:length(firstColumn));
 offset = [0; offset(1:(end-1))];
 
 % Index of refraction in the 3rd column
 N = str2double(import{3});
-N = N(i:length(firstColumn));
+N = N(dStart:length(firstColumn));
 
 % Diameter of the aperture (or maybe radius.  Must determine).
 aperture = str2double(import{4});
-aperture = aperture(i:length(firstColumn));
+aperture = aperture(dStart:length(firstColumn));
 
 %modify the object and reinitialize
 obj.elementsSet(offset, radius, aperture, N);
+
+% Figure out which is the aperture/diaphragm by looking at the radius.
+% When the spherical radius is 0, that means the object is an aperture.
+lst = find(radius == 0);
+if length(lst) > 1,         error('Multiple non-refractive elements %i\n',lst);
+elseif length(lst) == 1,    obj.apertureIndex(lst);
+else                        error('No non-refractive (aperture/diaphragm) element found');
+end
+
 
 end
 

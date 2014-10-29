@@ -139,6 +139,32 @@ classdef lensC <  handle
                     for ii=1:nSurf
                         res(:,ii) = obj.surfaceArray(ii).n(:)';
                     end
+                case {'refractivesurfaces'}
+                    % logicalList = lens.get('refractive surfaces'); 
+                    % Returns
+                    %  1 at the positions of refractive surfaces, and
+                    %  0 at diaphgrams
+                    nSurf = obj.get('nsurfaces');
+                    res = ones(nSurf,1);
+                    for ii=1:nSurf
+                        if strcmp(obj.surfaceArray(ii).subtype,'diaphragm')
+                            res(ii) = 0;
+                        end
+                    end
+                    res = logical(res);
+                case {'nrefractivesurfaces'}
+                    % nMatrix = lens.get('n refractive surfaces')
+                    %
+                    % The refractive indices for each wavelength of each
+                    % refractive surface.  The returned matrix has size
+                    % nWave x nSurface
+                    lst = find(obj.get('refractive surfaces'));
+                    nSurfaces = length(lst);
+                    nWave = obj.get('nwave');
+                    res = zeros(nWave,nSurfaces);
+                    for ii = 1:length(lst)
+                        res(:,ii) = obj.surfaceArray(lst(ii)).n(:);
+                    end
                     
                 case 'sradius'
                     % spherical radius of curvature of this surface.
@@ -244,6 +270,24 @@ classdef lensC <  handle
                     for ii=1:nSurfaces
                         obj.surfaceArray(ii).n = val;
                     end
+                case 'nrefractivesurfaces'
+                    % lens.set('n refractive surfaces',nMatrix)
+                    %
+                    % The nMatrix should be nWave x nSurfaces where
+                    % nSurfaces are only the refractive surfaces.  This
+                    % sets the index of refraction to all those surfaces
+                    
+                    % Indices of the refractive surfaces
+                    lst = find(obj.get('refractive surfaces'));  
+                    
+                    % For every column in val, put it in the next
+                    % refractive index of the lst.
+                    kk = 0;   % Initiate the counter
+                    for ii = 1:length(lst)
+                        kk = kk + 1;
+                        obj.surfaceArray(lst(ii)).n(:) = val(:,kk);
+                    end
+                    
                 case {'effectivefocallength';'efl';'focalradius';'imagefocalpoint';...
                         'objectfocalpoint';'imageprincipalpoint';'objectprincipalpoint';...
                         'imagenodalpoint';'objectnodalpoint';'abcd';'abcdmatrix'}
@@ -256,36 +300,36 @@ classdef lensC <  handle
                     % The OptSyst structure has to be built with the
                     % function 'paraxCreateOptSyst' Get 'new' origin for
                     % optical axis
-                    OptSyst=val;                    
-%                     z0 = OptSyst.cardPoints.lastVertex;
+                    OptSyst=val;
+                    %                     z0 = OptSyst.cardPoints.lastVertex;
                     z0=paraxGet(OptSyst,'lastVertex');
                     % Variable to append
-%                     efl=OptSyst.cardPoints.fi; %focal lenght of the system
+                    %                     efl=OptSyst.cardPoints.fi; %focal lenght of the system
                     efl=paraxGet(OptSyst,'efl');
                     obj=obj.bbmSetField('effectivefocallength',efl);
-%                     pRad = OptSyst.Petzval.radius; % radius of curvature of focal plane
+                    %                     pRad = OptSyst.Petzval.radius; % radius of curvature of focal plane
                     pRad = paraxGet(OptSyst,'focalradius'); % radius of curvature of focal plane
                     obj=obj.bbmSetField('focalradius',pRad);
-%                     Fi=OptSyst.cardPoints.dFi;     %Focal point in the image space
+                    %                     Fi=OptSyst.cardPoints.dFi;     %Focal point in the image space
                     Fi= paraxGet(OptSyst,'imagefocalpoint')-z0;     %Focal point in the image space
                     obj=obj.bbmSetField('imagefocalpoint',Fi);
-%                     Hi=OptSyst.cardPoints.dHi; % Principal point in the image space
+                    %                     Hi=OptSyst.cardPoints.dHi; % Principal point in the image space
                     Hi= paraxGet(OptSyst,'imageprincipalpoint')-z0; % Principal point in the image space
                     obj=obj.bbmSetField('imageprincipalpoint',Hi);
-%                     Ni=OptSyst.cardPoints.dNi;     % Nodal point in the image space
+                    %                     Ni=OptSyst.cardPoints.dNi;     % Nodal point in the image space
                     Ni=paraxGet(OptSyst,'imagenodalpoint')-z0;    % Nodal point in the image space
-                    obj=obj.bbmSetField('imagenodalpoint',Ni);
-%                     Fo=OptSyst.cardPoints.dFo-z0; %Focal point in the object space
+                    obj.bbmSetField('imagenodalpoint',Ni);
+                    %                     Fo=OptSyst.cardPoints.dFo-z0; %Focal point in the object space
                     Fo=paraxGet(OptSyst,'objectfocalpoint')-z0; %Focal point in the object space
-                    obj=obj.bbmSetField('objectfocalpoint',Fo);
-%                     Ho=OptSyst.cardPoints.dHo-z0; % Principal point in the object space
+                    obj.bbmSetField('objectfocalpoint',Fo);
+                    %                     Ho=OptSyst.cardPoints.dHo-z0; % Principal point in the object space
                     Ho=paraxGet(OptSyst,'objectprincipalpoint')-z0; % Principal point in the object space
-                    obj=obj.bbmSetField('objectprincipalpoint',Ho);
-%                     No=OptSyst.cardPoints.dNo-z0; % Nodal point in the object space
+                    obj.bbmSetField('objectprincipalpoint',Ho);
+                    %                     No=OptSyst.cardPoints.dNo-z0; % Nodal point in the object space
                     No=paraxGet(OptSyst,'objectnodalpoint')-z0; % Nodal point in the object space
-                    obj=obj.bbmSetField('objectnodalpoint',No);
+                    obj.bbmSetField('objectnodalpoint',No);
                     M = paraxGet(OptSyst,'abcd'); % The 4 coefficients of the ABCD matrix of the overall system
-                    obj=obj.bbmSetField('abcd',M);
+                    obj.bbmSetField('abcd',M);
                     
                 otherwise
                     error('Unknown parameter %s\n',pName);

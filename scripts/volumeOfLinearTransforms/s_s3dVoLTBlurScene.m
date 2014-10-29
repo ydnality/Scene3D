@@ -64,9 +64,8 @@ theta = -90;
 
 
 %% Define the Lens and Film
-
-%lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
-lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
+lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
+% lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
 nSamples = 11;
 apertureMiddleD = 8;   % mm
@@ -75,30 +74,52 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'apertureMiddleD', apertureMiddleD);
 wave = lens.get('wave');
 
-% Change the index of refraction for the surfaces
-%TODO: put this into a function for lens
+% Change the index of refraction for each refractive surfaces
+lst     = lens.get('refractive surfaces');   % This list excludes the diaphgram
+nMatrix = lens.get('n refractive surfaces'); % This list also excludes the diaphgram
+nWave     = size(nMatrix,1);
+nSurfaces = size(nMatrix,2);
 
-numSurfaces = lens.get('nsurfaces');
-offset = .05;
-for i = 1:numSurfaces
-   curN = lens.surfaceArray(i).get('n');
-   
-   if (curN(1)~=0 && curN(1)~=1)
-       nVector = linspace(curN(1) - offset, curN(1) + offset, length(wave));
-       lens.surfaceArray(i).set('n', nVector);
-   end
+% Add a delta to the nMatrix which changes the chromatic aberration.
+% We leave the last surface unchanged because the n refers to the material
+% to the right of the surface.
+offset = 0.05;
+deltaN  = linspace(-offset,offset,length(wave))';
+for ii=1:nSurfaces
+    if ~isequal(nMatrix(:,ii),ones(nWave,1))
+        nMatrix(:,ii) = nMatrix(:,ii) + deltaN;
+    end
 end
 
-% film (sensor) properties
+% Put the matrix back into the n values of the refractive surfaces.
+lens.set('n refractive surfaces',nMatrix)
+% lens.draw
+
+% nVector = lens.surfaceArray(lst').n
+% lens.set('n',nVector);
+% numSurfaces = lens.get('nsurfaces');
+% offset = .05;
+% for i = 1:numSurfaces
+%    curN = lens.surfaceArray(i).get('n');
+%    
+%    if (curN(1)~=0 && curN(1)~=1)
+%        nVector = linspace(curN(1) - offset, curN(1) + offset, length(wave));
+%        lens.surfaceArray(i).set('n', nVector);
+%    end
+% end
+
+%% film (sensor) properties
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
-filmResolution = [100 100];
+% filmResolution = [100 100];
+filmResolution = [30 30];
 film = pbrtFilmC('position', [0 0 100 ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
     'wave', wave);
 
 %% Compute Snell's Law PSF at point source field height
+profile on
 
 % For this moment, we only run at one depth
 % We set the wanted field height to the second coordinate,
@@ -114,6 +135,8 @@ vcAddAndSelectObject(oiG); oiWindow;
 
 % uG = plotOI(oiG,'illuminance hline',[1 135]);
 % title(sprintf(oiGet(oiG,'name')));
+profile viewer
+profile clear
 
 %% Compute VOLT model
 %
@@ -133,15 +156,21 @@ vcAddAndSelectObject(oiG); oiWindow;
 %
 % Currently the VOLT model accomodates changes in field position ONLY.
 % Depth variation will come later.
-
+profile on
 VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', wave); 
 VoLTObject.calculateMatrices();
+profile viewer
+profile clear
 
 %% Read the Scene
 % If modded pbrt is NOT installed on this system, run this command to 
 % load a scene file
 
 sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+if ~exist(sceneFileName,'file')
+    error('No file %s\n',sceneFileName);
+end
+
 % sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'simpleTarget', 'pinholeSceneFile.mat');
 
 scene = load(sceneFileName);
