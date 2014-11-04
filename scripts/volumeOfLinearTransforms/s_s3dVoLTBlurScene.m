@@ -242,7 +242,7 @@ else
     matlabpool open 8;
 end
 
-for i = 1:oiSize(2)
+parfor i = 1:oiSize(2)
     i
     film = pbrtFilmC('position', [0 0 filmPosition ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
