@@ -67,7 +67,7 @@ theta = -90;
 lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 % lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
-nSamples = 11;
+nSamples = 21;
 apertureMiddleD = 8;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
@@ -113,8 +113,9 @@ lens.set('n refractive surfaces',nMatrix)
 % size - 'mm'
 % wavelength samples
 % filmResolution = [100 100];
-filmResolution = [30 30];
-film = pbrtFilmC('position', [0 0 100 ], ...
+filmResolution = [10 10];
+filmPosition = 159;
+film = pbrtFilmC('position', [0 0 filmPosition ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
     'wave', wave);
 
@@ -218,6 +219,7 @@ filmDistance = film.position(3);
 %% Blur the scene - this is for a circularly symmetric lens
 tic
 
+profile on;
 %resize scene to the size of film
 unBlurredPhotons = sceneGet(scene, 'photons');
 unBlurredPhotons = imresize(unBlurredPhotons, [film.resolution(1), film.resolution(2)]);
@@ -230,9 +232,21 @@ oiSize = size(unBlurredPhotons);
 center = oiSize./2;
 sceneHFOV = sceneGet(scene, 'hfov');
 
-%TODO: parfor - 8x faster! (in theory.. .and if we can get this to work..)
+
+
+% originally 3580 sec
+% with parfor: 376 sec
+if (matlabpool('size') > 0)
+    matlabpool close;
+else
+    matlabpool open 8;
+end
+
 for i = 1:oiSize(2)
     i
+    film = pbrtFilmC('position', [0 0 filmPosition ], ...
+    'size', [40 40], 'resolution', filmResolution,  ...
+    'wave', wave);
     for j = 1:oiSize(1)
         film.clear();
         
@@ -273,7 +287,7 @@ for i = 1:oiSize(2)
         LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
         
         %calculate the lightfield from this particular point source
-        adjustedMiddleApertureRadius = 4;
+        adjustedMiddleApertureRadius = 1;
         
         %TODO: get the s3dLightFieldEntrance function working!
         %[inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
@@ -313,6 +327,10 @@ for i = 1:oiSize(2)
     end
 end
 
+if (matlabpool('size') > 0)
+    matlabpool close;
+end
+
 %show blurredPhotons somehow
 maxVal = max(max(blurredPhotons(:,:,1)));
 figure; imshow(blurredPhotons(:,:,1)/maxVal);
@@ -326,97 +344,6 @@ oi = oiSet(oi,'hfov', hfov);
 
 vcAddObject(oi); oiWindow;
 
+profile viewer;
+profile clear; 
 toc
-
-% %% 
-% % Obtain an A given a wanted pSLocation by linear interpolation
-% % A different A matrix will be calculated for each wavelengths.  We will
-% % loop through all the wavelengths.  The wave samples assumed are the ones
-% % from the lens.  These should be synchronized with everything else.  
-% 
-% LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
-% 
-% % Calculate the PSF, using the 2 A matrices and the aperture in the middle
-% 
-% % This illustrates that the aperture can be changed quickly in the
-% % simulation, without recomputing the VOLT class
-% %
-% % Once again, this result should not be too much different from the ground
-% % truth PSF, unless adjustedMiddleAperture was changed.
-% %
-% % This experiment demonstrates the flexibility of the transform method.  We
-% % can quickly produce PSFs at arbitrary field heights, and aperture shapes
-% % and sizes, given the VOLT model.
-% %
-% % We are no longer "cheating" in this experiemnt because we are using the
-% % assumption that ONLY the middle aperture will constrict light flow in
-% % this system.  For middle apertures that are smaller than the other
-% % apertures, this assumption should be valid.
-% 
-% % Break this out into a separate couple of scripts that illustrate changing
-% % the properties of the aperture
-% 
-% %*** change this parameter to change the size of the middle aperture for the
-% %lens
-% 
-% 
-% % new film...
-% film = pbrtFilmC('position', [0 0 100 ], ...
-%     'size', [40 40], ...
-%     'wave', wave);
-% 
-% 
-% adjustedMiddleApertureRadius = 4;
-% 
-% [~,~,inputLF]  = s3dLightField(pointSource, lens);
-% 
-% % Make an LT (linear transform) object and apply the LT on the inputLF
-% outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
-% 
-% % Apply linear rotation transform on LF
-% thetaRad = theta/180 * pi;
-% rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
-%                   -sin(thetaRad)   cos(thetaRad)      0           0;
-%                   0             0               cos(thetaRad)  sin(thetaRad)
-%                   0             0               -sin(thetaRad) cos(thetaRad)];
-%               
-% 
-% rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);              
-% RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
-% rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
-%               
-% % Visualize PSF and phase space
-% oiI = rotatedLFObject.createOI(lens,film);
-% oiI = oiSet(oiI,'name','Light Field');
-% vcAddAndSelectObject(oiI); oiWindow;
-% 
-% theta = -310;
-% thetaRad = theta/180 * pi;
-% rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
-%                   -sin(thetaRad)   cos(thetaRad)      0           0;
-%                   0             0               cos(thetaRad)  sin(thetaRad)
-%                   0             0               -sin(thetaRad) cos(thetaRad)];
-%               
-% 
-% rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);              
-% RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
-% rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
-%               
-% 
-% 
-% 
-% 
-% % Visualize PSF and phase space
-% oiI = rotatedLFObject.createOI(lens,film);
-% oiI = oiSet(oiI,'name','Light Field');
-% vcAddAndSelectObject(oiI); oiWindow;
-% 
-% % uI = plotOI(oiI,'illuminance hline',[1 135]);
-% % title(sprintf(oiGet(oiI,'name')));
-% % 
-% % vcNewGraphWin;
-% % plot(uI.pos,uI.data,'r-',uG.pos,uG.data,'b--');
-% % grid on; xlabel('position'); ylabel('Illuminance')
-% 
-% % vcNewGraphWin; plot(uI.data(:)/max(uI.data(:)),uG.data(:)/max(uG.data(:)),'o')
-% % grid on; identityLine;

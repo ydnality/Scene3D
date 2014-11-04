@@ -1,4 +1,4 @@
-function [ AInterp, A1stInterp, A2ndInterp ] = interpolateA(obj, wantedPSLocation, wantedWavelength )
+function [ AInterp, A1stInterp, A2ndInterp ] = interpolateA(obj, wantedPSLocation, wantedWavelengths )
 % Interpolate the A matrices to the specified locations
 %
 % The three different matrices (all the way, front to middle, middle to
@@ -17,13 +17,14 @@ function [ AInterp, A1stInterp, A2ndInterp ] = interpolateA(obj, wantedPSLocatio
 % AL VISTASOFT 2014
 
 %% parameter testing
-if (ieNotDefined('wantedWavelength')), wantedWavelength = 550; end
+if (ieNotDefined('wantedWavelengths')), wantedWavelengths = 550; end
     
 %% Interpolate the three types of A matrices
 
-AInterp = zeros(4,4);
-A1stInterp = zeros(4,4);
-A2ndInterp = zeros(4,4);
+numWaves = length(wantedWavelengths);
+AInterp = zeros(4,4, numWaves);
+A1stInterp = zeros(4,4, numWaves);
+A2ndInterp = zeros(4,4, numWaves);
 
 AComplete = obj.get('ACollection');
 A1stComplete = obj.get('A1stCollection');
@@ -48,7 +49,8 @@ end
 if wantedPSLocation(3) < min(pSZ) || wantedPSLocation(3) > max(pSZ) 
     error('wanted depth out of range'); 
 end
-if wantedWavelength < min(pSW) || wantedWavelength > max(pSW)
+%checks if all wavelengths are in bounds
+if logical(sum(or(wantedWavelengths < min(pSW), wantedWavelengths > max(pSW))))
     error('wanted wavelength out of range');
 end
 
@@ -75,9 +77,16 @@ for i = 1:4
         %coefValues dimensions: (1,1, #fieldPositions, #depths, #wavelengths);
         %coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
         coefValues = squeeze(coefValues);
-         yi = interp3(meshZ,meshY,meshW, coefValues, ...
-            wantedPSLocation(3),wantedPSLocation(2),  wantedWavelength);
-        AInterp(i,j) = yi;
+        
+        %repmat for multiple wavelengths
+        repWantedLocZ = repmat(wantedPSLocation(3), [1 numWaves]);
+        repWantedLocY = repmat(wantedPSLocation(2), [1 numWaves]);
+        
+        
+        yi = interp3(meshZ,meshY,meshW, coefValues, ...
+             repWantedLocZ, repWantedLocY,  wantedWavelengths);
+        yi = reshape(yi, [1 1 numWaves]);
+        AInterp(i,j, :) = yi;
         
         coefValues = A1stComplete(i,j,:,:,:);
         if ~isequal(rep,ones(1,5))
@@ -87,8 +96,9 @@ for i = 1:4
         %coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
         coefValues = squeeze(coefValues); 
         yi = interp3(meshZ,meshY,meshW,coefValues, ...
-            wantedPSLocation(3), wantedPSLocation(2), wantedWavelength);
-        A1stInterp(i,j) = yi;
+             repWantedLocZ, repWantedLocY, wantedWavelengths);
+        yi = reshape(yi, [1 1 numWaves]);
+        A1stInterp(i,j, :) = yi;
         
         coefValues = A2ndComplete(i,j,:,:,:);
         if ~isequal(rep,ones(1,5))
@@ -99,8 +109,9 @@ for i = 1:4
         % coefValues = reshape(coefValues, numDepths, numPositions, numWaves);
         coefValues = squeeze(coefValues);
         yi = interp3( meshZ,meshY,meshW, coefValues, ...
-            wantedPSLocation(3), wantedPSLocation(2),  wantedWavelength);
-        A2ndInterp(i,j) = yi;
+             repWantedLocZ, repWantedLocY, wantedWavelengths);
+        yi = reshape(yi, [1 1 numWaves]);
+        A2ndInterp(i,j,:) = yi;
     end
 end   
 

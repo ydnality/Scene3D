@@ -31,12 +31,15 @@ A1stInterp = zeros(4,4, length(wave));
 %the second half of the model from the middle aperture to the back-most element
 A2ndInterp = zeros(4,4, length(wave));  
 
-for w = 1:length(wave)
-    [AInterp1Wave, A1stInterpCurrentWave, A2ndInterpCurrentWave ] = obj.interpolateA(wantedPSLocation, wave(w));
-    AInterp(:,:,w) = AInterp1Wave;
-    A1stInterp(:,:,w) = A1stInterpCurrentWave;
-    A2ndInterp(:,:,w) = A2ndInterpCurrentWave;
-end
+% for w = 1:length(wave)
+%     [AInterp1Wave, A1stInterpCurrentWave, A2ndInterpCurrentWave ] = obj.interpolateAClassic(wantedPSLocation, wave(w));
+%     AInterp(:,:,w) = AInterp1Wave;
+%     A1stInterp(:,:,w) = A1stInterpCurrentWave;
+%     A2ndInterp(:,:,w) = A2ndInterpCurrentWave;
+% end
+
+
+[AInterp, A1stInterp, A2ndInterp ] = obj.interpolateA(wantedPSLocation, wave);  %experimental multiple inputs
 
 LTObjectInterp = LTC('wave', wave, 'AInterp', AInterp, 'A1stInterp', A1stInterp, 'A2ndInterp', A2ndInterp); 
 

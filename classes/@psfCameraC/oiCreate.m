@@ -15,6 +15,10 @@ oi = oiSet(oi,'photons',obj.film.image);
 % The photon numbers do not yet have meaning.  This is a hack,
 % that should get removed some day, to give the photon numbers
 % some reasonable level.
+
+% This also uses a lot of valuable computation during the volt3dBlur
+% function.  We should remove this and replace it with something more
+% efficient/consistent!
 oi = oiAdjustIlluminance(oi,1);
 
 % Set focal length in meters
