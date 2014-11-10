@@ -53,6 +53,9 @@ if(~isempty(liveRays.origin))
     %imagePixel is the pixel that will gain a photon due to the traced ray
     imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
     imagePixel.position = real(imagePixel.position); %add error handling for this
+    
+    %this line looks suspicious - what exactly does it do? will this cause
+    %problems?
     imagePixel.position = round(imagePixel.position * film.resolution(2)/film.size(2) + ...
         repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + (film.resolution(2:-1:1) + 1)./2, [size(imagePixel.position,1) 1]));   %
     

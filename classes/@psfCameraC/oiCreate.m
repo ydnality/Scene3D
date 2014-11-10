@@ -10,7 +10,12 @@ function oi = oiCreate(obj)
 oi = oiCreate;
 oi = initDefaultSpectrum(oi);
 oi = oiSet(oi,'wave', obj.film.wave);
-oi = oiSet(oi,'photons',obj.film.image);
+
+%normalize PSF here - is this the right thing to do? AL
+channelSum = sum(sum(obj.film.image, 2) , 1);
+%photons = obj.film.image;
+photons = obj.film.image./repmat(channelSum, [size(obj.film.image, 1) size(obj.film.image, 2)]);  %this is experimental - make this normalize later
+oi = oiSet(oi,'photons',photons);
 
 % The photon numbers do not yet have meaning.  This is a hack,
 % that should get removed some day, to give the photon numbers
@@ -19,7 +24,9 @@ oi = oiSet(oi,'photons',obj.film.image);
 % This also uses a lot of valuable computation during the volt3dBlur
 % function.  We should remove this and replace it with something more
 % efficient/consistent!
-oi = oiAdjustIlluminance(oi,1);
+
+%oi = oiAdjustIlluminance(oi,1);
+
 
 % Set focal length in meters
 % oi = oiSet(oi,'optics focal length',obj.lens.focalLength/1000);

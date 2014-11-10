@@ -52,9 +52,25 @@ s_initISET
 % At this moment, we only change in field height, not yet depth.
 %pSY = 0.01:.3:2;
 
-pSY = .1:3:31;
+
+% - causes radial marks for indObject
+pSY = .1:.11:31;
 pSY = [0 pSY];
 pSZ = [-110 -103 -60];   %values must be monotonically increasing!!
+%pSZ = -110:1:-60;
+
+
+% - causes grid marks for indObject
+pSY = .1:1:31;
+pSY = [0 pSY];
+%pSZ = [-110 -103 -60];   %values must be monotonically increasing!!
+pSZ = -110:1:-60;
+
+
+pSY = .1:1:31;
+pSY = [0 pSY];
+pSZ = [-110 -103  -90 -80 -70 -60];   %values must be monotonically increasing!!
+
 
 %desired pSLocation for interpolation
 wantedPSLocation = [0 15.8 -103];
@@ -67,8 +83,8 @@ theta = -90;
 lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 % lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
-nSamples = 21;
-apertureMiddleD = 8;   % mm
+nSamples = 101;
+apertureMiddleD = 1;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
@@ -92,7 +108,7 @@ for ii=1:nSurfaces
 end
 
 % Put the matrix back into the n values of the refractive surfaces.
-lens.set('n refractive surfaces',nMatrix)
+lens.set('n refractive surfaces',nMatrix);
 % lens.draw
 
 % nVector = lens.surfaceArray(lst').n
@@ -113,7 +129,7 @@ lens.set('n refractive surfaces',nMatrix)
 % size - 'mm'
 % wavelength samples
 % filmResolution = [100 100];
-filmResolution = [10 10];
+filmResolution = [25 25];
 filmPosition = 159;
 film = pbrtFilmC('position', [0 0 filmPosition ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
@@ -168,6 +184,9 @@ profile clear
 % load a scene file
 
 sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+
+sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes',  'uniformWithDepth.mat');
+
 if ~exist(sceneFileName,'file')
     error('No file %s\n',sceneFileName);
 end
@@ -176,6 +195,13 @@ end
 
 scene = load(sceneFileName);
 scene = scene.scene;
+
+%uniform depth debug
+depthMap = sceneGet(scene, 'depthMap');
+uniformDepth = ones(size(depthMap)) * 79;
+
+scene = sceneSet(scene, 'depthMap', uniformDepth);
+
 vcAddAndSelectObject(scene); sceneWindow;
 
 %% Some bookkeeping for scene and oi size
@@ -202,17 +228,25 @@ dM = sceneGet(scene, 'depthmap');
 unBlurredPhotons = sceneGet(scene, 'photons');
 vcAddAndSelectObject(scene); sceneWindow;
 
-%Calculate approximate FOV of lens and film.  Does Michael's bbox model
-%improve upon this?
+% Calculate approximate FOV of lens and film.  Does Michael's bbox model
+%improve upon this? 
 %hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
-
-% we need to take into account the magnification (wikipedia)
+% We need to take into account the magnification (wikipedia)
 % alpha = 2arctan(d/2F(1 + m), where m = S2/S1 ... where 1/S2 (film distance) + 1/S1 = 1/f
+
+% The FOV is used to calculate the uniform sampling spacing in object
+% space.  We will sample a grid along the approximate FOV of the lens.  We
+% will also set the scene FOV to this FOV so the crop of the sensor will
+% approximately equal the FOV of the scene.
 objectFocusPosition = 1/(1/lens.focalLength - 1/film.position(3)); %this is the position in the scene that will result in theoreitcal perfect focus in scene
 hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength * (1  + film.position(3)/objectFocusPosition)));
-hfov = hfov * .75; %for padding - we have issues with it going off the oi right now...
+hfov = hfov * .82; %for padding - we have issues with it going off the oi right now...
+%Andy: this scaling factor is very important: we need it to be just right
+%such that the scene size scales perfectly to the oi pixel for pixel, or
+%else there will be weird artifacts
 
-% set the fov of scene so that the cropping approximately fits fov of oi (given the focal length of lens and size of film)
+
+% Set the fov of scene so that the cropping approximately fits fov of oi (given the focal length of lens and size of film)
 scene = sceneSet(scene, 'hfov', hfov);  
 filmDistance = film.position(3);
 
@@ -220,19 +254,20 @@ filmDistance = film.position(3);
 tic
 
 profile on;
-%resize scene to the size of film
-unBlurredPhotons = sceneGet(scene, 'photons');
-unBlurredPhotons = imresize(unBlurredPhotons, [film.resolution(1), film.resolution(2)]);
-resizedDepth = imresize(sceneGet(scene, 'depth map'), [film.resolution(1), film.resolution(2)]);
-blurredPhotons = zeros(size(unBlurredPhotons));
 
-%loop through each pixel
-%for each pixel...
+% Resize scene and all other related vars to the desired size(we want to oversample the film)
+unBlurredPhotons = sceneGet(scene, 'photons');
+unBlurredPhotons = imresize(unBlurredPhotons, [film.resolution(1) * 6, film.resolution(2) * 6]);
+resizedDepth = imresize(sceneGet(scene, 'depth map'), [film.resolution(1) * 6, film.resolution(2) * 6]);
+blurredPhotons = zeros(film.resolution(1), film.resolution(2), film.resolution(3));
+
+% Declare some useful vars
 oiSize = size(unBlurredPhotons); 
 center = oiSize./2;
 sceneHFOV = sceneGet(scene, 'hfov');
+adjustedMiddleApertureRadius = 1;  %this is the size of the middle aperture
 
-
+% set p the parallel pool
 
 % originally 3580 sec
 % with parfor: 376 sec
@@ -275,22 +310,18 @@ parfor i = 1:oiSize(2)
         currentAngle = fieldHeight/(oiSize(2)/2) * (sceneHFOV/2) * (pi/180);   % figure out FOV stuff... do we use scene FOV or oi FOV?
         %currentDepth = 110; %assumed to be 103 for now for simplicity
         currentDepth = resizedDepth(i,j);
-        wantedPSLocation(3) = -currentDepth;
-        wantedPSLocation(2) = tan(currentAngle) * currentDepth;
-        
-        
+        %wantedPSLocation(3) = -currentDepth;   %old - not completely true
+        %wantedPSLocation(2) = tan(currentAngle) * currentDepth;
+        wantedPSLocation(2) = sin(currentAngle) * currentDepth;
+        wantedPSLocation(3) = -sqrt(currentDepth^2 - wantedPSLocation(2)^2); 
         %wantedPsLocation(3) = -resizedDepth(i,j);
         %wantedPSLocation = [0 15 -103]; %some testing with PS locations
         
-        % --- figure out PSF for current point in scene ---
+        % --- Interpolate PSF for current point in scene ---
         %first get the linear transform
         LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
         
-        %calculate the lightfield from this particular point source
-        adjustedMiddleApertureRadius = 1;
-        
-        %TODO: get the s3dLightFieldEntrance function working!
-        %[inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
+        % calculate the lightfield from this particular point source
         [inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
         
         % Make an LT (linear transform) object and apply the LT on the inputLF
@@ -322,18 +353,19 @@ parfor i = 1:oiSize(2)
             psfPhotons = zeros(size(psfPhotons));   %this is a hack for now
         end
         
+        %weigh each channel of PSf according to the weight of the original
+        %Unblurred Image
         illuminanceWeight = repmat(unBlurredPhotons(i,j, :), [size(psfPhotons, 1) size(psfPhotons, 2)]);
+        
+        %add blurred PSF to the existing sum
         blurredPhotons = blurredPhotons + psfPhotons .* illuminanceWeight; 
     end
 end
 
+% Close the matlab pool
 if (matlabpool('size') > 0)
     matlabpool close;
 end
-
-%show blurredPhotons somehow
-maxVal = max(max(blurredPhotons(:,:,1)));
-figure; imshow(blurredPhotons(:,:,1)/maxVal);
 
 % Create an oi and assign blurred photons to oi
 oi = oiCreate;
@@ -341,7 +373,6 @@ oi = initDefaultSpectrum(oi);
 oi = oiSet(oi, 'wave', renderWave);
 oi = oiSet(oi, 'cphotons', blurredPhotons);
 oi = oiSet(oi,'hfov', hfov);
-
 vcAddObject(oi); oiWindow;
 
 profile viewer;

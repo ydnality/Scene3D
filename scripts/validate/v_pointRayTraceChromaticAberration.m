@@ -58,7 +58,7 @@ film = pbrtFilmC('position', [0 0 100 ], ...
 camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
 
 % Sequence of events for estimating the PSF, 
-camera.estimatePSF(0, true);
+camera.estimatePSF(20, true);
 oi = camera.oiCreate;
 
 vcAddObject(oi); oiWindow;
