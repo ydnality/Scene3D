@@ -12,19 +12,19 @@
 
 
 %% load 1st image - uncomment this section if you wish to load saved vcimages
-% %fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
-% fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
-% % fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
-% 
-% load([s3dRootPath '/data/' fullName],'vci');
-% vciFlash = vci;
-% vcAddAndSelectObject('vcimage',vciFlash);
-% vcimageWindow;
-% 
-% %% load 2nd flash image (flash now placed in back)
-% %fullName = '2FlashDepth/indObject/idealDownBackFlashImage.mat';
-% fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
-% % fullName = 'twoFlashDepth/depthTargetDepths/50mmBack10s.pbrt.image.mat';  
+%fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
+fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
+% fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
+
+load([s3dRootPath '/data/' fullName],'vci');
+vciFlash = vci;
+vcAddAndSelectObject('vcimage',vciFlash);
+vcimageWindow;
+
+%% load 2nd flash image (flash now placed in back)
+%fullName = '2FlashDepth/indObject/idealDownBackFlashImage.mat';
+fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
+% fullName = 'twoFlashDepth/depthTargetDepths/50mmBack10s.pbrt.image.mat';  
 % 
 % multiplicationFactor = 1;  %to account for differences in exposure
 % load([s3dRootPath '/data/' fullName],'vci');
