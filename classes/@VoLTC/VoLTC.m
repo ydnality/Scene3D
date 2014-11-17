@@ -46,8 +46,13 @@ classdef VoLTC < clonableHandleObject
             %error checking
             assert(depthIndex > 0 && depthIndex <= length(obj.depths), 'depthIndex out of range');
             
-            pSZ = obj.depths(depthIndex) * ones(length(obj.fieldPositions), 1);
-            pSLocations =  [zeros(length(obj.fieldPositions), 1) obj.fieldPositions'  pSZ];
+            %old code based off cartesian coordinates
+            %pSZ = obj.depths(depthIndex) * ones(length(obj.fieldPositions), 1);
+            %pSLocations =  [zeros(length(obj.fieldPositions), 1) obj.fieldPositions'  pSZ];
+            
+            %here we will transform from spherical to cartesian coordinates
+            pSZ = -obj.depths(depthIndex) * cos(obj.fieldPositions/180 * pi)';
+            pSLocations =  [zeros(length(obj.fieldPositions), 1) obj.depths(depthIndex) * sin(obj.fieldPositions/180 * pi)'  pSZ];
         end
     end
     

@@ -85,16 +85,28 @@ parfor i = 1:oiSize(2)
         currentDepth = resizedDepth(i,j);
         %wantedPSLocation(3) = -currentDepth;   %old - not completely true
         %wantedPSLocation(2) = tan(currentAngle) * currentDepth;
+        
+        % --- old cartesian system
         wantedPSLocation(2) = sin(currentAngle) * currentDepth;
         wantedPSLocation(3) = -sqrt(currentDepth^2 - wantedPSLocation(2)^2); 
+        % --- end old cartesian system
+        
+        
         %wantedPsLocation(3) = -resizedDepth(i,j);
         %wantedPSLocation = [0 15 -103]; %some testing with PS locations
         
         % --- Interpolate PSF for current point in scene ---
         %first get the linear transform
-        LTObject = obj.VoLTObject.interpolateAllWaves(wantedPSLocation);
         
+        %TODO: make this more elegant
+        wantedPSLocPolar = [0 currentAngle * 180/pi currentDepth];
+        LTObject = obj.VoLTObject.interpolateAllWaves(wantedPSLocPolar);
+        
+        %*** EDIT THIS FUNCTION FOR PARTIAL ocCLUSIONS!!!!
         % calculate the lightfield from this particular point source
+        %
+        %[inputLF]  = s3dLightFieldEntranceApodize(wantedPSLocation, obj.lens, obj.scene.depth);   
+        
         [inputLF]  = s3dLightFieldEntrance(wantedPSLocation, obj.lens);   %traces rays to entrance only. 
         
         % Make an LT (linear transform) object and apply the LT on the inputLF
