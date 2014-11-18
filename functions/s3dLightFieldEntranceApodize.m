@@ -41,9 +41,18 @@ film = pbrtFilmC;
 
 ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 
+
+
 % Plenoptic point spread calculated with Snell's Law
 % change this function here. 
-% we need a ppsfCamera.traceToEntrance(0, true, depthMap);
+
+% we need a ppsfCamera.traceToEntrance(0, true, z);  %this is depth aware
+
+% before we obtain z, we need to convert the depth map, from depth map
+% format to z format. How do we properly interpolate values for z where
+% there is no value???
+
+
 
 ppsf = ppsfCamera.traceToEntrance(0, true);  %0 debug lines; jitter set to true
 

@@ -72,15 +72,26 @@ s_initISET
 % We compute a linear transform for each of these sample positions
 %
 % At this moment, we only change in field height, not yet depth.
-pSY = 0.01:.3:2;
+%pSY = 0.01:.3:2;
+pSTheta = 0.01:.01:.05;  %in radians
 %pSZ = -102 * ones(length(pSY), 1);
-pSZ = [-103 -102.75];   %values must be monotonically increasing!!
+%pSZ = [-103 -102.75];   %values must be monotonically increasing!!
+pSZ = [102.75 103 103.25];   %values must be monotonically increasing!!
 
 %pSLocations = [zeros(length(pSY), 1) pSY' pSZ];
 
 %desired pSLocation for interpolation
 wantedPSLocation = [0 1.7 -103];
 
+
+       %currentAngle = fieldHeight/(oiSize(2)/2) * (sceneHFOV/2) * (pi/180);   % figure out FOV stuff... do we use scene FOV or oi FOV?
+        %currentDepth = 110; %assumed to be 103 for now for simplicity
+        %currentDepth = resizedDepth(i,j);
+
+currentDepth = sqrt(wantedPSLocation(1)^2 + wantedPSLocation(2)^2 + wantedPSLocation(3)^2);
+currentAngle = atan(wantedPSLocation(2)/(-wantedPSLocation(3))); 
+
+wantedPSLocPolar = [0 currentAngle currentDepth];
 
 %% Define the Lens and Film
 
@@ -208,7 +219,7 @@ vcAddObject(oiSnellBig); oiWindow;
 % Currently the VOLT model accomodates changes in field position ONLY.
 % Depth variation will come later.
 
-VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSY, 'depths', pSZ, 'wave', wave); 
+VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSTheta, 'depths', pSZ, 'wave', wave); 
 VoLTObject.calculateMatrices();
 %[AComplete A1stComplete A2ndComplete] = s3dVOLTCreateModel(lens, film, pSLocations);
 %% Obtain an A given a wanted pSLocation by linear interpolation
@@ -216,7 +227,7 @@ VoLTObject.calculateMatrices();
 % loop through all the wavelengths.  The wave samples assumed are the ones
 % from the lens.  These should be synchronized with everything else.  
 
-LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
+LTObject = VoLTObject.interpolateAllWaves(wantedPSLocPolar);
 
 % t1 = VoLTObject.ACollection(:,:,6,1,1)
 % t2 = AInterp(:,:,1)
@@ -258,6 +269,7 @@ outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
 %TODO: de-couple finding the input LF from computing ground truth
 
 % Visualize PSF and phase space
+film.clear();
 oiI = outputLFObject.createOI(lens,film);
 oiI = oiSet(oiI,'name','Light Field');
 vcAddObject(oiI); oiWindow;
@@ -285,6 +297,7 @@ outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
 %TODO: de-couple finding the input LF from computing ground truth
 
 % Visualize PSF and phase space
+zoomedFilm.clear();
 oiLFBig = outputLFObject.createOI(lens,zoomedFilm);
 oiLFBig = oiSet(oiLFBig,'name','Light Field');
 vcAddObject(oiLFBig); oiWindow;
