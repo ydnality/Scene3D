@@ -6,8 +6,7 @@
 %
 % Notes:
 %
-% -Check why we have a discontinuity at (0,0).  Something about the 0 always
-% mapping to 0, or something ...
+
 % -Lens element positions are all negative, and the final exit plan can be
 % considered as z = 0
 %
@@ -15,73 +14,22 @@
 %%
 s_initISET
 
-%% Specify different point source positions in the object volume
-%
-% We compute a linear transform for each of these sample positions
-%
-% At this moment, we only change in field height, not yet depth.
-%pSY = 0.01:.3:2;
-pSTheta = 0.01:.01:.05;  %in radians
-%pSZ = -102 * ones(length(pSY), 1);
-%pSZ = [-103 -102.75];   %values must be monotonically increasing!!
-pSZ = [102.75 103 103.25];   %values must be monotonically increasing!!
+%% Initialize a point,lens, film set for initial testing
+s_initPLF  
 
-%pSLocations = [zeros(length(pSY), 1) pSY' pSZ];
+% Create a polar version of pts
+ptsPolar     = ptsS2P(pts);
 
-%desired pSLocation for interpolation
-wantedPSLocation = [0 1.7 -103];
+% Sample angles and sample depths
+pSTheta = 0.01:.01:.05;          % in radians
+pSD     = [102.75 103 103.25];   % values must be monotonically increasing!!
 
-
-       %currentAngle = fieldHeight/(oiSize(2)/2) * (sceneHFOV/2) * (pi/180);   % figure out FOV stuff... do we use scene FOV or oi FOV?
-        %currentDepth = 110; %assumed to be 103 for now for simplicity
-        %currentDepth = resizedDepth(i,j);
-
-currentDepth = sqrt(wantedPSLocation(1)^2 + wantedPSLocation(2)^2 + wantedPSLocation(3)^2);
-currentAngle = atan(wantedPSLocation(2)/(-wantedPSLocation(3))); 
-
-wantedPSLocPolar = [0 currentAngle currentDepth];
-
-%% Define the Lens and Film
-
-% diffractionEnabled = false;
-%turning on diffraction does NOT make sense yet since we have not modeled
-%the transformation of uncertainty from the middle aperture to the end of the lens
-
-%TODO: add diffraction into this somehow
-%      Create a function lens.write() that makes a file from a lens
-%      object.
-
-%initialize and read multi-element lens from file
-
-% both of these lenses work for this example
-%lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
-lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
-
-nSamples = 151;
-apertureMiddleD = 8;   % mm
-lens = lensC('apertureSample', [nSamples nSamples], ...
-    'fileName', lensFileName, ...
-    'apertureMiddleD', apertureMiddleD);
-wave = lens.get('wave');
-
-% film (sensor) properties
-% position - relative to center of final lens surface
-% size - 'mm'
-% wavelength samples
-film = pbrtFilmC('position', [0 0 100 ], ...
-    'size', [10 10], ...
-    'wave', wave);
 
 %% Compute Snell's Law PSF at point source hield height
 
-% For this moment, we only run at one depth
-% We set the wanted field height to the second coordinate,
-% The first coordinate is always 0.
-pointSource = wantedPSLocation;
-
 % Compute the plenoptic pointspread that has the light field information
 % using Snell's Law.
-LF  = s3dLightField(pointSource, lens);
+LF  = s3dLightField(pts, lens);
 oiG = LF.createOI(lens,film);
 oiG = oiSet(oiG,'name','Snell''s Law');
 vcAddObject(oiG); oiWindow;
@@ -89,27 +37,33 @@ vcAddObject(oiG); oiWindow;
 uG = plotOI(oiG,'illuminance hline',[1 135]);
 title(sprintf(oiGet(oiG,'name')));
 
-%% Find centroid, and estimate maximum height/width and re-render with a 
+%% Find centroid of a point oi image
+%
+centroid = oiGet(oiG,'centroid');
+
+centroidmm = oiSpace(oiG,[centroid.Y,centroid.X],'mm');
+
+% and estimate maximum height/width and re-render with a 
 % film at centroid, with the height and width set to twice that of the
 % maximum height/width of the PSF.  Then use this new rendering form to
 % find the MSE Later
 
 % Figure out center pos by calculating the centroid of illuminance image
-img = oiGet(oiG,'illuminance');
-
-% Force to unit area and flip up/down for a point spread
-img = img./sum(img(:));
-img = flipud(img);
-% vcNewGraphWin; mesh(img);
-
-% Calculate the weighted centroid/center-of-mass
-xSample = linspace(-film.size(1)/2, film.size(1)/2, film.resolution(1));
-ySample = linspace(-film.size(2)/2, film.size(2)/2, film.resolution(2));
-[filmDistanceX, filmDistanceY] = meshgrid(xSample,ySample);
-
-distanceMatrix = sqrt(filmDistanceX.^2 + filmDistanceY.^2);
-centroidX = sum(sum(img .* filmDistanceX));
-centroidY = sum(sum(img .* filmDistanceY));
+% img = oiGet(oiG,'illuminance');
+% 
+% % Force to unit area and flip up/down for a point spread
+% img = img./sum(img(:));
+% img = flipud(img);
+% % vcNewGraphWin; mesh(img);
+% 
+% % Calculate the weighted centroid/center-of-mass
+% xSample = linspace(-film.size(1)/2, film.size(1)/2, film.resolution(1));
+% ySample = linspace(-film.size(2)/2, film.size(2)/2, film.resolution(2));
+% [filmDistanceX, filmDistanceY] = meshgrid(xSample,ySample);
+% 
+% distanceMatrix = sqrt(filmDistanceX.^2 + filmDistanceY.^2);
+% centroidX = sum(sum(img .* filmDistanceX));
+% centroidY = sum(sum(img .* filmDistanceY));
 
 %% Recompute Snell's Law PSF, this time with zoomed in view
 figure; [n xout] = hist(img(:), 2);
@@ -167,7 +121,7 @@ vcAddObject(oiSnellBig); oiWindow;
 % Currently the VOLT model accomodates changes in field position ONLY.
 % Depth variation will come later.
 
-VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSTheta, 'depths', pSZ, 'wave', wave); 
+VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSTheta, 'depths', pSD, 'wave', wave); 
 VoLTObject.calculateMatrices();
 %[AComplete A1stComplete A2ndComplete] = s3dVOLTCreateModel(lens, film, pSLocations);
 %% Obtain an A given a wanted pSLocation by linear interpolation
