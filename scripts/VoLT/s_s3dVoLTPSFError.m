@@ -1,55 +1,4 @@
-%% Volume of Linear Transforms (VOLT) ray-tracing for multi-element lenses
-%
-% This script shows how to produce a volume of linear transforms (VoLT).
-% This scripts relies on a function (s3dVOLTCreateModel) that takes a lens
-% object and a sampled volume of the object space and returns a structure
-% of linear transforms.
-%
-% The linear transformation from the object position to the exit plane of
-% the optics needs to account for the properties of the system apertures.
-% THat is, only some of the rays from an object actually make it through
-% the optical system. We discuss this issue at length in the different
-% computational scripts related to this one.
-%
-% The idea is this:  Lens transforms of the ray from a point through the
-% optics, using Snell's Law are generally not linear. But, they are locally
-% linear. Thus we can produce a collection of linear transforms, one for
-% each visual field position (volume), and the collection summarizes the
-% overall non-linear transform.
-%
-% This script starts with a set of input field positions describing the
-% point sources where we wish to perform complete ray-tracing.  Linear lens
-% models (4x4 matrices) are computed for each these point source locations.
-% These linear transforms convert the rays from each point to the output
-% lightfield for that point. The sum of the light fields from all of the
-% points is the complete image light field.
-%
-% Since the linear transforms vary slowly across the volume of points, we
-% can linearly interpolate between these known estimated transforms to
-% produce linear transforms for arbitrary locations of point sources.
-%
-% How is this useful
-%
-%   This approach speeds up the forward model processing compared to a lot
-%   of ray tracing through multi-element lenses.  Rather than trace each
-%   ray, we can set a cone of rays for each point and apply the linear
-%   transformation.
-%
-%   This method stores for a light field linear transformation each visual
-%   field depth, field height, and wavelength.  One value of this
-%   representation is that the PSF can be derived from that linear
-%   transformation for any film distance.
-%
-%   Another advantage is that in the past we had a point spread function
-%   (PSF) for every position.  We then interpolated between positions
-%   (e.g., deptns and field heights) to estimate the intermediate PSF.
-%
-%   A third advantage is that the interpolation between positions, based on
-%   the interpolation of these linear transformations, is more accurate
-%   than the interpolation based on the PSFs themselves.
-%
-%   A fourth value is that we can recalculate the PSF as we change the
-%   aperture.
+%% Evaluate PSF Error using Volume of Linear Transforms (VOLT) ray-tracing
 %
 % See also:
 %    MORE SCRIPTS ILLUSTRATING STUFF ABOUT APERTURES, COMPUTATIONAL
@@ -61,8 +10,7 @@
 % mapping to 0, or something ...
 % -Lens element positions are all negative, and the final exit plan can be
 % considered as z = 0
-% -Ran into problem with z = -100, where psf was very elongated.  Run this
-% again and debug.  
+%
 % AL Vistalab, 2014
 %%
 s_initISET
