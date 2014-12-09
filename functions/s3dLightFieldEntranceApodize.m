@@ -52,7 +52,31 @@ ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource)
 % format to z format. How do we properly interpolate values for z where
 % there is no value???
 
+%embrace it and keep in point cloud format?
 
+
+%load seamount
+%tri = delaunay(x,y);
+%trisurf(tri,x,y,z);
+
+%TriScatteredInterp
+
+
+%Create a data set:
+x = rand(100,1)*4-2;
+y = rand(100,1)*4-2;
+z = x.*exp(-x.^2-y.^2);
+
+%Construct the interpolant:
+F = TriScatteredInterp(x,y,z);
+
+%Evaluate the interpolant at the locations (qx, qy). The corresponding value at these locations is qz:
+ti = -2:.25:2;
+[qx,qy] = meshgrid(ti,ti);
+qz = F(qx,qy);
+mesh(qx,qy,qz);
+hold on;
+plot3(x,y,z,'o');
 
 ppsf = ppsfCamera.traceToEntrance(0, true);  %0 debug lines; jitter set to true
 

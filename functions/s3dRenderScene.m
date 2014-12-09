@@ -1,4 +1,4 @@
-function scene = s3dRenderScene(inputPbrt, sceneName)
+function scene = s3dRenderScene(inputPbrt, sceneName, noScale)
 % scene = s3dRenderScene(inputPbrt, sceneName)
 % Uses a pinhole camera model to calculate scene radiance
 %
@@ -29,6 +29,10 @@ function scene = s3dRenderScene(inputPbrt, sceneName)
 
     if (ieNotDefined('sceneName'))
         sceneName = 'deleteMe';
+    end
+    
+    if (ieNotDefined('noScale'))
+        noScale = false;
     end
     
     if(isa(inputPbrt, 'pbrtObject'))
@@ -74,7 +78,9 @@ function scene = s3dRenderScene(inputPbrt, sceneName)
     %rename the oi, if a name is given
     if (~ieNotDefined('sceneName'))
         scene = sceneSet(scene, 'name', sceneName);
-        scene = sceneAdjustLuminance(scene,100);
+        if(~noScale)
+            scene = sceneAdjustLuminance(scene,100);
+        end
     end
 
 end

@@ -1,6 +1,11 @@
 classdef pbrtSpectrumObject < handle
 %defines a spectrum for PBRT.  
 %the default input is of type 'rgb I' and value [1000 1000 1000].
+%
+%Example:
+%inType = 'spectrum';
+%inValue = [400 1 500 1 600 1 700 .5];
+%spectrumObject = pbrtSpectrumObject(inType, inValue)
 %See PBRT documentation for additional inputs. 
 %TODO: add more input types for users
     properties %(SetAccess = private)

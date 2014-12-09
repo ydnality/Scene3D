@@ -41,14 +41,16 @@ title(sprintf(oiGet(oiG,'name')));
 %
 centroid = oiGet(oiG,'centroid');
 
+% 'distance per sample' isn't yet available in oiSet
+%oiG = oiSet(oiG, 'distance per sample', 'mm', film.size(1)/film.resolution(1));
 centroidmm = oiSpace(oiG,[centroid.Y,centroid.X],'mm');
 
-% and estimate maximum height/width and re-render with a 
-% film at centroid, with the height and width set to twice that of the
-% maximum height/width of the PSF.  Then use this new rendering form to
-% find the MSE Later
-
-% Figure out center pos by calculating the centroid of illuminance image
+% % and estimate maximum height/width and re-render with a 
+% % film at centroid, with the height and width set to twice that of the
+% % maximum height/width of the PSF.  Then use this new rendering form to
+% % find the MSE Later
+% 
+% % Figure out center pos by calculating the centroid of illuminance image
 % img = oiGet(oiG,'illuminance');
 % 
 % % Force to unit area and flip up/down for a point spread
