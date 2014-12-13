@@ -68,7 +68,7 @@ figure(1); clf;
 plot3(xcoor(:,1), xcoor(:,2), xcoor(:,3), 'o')
 
 
-%% Now try an example that is more realistic for our applications
+%% Now try an example that is more realistic for our applications (simple depth map with one ray)
 
 % Simple depth map
 [x, y] = meshgrid(1:100,1:100);
@@ -80,7 +80,7 @@ faces = delaunay(x,y);       % net list for triangles
 orig  = [20 20 -50];         % ray's origin
 dir   = [50 50 0] - orig;    % ray's direction
 
-%% calculate the intersection from a ray to the depth map
+% calculate the intersection from a ray to the depth map
 
 vertices = [x(:) y(:) zMap(:)];
 vert1 = vertices(faces(:,1), :);  %get vertex coordinates of triangles
@@ -94,7 +94,7 @@ vert3 = vertices(faces(:,3), :);
 fprintf('Number of: faces=%i, points=%i, intresections=%i; time=%f sec\n', ...
   size(faces,1), size(vertices,1), sum(intersect), toc);
 
-%% Plot the intersection
+% Plot the intersection
 %plot the surface, with intersecting triangles in red
 vcNewGraphWin;
 trisurf(faces, x,y,zMap, intersect*1.0, 'FaceAlpha', .5);
@@ -106,7 +106,75 @@ hold on;
 line('XData',orig(1)+[0 dir(1)],'YData',orig(2)+[0 dir(2)],'ZData',...
   orig(3)+[0 dir(3)],'Color','r','LineWidth',3)
 
-%% Now try multiple rays for a hemisphere, kind of like a lens.
+
+
+%% Now try a depth map with multiple rays
+
+% Simple depth map
+[x, y] = meshgrid(1:100,1:100);
+zMap = ones(100) * -50;
+zMap(25:75, 25:75) = -25;
+vcNewGraphWin; mesh(zMap);
+
+faces = delaunay(x,y);       % net list for triangles
+orig  = [20 20 -50];         % ray's origin
+[xOrig yOrig zOrig] = meshgrid(15:5:25, 15:5:25, -50);
+xOrig = xOrig(:);
+yOrig = yOrig(:);
+zOrig = zOrig(:);
+orig = [xOrig yOrig zOrig];
+
+dir   = repmat([50 50 0], [size(xOrig,1), 1]) - orig;    % ray's direction
+
+% calculate the intersection from a ray to the depth map
+
+vertices = [x(:) y(:) zMap(:)];
+vert1 = vertices(faces(:,1), :);  %get vertex coordinates of triangles
+vert2 = vertices(faces(:,2), :);
+vert3 = vertices(faces(:,3), :);
+
+%clone so that orig, dir, and vertn are Nx3 in dimensions
+% orig = [orig; repmat(orig(size(orig,1), :), [size(vert1,1) - size(orig,1) 1])];
+% dir = [dir; repmat(dir(size(dir,1), :), [size(vert1,1) - size(dir,1) 1])];
+% Andy: this doesn't really work
+
+% what we really need is to clone both vertices, and orig/dir, so that each
+% orig/dir entry sees ALL triangles as potential intersection locations,
+% not just one
+
+
+origExp = repmat(orig, [size(vert1,1) 1]);
+dirExp = repmat(dir, [size(vert1,1) 1]);
+vert1Exp = repmat(vert1, [1 size(orig, 1)])'; 
+vert1Exp = reshape(vert1Exp, size(dirExp,1), [] );
+
+
+[intersect,~,~,~,xcoor] = TriangleRayIntersection(orig, dir, ...
+  vert1, vert2, vert3);%, 'lineType' , 'line');
+
+%print intersection information
+fprintf('Number of: faces=%i, points=%i, intresections=%i; time=%f sec\n', ...
+  size(faces,1), size(vertices,1), sum(intersect), toc);
+
+% Plot the intersection
+%plot the surface, with intersecting triangles in red
+vcNewGraphWin;
+trisurf(faces, x,y,zMap, intersect*1.0, 'FaceAlpha', .5);
+hold on;
+%plot intersection coordinates
+scatter3(xcoor(intersect,1), xcoor(intersect,2), xcoor(intersect,3), 100, 'b', 'o', 'filled')
+%plot ray
+
+% for i = 1:size(orig,1)
+% hold on;
+% line('XData',orig(i, 1)+[0 dir(i,1)],'YData',orig(i,2)+[0 dir(i,2)],'ZData',...
+%   orig(3)+[0 dir(3)],'Color','r','LineWidth',3)
+% end
+
+
+
+
+%% Now try ray for a hemisphere, kind of like a lens (brian's example).
 
 % Faces and vertices of the lens
 rCurve = 1.8; Ap = 1; nSamples = 100;
