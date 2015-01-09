@@ -39,7 +39,7 @@ pSZ = [-110 -103 -60];   %values must be monotonically increasing!!
 pSY = .1:1:31;
 pSY = [0 pSY];
 %pSZ = [-110 -103 -60];   %values must be monotonically increasing!!
-pSZ = -110:1:-60;
+pSZ = -110:10:-60;
 
 
 pSY = .1:1:31;
@@ -76,26 +76,27 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'apertureMiddleD', apertureMiddleD);
 wave = lens.get('wave');
 
+% don't change index of refraction for now... 
 % Change the index of refraction for each refractive surfaces
-lst     = lens.get('refractive surfaces');   % This list excludes the diaphgram
-nMatrix = lens.get('n refractive surfaces'); % This list also excludes the diaphgram
-nWave     = size(nMatrix,1);
-nSurfaces = size(nMatrix,2);
-
-% Add a delta to the nMatrix which changes the chromatic aberration.
-% We leave the last surface unchanged because the n refers to the material
-% to the right of the surface.
-offset = 0.05;
-deltaN  = linspace(-offset,offset,length(wave))';
-for ii=1:nSurfaces
-    if ~isequal(nMatrix(:,ii),ones(nWave,1))
-        nMatrix(:,ii) = nMatrix(:,ii) + deltaN;
-    end
-end
-
-% Put the matrix back into the n values of the refractive surfaces.
-lens.set('n refractive surfaces',nMatrix);
-% lens.draw
+% lst     = lens.get('refractive surfaces');   % This list excludes the diaphgram
+% nMatrix = lens.get('n refractive surfaces'); % This list also excludes the diaphgram
+% nWave     = size(nMatrix,1);
+% nSurfaces = size(nMatrix,2);
+% 
+% % Add a delta to the nMatrix which changes the chromatic aberration.
+% % We leave the last surface unchanged because the n refers to the material
+% % to the right of the surface.
+% offset = 0.05;
+% deltaN  = linspace(-offset,offset,length(wave))';
+% for ii=1:nSurfaces
+%     if ~isequal(nMatrix(:,ii),ones(nWave,1))
+%         nMatrix(:,ii) = nMatrix(:,ii) + deltaN;
+%     end
+% end
+% 
+% % Put the matrix back into the n values of the refractive surfaces.
+% lens.set('n refractive surfaces',nMatrix);
+% % lens.draw
 
 % nVector = lens.surfaceArray(lst').n
 % lens.set('n',nVector);
@@ -165,13 +166,14 @@ VoLTObject.calculateMatrices();
 profile viewer
 profile clear
 
+
 %% Read the Scene
 % If modded pbrt is NOT installed on this system, run this command to 
 % load a scene file
 
-sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+%sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
 
-%sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes',  'uniformWithDepth.mat');
+sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes',  'uniformWithDepth.mat');
 
 if ~exist(sceneFileName,'file')
     error('No file %s\n',sceneFileName);
@@ -183,12 +185,17 @@ scene = load(sceneFileName);
 scene = scene.scene;
 
 
-%uniform depth debug
-%depthMap = sceneGet(scene, 'depthMap');
+% %uniform depth debug
+depthMap = sceneGet(scene, 'depthMap');
 %uniformDepth = ones(size(depthMap)) * 79;
-%scene = sceneSet(scene, 'depthMap', uniformDepth);
+uniformDepth = ones([32 32]) * 100;
+uniformDepth(8:24,8:24) = 65;
+scene = sceneSet(scene, 'depthMap', uniformDepth);
 
 vcAddAndSelectObject(scene); sceneWindow;
+
+lens.set('aperture sample', [51 51]);  %very small amount of samples for now.
+
 
 %% Some bookkeeping for scene and oi size
 
@@ -240,5 +247,6 @@ VoLTCameraObject = VoLTCameraC('film', film, ...
                                'lens', lens);
 
 tic
-VoLTCameraObject.blurScene([2 2]);
+VoLTCameraObject.blurSceneApodize([2 2]);
 toc
+

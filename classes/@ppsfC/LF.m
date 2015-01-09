@@ -16,6 +16,8 @@ if ieNotDefined('position'), position = 'out'; end
 switch position
     case 'in'
         % 2 x nSamples_in_aperture x nWave
+        %Andy: TODO: fix this bug... aEntranceInt isn't updated
+        %correctly... when rays are blocked/apodized...
         inXY = obj.aEntranceInt.XY';
         inDir = ...
             [inXY(1, :) - obj.pointSourceLocation(1);

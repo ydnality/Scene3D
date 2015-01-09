@@ -44,16 +44,9 @@ ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource)
 
 
 % Plenoptic point spread calculated with Snell's Law
-% change this function here. 
+% change this function here.
 
 % we need a ppsfCamera.traceToEntrance(0, true, z);  %this is depth aware
-
-% before we obtain z, we need to convert the depth map, from depth map
-% format to z format. How do we properly interpolate values for z where
-% there is no value???
-
-%embrace it and keep in point cloud format?
-
 
 %load seamount
 %tri = delaunay(x,y);
@@ -63,26 +56,66 @@ ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource)
 
 
 %Create a data set:
-x = rand(100,1)*4-2;
-y = rand(100,1)*4-2;
-z = x.*exp(-x.^2-y.^2);
+% x = rand(100,1)*4-2;
+% y = rand(100,1)*4-2;
+% z = x.*exp(-x.^2-y.^2);
 
 %Construct the interpolant:
-F = TriScatteredInterp(x,y,z);
-
-%Evaluate the interpolant at the locations (qx, qy). The corresponding value at these locations is qz:
-ti = -2:.25:2;
-[qx,qy] = meshgrid(ti,ti);
-qz = F(qx,qy);
-mesh(qx,qy,qz);
-hold on;
-plot3(x,y,z,'o');
-
-ppsf = ppsfCamera.traceToEntrance(0, true);  %0 debug lines; jitter set to true
+% F = TriScatteredInterp(x,y,z);
+%
+% %Evaluate the interpolant at the locations (qx, qy). The corresponding value at these locations is qz:
+% ti = -2:.25:2;
+% [qx,qy] = meshgrid(ti,ti);
+% qz = F(qx,qy);
+% mesh(qx,qy,qz);
+% hold on;
+% plot3(x,y,z,'o');
 
 
+%% what we need to try first:
+% 1. convert from depth map to x,y,z format.
+% 2. then do delaunay triangulation on the x,y to create a mesh
+% 3. use triangle-mesh intersection and trace rays to lens
+% 4. identify which rays were blocked by objects in the front, and remove
+% those from the ray-trace
+
+maxTheta = 11.7578/2;   %TODO: this is hard coded - needs to be fixed
+
+%later - this value is taken from the hFOV of the lens.
+grid = linspace(-maxTheta,maxTheta,size(depthMap, 1));
+[thetax thetay] = meshgrid(grid, grid);  % this isn't scaled correctly yet!
+
+x = sin(thetax * pi/180) .* depthMap;
+y = sin(thetay * pi/180) .* depthMap;
+z = -cos(thetax * pi/180) .* cos(thetay*pi/180) .* depthMap;   %this needs to be fixed...
+
+faces = delaunay(x,y);       % net list for triangles
+
+vertices = [x(:) y(:) z(:)];
+vert1 = vertices(faces(:,1), :);  %get vertex coordinates of triangles
+vert2 = vertices(faces(:,2), :);
+vert3 = vertices(faces(:,3), :);
+
+close all;
+
+%for debug visualizations
+debugOn = false;
+if (debugOn)
+    vcNewGraphWin;
+    %trisurf(faces, x,y,zMap, intersect*1.0, 'FaceAlpha', .5);
+    trisurf(faces, x,y,z,  'FaceAlpha', 1);
+end
+
+depthTriangles.vert1 = vert1;
+depthTriangles.vert2 = vert2;
+depthTriangles.vert3 = vert3;
+
+
+ppsf = ppsfCamera.traceToEntrance(0, true, depthTriangles);  %0 debug lines; jitter set to true
+
+%figure out how to remove some rays from the ppsf!!!
 %% Calculate light fields
-    
+
 LFin  = ppsf.LF('in');
 
 end

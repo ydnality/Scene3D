@@ -1,4 +1,4 @@
-function ppsfReturn = traceToEntrance(obj,nLines, jitterFlag)
+function ppsfReturn = traceToEntrance(obj,nLines, jitterFlag, depthTriangles)
 % Calculate the origin and direction of the exiting rays
 %
 %    ppsfReturn = traceToEntrance(obj,nLines, jitterFlag)
@@ -17,10 +17,15 @@ function ppsfReturn = traceToEntrance(obj,nLines, jitterFlag)
 
 if ieNotDefined('nLines'), nLines = false; end
 if ieNotDefined('jitterFlag'), jitterFlag = false; end
-
+if ieNotDefined('depthTriangles'), depthTriangles = []; end
+    
 %disp('-----trace source to lens-----');
 ppsfObjectFlag = true;
-obj.ppsfRays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag);
+obj.ppsfRays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfObjectFlag, jitterFlag, [],[], depthTriangles);
+
+%*********
+%**project occlude: we need to remove rays that have collided here
+%********
 
 %duplicate the existing rays, and creates one for each
 %wavelength

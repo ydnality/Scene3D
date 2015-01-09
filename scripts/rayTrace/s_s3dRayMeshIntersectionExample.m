@@ -118,13 +118,22 @@ vcNewGraphWin; mesh(zMap);
 
 faces = delaunay(x,y);       % net list for triangles
 orig  = [20 20 -50];         % ray's origin
-[xOrig yOrig zOrig] = meshgrid(15:5:25, 15:5:25, -50);
-xOrig = xOrig(:);
-yOrig = yOrig(:);
-zOrig = zOrig(:);
-orig = [xOrig yOrig zOrig];
+% [xOrig yOrig zOrig] = meshgrid(15:1:25, 15:1:25, -50);
+% xOrig = xOrig(:);
+% yOrig = yOrig(:);
+% zOrig = zOrig(:);
+% orig = [xOrig yOrig zOrig];
+%dir   = repmat([50 50 0], [size(xOrig,1), 1]) - orig;    % ray's direction
 
-dir   = repmat([50 50 0], [size(xOrig,1), 1]) - orig;    % ray's direction
+%sample a square aperture centered at the center of the lens
+[xDir yDir zDir] = meshgrid(45:55, 45:55, 0);
+xDir = xDir(:);
+yDir = yDir(:);
+zDir = zDir(:);
+
+dir = [xDir yDir zDir];
+orig = repmat(orig, [size(xDir, 1), 1]);
+dir = dir - orig;
 
 % calculate the intersection from a ray to the depth map
 
@@ -140,26 +149,40 @@ vert3 = vertices(faces(:,3), :);
 
 % what we really need is to clone both vertices, and orig/dir, so that each
 % orig/dir entry sees ALL triangles as potential intersection locations,
-% not just one
+% not just one.  We do this by repeating the rays, and for each ray have a
+% potential intersection with each one of the triangles.
 
 
-origExp = repmat(orig, [size(vert1,1) 1]);
-dirExp = repmat(dir, [size(vert1,1) 1]);
-vert1Exp = repmat(vert1, [1 size(orig, 1)])'; 
-vert1Exp = reshape(vert1Exp, size(dirExp,1), [] );
+%total potential intersections = size(rays) * size(vertices)
+%so rays are duplicated #vertices times, and vertices are duplicated #ray
+%times
+
+origExp = repmat(orig, [size(vert1,1) 1]);  %repeat origin so can potentially intersect with all triangles
+dirExp = repmat(dir, [size(vert1,1) 1]);    %cycles once before repeating
+
+vert1Exp = repmat(vert1(:), [1 size(orig, 1)])';    %repeats each triangle size(orig) times
+vert1Exp = reshape(vert1Exp, size(dirExp,1), [] );     %ex.  1 1 2 2 3 3 4 4 
+
+vert2Exp = repmat(vert2(:), [1 size(orig, 1)])'; 
+vert2Exp = reshape(vert2Exp, size(dirExp,1), [] );  
+
+vert3Exp = repmat(vert3(:), [1 size(orig, 1)])'; 
+vert3Exp = reshape(vert3Exp, size(dirExp,1), [] );  
 
 
-[intersect,~,~,~,xcoor] = TriangleRayIntersection(orig, dir, ...
-  vert1, vert2, vert3);%, 'lineType' , 'line');
+[intersect,~,~,~,xcoor] = TriangleRayIntersection(origExp, dirExp, ...
+  vert1Exp, vert2Exp, vert3Exp);%, 'lineType' , 'line');
 
 %print intersection information
-fprintf('Number of: faces=%i, points=%i, intresections=%i; time=%f sec\n', ...
+fprintf('Number of: faces=%i, points=%i, intersections=%i; time=%f sec\n', ...
   size(faces,1), size(vertices,1), sum(intersect), toc);
+
 
 % Plot the intersection
 %plot the surface, with intersecting triangles in red
 vcNewGraphWin;
-trisurf(faces, x,y,zMap, intersect*1.0, 'FaceAlpha', .5);
+%trisurf(faces, x,y,zMap, intersect*1.0, 'FaceAlpha', .5);
+trisurf(faces, x,y,zMap,  'FaceAlpha', .5);
 hold on;
 %plot intersection coordinates
 scatter3(xcoor(intersect,1), xcoor(intersect,2), xcoor(intersect,3), 100, 'b', 'o', 'filled')

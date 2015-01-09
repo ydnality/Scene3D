@@ -34,7 +34,7 @@ for f=1:1
         
         fprintf('Simulating filter %i channel %i\n',f,ch);
         
-        load(sprintf('%s/Data/1208Scenes/macbeth%i.mat',ReflDepthRootPath,ch));
+        load(sprintf('%s/Data/1209Scenes/macbeth%i.mat',ReflDepthRootPath,ch));
         depthMap = sceneGet(scene,'depthMap');
         scene = sceneSet(scene,'photons',sceneGet(scene,'photons')*1e6);
         centerDist = depthMap(round(size(depthMap,1)/2),round(size(depthMap,2)/2));
