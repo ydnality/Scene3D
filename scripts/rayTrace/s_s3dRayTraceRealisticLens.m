@@ -8,7 +8,8 @@
 %
 % AL Vistalab, 2014
 %% 
-s_initISET
+ieInit
+
 %% ray-tracing 
 
 % -New support: different wavelength support
@@ -30,9 +31,8 @@ pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distanc
 
 
 %% film properties - 
-film = filmObject([], [1 1],  400:10:700, [(400:10:700)' (1:31)'], []);  %small distance
+film = pbrtFilmC('wave', 400:10:700);  %small distance
 
-% film = filmObject([24 24 53],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %% Should be a function for reading and writing lens files
 
 % declare lens that has 2 simple elements
@@ -52,10 +52,7 @@ lensCenterPosition = [0 0 -1.5];  %eventually calculate this given the lens file
 diffractionEnabled = true;   %reenable
 diffractionEnabled = false;
 
-% lensRealisticObject(elOffset, elRadius, elAperture, elN, aperture, focalLength, center, diffractionEnabled)
-% lens = lensRealisticObject(offset,radius,aperture,n, .1, 50,
-% lensCenterPosition, diffractionEnabled);   %reenable
-lens = lensRealisticObject(offset,radius,aperture,n, 8, 50, lensCenterPosition, diffractionEnabled);
+lens = lensC; % (offset,radius,aperture,n, 8, 50, lensCenterPosition, diffractionEnabled);
 lens.calculateApertureSample([7 7]);
 
 %% loop through all point sources

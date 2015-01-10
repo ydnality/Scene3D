@@ -1,4 +1,6 @@
-t%% Volume of Linear Transforms (VOLT) ray-tracing for multi-element lenses
+%% Validate Volume of Linear Transforms (VOLT) ray-tracing for multi-element lenses
+%
+% Let's simplify
 %
 % This script shows how to produce a volume of linear transforms (VoLT).
 % This scripts relies on a function (s3dVOLTCreateModel) that takes a lens
@@ -35,55 +37,14 @@ t%% Volume of Linear Transforms (VOLT) ray-tracing for multi-element lenses
 %
 % Notes:
 %
-% -Check why we have a discontinuity at (0,0).  Something about the 0 always
-% mapping to 0, or something ...
-% -Lens element positions are all negative, and the final exit plan can be
-% considered as z = 0
-% -Ran into problem with z = -100, where psf was very elongated.  Run this
-% again and debug.  
 % AL Vistalab, 2014
 %%
-s_initISET
-
-%% Specify different point source positions in the object volume
-%
-% We compute a linear transform for each of these sample positions
-%
-% At this moment, we only change in field height, not yet depth.
-%pSY = 0.01:.3:2;
-
-
-% - causes radial marks for indObject
-pSY = .1:.11:31;
-pSY = [0 pSY];
-pSZ = [-110 -103 -60];   %values must be monotonically increasing!!
-%pSZ = -110:1:-60;
-
-
-% - causes grid marks for indObject
-pSY = .1:1:31;
-pSY = [0 pSY];
-%pSZ = [-110 -103 -60];   %values must be monotonically increasing!!
-pSZ = -110:1:-60;
-
-
-pSY = .1:1:31;
-pSY = [0 pSY];
-pSZ = [-110 -103  -90 -80 -70 -60];   %values must be monotonically increasing!!
-
-
-%desired pSLocation for interpolation
-wantedPSLocation = [0 15.8 -103];
-%NOTE: there is something funky going at the 0 location...
-
-%theta = -90;
-
-
+ieInit
 
 %% new PS format: use spherical coordinates to specify point (this is more efficient)
 
-pSDepth = 60:1:110;  %this is the same as before - except we use positive coordinates to be more intuitie
-pSPhi = .1:1:16;  %phi will be the azimuth angle, where phi is the counter clockwise angle from the x axis
+pSDepth = 60:30:110;  %this is the same as before - except we use positive coordinates to be more intuitie
+pSPhi = .1:5:16;  %phi will be the azimuth angle, where phi is the counter clockwise angle from the x axis
 pSPhi = [0 pSPhi]; 
 
 wantedPSLocation = [0 7 -103];  %in [degrees depth(mm)] format
@@ -122,18 +83,6 @@ end
 lens.set('n refractive surfaces',nMatrix);
 % lens.draw
 
-% nVector = lens.surfaceArray(lst').n
-% lens.set('n',nVector);
-% numSurfaces = lens.get('nsurfaces');
-% offset = .05;
-% for i = 1:numSurfaces
-%    curN = lens.surfaceArray(i).get('n');
-%    
-%    if (curN(1)~=0 && curN(1)~=1)
-%        nVector = linspace(curN(1) - offset, curN(1) + offset, length(wave));
-%        lens.surfaceArray(i).set('n', nVector);
-%    end
-% end
 
 %% film (sensor) properties
 % position - relative to center of final lens surface
@@ -145,26 +94,6 @@ filmPosition = 159;
 film = pbrtFilmC('position', [0 0 filmPosition ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
     'wave', wave);
-
-%% Compute Snell's Law PSF at point source field height
-% profile on
-% 
-% % For this moment, we only run at one depth
-% % We set the wanted field height to the second coordinate,
-% % The first coordinate is always 0.
-% pointSource = wantedPSLocation;
-% 
-% % Compute the plenoptic pointspread that has the light field information
-% % using Snell's Law.
-% LF  = s3dLightField(pointSource, lens);
-% oiG = LF.createOI(lens,film);
-% oiG = oiSet(oiG,'name','Snell''s Law');
-% vcAddAndSelectObject(oiG); oiWindow;     
-% 
-% % uG = plotOI(oiG,'illuminance hline',[1 135]);
-% % title(sprintf(oiGet(oiG,'name')));
-% profile viewer
-% profile clear
 
 %% Compute VOLT model
 %
@@ -184,36 +113,22 @@ film = pbrtFilmC('position', [0 0 filmPosition ], ...
 %
 % Currently the VOLT model accomodates changes in field position ONLY.
 % Depth variation will come later.
-profile on
 VoLTObject = VoLTC('lens', lens, 'film', film, 'fieldPositions', pSPhi, 'depths', pSDepth, 'wave', wave); 
 VoLTObject.calculateMatrices();
-profile viewer
-profile clear
 
 %% Read the Scene
 % If modded pbrt is NOT installed on this system, run this command to 
 % load a scene file
 
-sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+% sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
+sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes',  'uniformWithDepth.mat');
+if ~exist(sceneFileName,'file'), error('No file %s\n',sceneFileName); end
 
-%sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes',  'uniformWithDepth.mat');
-
-if ~exist(sceneFileName,'file')
-    error('No file %s\n',sceneFileName);
-end
-
-% sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'simpleTarget', 'pinholeSceneFile.mat');
-
+% Converted by s_convertSceneOI in ISET
 scene = load(sceneFileName);
 scene = scene.scene;
 
-
-%uniform depth debug
-%depthMap = sceneGet(scene, 'depthMap');
-%uniformDepth = ones(size(depthMap)) * 79;
-%scene = sceneSet(scene, 'depthMap', uniformDepth);
-
-vcAddAndSelectObject(scene); sceneWindow;
+vcAddObject(scene); sceneWindow;
 
 %% Some bookkeeping for scene and oi size
 
@@ -267,131 +182,5 @@ VoLTCameraObject = VoLTCameraC('film', film, ...
 tic
 VoLTCameraObject.blurScene([2 2]);
 toc
-%% Old blurring experimental code
-% tic
-% 
-% profile on;
-% 
-% % Resize scene and all other related vars to the desired size(we want to oversample the film)
-% unBlurredPhotons = sceneGet(scene, 'photons');
-% unBlurredPhotons = imresize(unBlurredPhotons, [film.resolution(1) * 6, film.resolution(2) * 6]);
-% resizedDepth = imresize(sceneGet(scene, 'depth map'), [film.resolution(1) * 6, film.resolution(2) * 6]);
-% blurredPhotons = zeros(film.resolution(1), film.resolution(2), film.resolution(3));
-% 
-% % Declare some useful vars
-% oiSize = size(unBlurredPhotons); 
-% center = oiSize./2;
-% sceneHFOV = sceneGet(scene, 'hfov');
-% adjustedMiddleApertureRadius = 1;  %this is the size of the middle aperture
-% 
-% % set p the parallel pool
-% 
-% % originally 3580 sec
-% % with parfor: 376 sec
-% if (matlabpool('size') > 0)
-%     matlabpool close;
-% else
-%     matlabpool open 8;
-% end
-% 
-% parfor i = 1:oiSize(2)
-%     i
-%     film = pbrtFilmC('position', [0 0 filmPosition ], ...
-%     'size', [40 40], 'resolution', filmResolution,  ...
-%     'wave', wave);
-%     for j = 1:oiSize(1)
-%         film.clear();
-%         
-%         %figure out rotation of pixel
-%         %this will be the rotation from the positive y = 0 line in a
-%         %counter-clockwise fashion
-%         x = -(j - center(2));  %consider vectorizing for speed
-%         y = i - center(1);
-%         thetaRad = atan2(x,y);
-%         thetaDeg = thetaRad/pi * 180;
-%         
-%         %figure out field height
-%         fieldHeight = sqrt((x)^2 + (y)^2); %make into function
-%         %this is only the field height with respect to the pixels on the
-%         %sensor
-%         
-%         %convert this to the PSF location in 3 space... somehow... using
-%         %the depth map and some geometry
-%         wantedPSLocation = [0 0 0];
-%         
-%         %wantedPSLocation(2) = fieldHeight/2;  %works as a placeholder
-%         %wantedPSLocation(2) = fieldHeight/oiSize(2) * resizedDepth(i,j)/filmDistance;
-%         
-%         %this gives the current angle with respect to optical axis, when
-%         %using the radially symmetric field height (in radians)
-%         currentAngle = fieldHeight/(oiSize(2)/2) * (sceneHFOV/2) * (pi/180);   % figure out FOV stuff... do we use scene FOV or oi FOV?
-%         %currentDepth = 110; %assumed to be 103 for now for simplicity
-%         currentDepth = resizedDepth(i,j);
-%         %wantedPSLocation(3) = -currentDepth;   %old - not completely true
-%         %wantedPSLocation(2) = tan(currentAngle) * currentDepth;
-%         wantedPSLocation(2) = sin(currentAngle) * currentDepth;
-%         wantedPSLocation(3) = -sqrt(currentDepth^2 - wantedPSLocation(2)^2); 
-%         %wantedPsLocation(3) = -resizedDepth(i,j);
-%         %wantedPSLocation = [0 15 -103]; %some testing with PS locations
-%         
-%         % --- Interpolate PSF for current point in scene ---
-%         %first get the linear transform
-%         LTObject = VoLTObject.interpolateAllWaves(wantedPSLocation);
-%         
-%         % calculate the lightfield from this particular point source
-%         [inputLF]  = s3dLightFieldEntrance(wantedPSLocation, lens);   %traces rays to entrance only. 
-%         
-%         % Make an LT (linear transform) object and apply the LT on the inputLF
-%         outputLFObject = LTObject.applyOnLF(inputLF, adjustedMiddleApertureRadius);
-%         
-%         % Apply linear rotation transform on LF
-%         %thetaRad = theta/180 * pi;
-%         rotationMatrix = [cos(thetaRad)    sin(thetaRad)      0           0;
-%             -sin(thetaRad)   cos(thetaRad)      0           0;
-%             0             0               cos(thetaRad)  sin(thetaRad)
-%             0             0               -sin(thetaRad) cos(thetaRad)];
-%         
-%         rotationMatrixFull = repmat(rotationMatrix, [1 1 length(wave)]);
-%         RotationObject = LTC('AInterp', rotationMatrixFull, 'wave', wave);
-%         rotatedLFObject = RotationObject.applyOnLF(outputLFObject, adjustedMiddleApertureRadius);
-%         
-%         % Visualize PSF and phase space
-%         oiI = rotatedLFObject.createOI(lens,film);
-%         psfPhotons = oiGet(oiI, 'photons');
-%         
-%         %convert the oi of the PSF and multiply by spectral radiance of the
-%         %scene, and add together, in order to blur the scene
-%         
-%         if(isnan(psfPhotons(:)))
-%             warning('nan photons');   
-%             %problem: when oiI is all 0's... for whatever reason, the min
-%             %and max is not set correctly and results in nans.  Investigate
-%             %this in the future;
-%             psfPhotons = zeros(size(psfPhotons));   %this is a hack for now
-%         end
-%         
-%         %weigh each channel of PSf according to the weight of the original
-%         %Unblurred Image
-%         illuminanceWeight = repmat(unBlurredPhotons(i,j, :), [size(psfPhotons, 1) size(psfPhotons, 2)]);
-%         
-%         %add blurred PSF to the existing sum
-%         blurredPhotons = blurredPhotons + psfPhotons .* illuminanceWeight; 
-%     end
-% end
-% 
-% % Close the matlab pool
-% if (matlabpool('size') > 0)
-%     matlabpool close;
-% end
-% 
-% % Create an oi and assign blurred photons to oi
-% oi = oiCreate;
-% oi = initDefaultSpectrum(oi);
-% oi = oiSet(oi, 'wave', renderWave);
-% oi = oiSet(oi, 'cphotons', blurredPhotons);
-% oi = oiSet(oi,'hfov', hfov);
-% vcAddObject(oi); oiWindow;
-% 
-% profile viewer;
-% profile clear; 
-% toc
+
+%%

@@ -1,6 +1,12 @@
 %% loops through a series of different shape geometries (shifts the example white sphere in this example)
 %makes a new tempPbrtFiles directory and puts all the files for the batch
 %job in there. 
+%
+% See notes in vcamPosTest
+%
+% This needs to be updated also and checked for PBRT and so forth
+%
+%%
 
 % geometry position list
 geoList = [0 2 4 6];  %this is the x coordinate of the 

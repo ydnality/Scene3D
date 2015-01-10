@@ -46,10 +46,10 @@ AttributeBegin
 AttributeEnd
 
 
-Include "/home/ajwandell/Dropbox/Scene3D/Scene3DMatlab/data/validate/pbrtObject/depthTargetSpheres-mat.pbrt"
+Include "/Users/wandell/Github/Scene3D/data/validate/pbrtObject/depthTargetSpheres-mat.pbrt"
 
 
-Include "/home/ajwandell/Dropbox/Scene3D/Scene3DMatlab/data/validate/pbrtObject/depthTargetSpheres-geom.pbrt"
+Include "/Users/wandell/Github/Scene3D/data/validate/pbrtObject/depthTargetSpheres-geom.pbrt"
 
 
 WorldEnd
