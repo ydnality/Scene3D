@@ -34,7 +34,7 @@ blurredPhotons = zeros(filmResolution(1), filmResolution(2), filmResolution(3));
 
 % Declare some useful vars
 oiSize = size(unBlurredPhotons); 
-center = (oiSize)./2;  %the +1 is to account for the fact we start at 1, not 0 for indices
+center = (oiSize + 1)./2;  %the +1 is to account for the fact we start at 1, not 0 for indices
 sceneHFOV = sceneGet(obj.scene, 'hfov');
 adjustedMiddleApertureRadius = 1;  %this is the size of the middle aperture
 
@@ -51,11 +51,13 @@ end
 matlabpool open 8;
 
 parfor i = 1:oiSize(2)
+%for i = 1
     i
     film = pbrtFilmC('position', [0 0 filmPosition ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
     'wave', wave);
-    for j = 1:oiSize(1)
+   for j = 1:oiSize(1)
+      % for j = 10
         film.clear();
         
         %figure out rotation of pixel
@@ -70,6 +72,8 @@ parfor i = 1:oiSize(2)
         fieldHeight = sqrt((x)^2 + (y)^2); %make into function
         %this is only the field height with respect to the pixels on the
         %sensor
+        
+       
         
         %convert this to the PSF location in 3 space... somehow... using
         %the depth map and some geometry
@@ -94,7 +98,7 @@ parfor i = 1:oiSize(2)
         wantedPSLocation(3) = -sqrt(currentDepth^2 - wantedPSLocation(2)^2); 
         % --- end old cartesian system
         
-        
+
         %wantedPsLocation(3) = -resizedDepth(i,j);
         %wantedPSLocation = [0 15 -103]; %some testing with PS locations
         
@@ -107,7 +111,25 @@ parfor i = 1:oiSize(2)
         
         %*** EDIT THIS FUNCTION FOR PARTIAL ocCLUSIONS!!!!
         % calculate the lightfield from this particular point source
-        [inputLF]  = s3dLightFieldEntranceApodize(wantedPSLocation, obj.lens, obj.scene.depthMap);   
+        
+        withinPlaneTheta = atan2(x, y);   
+        %because of my weird sign convention that i started earlier, this 
+        %is an angle with respect to the x axis, going clockwise.
+        %We need to rotate the depth map as well as the point source by
+        %this theta, in the counter clockwise direction to simplify
+        %computations by always computing with the PS on the positive y axis.  
+        
+        
+        %this is old stuff - can go away
+%         rotMatrix = [cos(planeTheta)    sin(planeTheta)      0;
+%             -sin(planeTheta)   cos(planeTheta)      0;
+%              0                  0                   1;];
+%         realCartesianPSLoc = rotMatrix * wantedPSLocation;  
+        %this rotates the point from the y axis to it's correct position 
+        %in euclidean space
+
+        
+        [inputLF]  = s3dLightFieldEntranceApodize(wantedPSLocation, obj.lens, obj.scene.depthMap, withinPlaneTheta);   
         %ToDO: we must rotate the depth map somehow... because we are rotating
         %the PSLocation, but not the depth map
         
@@ -161,7 +183,7 @@ end
 oi = oiCreate;
 oi = initDefaultSpectrum(oi);
 oi = oiSet(oi, 'wave', wave);
-oi = oiSet(oi, 'cphotons', blurredPhotons);
+oi = oiSet(oi, 'photons', blurredPhotons);
 oi = oiSet(oi,'hfov', sceneHFOV);
 vcAddObject(oi); oiWindow;
 

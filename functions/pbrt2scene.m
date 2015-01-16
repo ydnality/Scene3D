@@ -97,7 +97,7 @@ fclose(fID);
 % Set the scene photon data
 scene = sceneCreate;
 scene = initDefaultSpectrum(scene);
-scene = sceneSet(scene,'cphotons',photons);
+scene = sceneSet(scene,'photons',photons);
 
 %% Temporarily disable depth map reading
 % [path,name,ext] = fileparts(fname); 

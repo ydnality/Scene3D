@@ -133,9 +133,10 @@ rays.direction = rayDirection(rays.origin,ePoints);
 
 % If this variable is included, we process for scene depth occlusions
 if(~ieNotDefined('depthTriangles'))
+%if(false)
     
     %setup origin and direction of rays
-    epsilon = .1;
+    epsilon = repmat([0 0 2], [size(rays.origin, 1) 1]);
     orig = single(rays.origin + epsilon);
     dir  = single(ePoints - rays.origin);
     
@@ -145,7 +146,8 @@ if(~ieNotDefined('depthTriangles'))
     
     %debug visualization
     newE = orig + dir;    
-    vcNewGraphWin;
+   % vcNewGraphWin;  
+    hold on;
     samps = 1:10:size(orig(:,1));
     nSamps = length(samps);
     line([orig(samps,1) newE(samps,1) NaN(nSamps, 1)]',  [orig(samps,2) newE(samps,2) NaN(nSamps, 1)]', [orig(samps,3) newE(samps,3) NaN(nSamps, 1)]');
@@ -187,9 +189,12 @@ if(~ieNotDefined('depthTriangles'))
     index = repmat(1:size(orig, 1), [1 size(vert1,1)]);  %is this line wrong??
     blockedRays = index(intersect);
     
+    %if(false)
     if (~isempty(blockedRays))
         
         %debug visualization
+        
+        debugOn = true;
         if (pointSource(2) < 10 && debugOn)
             disp('blocked Rays');
             %plot origin
@@ -214,11 +219,7 @@ if(~ieNotDefined('depthTriangles'))
         
     end
     
-    % Remove apodized/blocked rays
-    if(isa(rays,'ppsfC'))
-        %TODO: is there a neater way to do this?
-      
-    end
+
 end
 
 
@@ -242,6 +243,7 @@ if(isa(rays,'ppsfC'))
     rays.aMiddleInt.XY = zeros(length(aGrid.X), 2);
     rays.aExitInt.XY = zeros(length(aGrid.X), 2);
     
+    %if (false)
     if(~ieNotDefined('depthTriangles'))        
         if (~isempty(blockedRays > 0))
             rays.aEntranceInt.XY(blockedRays,:) = [];

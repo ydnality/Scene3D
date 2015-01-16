@@ -156,7 +156,7 @@ end
 oi = oiCreate;
 oi = initDefaultSpectrum(oi);
 oi = oiSet(oi, 'wave', wave);
-oi = oiSet(oi, 'cphotons', blurredPhotons);
+oi = oiSet(oi, 'photons', blurredPhotons);
 oi = oiSet(oi,'hfov', sceneHFOV);
 vcAddObject(oi); oiWindow;
 

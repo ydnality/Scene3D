@@ -1,5 +1,5 @@
 %% Render Scene Radiance Using pbrtObjects
-for i = 1:14
+for i = 1:1
     
     clear curPbrt;
     curPbrt = pbrtObject();

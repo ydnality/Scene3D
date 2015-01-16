@@ -99,7 +99,8 @@ oi = initDefaultSpectrum(oi);
 % Set the optics parameters from somewhere
 % optics = oiGet(oi,'optics');
 
-oi = oiSet(oi,'cphotons',photons);
+%oi = oiSet(oi,'cphotons',photons);
+oi = oiSet(oi,'photons',double(photons));
 
 %temporarily disable depth map reading
 % [path,name,ext] = fileparts(fname); 

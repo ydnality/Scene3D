@@ -1,4 +1,4 @@
-function [LFin] = s3dLightFieldEntranceApodize(pointSource, lens, depthMap)
+function [LFin] = s3dLightFieldEntranceApodize(pointSource, lens, depthMap, withinPlaneTheta)
 % Create a light field object for the input (point source) and lens
 %
 %
@@ -79,31 +79,47 @@ ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource)
 % 4. identify which rays were blocked by objects in the front, and remove
 % those from the ray-trace
 
-maxTheta = 11.7578/2;   %TODO: this is hard coded - needs to be fixed
+%maxTheta = 11.7578/2;   %****TODO: this is hard coded - needs to be fixed
+maxTheta = 7.7481/2;
 
 %later - this value is taken from the hFOV of the lens.
 grid = linspace(-maxTheta,maxTheta,size(depthMap, 1));
 [thetax thetay] = meshgrid(grid, grid);  % this isn't scaled correctly yet!
 
-x = sin(thetax * pi/180) .* depthMap;
-y = sin(thetay * pi/180) .* depthMap;
-z = -cos(thetax * pi/180) .* cos(thetay*pi/180) .* depthMap;   %this needs to be fixed...
+% x = sin(thetax * pi/180) .* depthMap;
+% y = sin(thetay * pi/180) .* depthMap;
+% z = -cos(thetax * pi/180) .* cos(thetay*pi/180) .* depthMap;   %this needs to be fixed...
+
+
+x = depthMap .* cos(thetay * pi/180) .* sin (thetax * pi/180);
+y = depthMap .* sin(thetay * pi/180);
+z = -depthMap .*cos(thetay * pi/180) .* cos(thetax * pi/180);
 
 faces = delaunay(x,y);       % net list for triangles
 
 vertices = [x(:) y(:) z(:)];
+
+%rotate all vertices by withinPlaneTheta counter clockwise
+rotMatrix = [cos(-withinPlaneTheta)    sin(-withinPlaneTheta)      0;
+    -sin(-withinPlaneTheta)   cos(-withinPlaneTheta)      0;
+    0                  0                   1;];
+%TODO: make this matrix/computation into a function eventually, or macro
+
+vertices =  (rotMatrix * vertices')';  %transpose for row/col convention
+
 vert1 = vertices(faces(:,1), :);  %get vertex coordinates of triangles
 vert2 = vertices(faces(:,2), :);
 vert3 = vertices(faces(:,3), :);
 
-close all;
+
 
 %for debug visualizations
-debugOn = false;
+debugOn = true;
 if (debugOn)
+    close all;
     vcNewGraphWin;
     %trisurf(faces, x,y,zMap, intersect*1.0, 'FaceAlpha', .5);
-    trisurf(faces, x,y,z,  'FaceAlpha', 1);
+    trisurf(faces, vertices(:,1), vertices(:,2) ,vertices(:,3),  'FaceAlpha', 1);
 end
 
 depthTriangles.vert1 = vert1;

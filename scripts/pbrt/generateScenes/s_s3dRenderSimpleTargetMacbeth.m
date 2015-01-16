@@ -10,7 +10,7 @@ newCamPos =    [0  0 0;
 curPbrt.camera.setPosition(newCamPos);
 curPbrt.camera.lens.filmDistance = 133.33;
 curPbrt.camera.lens.filmDiag = 70;
-% curPbrt.camera.setResolution(100, 100);    %LQ mode
+curPbrt.camera.setResolution(25, 25);    %LQ mode
 
 %uncomment to use a 2 element lens instead of a pinhole
 % curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt'));
@@ -22,8 +22,8 @@ curPbrt.sampler.addProperty(sampler);
 
 %backdrop Depth
 % backDropDepth = -100 * scaleFactor;  %backdrop distance increases with depth of spheres
-backDropDepth = -160;  
-foregroundDepth = -80;
+backDropDepth = -100;  
+foregroundDepth = -65;
 foregroundDepth2 = -70;
 foregroundDepth3= -90;
 %calculate sphere offsets
@@ -59,8 +59,8 @@ curPbrt.addGeometry(backDrop);
 
 %add a foreground target
 foregroundTransform = ...
-    [8 0 0 0;
-    0 8 0 0 ;
+    [4 0 0 0;
+    0 4 0 0 ;
     0 0 1 0;
     0 0 foregroundDepth  1];
 frontSquare = pbrtGeometryObject('backdrop', 'grayMat', [], [], foregroundTransform);

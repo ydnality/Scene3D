@@ -117,7 +117,8 @@ wave = lens.get('wave');
 % wavelength samples
 % filmResolution = [100 100];
 filmResolution = [25 25];
-filmPosition = 159;
+%filmPosition = 159;
+filmPosition = 242;
 film = pbrtFilmC('position', [0 0 filmPosition ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
     'wave', wave);
@@ -173,7 +174,10 @@ profile clear
 
 %sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
 
-sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes',  'uniformWithDepth.mat');
+%sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes',  'uniformWithDepth.mat');
+
+sceneFileName = fullfile(s3dRootPath, 'data', 'pbrtScenes', 'simpleTarget', 'simpleTarget.mat');
+
 
 if ~exist(sceneFileName,'file')
     error('No file %s\n',sceneFileName);
@@ -184,13 +188,20 @@ end
 scene = load(sceneFileName);
 scene = scene.scene;
 
+tmpPhotons = sceneGet(scene, 'photons');
+tmpPhotons = imresize(tmpPhotons, [25 25]);
+scene = sceneSet(scene, 'photons', tmpPhotons);
+
+tmpDMap = sceneGet(scene, 'depth map');
+tmpDMap = imresize(tmpDMap, [25 25]);
+scene = sceneSet(scene, 'depth map', tmpDMap);
 
 % %uniform depth debug
-depthMap = sceneGet(scene, 'depthMap');
-%uniformDepth = ones(size(depthMap)) * 79;
-uniformDepth = ones([32 32]) * 100;
-uniformDepth(8:24,8:24) = 65;
-scene = sceneSet(scene, 'depthMap', uniformDepth);
+% depthMap = sceneGet(scene, 'depthMap');
+% %uniformDepth = ones(size(depthMap)) * 79;
+% uniformDepth = ones([32 32]) * 100;
+% uniformDepth(8:24,8:24) = 65;
+% scene = sceneSet(scene, 'depthMap', uniformDepth);
 
 vcAddAndSelectObject(scene); sceneWindow;
 
@@ -235,18 +246,22 @@ hfov = hfov * .82; %for padding - we have issues with it going off the oi right 
 %such that the scene size scales perfectly to the oi pixel for pixel, or
 %else there will be weird artifacts
 
+%TODO: figure out this padding/scaling business... 
 
 % Set the fov of scene so that the cropping approximately fits fov of oi (given the focal length of lens and size of film)
 scene = sceneSet(scene, 'hfov', hfov);  
 filmDistance = film.position(3);
 
 %% Blur the scene - this is for a circularly symmetric lens
+
+lens.apertureMiddleD = 1;
 VoLTCameraObject = VoLTCameraC('film', film, ...
                                'VolTObject', VoLTObject, ... 
                                'scene', scene, ...
                                'lens', lens);
 
 tic
+%VoLTCameraObject.blurScene([2 2]);
 VoLTCameraObject.blurSceneApodize([2 2]);
 toc
 
