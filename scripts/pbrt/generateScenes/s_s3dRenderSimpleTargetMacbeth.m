@@ -44,6 +44,7 @@ curPbrt.addMaterial(newMaterial);
 
 %add material file
 curPbrt.addMaterial(fullfile(s3dRootPath, 'data', 'materials', 'simpleTarget-mat.pbrt'));
+%curPbrt.addMaterial('simpleTarget-mat.pbrt');
 
 % remove default geometry
 curPbrt.removeGeometry();
@@ -81,7 +82,7 @@ curPbrt.addGeometry(frontSquare);
 
 tmpFileName = ['deleteMe' '.pbrt'];
 curPbrt.writeFile(tmpFileName);
-scene = s3dRenderScene( curPbrt, 'simpleScene');
+scene = s3dRenderScene( curPbrt, 'simpleScene', [], true);
 
 %% Render Depth map
 

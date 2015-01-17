@@ -14,9 +14,12 @@ classdef pbrtObject <  handle
         surfaceIntegrator;
         renderer;
         lightSourceArray;
-        materialArray;  %we will use .fileName for now to avoid declaring all the materials stuff
+        %materialArray;  %we will use .fileName for now to avoid declaring all the materials stuff
         geometryArray;   %we will use .fileName for now to avoid declaring all the geometry stuff
 %         shapeArray; %built in shapes
+    end
+    properties
+       materialArray; %TODO: make this more elegant later 
     end
     methods
         
