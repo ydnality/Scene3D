@@ -83,6 +83,7 @@ curPbrt.addGeometry(frontSquare);
 tmpFileName = ['deleteMe' '.pbrt'];
 curPbrt.writeFile(tmpFileName);
 scene = s3dRenderScene( curPbrt, 'simpleScene', [], true);
+% vcAddObject(scene); sceneWindow;
 
 %% Render Depth map
 
