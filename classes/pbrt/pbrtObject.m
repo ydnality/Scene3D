@@ -3,10 +3,10 @@
 % that key properties such as materials and geometry are still handled by
 % importing text files, since these are very complex.
 %TODO: check types
-classdef pbrtObject <  handle
+classdef pbrtObject <  clonableHandleObject
     
     %matlab.mixin.Copyable
-    properties (SetAccess = private)
+    properties %(SetAccess = protected)  %TODO: see how to make this protected while able to clone
         name;
         scale;
         camera; %this will contain position, file, film

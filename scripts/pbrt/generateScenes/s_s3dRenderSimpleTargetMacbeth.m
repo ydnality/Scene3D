@@ -1,5 +1,4 @@
 %% Render Scene Radiance Using pbrtObjects
-
 clear curPbrt;
 curPbrt = pbrtObject();
 
@@ -21,19 +20,10 @@ sampler.value = 512;
 curPbrt.sampler.addProperty(sampler);
 
 %backdrop Depth
-% backDropDepth = -100 * scaleFactor;  %backdrop distance increases with depth of spheres
 backDropDepth = -100;  
 foregroundDepth = -65;
-foregroundDepth2 = -70;
-foregroundDepth3= -90;
-%calculate sphere offsets
-% xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
-% yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
-% [xOffsets yOffsets] = meshgrid(xValues, yValues); 
 
-
-% lightRight = pbrtLightSpotObject('rightLight', [], [], [], inFrom, inTo);
-% curPbrt.removeLight();
+%light source
 lightFront = pbrtLightSpotObject('lightFront', [], [], [], [0 0 80], [0 0 -79]);
 curPbrt.addLightSource(lightFront);
 
@@ -44,7 +34,6 @@ curPbrt.addMaterial(newMaterial);
 
 %add material file
 curPbrt.addMaterial(fullfile(s3dRootPath, 'data', 'materials', 'simpleTarget-mat.pbrt'));
-%curPbrt.addMaterial('simpleTarget-mat.pbrt');
 
 % remove default geometry
 curPbrt.removeGeometry();
@@ -57,7 +46,6 @@ backDropTransform = ...
 backDrop = pbrtGeometryObject('backdrop', 'Material', [], [], backDropTransform);
 curPbrt.addGeometry(backDrop);
 
-
 %add a foreground target
 foregroundTransform = ...
     [4 0 0 0;
@@ -67,38 +55,24 @@ foregroundTransform = ...
 frontSquare = pbrtGeometryObject('backdrop', 'grayMat', [], [], foregroundTransform);
 curPbrt.addGeometry(frontSquare);
 
+% tmpFileName = ['deleteMe' '.pbrt'];
+% curPbrt.writeFile(tmpFileName);
 
-% xOffsets = xOffsets(:);
-% yOffsets = yOffsets(:);
-% for i = 1:length(xOffsets)
-%     %add new geoemtry
-%     translateTransform = [scaleFactor 0 0 0;
-%         0 scaleFactor 0 0 ;
-%         0 0 scaleFactor 0;
-%         xOffsets(i) yOffsets(i) sphereDepths  1]; %8.87306690216     %x direction is to the right, y is into the screen, z is up
-%     newGeometry = pbrtGeometryObject(['sphere' int2str(i)], 'grayMat', pbrtShapeObject('sphere', 'radius', 1), [], translateTransform);
-%     curPbrt.addGeometry(newGeometry);
-% end
+% radianceRenderPbrt = pbrtObject;
+% radianceRenderPbrt.makeDeepCopy(curPbrt);
+% scene = s3dRenderScene( radianceRenderPbrt, 'simpleScene', [], true);
+% 
+% %% Render Depth map
+% 
+% %change the sampler to stratified for non-noisy depth map
+% samplerProp = pbrtPropertyObject();
+% depthRenderPbrt = pbrtObject; depthRenderPbrt.makeDeepCopy(curPbrt);
+% 
+% %render depth map
+% groundTruthDepthMap = s3dRenderDepthMap(depthRenderPbrt, 1, 'simpleScene', true);
+% figure; imagesc(groundTruthDepthMap);
+% 
+% scene = sceneSet(scene, 'depthmap', groundTruthDepthMap);
 
-tmpFileName = ['deleteMe' '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-scene = s3dRenderScene( curPbrt, 'simpleScene', [], true);
-
-%% Render Depth map
-
-%change the sampler to stratified for non-noisy depth map
-samplerProp = pbrtPropertyObject();
-curPbrt.sampler.setType('stratified');
-curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
-
-%write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
-figure; imagesc(groundTruthDepthMap);
-
-scene = sceneSet(scene, 'depthmap', groundTruthDepthMap);
+scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', true);
 vcAddObject(scene); sceneWindow;
