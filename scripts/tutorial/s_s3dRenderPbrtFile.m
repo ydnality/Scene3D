@@ -3,4 +3,7 @@
 % pbrt must be installed on the system and be on the system path.
 
 %% Test docker functionality
+dockerFlag = true;
+inputPbrtFile = fullfile(dataPath, 'pbrtScenes','indestructibleObject', 'default.pbrt'); 
+s3dRenderScene(inputPbrtFile, 'indestructibleObject', [], dockerFlag);
 
