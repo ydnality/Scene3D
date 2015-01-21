@@ -20,29 +20,18 @@ function scene = s3dRenderScene(inputPbrt, sceneName, noScale, dockerFlag)
 %
 % Note: pbrt looks for imported image and data files at
 % s3dRootPath/data/generatedPbrtFiles
-%%
+%% Set up parameters
 
 if ieNotDefined('dockerFlag'), dockerFlag = 0; end
+if (ieNotDefined('inputPbrt')), error('PBRT full file name required.');end
+if (ieNotDefined('sceneName')), sceneName = 'deleteMe'; end
+if (ieNotDefined('noScale')), noScale = false; end
 
-if (ieNotDefined('inputPbrt'))
-    error('PBRT full file name required.');
-end
-
-if (ieNotDefined('sceneName'))
-    sceneName = 'deleteMe';
-end
-
-if (ieNotDefined('noScale'))
-    noScale = false;
-end
-
-
-% Make a tempPBRT directory where the output files will go
+%% Make a tempPBRT directory where the output files will go
 generatedDir = tempname;
 mkdir(generatedDir);
-
-
-% Make the pbrt file from the pbrtObject
+s
+% Make the pbrt files from the pbrtObject
 if(isa(inputPbrt, 'pbrtObject'))
     % Strip the path off of each materialArray entry before writing the
     % pbrt file to disk.
@@ -68,12 +57,11 @@ else
     error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
 end
 
-
+% Copy the file to the temporary directory
 copyfile(fullfname,generatedDir);
 outfile  = fullfile(generatedDir, 'temp_out.dat');
 
-
-% Execute either via docker or via local instance of pbrt
+%% Execute either via docker or via local instance of pbrt
 if dockerFlag
     % We assume docker is installed on this system and we execute the
     % function in a docker container
@@ -107,7 +95,7 @@ else
     if s, error('PBRT not found'); end
     
     % [p,n,ext] = fileparts(fullfname);
-    cmd = sprintf('%s %s --outfile %s',pbrtExe,fullfname,outfile);
+    cmd = sprintf('%s %s --outfile %s\n',pbrtExe,fullfname,outfile);
     % chdir(p)
     unix(cmd)
 end
@@ -116,10 +104,12 @@ end
 %% ISET will read the PBRT output and convert to a scene
 
 scene = pbrt2scene(outfile);
-%rename the oi, if a name is given
+
+%rename the scene, if a name is given
 if (~ieNotDefined('sceneName'))
     scene = sceneSet(scene, 'name', sceneName);
     if(~noScale)
+        % By default we scale to a mean luminance of 100 cd/m2.
         scene = sceneAdjustLuminance(scene,100);
     end
 end
