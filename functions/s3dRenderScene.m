@@ -67,7 +67,6 @@ end
 
 
 %copy the base .pbrt file into the temp directory for processing
-
 copyfile(fullfname,generatedDir);
 outfile  = fullfile(generatedDir, 'temp_out.dat');
 

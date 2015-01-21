@@ -57,6 +57,4 @@ curPbrt.addGeometry(frontSquare);
 
 % Render scene and depth map
 scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', true);
-
-% Display rendering
 vcAddObject(scene); sceneWindow;
