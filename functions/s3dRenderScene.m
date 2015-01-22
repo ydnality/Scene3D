@@ -51,8 +51,6 @@ elseif (ischar(inputPbrt))
     %if inputPbrt is a char, then it becomes the input file
     fullfname = inputPbrt;
     if dockerFlag
-        %error('inputPbrt as char is not supported. You must pass a pbrt object');
-        
         %copy all relavent files into the temp directory
         [directory, ~, ~] = fileparts(fullfname);
         

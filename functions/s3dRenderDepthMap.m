@@ -62,7 +62,13 @@ elseif (ischar(inputPbrt))
     %if inputPbrt is a char, then it becomes the input file
     fullfname = inputPbrt;
     if dockerFlag
-        error('inputPbrt as char is not supported. You must pass a pbrt object');
+        %copy all relavent files into the temp directory
+        [directory, ~, ~] = fileparts(fullfname);
+        
+        [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
+        [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
+        [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
+        [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
     end
 else
     error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
