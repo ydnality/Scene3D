@@ -26,7 +26,7 @@ Camera "realistic"
 	"string specfile" "wide.22mm.dat" 
 "string specfile" "dgauss.50mm.dat" 
 	"float filmdistance" 39
-	"float aperture_diameter" 17.1
+	"float aperture_diameter" 10
 	"float filmdiag" 70 
 	"float hither" [0.001 ] 
 	"float yon" [1e+30 ] 
@@ -45,7 +45,7 @@ Camera "realistic"
 Film "image"
    "integer xresolution" [256] 
    "integer yresolution" [256]
-   "string filename" ["testNormal.exr"]
+ #  "string filename" ["testNormal.exr"]
 
 PixelFilter "mitchell"
    "float B" [0.750000]

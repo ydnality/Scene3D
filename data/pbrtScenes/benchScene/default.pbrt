@@ -8,12 +8,13 @@ LookAt 22.273041 -20.802139 7.564090
 
 Camera "perspective"
    "float fov" [40]
-   "float lensradius" .5
-    "float focaldistance" 1000
+  # "float lensradius" .5
+  #  "float focaldistance" 1000
+
 Film "image"
-   "integer xresolution" [800] 
-   "integer yresolution" [600]
-   "string filename" ["test.exr"]
+   "integer xresolution" [400] 
+   "integer yresolution" [300]
+  # "string filename" ["test.exr"]
 
 PixelFilter "mitchell"
    "float B" [0.750000]

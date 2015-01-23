@@ -9,6 +9,7 @@ scene = s3dRenderScene(inputPbrtFile, 'indestructibleObject', [], dockerFlag);
 vcAddObject(scene); sceneWindow;
 
 %% Render scene and depth map with docker container. 
+%
 %* Note that there has to be a *_depth.pbrt file, which is identical to the
 %scene file, except that it contains the following sampler:
 %
@@ -16,8 +17,14 @@ vcAddObject(scene); sceneWindow;
 %    "integer xsamples" [1]
 %    "integer ysamples" [1]
 %    "bool jitter" "false"
+%
+% Setting this type of sampler allows us to turn off "jitter", which
+% randomly samples the aperture..  
+%
+
 
 dockerFlag = true;
 inputPbrtFile = fullfile(dataPath, 'pbrtScenes','indestructibleObject', 'default.pbrt'); 
 scene = s3dRenderSceneAndDepthMap(inputPbrtFile, 'indestructibleObject', dockerFlag); 
 vcAddObject(scene); sceneWindow;
+
