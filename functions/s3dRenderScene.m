@@ -56,6 +56,7 @@ elseif (ischar(inputPbrt))
         
         [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
         [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
+        [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
         [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
         [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
     end

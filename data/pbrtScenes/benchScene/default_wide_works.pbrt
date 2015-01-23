@@ -16,14 +16,14 @@ Camera "perspective"
 Film "image"
    "integer xresolution" [256] 
    "integer yresolution" [256]
-   "string filename" ["testWide_backFocus.exr"]
+   #"string filename" ["testWide_backFocus.exr"]
 
 PixelFilter "mitchell"
    "float B" [0.750000]
    "float C" [0.125000]
 
 Sampler "lowdiscrepancy"
-   "integer pixelsamples" [512]
+   "integer pixelsamples" [32]
 
 #SurfaceIntegrator "directlighting"
 #   "integer maxdepth" [8]

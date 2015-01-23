@@ -6,37 +6,37 @@ LookAt 179.701691 -170.845230 36.446182
        178.975494 -170.161819 36.371479 
        -0.046965 0.059093 0.997147
 
-#Camera "perspective"
-#   "float fov" [40]
+Camera "perspective"
+   "float fov" [40]
 #   "float lensradius" 5
 #    "float focaldistance" 300
 
-Camera "realisticDiffraction" 
-	"string specfile" "dgauss.50mmSA2.dat" 
-	#"float filmdistance" 36.77
-    "float filmdistance" 64
-	"float aperture_diameter" 1 #3
-	"float filmdiag" 10 #70 
-	"float hither" [0.001 ] 
-	"float yon" [1e+30 ] 
-	"float shutteropen" [0 ] 
-	"float shutterclose" [0 ]
-    "float diffractionEnabled" [1]
-    "float chromaticAberrationEnabled" [0]
+#Camera "realisticDiffraction" 
+#	"string specfile" "dgauss.50mmSA2.dat" 
+#	#"float filmdistance" 36.77
+#    "float filmdistance" 64
+#	"float aperture_diameter" 1 #3
+#	"float filmdiag" 10 #70 
+#	"float hither" [0.001 ] 
+#	"float yon" [1e+30 ] 
+#	"float shutteropen" [0 ] 
+#	"float shutterclose" [0 ]
+ #   "float diffractionEnabled" [1]
+  #  "float chromaticAberrationEnabled" [0]
 
 
 
 Film "image"
    "integer xresolution" [300] 
    "integer yresolution" [300]
-   "string filename" ["benchScene_d.exr"]
+ #  "string filename" ["benchScene_d.exr"]
 
 #PixelFilter "mitchell"
 #   "float B" [0.750000]
 #   "float C" [0.125000]
 
 Sampler "lowdiscrepancy"
-   "integer pixelsamples" 512 #[32768]
+   "integer pixelsamples" 64 #[32768]
 
 SurfaceIntegrator "directlighting"
    "integer maxdepth" [1]
@@ -54,21 +54,21 @@ Rotate 330 0 0 1
 Rotate 4 0 1 0 
 LightSource "infinite" "integer nsamples" [8]
     "color scale" [5 3 3]
-"string mapname" ["sunset.exr"  ]
-	#"string mapname" ["RenoSuburb01_sm.exr"  ]
+#"string mapname" ["sunset.exr"  ]
+	"string mapname" ["RenoSuburb01_sm.exr"  ]
 AttributeEnd
 
 
-AttributeBegin
-  AreaLightSource "area" "color L" [96000000 56000000 28600000] "integer nsamples" [8]
-  # use camera coordinate system (optional)
-  CoordSysTransform "camera"
-  # adjust light source position
-  Translate -110 125 5000
-  #Rotate -90 0 1 0
-  #define the shape of the arealight to be a disk with radius 1.5
-  Shape "sphere" "float radius" [.15] 
-AttributeEnd
+#AttributeBegin
+#  AreaLightSource "area" "color L" [96000000 56000000 28600000] "integer nsamples" [8]
+#  # use camera coordinate system (optional)
+#  CoordSysTransform "camera"
+#  # adjust light source position
+#  Translate -110 125 5000
+#  #Rotate -90 0 1 0
+#  #define the shape of the arealight to be a disk with radius 1.5
+#  Shape "sphere" "float radius" [.15] 
+#AttributeEnd
 
 
 #AttributeBegin
