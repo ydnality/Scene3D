@@ -53,20 +53,20 @@ AttributeBegin
 Rotate 330 0 0 1
 Rotate 4 0 1 0 
 LightSource "infinite" "integer nsamples" [8]
-    "color scale" [5 3 3]
-#"string mapname" ["sunset.exr"  ]
-	"string mapname" ["RenoSuburb01_sm.exr"  ]
+    "color scale" [3 3 3]
+"string mapname" ["sunsetMoreContrast.exr"  ]
+	#"string mapname" ["RenoSuburb01_sm.exr"  ]
 AttributeEnd
 
 
 #AttributeBegin
 #  AreaLightSource "area" "color L" [96000000 56000000 28600000] "integer nsamples" [8]
-#  # use camera coordinate system (optional)
+  # use camera coordinate system (optional)
 #  CoordSysTransform "camera"
-#  # adjust light source position
+  # adjust light source position
 #  Translate -110 125 5000
-#  #Rotate -90 0 1 0
-#  #define the shape of the arealight to be a disk with radius 1.5
+  #Rotate -90 0 1 0
+  #define the shape of the arealight to be a disk with radius 1.5
 #  Shape "sphere" "float radius" [.15] 
 #AttributeEnd
 
@@ -84,14 +84,14 @@ AttributeEnd
 #AttributeEnd
 
 #AttributeBegin
-#  AreaLightSource "area" "color L" [27500 21000 14300] "integer nsamples" [8]
+#  AreaLightSource "area" "color L" [275000 210000 143000] "integer nsamples" [8]
   # use camera coordinate system (optional)
 #  CoordSysTransform "camera"
   # adjust light source position
- # Translate 10.75 17 59.5
-  #Rotate -90 0 1 0
+#  Translate 120 -100 60
+#  Rotate -90 0 1 0
   #define the shape of the arealight to be a disk with radius 1.5
-#  Shape "sphere" "float radius" [.1] 
+#  Shape "sphere" "float radius" [1] 
 #AttributeEnd
 
 
