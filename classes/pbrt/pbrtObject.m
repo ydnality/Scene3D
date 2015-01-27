@@ -113,20 +113,26 @@ classdef pbrtObject <  clonableHandleObject
                 
                 %check to see if a file or directly defined
                 %if it is a filename, use an include, if not
-                if (isa(obj.lightSourceArray{i}, 'fileObject'))
-                    if ~strcmp(obj.lightSourceArray{i}.file , '')
-                        fprintf(fid,'\n\nInclude "%s"\n', obj.lightSourceArray{i}.fileName);
-                    end
+                
+                %we aren't using fileobjects for now.  Maybe we can
+                %implement this in the future.  
+%                 if (isa(obj.lightSourceArray{i}, 'fileObject'))
+%                     if ~strcmp(obj.lightSourceArray{i}.file , '')
+%                         fprintf(fid,'\n\nInclude "%s"\n', obj.lightSourceArray{i}.fileName);
+%                     end
+%                 else
+
+                %this is the case where the lightsource is explicitly declared
+                if (isa(obj.lightSourceArray{i}, 'pbrtLightObject'))
+                    fprintf(fid,'\n\nAttributeBegin\n');
+                    obj.lightSourceArray{i}.writeFile(fid);
+                    fprintf(fid,'\nAttributeEnd\n');
+                elseif (ischar(obj.lightSourceArray{i}))
+                    fprintf(fid,'\n\nInclude "%s"\n', obj.lightSourceArray{i});
                 else
-                    %this is the case where the lightsource is explicitly declared
-                    if (isa(obj.lightSourceArray{i}, 'pbrtLightObject'))
-                        fprintf(fid,'\n\nAttributeBegin\n');
-                        obj.lightSourceArray{i}.writeFile(fid);
-                        fprintf(fid,'\nAttributeEnd\n');
-                    else
-                        error('Error! Non-light type placed in light array!');
-                    end
+                    error('Error! Non-light type placed in light array!');
                 end
+                %end
             end
             
             %% Materials File

@@ -1,0 +1,2 @@
+Camera "perspective"
+   "float fov" [40]

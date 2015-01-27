@@ -4,7 +4,7 @@
 
 %% Render Scene only with docker container
 dockerFlag = true;
-inputPbrtFile = fullfile(dataPath, 'pbrtScenes','benchScene', 'defaultBigger.pbrt'); 
+inputPbrtFile = fullfile(dataPath, 'pbrtScenes','benchScene', 'sunsetHDR.pbrt'); 
 scene = s3dRenderScene(inputPbrtFile, 'bench', [], dockerFlag); 
 vcAddObject(scene); sceneWindow;
 

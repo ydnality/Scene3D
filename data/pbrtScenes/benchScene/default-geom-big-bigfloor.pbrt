@@ -173887,17 +173887,17 @@ AttributeEnd
 AttributeBegin # Plane
 
 Texture "tmap" "color" "imagemap" "string filename" "buildingblock.exr"
-	"float uscale" 10 "float vscale" 10
+	"float uscale" 20 "float vscale" 20
 Texture "tbump-tex" "float" "imagemap" "string filename" "buildingblock.exr"
-	"float uscale" 10 "float vscale" 10
+	"float uscale" 20 "float vscale" 20
 Texture "sbump" "float" "scale" "texture tex1" "tbump-tex"
 	"float  tex2" [-5]
 Material "substrate" "texture Kd" "tmap" 
 	 "color Ks" [.5 .5 .5] "float uroughness" [.02]
 	"float vroughness" [.02]
 	"texture bumpmap" "sbump" 
-    Transform [350.795883179 0.0 0.0 0.0  0.0 350.795883179 0.0 0.0  0.0 0.0 350.795883179 0.0  -106.651901245 136.957855225 0.422070860863 1.0]
-	#Transform [700 0.0 0.0 0.0  0.0 700 0.0 0.0  0.0 0.0 700 0.0  -106.651901245 136.957855225 0.422070860863 1.0]
+    #Transform [350.795883179 0.0 0.0 0.0  0.0 350.795883179 0.0 0.0  0.0 0.0 350.795883179 0.0  -106.651901245 136.957855225 0.422070860863 1.0]
+	Transform [700 0.0 0.0 0.0  0.0 700 0.0 0.0  0.0 0.0 700 0.0  -106.651901245 136.957855225 0.422070860863 1.0]
 	Shape "trianglemesh" "integer indices" [
 0 1 2
 0 2 3

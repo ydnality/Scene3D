@@ -39,7 +39,52 @@ if(isa(inputPbrt, 'pbrtObject'))
         if ischar(inputPbrt.materialArray{ii}) && exist(inputPbrt.materialArray{ii},'file')
             copyfile(inputPbrt.materialArray{ii},generatedDir)
             [~,fName,extension] = fileparts(inputPbrt.materialArray{ii});
+            
+            [directory, ~, ~] = fileparts(inputPbrt.materialArray{ii});
             inputPbrt.materialArray{ii} = [fName,extension];
+            
+             %TODO: make into helper function
+            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
+            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
+            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
+            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
+            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
+        end
+    end
+    %do the same thing for the lights
+    for ii = 1:numel(inputPbrt.lightSourceArray)
+        if ischar(inputPbrt.lightSourceArray{ii}) && exist(inputPbrt.lightSourceArray{ii},'file')
+            copyfile(inputPbrt.lightSourceArray{ii},generatedDir)
+            [~,fName,extension] = fileparts(inputPbrt.lightSourceArray{ii});
+            
+             [directory, ~, ~] = fileparts(inputPbrt.lightSourceArray{ii});
+            inputPbrt.lightSourceArray{ii} = [fName,extension];
+            
+             %TODO: make into helper function
+            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
+            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
+            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
+            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
+            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
+
+        end
+    end
+   %do the same thing for geometry
+    for ii = 1:numel(inputPbrt.geometryArray)
+        if ischar(inputPbrt.geometryArray{ii}) && exist(inputPbrt.geometryArray{ii},'file')
+            copyfile(inputPbrt.geometryArray{ii},generatedDir)
+            [~,fName,extension] = fileparts(inputPbrt.geometryArray{ii});
+            
+            [directory, ~, ~] = fileparts(inputPbrt.geometryArray{ii});
+            inputPbrt.geometryArray{ii} = [fName,extension];
+
+            %TODO: make into helper function
+            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
+            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
+            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
+            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
+            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
+
         end
     end
     fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);

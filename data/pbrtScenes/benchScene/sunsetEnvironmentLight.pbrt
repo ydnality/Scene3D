@@ -1,0 +1,8 @@
+
+AttributeBegin
+    Rotate 330 0 0 1
+    Rotate 4 0 1 0 
+    LightSource "infinite" "integer nsamples" [8]
+    "color scale" [3 3 3]
+    "string mapname" ["sunsetMoreContrast.exr"  ]
+AttributeEnd
