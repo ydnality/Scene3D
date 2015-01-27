@@ -95,7 +95,7 @@ oiList = cell(1,size(pointSources, 1))
 for curInd = 1:size(pointSources, 1)
 % for curInd = 1:1
     %---initial low quality render
-    film = pbrtFilmC('position', [fX fY fZ], 'size', [fW fH], 'wave', wave, 'resolution', [numPixelsW numPixelsH length(wave)]);
+    film = filmC('position', [fX fY fZ], 'size', [fW fH], 'wave', wave, 'resolution', [numPixelsW numPixelsH length(wave)]);
     psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));
     psfCamera.estimatePSF();
     oi = psfCamera.oiCreate;
@@ -118,7 +118,7 @@ for curInd = 1:size(pointSources, 1)
     centroidY = sum(sum(flippedGrayImage .* filmDistanceY));
 
     %---re-render image under new center position and width
-    film = pbrtFilmC('position', [centroidX centroidY fZ], 'size', [newWidth newWidth], 'wave', wave, 'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
+    film = filmC('position', [centroidX centroidY fZ], 'size', [newWidth newWidth], 'wave', wave, 'resolution', [numPixelsWHQ numPixelsHHQ length(wave)]);
     %use more samples this time for a high quality render
     lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
     psfCamera = psfCameraC('lens', lens, 'film', film, 'pointsource', pointSources(curInd, :));

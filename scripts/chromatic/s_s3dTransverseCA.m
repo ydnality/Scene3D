@@ -30,7 +30,7 @@ for ii=1:(nSurfaces-1)
     lens.surfaceArray(ii).n = linspace(1.3,1.7,lens.get('nwave'));
 end
 
-film = pbrtFilmC;
+film = filmC;
 
 % Make a point source
 ps = [20 0 -2000000000];

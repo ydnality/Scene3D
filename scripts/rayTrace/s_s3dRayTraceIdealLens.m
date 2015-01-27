@@ -41,7 +41,7 @@ rtType = 'ideal';  %ray tracing using the ideal lens model
 
 % Build a sensor (film) object
 % Position, size,  wave, waveConversion, resolution
-film = pbrtFilmC('position', [0 0 50],'size', [7 7], 'wave', wave);   
+film = filmC('position', [0 0 50],'size', [7 7], 'wave', wave);   
 
 diffractionEnabled = true;
 % lensObject('ideal')

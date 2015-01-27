@@ -25,7 +25,7 @@ filmPosition = [0 0 51.2821	];  % Good for 2Elens
 filmDiag = 3;  % Millimeters
 filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 resolution =  [300 300 length(wave)];
-film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
+film = filmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
 % Declare Lens
 % diffractionEnabled = false;   %diffraction causes imaginary directions!! TODO:  INVESTIGATE THIS!!

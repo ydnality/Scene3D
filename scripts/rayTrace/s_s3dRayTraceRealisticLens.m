@@ -31,7 +31,7 @@ pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -100];   %small distanc
 
 
 %% film properties - 
-film = pbrtFilmC('wave', 400:10:700);  %small distance
+film = filmC('wave', 400:10:700);  %small distance
 
 %% Should be a function for reading and writing lens files
 

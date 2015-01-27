@@ -1,9 +1,9 @@
-classdef pbrtFilmC <  clonableHandleObject
-    % Create a pbrtFilmC
+classdef filmC <  clonableHandleObject
+    % Create a filmC
     %
     % Initiated by property/val pairs
     %
-    %  film = pbrtFilmC('position',val,'size',val,'wave',val,'resolution',val);
+    %  film = filmC('position',val,'size',val,'wave',val,'resolution',val);
     %
     % Spatial units throughout are mm
     %
@@ -16,7 +16,7 @@ classdef pbrtFilmC <  clonableHandleObject
     %
     % Example:
     % wave = 500; sz = [10,10]; pos = [0 0 20]; res = [150 150 1];
-    % smallFilm = pbrtFilmC('position', pos, 'size', sz, 'wave', wave, 'resolution', res);
+    % smallFilm = filmC('position', pos, 'size', sz, 'wave', wave, 'resolution', res);
     %
     % AL Vistasoft Copyright 2014
     
@@ -34,7 +34,7 @@ classdef pbrtFilmC <  clonableHandleObject
     methods
         
         %default constructor
-        function obj = pbrtFilmC(varargin)
+        function obj = filmC(varargin)
             
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});

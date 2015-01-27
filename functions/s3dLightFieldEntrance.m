@@ -21,7 +21,7 @@ function [LFin] = s3dLightFieldEntrance(pointSource, lens)
 
 % Use the multi element lens and film and a point source.  Combine into
 % a camera that calculates the point spread function.
-film = pbrtFilmC;
+film = filmC;
 
 ppsfCamera = ppsfCameraC('lens', lens, 'film', film, 'pointSource', pointSource);
 

@@ -14,7 +14,7 @@ pointSources = [ 0 0 -20000];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = filmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = true;

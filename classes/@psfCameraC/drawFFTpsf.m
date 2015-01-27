@@ -12,7 +12,7 @@ function hdl = drawFFTpsf(obj, wave0, plotType, limit)
 %   hdl:   Figure handle, contains data in userdata field
 %
 %Examples
-%   psfC = psfCameraC('lens',lensC,'film',pbrtFilmC,'pointsource',pointSource);
+%   psfC = psfCameraC('lens',lensC,'film',filmC,'pointsource',pointSource);
 %   psfC.drawFFTpsf(500)
 %   psfC.drawFFTpsf(500,'surf')
 %   psfC.drawFFTpsf(500,'surf',[])

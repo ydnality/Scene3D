@@ -82,7 +82,7 @@ oldPos=obj.get('film');
 newPos=oldPos;
 newPos.position(3)=dist0;
 
-% film=pbrtFilmC('position', oldPos, 'size', filmSize, 'wave', wave, 'resolution', resolution);
+% film=filmC('position', oldPos, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
 %% SET THE NEW FILM
 obj.set('film',newPos);

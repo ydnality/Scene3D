@@ -35,7 +35,7 @@ pointSources = [ 3000 0 -pointSourceDepth];  %large distance test
 %% film properties -
 
 %36.4
-film = pbrtFilmC([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = filmC([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -70,7 +70,7 @@ pointSources = [ 6000 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmC([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = filmC([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -107,7 +107,7 @@ pointSources = [ 4500 0 -pointSourceDepth];  %large distance test
 % pointSources = [ 0 0 -60];  %short distance test
 
 %% film properties -
-film = pbrtFilmC([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film = filmC([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 
 %% lens properties
 diffractionEnabled = false;   
@@ -167,7 +167,7 @@ modifyRays.apertureSamples.Y(outsideAperture) = [];
 
 filmCell = cell(1,1);
 %first try at 36.4 sensor distance
-filmCell{1} = pbrtFilmC([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+filmCell{1} = filmC([0 0 40 ],[40 40], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic

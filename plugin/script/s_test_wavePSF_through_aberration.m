@@ -19,7 +19,7 @@ s_initISET
 % Specify the point source
 
 % Angulare eccentricity (in degree)
-angle_field=5; %°
+angle_field=5; %ï¿½
 % Distance 
 ps_dist=0.25*1e4; %distance
 
@@ -43,7 +43,7 @@ filmPosition = [0 0 37.4];        % Good for dgauss.50mm.  True focal about 37.3
 filmDiag = 3;  % Millimeters
 filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 resolution =  [300 300 length(wave)];
-film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
+film = filmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 %
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');

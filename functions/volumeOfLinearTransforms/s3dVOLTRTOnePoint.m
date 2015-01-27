@@ -33,7 +33,7 @@ function [ppsf, inLF, outLF, middleLF, inLFOrig, outLFOrig, ppsfCamera] = s3dVOL
 
 % Use the multi element lens and film and a point source.  Combine into
 % a camera that calculates the point spread function.
-currentFilm = pbrtFilmC();
+currentFilm = filmC();
 currentFilm.makeDeepCopy(film);
 ppsfCamera = ppsfCameraC('lens', lens, 'film', currentFilm, 'pointSource', pointSource);
 

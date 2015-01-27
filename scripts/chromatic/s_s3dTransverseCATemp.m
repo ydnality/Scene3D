@@ -29,7 +29,7 @@ for ii=1:(nSurfaces-1)
     end
 end
 
-film = pbrtFilmC;
+film = filmC;
 % Make a point source
 ps = [-5 0 -100];
 

@@ -33,7 +33,7 @@ pointSources = [0 0 -100];
 
 % Build a sensor (film) object
 % Position, size,  wave, waveConversion, resolution
-% film = pbrtFilmC([0 0 51.2821	],[.2/sqrt(2) .2/sqrt(2)], 400:10:700, [(400:10:700)' (1:31)'], [50 50 31]);
+% film = filmC([0 0 51.2821	],[.2/sqrt(2) .2/sqrt(2)], 400:10:700, [(400:10:700)' (1:31)'], [50 50 31]);
 
 % Declare film
 % filmPosition = [0 0 51.2821	];  % Good for 2Elens
@@ -48,7 +48,7 @@ filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 
 wave = 400:50:600;
 resolution =  [300 300 length(wave)];
-film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
+film = filmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
 % Declare Lens
 diffractionEnabled = false;   %diffraction causes imaginary directions!! TODO:  INVESTIGATE THIS!!

@@ -58,7 +58,7 @@ modifyRays.apertureSamples.Y(outsideAperture) = [];
 
 film = cell(1,3);
 %first try at 36.4 sensor distance
-film{1} = pbrtFilmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
+film{1} = filmC([0 0 36.4],[1 1], 400:10:700, [(400:10:700)' (1:31)'], []);   %large distance
 %intersect with "film" and add to film
 disp('-----record on film-----');
 tic

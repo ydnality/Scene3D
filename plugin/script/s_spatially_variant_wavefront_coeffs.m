@@ -22,7 +22,7 @@ filmPosition = [0 0 37.4];        % Good for dgauss.50mm.  True focal about 37.3
 filmDiag = 3;  % Millimeters
 filmSize = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 resolution =  [300 300 length(wave)];
-film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
+film = filmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 %
 % lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens.mat');
 lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
@@ -45,7 +45,7 @@ n = lens.get('nArray');
 % Specify the point source
 
 % Angulare eccentricity (in degree)
-angle_field=[0:2:30]; %°
+angle_field=[0:2:30]; %ï¿½
 % Distance 
 % ps_dist=[ 1e3, 0.25*1e4, 0.5*1e4, 0.75*1e4, 1e4, 1e5, 1e6, 1e7, 1e8]; %distance
 ps_dist=[ 1e2 1e3, 0.25*1e4, 0.5*1e4, 0.75*1e4, 1e4, 1e5]; %distance
@@ -85,7 +85,7 @@ indW0=find(wave==wave0);
 
 % SURF
 [pd,af]=meshgrid((ps_dist*1e-3),angle_field);
-xL=['Field eccentricity [°]'];yL=['Distance  [m]'];zL=['Wavefront Coeff [#wave]'];
+xL=['Field eccentricity [ï¿½]'];yL=['Distance  [m]'];zL=['Wavefront Coeff [#wave]'];
 yLl=['Distance  log[m]'];
 figure
 surf(af,log(pd),def(:,:,indW0))
@@ -116,7 +116,7 @@ title(['Distorsion: spatially dependence',' for lambda:',num2str(wave0),' nm'])
 % %IMAGESC
 % pd_v=(ps_dist*1e-3); af_v=angle_field;
 % 
-% xL=['Field eccentricity [°]'];yL=['Distance  [m]'];zL=['Wavefront Coeff [#wave]'];
+% xL=['Field eccentricity [ï¿½]'];yL=['Distance  [m]'];zL=['Wavefront Coeff [#wave]'];
 % yLl=['Distance  log[m]'];
 % figure
 % imagesc(af_v,log(pd_v),def(:,:,indW0))

@@ -90,7 +90,7 @@ filmPosition = [0 0 35.5];          % Good for dgauss.50mm.  True focal about 37
 filmDiag   = 10;  % Millimeters
 filmSize   = [filmDiag/sqrt(2) filmDiag/sqrt(2)];
 resolution =  [300 300 length(wave)];
-film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
+film = filmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
 
 %% Create psfCamera structure (point source + lens + film [sensor])

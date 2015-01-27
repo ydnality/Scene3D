@@ -38,14 +38,14 @@ pointSources = [0 0 -2000];
 
 % Build a sensor (film) object
 % Position, size,  wave, waveConversion, resolution
-% film = pbrtFilmC([0 0 51.2821	],[.2/sqrt(2) .2/sqrt(2)], 400:10:700, [(400:10:700)' (1:31)'], [50 50 31]);
+% film = filmC([0 0 51.2821	],[.2/sqrt(2) .2/sqrt(2)], 400:10:700, [(400:10:700)' (1:31)'], [50 50 31]);
 
 % Declare film
 filmPosition = [0 0 51.2821	];
 filmSize = [.2/sqrt(2) .2/sqrt(2)];
 wave = 400:10:700;
 resolution =  [50 50 length(wave)];
-film = pbrtFilmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
+film = filmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
 % Declare Lens
 diffractionEnabled = true;

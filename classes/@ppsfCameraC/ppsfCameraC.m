@@ -15,7 +15,7 @@ classdef ppsfCameraC <  psfCameraC
     %
     % AL Vistasoft Copyright 2014
     %
-    % See also: psCreate, lensC, pbrtFilmC (which may become filmC).
+    % See also: psCreate, lensC, filmC (which may become filmC).
     
     properties
         ppsfRays;

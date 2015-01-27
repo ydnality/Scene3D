@@ -105,5 +105,58 @@ if(~isempty(liveRays.origin))
     else
         warning('No photons were collected on film!');
     end
+    
+    
+    
+    %%
+    % Project sphereSense
+    
+    if (false)
+        
+        % sensor properties
+        
+        sensorRadius = 20;
+        sensorCenter = [ 0 0 -sensorRadius];
+        
+        % intersect with a spherical surface and find intersection point
+        
+        % Spherical element
+        %repCenter = repmat(curEl.sCenter, [nRays 1]);
+        
+        repCenter = repmat(sensorCenter, [nRays 1]);
+        
+        repRadius = repmat(sensorRadius, [nRays 1]);
+
+        % Radicand from vector form of Snell's Law
+        radicand = dot(obj.direction, obj.origin - repCenter, 2).^2 - ...
+            ( dot(obj.origin - repCenter, obj.origin -repCenter, 2)) + repRadius.^2;
+
+        % Calculate something about the ray angle with respect
+        % to the current surface.  AL to figure this one out
+        % and put in a book reference.
+        if (curEl.sRadius < 0)
+            intersectT = (-dot(obj.direction, obj.origin - repCenter, 2) + sqrt(radicand));
+        else
+            intersectT = (-dot(obj.direction, obj.origin - repCenter, 2) - sqrt(radicand));
+        end
+
+        %make sure that intersectT is > 0
+        if (min(intersectT(:)) < 0)
+            fprintf('intersectT less than 0 for lens %i',lensEl);
+        end
+
+        repIntersectT = repmat(intersectT, [1 3]);
+        intersectPosition = obj.origin + repIntersectT .* obj.direction;
+        
+        
+        % Convert intersection point into spherical coordinate system... 
+        
+        
+        % Record on sensor
+    end
 end
+
+
+
+
 end

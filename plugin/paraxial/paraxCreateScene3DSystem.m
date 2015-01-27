@@ -56,7 +56,7 @@ lens.apertureMiddleD=Aper_Diam; %desidered diaphragm diameter
 
 % CREATE THE FILM
 film0=ImagSyst.film{end};
-film = pbrtFilmC('position', [0 0 film0.z_pos], 'size', [film0.size_unit], 'wave', wave, 'resolution', [film0.size_pixel,length(wave)]);
+film = filmC('position', [0 0 film0.z_pos], 'size', [film0.size_unit], 'wave', wave, 'resolution', [film0.size_pixel,length(wave)]);
 
 
 %CREATE A  object as point SOURCE to generate a PSF
