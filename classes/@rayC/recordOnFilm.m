@@ -50,12 +50,77 @@ intersectPosition = liveRays.origin;
 
 % Record the real rays - if there are any
 if(~isempty(liveRays.origin))
-    %imagePixel is the pixel that will gain a photon due to the traced ray
-    imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
-    imagePixel.position = real(imagePixel.position); %add error handling for this
+    if(isa(film, 'filmSphericalC'))
+        
+        %%
+        % Project sphereSense
+
+        % sensor properties
+        
+        sensorRadius = film.radius;
+        sensorCenter = film.get('sphericalCenter');  %TODO: have this be a get?
+        
+        % intersect with a spherical surface and find intersection point
+        
+        % Spherical element
+        %repCenter = repmat(curEl.sCenter, [nRays 1]);
+        nRays = length(liveRays.origin);
+        repCenter = repmat(sensorCenter, [nRays 1]);
+        
+        repRadius = repmat(sensorRadius, [nRays 1]);
+        
+        % Radicand from vector form of Snell's Law
+        radicand = dot(liveRays.direction, liveRays.origin - repCenter, 2).^2 - ...
+            ( dot(liveRays.origin - repCenter, liveRays.origin -repCenter, 2)) + repRadius.^2;
+        
+        % Calculate something about the ray angle with respect
+        % to the current surface.  AL to figure this one out
+        % and put in a book reference.
+        if (sensorRadius < 0)
+            intersectT = (-dot(liveRays.direction, liveRays.origin - repCenter, 2) + sqrt(radicand));
+        else
+            intersectT = (-dot(liveRays.direction, liveRays.origin - repCenter, 2) - sqrt(radicand));
+        end
+        
+        %make sure that intersectT is > 0   This does not apply for this
+        %case, because sometimes a curved sensor is in front of the flat
+        %sensor plane
+%         if (min(intersectT(:)) < 0)
+%             fprintf('intersectT less than 0 for lens %i');
+%         end
+        
+        repIntersectT = repmat(intersectT, [1 3]);
+        intersectPosition = liveRays.origin + repIntersectT .* liveRays.direction;
+        
+        if(nLines > 0)
+            figure(obj.plotHandle);    hold on; plot(intersectPosition(:,3), intersectPosition(:,2), '.');
+        end
+        % Convert intersection point into spherical coordinate system...
+        x = intersectPosition(:,1);
+        y = intersectPosition(:,2);
+        z = intersectPosition(:,3) - sensorCenter(3);
+        r = sqrt(x.^2 + y.^2 + z.^2);
+        theta = atan(x./z);
+        phi = asin(y./r);
+        
+        imagePixel.position = [phi * abs(sensorRadius) theta * abs(sensorRadius) ];
+        figure; hist(theta);
+        figure; hist(phi);
+        
+        % Record on sensor
+        
+    elseif(isa(film, 'filmC'))
+        
+        %imagePixel is the pixel that will gain a photon due to the traced ray
+        imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
+        imagePixel.position = real(imagePixel.position); %add error handling for this
+    else
+        error('Invalid film type detected.  Quitting');
+    end
     
-    %this line looks suspicious - what exactly does it do? will this cause
-    %problems?
+    
+    %this line takes a raw dimension and converts it to a position in
+    %terms of pixels
     imagePixel.position = round(imagePixel.position * film.resolution(2)/film.size(2) + ...
         repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + (film.resolution(2:-1:1) + 1)./2, [size(imagePixel.position,1) 1]));   %
     
@@ -104,55 +169,6 @@ if(~isempty(liveRays.origin))
         film.image = reshape(serializeFilm, size(film.image));
     else
         warning('No photons were collected on film!');
-    end
-    
-    
-    
-    %%
-    % Project sphereSense
-    
-    if (false)
-        
-        % sensor properties
-        
-        sensorRadius = 20;
-        sensorCenter = [ 0 0 -sensorRadius];
-        
-        % intersect with a spherical surface and find intersection point
-        
-        % Spherical element
-        %repCenter = repmat(curEl.sCenter, [nRays 1]);
-        
-        repCenter = repmat(sensorCenter, [nRays 1]);
-        
-        repRadius = repmat(sensorRadius, [nRays 1]);
-
-        % Radicand from vector form of Snell's Law
-        radicand = dot(obj.direction, obj.origin - repCenter, 2).^2 - ...
-            ( dot(obj.origin - repCenter, obj.origin -repCenter, 2)) + repRadius.^2;
-
-        % Calculate something about the ray angle with respect
-        % to the current surface.  AL to figure this one out
-        % and put in a book reference.
-        if (curEl.sRadius < 0)
-            intersectT = (-dot(obj.direction, obj.origin - repCenter, 2) + sqrt(radicand));
-        else
-            intersectT = (-dot(obj.direction, obj.origin - repCenter, 2) - sqrt(radicand));
-        end
-
-        %make sure that intersectT is > 0
-        if (min(intersectT(:)) < 0)
-            fprintf('intersectT less than 0 for lens %i',lensEl);
-        end
-
-        repIntersectT = repmat(intersectT, [1 3]);
-        intersectPosition = obj.origin + repIntersectT .* obj.direction;
-        
-        
-        % Convert intersection point into spherical coordinate system... 
-        
-        
-        % Record on sensor
     end
 end
 

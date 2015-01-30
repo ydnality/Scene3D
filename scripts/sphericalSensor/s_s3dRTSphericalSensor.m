@@ -13,7 +13,9 @@ s_initISET
 
 %% Make a volume of point.  A little boring in this case
 
-point = psCreate(0,15,-120);
+%point = psCreate(0,15,-120);
+
+point = psCreate(0,20,-120);
 %point = psCreate(sqrt(112.5), sqrt(112.5),-120);
 %point = psCreate(15,0,-120);
 %point = psCreate(-sqrt(112.5), sqrt(112.5),-120);
@@ -42,16 +44,41 @@ for i = 1:numSurfaces
    end
 end
 
-%% Create a film (sensor)
+
+%% Create a film (planarsensor)
 
 % position - relative to center of final lens surface
 % size - 'mm'
 % wavelength samples
 wave = lens.get('wave');
 
-film = filmC('position', [0 0 100 ], ...
-    'size', [30 30], ...
+film = filmC('position', [0 0 95 ], ...
+    'size', [50 50], ...
     'wave', wave);
+
+
+%% Ray trace the point to the film
+
+camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
+
+% Sequence of events for estimating the PSF, 
+camera.estimatePSF(20, true);
+oi = camera.oiCreate;
+
+vcAddObject(oi); oiWindow;
+
+
+%% Create a film (spherical sensor)
+
+% position - relative to center of final lens surface
+% size - 'mm'
+% wavelength samples
+wave = lens.get('wave');
+
+film = filmSphericalC('position', [0 0 95 ], ...
+    'size', [50 50], ...
+    'wave', wave, ...
+    'radius', -25);
 
 
 %% Ray trace the point to the film

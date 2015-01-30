@@ -38,18 +38,10 @@ classdef filmC <  clonableHandleObject
             
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
-                switch p
-                    case 'position'
-                        obj.position = varargin{ii+1};
-                    case 'size'
-                        obj.size = varargin{ii+1};  %must be a 2 element vector
-                    case 'wave'
-                        obj.wave = varargin{ii+1};
-                    case 'resolution'
-                        obj.resolution = varargin{ii+1};
-                    otherwise
-                        error('Unknown parameter %s\n',varargin{ii});
-                end
+                
+                val = varargin{ii+1};
+                obj = obj.parameterAssign(p, val);
+                
             end
 
             %TODO: error checking.  make sure all dimensions are good
@@ -58,6 +50,23 @@ classdef filmC <  clonableHandleObject
             % Not sure this is a good idea.  Leave wave off, I think. (BW)
             obj.resolution(3) = length(obj.wave);
             obj.image = zeros(obj.resolution);
+        end
+        
+        function obj = parameterAssign(obj, p, val)
+            %helper function for default constructor, assigns values (val)
+            %to parameters (p) of class
+            switch p
+                case 'position'
+                    obj.position = val;
+                case 'size'
+                    obj.size = val;  %must be a 2 element vector
+                case 'wave'
+                    obj.wave = val;
+                case 'resolution'
+                    obj.resolution = val;
+                otherwise
+                    error('Unknown parameter %s\n',val);
+            end
         end
         
         function clear(obj)
