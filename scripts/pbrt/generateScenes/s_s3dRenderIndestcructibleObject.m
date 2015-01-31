@@ -1,15 +1,79 @@
 %% Runs PBRT and imports it in ISET for the bench scene. 
 
-%% render scene with PBRT
+%% specify the scene using pure .pbrt text file
 sceneName = 'indObjAmbientOnly';
-% oi = s3dRenderOI('indestructibleObject/simpleReflectance-downAmbient.pbrt', .050);
-% oi = s3dRenderOI('indestructibleObject/graycard-down.pbrt', .050);
-% oi = s3dRenderOI('desk/paintWhiteFlash.pbrt', .050);
-oi = s3dRenderOI('desk/graycardWhiteFlash.pbrt', .050);
-% oi = s3dRenderOI('indestructibleObject/paintReflectance-downWhiteFlash.pbrt', .050);
-% oi = s3dRenderOI('indestructibleObject/simpleReflectance-downAmbientOnly.pbrt', .050);
 
-oi = oiSet(oi, 'name', sceneName);
+%previous input files
+%('indestructibleObject/simpleReflectance-downAmbient.pbrt', .050);
+%('indestructibleObject/graycard-down.pbrt', .050);
+% ('desk/paintWhiteFlash.pbrt', .050);
+%('desk/graycardWhiteFlash.pbrt', .050);
+%('indestructibleObject/paintReflectance-downWhiteFlash.pbrt', .050);
+
+%inputFile = fullfile(dataPath,'pbrtScenes', 'indestructibleObject/simpleReflectance-downAmbientOnly.pbrt');
+%inputFile = fullfile(dataPath,'pbrtScenes', 'indestructibleObject/default.pbrt');
+
+  %% specify the scene Using pbrtObjects
+    clear curPbrt;
+    curPbrt = pbrtObject();
+    
+    camPos = [-56.914787 -105.385544 13.014802;
+             -56.487434 -104.481461 13.014835; 
+             -0.000013 -0.000031 1.000000;];
+    
+    curPbrt.camera.setPosition(camPos);
+    curPbrt.camera.setLens(pbrtLensRealisticObject());
+    
+    %surface integrator
+    curPbrt.surfaceIntegrator.setMaxDepth(1); %1 reflection
+    
+    %specify camera properties
+    curPbrt.camera.lens.filmDistance = 70; %133.33;
+    curPbrt.camera.lens.filmDiag = 70;
+    curPbrt.camera.lens.specFile = 'dgauss.50mm.dat';
+    curPbrt.camera.lens.apertureDiameter = 16; % in mm
+    
+    curPbrt.camera.setResolution(450, 300);  
+    
+    %uncomment to use a 2 element lens instead of a pinhole
+    % curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt'));
+    
+    % Sampler
+    sampler = curPbrt.sampler.removeProperty();
+    sampler.value = 512;
+    curPbrt.sampler.addProperty(sampler);
+    
+    % Light sources
+    
+    %spot light
+    spotLight = pbrtLightSpotObject();
+    spotLight.setName('spot');
+    spotLight.setSpectrum(pbrtSpectrumObject('rgb I', [1000 1000 1000]));
+    spotLight.setAngle(180);
+    spotLight.setDeltaAngle(180);
+    spotLight.setFrom([-142.3855 -286.2024  13.0082]);
+    spotLight.setTo([ -141.9582 -285.2984   13.0082]);
+    curPbrt.addLightSource(spotLight);
+    
+    %infinite light (for diffuse lighting)
+    infiniteLight = pbrtLightInfiniteObject();
+    curPbrt.addLightSource(infiniteLight);
+    
+    % Add material file
+    curPbrt.addMaterial(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'benchScene', 'default-mat.pbrt'));
+    
+    % Remove default geometry
+    curPbrt.removeGeometry();
+    
+    % Add geometry
+    curPbrt.addGeometry(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'benchScene','default-geom-big-bigfloor.pbrt'));
+
+%% Render the oi
+
+%oi = s3dRenderOI( inputFile, .050, sceneName);
+oi = s3dRenderOI( curPbrt, .050, sceneName);
+
+
 % strip the file name from the path and assign that as the name of the
 % object  ... vcSaveObject(oi,);
 vcAddAndSelectObject(oi);
@@ -45,5 +109,6 @@ vcAddAndSelectObject(image); vcimageWindow;
 %%  generate and read and output depth map
 % ** make sure the rendering file has a small initial aperture, and only 1
 % sample per pixel!
-depthMap = s3dRenderDepthMap('indestructibleObject/simpleReflectance-downAmbient.pbrt', 11);
+depthMap = s3dRenderDepthMap(fullfile(dataPath, 'pbrtScenes', 'indestructibleObject/simpleReflectance-downAmbientOnly.pbrt'));
+%scene = s3dRenderScene(fullfile(dataPath, 'pbrtScenes', 'indestructibleObject', 'simpleReflectance-downAmbientOnly.pbrt'), 11);
 figure; imagesc(depthMap);

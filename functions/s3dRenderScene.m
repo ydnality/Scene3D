@@ -1,31 +1,27 @@
-function scene = s3dRenderScene(inputPbrt, sceneName, noScale, dockerFlag)
-% scene = s3dRenderScene(inputPbrt, sceneName, noScale, dockerFlag)
-% Uses a pinhole camera model to calculate scene radiance
+function output = s3dRenderScene(inputPbrt, name, noScale, dockerFlag, oiFlag)
+% scene = s3dRenderScene(inputPbrt, sceneName, noScale, dockerFlag) Uses a
+% pinhole camera model to calculate scene radiance
 %
-% fullfname: full path (file name) of the pbrt file that we render
-% path:
+% inputPbrt: either (1) a pbrtObject, or (2) full path (file name) of the
+% pbrt file that we render path.  **All includes and referenced files in
+% the pbrt file should be of files in the same directory as that pbrt file.
 %
 % This function renders a PBRT scene using the given a full fname, then
-% returns the data as an optical image. The pbrt file should be previously
-% generated and be in datapath/generatedPbrtFiles/.  The output file is placed
-% in datapath/generatedPbrtFiles/tempPBRT/.  The
-% proper optics is also placed into this optical image that corresponds to
-% the focal length and field of view (FOV).
+% returns the data as an ISET scene. 
+% The pbrt file is generated in a temporary directory. The output file is
+% placed in that same directory. The proper optics is also placed into this
+% optical image that corresponds to the focal length and field of view
+% (FOV).
 
-%
-% Todo: We are considering copying the pbrt file that was used to generate
-% the scene when we save the scene for future use.
-%
 % Todo: figure out consistency between s3dRenderScen and s3dRenderOi
-%
-% Note: pbrt looks for imported image and data files at
-% s3dRootPath/data/generatedPbrtFiles
+
 %% Set up parameters
 
 if ieNotDefined('dockerFlag'), dockerFlag = 0; end
-if (ieNotDefined('inputPbrt')), error('PBRT full file name required.');end
-if (ieNotDefined('sceneName')), sceneName = 'deleteMe'; end
+if (ieNotDefined('inputPbrt')), error('PBRT full file name or pbrtObject required.');end
+if (ieNotDefined('name')), name = 'default'; end
 if (ieNotDefined('noScale')), noScale = false; end
+if (ieNotDefined('oiFlag')), oiFlag = false; end
 
 %% Make a tempPBRT directory where the output files will go
 generatedDir = tempname;
@@ -87,7 +83,7 @@ if(isa(inputPbrt, 'pbrtObject'))
 
         end
     end
-    fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
+    fullfname = fullfile(dataPath, 'generatedPbrtFiles', [name '.pbrt']);
     inputPbrt.writeFile(fullfname);
 elseif (ischar(inputPbrt))
     if (~exist(inputPbrt,'file'))
@@ -95,16 +91,15 @@ elseif (ischar(inputPbrt))
     end
     %if inputPbrt is a char, then it becomes the input file
     fullfname = inputPbrt;
-    if dockerFlag
-        %copy all relavent files into the temp directory
-        [directory, ~, ~] = fileparts(fullfname);
-        
-        [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
-        [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-        [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
-        [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-        [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-    end
+
+    %copy all relavent files into the temp directory
+    [directory, ~, ~] = fileparts(fullfname);
+    
+    [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir);
+    [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
+    [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
+    [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
+    [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
 else
     error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
 end
@@ -144,11 +139,16 @@ else
     % Use pinhole and pbrt to create the scene data
     %pbrtExe = fullfile(pbrtRootPath, 'src','bin','pbrt');
     
-    [s,pbrtExe] = system('which pbrt');
-    if s, error('PBRT not found'); end
+   % [s,pbrtExe] = system('which pbrt');  %this doesn't work.  not sure
+   % why.
+    pbrtExe = 'pbrt';
+   %if s, error('PBRT not found'); end
     
     % [p,n,ext] = fileparts(fullfname);
-    cmd = sprintf('%s %s --outfile %s\n',pbrtExe,fullfname,outfile);
+    %cmd = sprintf('%s %s --outfile %s\n',pbrtExe,fullfname,outfile);
+    [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
+    tempInputFile = fullfile(generatedDir, [n e]);
+    cmd = sprintf('%s %s --outfile %s\n',pbrtExe,tempInputFile,outfile);
     % chdir(p)
     unix(cmd)
 end
@@ -156,15 +156,22 @@ end
 
 %% ISET will read the PBRT output and convert to a scene
 
-scene = pbrt2scene(outfile);
-
-%rename the scene, if a name is given
-if (~ieNotDefined('sceneName'))
-    scene = sceneSet(scene, 'name', sceneName);
-    if(~noScale)
-        % By default we scale to a mean luminance of 100 cd/m2.
-        scene = sceneAdjustLuminance(scene,100);
+if (oiFlag)
+    % ISET will read the PBRT output
+    output = pbrt2oi(outfile);
+    %rename the oi
+    output = oiSet(output, 'name', name);
+else
+    output = pbrt2scene(outfile);
+    %rename the scene, if a name is given
+    if (~ieNotDefined('name'))
+        output = sceneSet(output, 'name', name);
+        if(~noScale)
+            % By default we scale to a mean luminance of 100 cd/m2.
+            output = sceneAdjustLuminance(output,100);
+        end
     end
 end
+
 
 end

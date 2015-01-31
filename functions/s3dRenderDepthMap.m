@@ -1,15 +1,18 @@
 %% output = s3dRenderDepthMap(fname)
 %
-% Returns the ground truth depth map from given fname
-% (relative to s3droot/scripts/pbrtFiles/)
-% fname must correspond to the pbrt file whose scene's depth map will be
-% rendered.  **Note that the number of pixel samples here must be set to 1,
-% and the number of reflections must be set to 0.
+%s3dRenderDepthMap(inputPbrt, numRenders, sceneName, dockerFlag)
+%
+% Accepts 2 types of input for inputPbrt: 
+% (1) pbrtObject: This is the preferred type, as the function will change
+% the sampler to the correct one, and should run as is.
+% (2) pbrt text file. 
+% Returns the ground truth depth map from given fname.  
+% This mode requires some manipulation of the .pbrt file before execution!
+% ****Note that the number of pixel samples here must be set to 1,
+% and the number of reflections must be set to 0 for a correct output to be
+% produced!
 
-% This function works by rendering lots of 1 sample pbrt scenes, and taking
-% the median value of those rendered depth maps, to create one that is of
-% high quality.  There is some discussion of whether or not this produces a
-% valid depth map, but for all intensive purposes, it is close enough.
+
 function output = s3dRenderDepthMap(inputPbrt, numRenders, sceneName, dockerFlag)
 
 if ieNotDefined('dockerFlag'), dockerFlag = 0; end
@@ -116,15 +119,14 @@ elseif (ischar(inputPbrt))
     end
     %if inputPbrt is a char, then it becomes the input file
     fullfname = inputPbrt;
-    if dockerFlag
-        %copy all relavent files into the temp directory
-        [directory, ~, ~] = fileparts(fullfname);
-        
-        [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
-        [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-        [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-        [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-    end
+
+    %copy all relavent files into the temp directory
+    [directory, ~, ~] = fileparts(fullfname);
+    
+    [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir);
+    [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
+    [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
+    [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
 else
     error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
 end
@@ -162,11 +164,13 @@ for i = 1:numRenders
         fprintf('Wrote: %s',outfile);
     else
         %cmd = sprintf('%s %s --outfile %s',pbrtExe,fullfname,outfile);
-        [s,pbrtExe] = system('which pbrt');
-        if s, error('PBRT not found'); end
-        
+        %[s,pbrtExe] = system('which pbrt');
+        %if s, error('PBRT not found'); end
+         pbrtExe = 'pbrt';
+         [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
+         tempInputFile = fullfile(generatedDir, [n e]);
         % [p,n,ext] = fileparts(fullfname);
-        cmd = sprintf('%s %s --outfile %s',pbrtExe,fullfname,outfile);
+        cmd = sprintf('%s %s --outfile %s',pbrtExe,tempInputFile,outfile);
         unix(cmd);
     end
     if (i ==1)

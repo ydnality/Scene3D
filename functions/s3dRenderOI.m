@@ -14,46 +14,55 @@
 % 
 % Todo: backwards compatibility to render pbrt files
 
-function oi = s3dRenderOI(inputPbrt, focalLength, sceneName)
+function oi = s3dRenderOI(inputPbrt, focalLength, sceneName, dockerFlag)
 
     if (ieNotDefined('focalLength'))
         focalLength = .050;
     end
     if (ieNotDefined('sceneName'))
-        sceneName = 'deleteMe';
+        sceneName = 'default';
+    end
+    if(ieNotDefined('dockerFlag'))
+        dockerFlag = false;
     end
     
-    % deal with input being either a pbrtObject or a string
-    if(isa(inputPbrt, 'pbrtObject'))
-        fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
-        inputPbrt.writeFile(fullfname);
-    elseif (ischar(inputPbrt))
-        %if inputPbrt is a char, then it becomes the input file
-        fullfname = inputPbrt;  
-    else
-        error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
-    end
-    
-    % make a generated directory.  delete the contents of this directory
-    % first.
-    generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
-    if exist(generatedDir,'dir')
-        unix(['rm -rf' generatedDir]);
-    else
-        mkdir(generatedDir);
-    end
-    outfile  = fullfile(generatedDir, 'temp_out.dat');
-
-    % dMapFile = 'temp_out_DM.dat'; 
-    unix(['pbrt ' fullfname ' --outfile ' outfile])
-
-    % ISET will read the PBRT output
-    oi = pbrt2oi(outfile);
-    %rename the oi, if a name is given
-    if (~ieNotDefined('oiName'))
-        oi = oiSet(oi, 'name', oiName);
-    end
-    oi = oiSet(oi, 'name', sceneName);
+    oiFlag = true;
+    noScale = true;
+    oi = s3dRenderScene(inputPbrt, sceneName, noScale, dockerFlag, oiFlag);
     oi = s3dFixOi(oi, focalLength);
+ 
+%     
+%     % deal with input being either a pbrtObject or a string
+%     if(isa(inputPbrt, 'pbrtObject'))
+%         fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
+%         inputPbrt.writeFile(fullfname);
+%     elseif (ischar(inputPbrt))
+%         %if inputPbrt is a char, then it becomes the input file
+%         fullfname = inputPbrt;  
+%     else
+%         error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
+%     end
+%     
+%     % make a generated directory.  delete the contents of this directory
+%     % first.
+%     generatedDir = fullfile(dataPath, 'generatedPbrtFiles', 'tempPBRT');
+%     if exist(generatedDir,'dir')
+%         unix(['rm -rf' generatedDir]);
+%     else
+%         mkdir(generatedDir);
+%     end
+%     outfile  = fullfile(generatedDir, 'temp_out.dat');
+% 
+%     % dMapFile = 'temp_out_DM.dat'; 
+%     unix(['pbrt ' fullfname ' --outfile ' outfile])
+% 
+%     % ISET will read the PBRT output
+%     oi = pbrt2oi(outfile);
+%     %rename the oi, if a name is given
+%     if (~ieNotDefined('oiName'))
+%         oi = oiSet(oi, 'name', oiName);
+%     end
+%     oi = oiSet(oi, 'name', sceneName);
+%     oi = s3dFixOi(oi, focalLength);
 %     chdir('..');
 end

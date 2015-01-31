@@ -10,7 +10,7 @@ LookAt -56.914787 -105.385544 35.0148    #straight position
 
 
 Camera "realisticDiffraction" 
-    "string specfile" "dgauss.50mmSA2.DM.dat" 
+    "string specfile" "dgauss.50mmSA2.dat" #.DM.dat" 
     "float filmdistance" 75 #64
 	"float aperture_diameter" 16 #3
 	"float filmdiag" 43.267  #70 

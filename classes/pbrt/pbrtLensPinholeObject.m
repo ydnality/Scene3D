@@ -30,8 +30,9 @@ classdef pbrtLensPinholeObject <  pbrtLensObject
 %             obj = obj@pbrtLensObject(varargin);
         end
         
-        %writes the section of text corresponding to this object
+        
         function returnVal = writeFile(obj, fid)
+            %writes the section of text corresponding to this object
             fprintf(fid,'\nCamera "pinhole"\n');
             fprintf(fid,'\t"float filmdistance" %f\n', obj.filmDistance);
             fprintf(fid,'\t"float filmdiag" %f\n', obj.filmDiag);

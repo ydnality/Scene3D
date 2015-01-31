@@ -22,7 +22,7 @@ function [vci, transformMatrices ] = s3dProcessImage(sensor, wantedTransformatio
     vci = imageSet(vci,'illuminant correction method','None');
     vci = imageSet(vci,'illuminant correction matrix','None');
     vci = imageSet(vci,'internal color space','Sensor');
-    vci = imageSet(vci, 'sensorconversionmethod', 'None');
+    vci = imageSet(vci, 'conversionmethodsensor', 'None');
 
 %     vci = vcimageCompute(vci,sensor);;
 

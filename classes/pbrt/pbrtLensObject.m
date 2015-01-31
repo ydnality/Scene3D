@@ -23,5 +23,6 @@ classdef pbrtLensObject < handle
                 obj.filmDiag = inFilmDiag;
             end
         end
+        
     end
 end
