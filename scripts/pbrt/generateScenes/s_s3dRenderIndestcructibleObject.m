@@ -1,5 +1,6 @@
 %% Runs PBRT and imports it in ISET for the bench scene. 
 
+s_initISET
 %% specify the scene using pure .pbrt text file
 sceneName = 'indObjAmbientOnly';
 
@@ -28,9 +29,12 @@ sceneName = 'indObjAmbientOnly';
     curPbrt.surfaceIntegrator.setMaxDepth(1); %1 reflection
     
     %specify camera properties
-    curPbrt.camera.lens.filmDistance = 70; %133.33;
+    curPbrt.camera.lens.filmDistance = 90; %70; %133.33;
     curPbrt.camera.lens.filmDiag = 70;
-    curPbrt.camera.lens.specFile = 'dgauss.50mm.dat';
+    %curPbrt.camera.lens.specFile = 'dgauss.50mmSA2.dat';
+    curPbrt.camera.lens.specFile = '2ElLens.dat';
+    
+    
     curPbrt.camera.lens.apertureDiameter = 16; % in mm
     
     curPbrt.camera.setResolution(450, 300);  
@@ -40,7 +44,7 @@ sceneName = 'indObjAmbientOnly';
     
     % Sampler
     sampler = curPbrt.sampler.removeProperty();
-    sampler.value = 512;
+    sampler.value = 16;
     curPbrt.sampler.addProperty(sampler);
     
     % Light sources
@@ -60,13 +64,13 @@ sceneName = 'indObjAmbientOnly';
     curPbrt.addLightSource(infiniteLight);
     
     % Add material file
-    curPbrt.addMaterial(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'benchScene', 'default-mat.pbrt'));
+    curPbrt.addMaterial(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'indestructibleObject', 'default-mat.pbrt'));
     
     % Remove default geometry
     curPbrt.removeGeometry();
     
     % Add geometry
-    curPbrt.addGeometry(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'benchScene','default-geom-big-bigfloor.pbrt'));
+    curPbrt.addGeometry(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'indestructibleObject','default-geom.pbrt'));
 
 %% Render the oi
 
@@ -106,9 +110,9 @@ vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 [image, transformMatrices] = s3dProcessImage(sensor, []);
 vcAddAndSelectObject(image); vcimageWindow;
 
-%%  generate and read and output depth map
-% ** make sure the rendering file has a small initial aperture, and only 1
-% sample per pixel!
-depthMap = s3dRenderDepthMap(fullfile(dataPath, 'pbrtScenes', 'indestructibleObject/simpleReflectance-downAmbientOnly.pbrt'));
-%scene = s3dRenderScene(fullfile(dataPath, 'pbrtScenes', 'indestructibleObject', 'simpleReflectance-downAmbientOnly.pbrt'), 11);
-figure; imagesc(depthMap);
+% %%  generate and read and output depth map
+% % ** make sure the rendering file has a small initial aperture, and only 1
+% % sample per pixel!
+% depthMap = s3dRenderDepthMap(fullfile(dataPath, 'pbrtScenes', 'indestructibleObject/simpleReflectance-downAmbientOnly.pbrt'));
+% %scene = s3dRenderScene(fullfile(dataPath, 'pbrtScenes', 'indestructibleObject', 'simpleReflectance-downAmbientOnly.pbrt'), 11);
+% figure; imagesc(depthMap);
