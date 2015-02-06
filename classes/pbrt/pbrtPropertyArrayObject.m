@@ -11,7 +11,7 @@ classdef pbrtPropertyArrayObject <  handle
             % obj = pbrtPropertyArrayObject(inProperty)
             obj.propertyArray = cell(1,1);
             if (ieNotDefined('inProperty'))  %default property
-                obj.propertyArray{1} = pbrtPropertyObject('color Kd', [0 0.374624 0]);
+                obj.propertyArray{1} = pbrtPropertyObject('color Kd', [0 0 0]);
             else
                 obj.propertyArray{1} = inProperty;
             end

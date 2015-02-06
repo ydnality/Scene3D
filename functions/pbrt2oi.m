@@ -100,7 +100,7 @@ oi = initDefaultSpectrum(oi);
 % optics = oiGet(oi,'optics');
 
 %oi = oiSet(oi,'cphotons',photons);
-oi = oiSet(oi,'photons',double(photons));
+oi = oiSet(oi,'photons',double(photons(:,:,1:31)));   %ignore 32nd wavelength for now
 
 %temporarily disable depth map reading
 % [path,name,ext] = fileparts(fname); 

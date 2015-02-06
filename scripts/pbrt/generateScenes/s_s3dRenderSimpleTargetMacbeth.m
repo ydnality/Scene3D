@@ -1,5 +1,7 @@
 %% Render Scene Radiance Using pbrtObjects
 clear curPbrt;
+dockerFlag = false;
+
 curPbrt = pbrtObject();
 
 % Set camera position
@@ -56,5 +58,5 @@ frontSquare = pbrtGeometryObject('backdrop', 'grayMat', [], [], foregroundTransf
 curPbrt.addGeometry(frontSquare);
 
 % Render scene and depth map
-scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', true);
+scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', dockerFlag);
 vcAddObject(scene); sceneWindow;

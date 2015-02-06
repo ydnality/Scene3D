@@ -1,5 +1,5 @@
 %% Render Scene Radiance Using pbrtObjects
-
+%% TODO: convert to new format for objects.  file referencing does not work unless all files in the same directory!
 clear curPbrt;
 curPbrt = pbrtObject();
 
@@ -49,10 +49,12 @@ curPbrt.addLightSource(lightFront);
 
 %add a new material
 matRGB= [1 1 1];
+curPbrt.removeMaterial();
 newMaterial = pbrtMaterialObject('grayMat', 'matte', pbrtPropertyObject('color Kd', matRGB));
 curPbrt.addMaterial(newMaterial);
 
 %add material file
+
 curPbrt.addMaterial(fullfile(s3dRootPath, 'data', 'materials', 'simpleTarget-mat.pbrt'));
 
 % remove default geometry

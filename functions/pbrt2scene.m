@@ -97,7 +97,7 @@ fclose(fID);
 % Set the scene photon data
 scene = sceneCreate;
 scene = initDefaultSpectrum(scene);
-scene = sceneSet(scene,'photons',photons);
+scene = sceneSet(scene,'photons',photons(:,:,1:31));    %ignore the 32nd wavelength for now
 
 %% Temporarily disable depth map reading
 % [path,name,ext] = fileparts(fname); 

@@ -34,11 +34,12 @@ for f=1:1
         
         fprintf('Simulating filter %i channel %i\n',f,ch);
         
-        load(sprintf('%s/Data/1209Scenes/macbeth%i.mat',ReflDepthRootPath,ch));
+        
+        load(sprintf('%s/Data/02062015_scenes/light%i.mat',ReflDepthRootPath,ch));
         depthMap = sceneGet(scene,'depthMap');
-        scene = sceneSet(scene,'photons',sceneGet(scene,'photons')*1e6);
+        scene = sceneSet(scene,'photons',sceneGet(scene,'photons'));
         centerDist = depthMap(round(size(depthMap,1)/2),round(size(depthMap,2)/2));
-        centerDist = centerDist / 1000;
+        centerDist = centerDist / 1000; %Convert mm to m
         scene = sceneSet(scene,'distance',centerDist);
         scene = sceneSet(scene,'fov',0.08);
         vcAddObject(scene);
@@ -48,8 +49,8 @@ for f=1:1
         spectrum.wave = standardWave;
         scene = sceneCreate('macbethd65',20,spectrum);
         scene = sceneAdjustIlluminant(scene,7.66*illuminantEnergy(:,ch),0);
-        scene = sceneSet(scene,'distance',1);
-        scene = sceneSet(scene,'fov',0.48);
+        scene = sceneSet(scene,'distance',0.08);
+        scene = sceneSet(scene,'fov',0.06);
         scene = sceneSet(scene,'name',sprintf('Filter %i, channel %i',f,ch));
         vcAddObject(scene);
         %}
@@ -82,12 +83,14 @@ end
 
 cameraPixelVals = cameraPixelVals/255;
 
+colors = jet(14);
+
+figure;
 for i=1:1
-    figure;
     hold on; grid on; box on;
     for j=1:nChannels
-    plot(squeeze(modelPixelVals(i,j,:))',squeeze(cameraPixelVals(i,j,:))','.');
-    pause
+    plot(squeeze(modelPixelVals(i,j,:))',squeeze(cameraPixelVals(i,j,:))','.','color',colors(j,:));
+    % pause
     end
     title(sprintf('Filter %i',i))
     ylabel('ISET model values');

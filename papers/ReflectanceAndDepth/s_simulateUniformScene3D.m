@@ -35,7 +35,7 @@ for f=1:1
         
         
         load(sprintf('%s/Data/1209Scenes/whiteScene%i.mat',ReflDepthRootPath,ch));
-        scene = sceneSet(scene,'photons',sceneGet(scene,'photons')*1e6);
+        scene = sceneSet(scene,'photons',sceneGet(scene,'photons'));
         depthMap = sceneGet(scene,'depthMap');
         centerDist = depthMap(round(size(depthMap,1)/2),round(size(depthMap,2)/2));
         centerDist = centerDist / 1000;
@@ -71,8 +71,7 @@ for f=1:1
         Img(:,:,(f-1)*nChannels + ch) = sensorGet(sensor,'dv')/(2^sensorGet(sensor,'nbits'));
         [cameraGain(f,ch), cameraOffset(f,ch)] = getSensorTotalGain(scene,oi,sensor);
         
-        
-        
+           
         [vals, ~, ~, ~] = macbethSelect(sensor,[],1,cornerPoints);
         cameraPixelVals(f,ch,:) = cellfun(@nanmean,vals);
         modelPixelVals(f,ch,:) = cameraGain(f,ch)*cameraFilters(:,f)'*diag(illuminant(:,ch))*ones(nWaves,24)*deltaL;

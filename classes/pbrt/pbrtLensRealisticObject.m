@@ -9,11 +9,14 @@ classdef pbrtLensRealisticObject < pbrtLensObject
         diffractionEnabled = false;
         chromaticAberrationEnabled = false;
         specFile = '';
+        curveRadius = 0;
     end
     methods
         
         %default constructor
-        function obj = pbrtLensRealisticObject(inFilmDistance, inFilmDiag, specFile, apertureDiameter, diffractionEnabled, chromaticAberrationEnabled)
+        function obj = pbrtLensRealisticObject(inFilmDistance, inFilmDiag, ...
+                specFile, apertureDiameter, diffractionEnabled, ...
+                chromaticAberrationEnabled, curveRadius)
             
 
             if (ieNotDefined('inFilmDistance'))
@@ -52,7 +55,13 @@ classdef pbrtLensRealisticObject < pbrtLensObject
                 obj.chromaticAberrationEnabled = false;
             else
                 obj.chromaticAberrationEnabled = chromaticAberrationEnabled;
-            end           
+            end         
+            
+            if (ieNotDefined('curveRadius'))
+                obj.curveRadius = false;
+            else
+                obj.curveRadius = curveRadius;
+            end               
         end
         
         
@@ -66,6 +75,7 @@ classdef pbrtLensRealisticObject < pbrtLensObject
             fprintf(fid,'\t"float aperture_diameter" %f\n', obj.apertureDiameter);    
             fprintf(fid,'\t"float diffractionEnabled" %f\n', obj.diffractionEnabled);    
             fprintf(fid,'\t"float chromaticAberrationEnabled" %f\n', obj.chromaticAberrationEnabled); 
+            fprintf(fid,'\t"float curveRadius" %f\n', obj.curveRadius); 
             fprintf(fid,'\t"string specfile" "%s"', obj.specFile); 
             
             returnVal = 1;
