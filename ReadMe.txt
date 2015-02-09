@@ -16,4 +16,7 @@ The Scene3D repository contains
         * Some PBRT data (examples)
 	* Matlab files that read PBRT output and convert them to ISET objects
 
+Andy added a lot of code about rays, meshes, forward calculations, curved sensors, diffraction, two flash, and so forth.  He also implemented the docker management for pbrt.
+
+Michael Pieroni added some optics calculations in plugin.  This included the ABCD transformations and Black Box Model (BBM).  We need to integrate and maintain this in some way.
 

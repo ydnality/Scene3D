@@ -3,9 +3,11 @@ function fileRead(obj, fullFileName)
 %
 %   lens.fileRead(fullFileName)
 %
-% The file has focal length information added to the header
-% This function converts the PBRT matrix of data into the format
-% that we use for setting up the multielement lens.
+% The PBRT file has focal length information added to the header. This
+% function converts the PBRT matrix of data into the format that Scene3d
+% uses for a multielement lens.
+%
+% AL VISTASOFT, Copyright 2014
 
 % Open the lens file
 %fid = fopen(fullfile(dataPath, 'rayTrace', 'dgauss.50mm.dat'));

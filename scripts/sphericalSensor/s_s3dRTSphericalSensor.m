@@ -9,7 +9,7 @@
 % AL/BW VISTASOFT 2014
 
 %%
-s_initISET
+ieInit
 
 %% Make a volume of point.  A little boring in this case
 
@@ -30,7 +30,7 @@ lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD);
 
-%% make lens index of refraction change with wavelength, to exhibit chromatic aberrations
+%% make lens have chromatic aberrations
 
 wave = lens.get('wave');
 numSurfaces = lens.get('nsurfaces');
@@ -45,7 +45,7 @@ for i = 1:numSurfaces
 end
 
 
-%% Create a film (planarsensor)
+%% Create a film (planar sensor)
 
 % position - relative to center of final lens surface
 % size - 'mm'
@@ -64,7 +64,7 @@ camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
 % Sequence of events for estimating the PSF, 
 camera.estimatePSF(20, true);
 oi = camera.oiCreate;
-
+oi = oiSet(oi,'name','Planar sensor');
 vcAddObject(oi); oiWindow;
 
 
@@ -88,7 +88,7 @@ camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
 % Sequence of events for estimating the PSF, 
 camera.estimatePSF(20, true);
 oi = camera.oiCreate;
-
+oi = oiSet(oi,'name','Spherical sensor');
 vcAddObject(oi); oiWindow;
 
 %% END

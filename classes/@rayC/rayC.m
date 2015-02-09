@@ -145,8 +145,23 @@ classdef rayC <  clonableHandleObject
                     liveInd = obj.get('liveIndices');
                     val(~isnan(obj.waveIndex)) = obj.wave(obj.waveIndex(liveInd));
                     val = val';
-                case 'liveindices'  %return the indices of rays that are still alive
+                case 'liveindices'  
+                    % Rays with a waveIndex made it through the tracing
+                    % path. We return the indices of rays that are still
+                    % alive. We aren't sure why waveIndex is the right slot
+                    % to check ... but it appears to be (BW).
                     val = ~isnan(obj.waveIndex);
+                case 'liverays'
+                    % Set the rays without a wavelength to empty  These
+                    % remaining rays are the live rays.
+                    val = rayC();
+                    val.makeDeepCopy(obj);
+                    
+                    liveIndices = val.get('live indices');
+                    val.origin(~liveIndices, : ) = [];
+                    val.direction(~liveIndices, : ) = [];
+                    val.waveIndex(~liveIndices) = [];
+                    
                 case 'origin'
 
                     %if no additional parameters are given, return raw

@@ -1,35 +1,39 @@
 function obj = recordOnFilm(obj, film, nLines)
-%records the ray on the film surface
-%nLines: number of lines to draw for the illustration
+% Records the rays on the film surface
+%
+%  rays.recordOnFilm(obj, film, nLines)
+%
+% obj:    A ray
+% film:   A sensor - can be either a plane or a spherical surface
+% nLines: number of lines to draw for the illustration
 
-if (ieNotDefined('nLines'))
-    nLines = 0;
-end
-
-%parameters for plotting from lens to sensor
-lWidth = 0.1; lColor = [0 0.5 1]; lStyle = '-';
+%% Parameters 
+if (ieNotDefined('nLines')), nLines = 0; end
 
 
+%% Calculate intersection point of all the rays at sensor
+intersectZ = repmat(film.position(3), [size(obj.origin, 1) 1]);
+intersectT = (intersectZ - obj.origin(:, 3))./obj.direction(:, 3);
 
-%make a clone of the rays
-liveRays = rayC();
-liveRays.makeDeepCopy(obj);
+oldOrigin  = obj.origin;
+obj.origin = obj.origin + obj.direction .* repmat(intersectT, [1 3]);
 
-%calculate intersection point at sensor
-intersectZ = repmat(film.position(3), [size(liveRays.origin, 1) 1]);
-intersectT = (intersectZ - liveRays.origin(:, 3))./liveRays.direction(:, 3);
-liveRays.origin = liveRays.origin + liveRays.direction .* repmat(intersectT, [1 3]);
 
-%plot phase space and for the future - ray-raced lines
+%% Plot phase space and for the future - ray-raced lines
 if (nLines > 0)
-    liveRays.plotPhaseSpace();
+    %parameters for plotting from lens to sensor
+    lWidth = 0.1; lColor = [0 0.5 1]; lStyle = '-';
+
+    obj.plotPhaseSpace();
     
-    %draw debug lines
-    % draw lines...TODO: figure this out...
+    % These are the random sample of rays we will draw
     samps = obj.drawSamples;
     
-    xCoordVector = [obj.origin(samps,3) liveRays.origin(samps,3) NaN([nLines 1])]';
-    yCoordVector = [obj.origin(samps,2) liveRays.origin(samps,2) NaN([nLines 1])]';
+    % These are the rays from the old origin to the new origin accounting
+    % for the direction and current endpoint
+    xCoordVector = [oldOrigin(samps,3) obj.origin(samps,3) NaN([nLines 1])]';
+    yCoordVector = [oldOrigin(samps,2) obj.origin(samps,2) NaN([nLines 1])]';
+    
     xCoordVector = real(xCoordVector(:));
     yCoordVector = real(yCoordVector(:));
     
@@ -39,62 +43,22 @@ if (nLines > 0)
     pause(0.1);
 end
 
-%remove dead rays
-deadIndices = isnan(obj.waveIndex);
-liveRays.origin(deadIndices, : ) = [];
-liveRays.direction(deadIndices, : ) = [];
-%liveRays.wavelength(deadIndices) = [];
-liveRays.waveIndex(deadIndices) = [];
-
-intersectPosition = liveRays.origin;
+%% Remove dead rays
+liveRays = obj.get('live rays');
 
 % Record the real rays - if there are any
 if(~isempty(liveRays.origin))
     if(isa(film, 'filmSphericalC'))
         
-        %%
-        % Project sphereSense
-
-        % sensor properties
-        
+        % Project spherical sensor
         sensorRadius = film.radius;
-        sensorCenter = film.get('sphericalCenter');  %TODO: have this be a get?
-        
-        % intersect with a spherical surface and find intersection point
-        
-        % Spherical element
-        %repCenter = repmat(curEl.sCenter, [nRays 1]);
-        nRays = length(liveRays.origin);
-        repCenter = repmat(sensorCenter, [nRays 1]);
-        
-        repRadius = repmat(sensorRadius, [nRays 1]);
-        
-        % Radicand from vector form of Snell's Law
-        radicand = dot(liveRays.direction, liveRays.origin - repCenter, 2).^2 - ...
-            ( dot(liveRays.origin - repCenter, liveRays.origin -repCenter, 2)) + repRadius.^2;
-        
-        % Calculate something about the ray angle with respect
-        % to the current surface.  AL to figure this one out
-        % and put in a book reference.
-        if (sensorRadius < 0)
-            intersectT = (-dot(liveRays.direction, liveRays.origin - repCenter, 2) + sqrt(radicand));
-        else
-            intersectT = (-dot(liveRays.direction, liveRays.origin - repCenter, 2) - sqrt(radicand));
-        end
-        
-        %make sure that intersectT is > 0   This does not apply for this
-        %case, because sometimes a curved sensor is in front of the flat
-        %sensor plane
-%         if (min(intersectT(:)) < 0)
-%             fprintf('intersectT less than 0 for lens %i');
-%         end
-        
-        repIntersectT = repmat(intersectT, [1 3]);
-        intersectPosition = liveRays.origin + repIntersectT .* liveRays.direction;
+        sensorCenter = film.get('sphericalCenter');  
+        intersectPosition = liveRays.sphereIntersect(sensorCenter,sensorRadius);
         
         if(nLines > 0)
             figure(obj.plotHandle);    hold on; plot(intersectPosition(:,3), intersectPosition(:,2), '.');
         end
+        
         % Convert intersection point into spherical coordinate system...
         x = intersectPosition(:,1);
         y = intersectPosition(:,2);
@@ -111,6 +75,9 @@ if(~isempty(liveRays.origin))
         
     elseif(isa(film, 'filmC'))
         
+        % When it is the plane, this ....
+        intersectPosition = liveRays.origin;
+        
         %imagePixel is the pixel that will gain a photon due to the traced ray
         imagePixel.position = [intersectPosition(:,2) intersectPosition(:, 1)];
         imagePixel.position = real(imagePixel.position); %add error handling for this
@@ -118,15 +85,18 @@ if(~isempty(liveRays.origin))
         error('Invalid film type detected.  Quitting');
     end
     
+    % Either way, we collect and count the photons incident on the film
     
-    %this line takes a raw dimension and converts it to a position in
-    %terms of pixels
+    % 
+    % This line takes a raw dimension and converts it to a position in
+    % terms of pixels
     imagePixel.position = round(imagePixel.position * film.resolution(2)/film.size(2) + ...
         repmat(-film.position(2:-1:1)*film.resolution(2)/film.size(2)  + (film.resolution(2:-1:1) + 1)./2, [size(imagePixel.position,1) 1]));   %
     
     imagePixel.wavelength = liveRays.get('wavelength');
     
     convertChannel = liveRays.waveIndex;
+    
     %wantedPixel is the pixel that we wish to add 1 photon to
     wantedPixel = [imagePixel.position(:, 1) imagePixel.position(:,2) convertChannel];  %pixel to update
     
