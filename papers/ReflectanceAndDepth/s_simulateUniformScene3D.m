@@ -34,7 +34,7 @@ for f=1:1
         fprintf('Simulating filter %i channel %i\n',f,ch);
         
         
-        load(sprintf('%s/Data/1209Scenes/whiteScene%i.mat',ReflDepthRootPath,ch));
+        load(sprintf('%s/Data/02062015_scenes/whitelight%i.mat',ReflDepthRootPath,ch));
         scene = sceneSet(scene,'photons',sceneGet(scene,'photons'));
         depthMap = sceneGet(scene,'depthMap');
         centerDist = depthMap(round(size(depthMap,1)/2),round(size(depthMap,2)/2));
@@ -109,7 +109,7 @@ end
 if ~exist(sprintf('%s/Data/',ReflDepthRootPath),'dir')
    mkdir(sprintf('%s/Data/',ReflDepthRootPath));
 end
-save(sprintf('%s/Data/UniformImage.mat',ReflDepthRootPath),'Img','cameraGain','cameraOffset','cameraExposure');
+save(sprintf('%s/Data/02062015_scenes/UniformImage.mat',ReflDepthRootPath),'Img','cameraGain','cameraOffset','cameraExposure');
 
 
 %%

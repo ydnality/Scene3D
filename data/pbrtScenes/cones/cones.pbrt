@@ -5,7 +5,7 @@
 #
 
 
-Texture "grid" "color" "imagemap" "string filename" ["textures/lines.exr"]
+Texture "grid" "color" "imagemap" "string filename" ["lines.exr"]
 
 # the floor
 Texture "sgridgray" "color" "scale" "texture tex1" "grid" "color tex2" [ .5 .5 .5 ]
@@ -35,7 +35,7 @@ Shape "trianglemesh" "point P" [ -4 0 4   4 0 4   4 10 4   -4 10 4 ]
 	"integer indices" [ 0 1 2 2 3 0]
 
 ObjectBegin "bluecube"
-Material "measured"  "string filename" "brdfs/krylon_blue.brdf"
+Material "measured"  "string filename" "krylon_blue.brdf"
 Shape "trianglemesh" "point P" [ -1 0 -1   1 0 -1   1 0 1   -1 0 1
                                  -1 2 -1   1 2 -1   1 2 1   -1 2 1 ] 
 	"integer indices" [ 0 2 1  0 3 2  4 5 6  4 6 7
@@ -44,7 +44,7 @@ Shape "trianglemesh" "point P" [ -1 0 -1   1 0 -1   1 0 1   -1 0 1
 ObjectEnd
 
 ObjectBegin "redcube"
-Material "measured"  "string filename" "brdfs/garnet_red.brdf"
+Material "measured"  "string filename" "garnet_red.brdf"
 Shape "trianglemesh" "point P" [ -1 0 -1   1 0 -1   1 0 1   -1 0 1
                                  -1 2 -1   1 2 -1   1 2 1   -1 2 1 ] 
 	"integer indices" [ 0 2 1  0 3 2  4 5 6  4 6 7
@@ -54,7 +54,7 @@ ObjectEnd
 
 
 ObjectBegin "shape1"
-Material "measured"  "string filename" "brdfs/garnet_red.brdf"
+Material "measured"  "string filename" "garnet_red.brdf"
 Translate -.01 0 0
 Rotate -17 0 1 0
 Translate .01 0 0
@@ -65,7 +65,7 @@ Shape "cone" "float height" 0.15 "float radius" 0.05 "float phimax" 360
 ObjectEnd
 
 ObjectBegin "shape2"
-Material "measured"  "string filename" "brdfs/krylon_blue.brdf"
+Material "measured"  "string filename" "krylon_blue.brdf"
 Translate -.01 0 0
 Rotate -10 0 1 0
 Translate .01 0 0
@@ -76,7 +76,7 @@ Shape "cone" "float height" 0.15 "float radius" 0.05 "float phimax" 360
 ObjectEnd
 
 ObjectBegin "cone-text"
-Texture "conetexture" "color" "imagemap" "string filename" ["textures/blue_stainedglass.exr"] #["textures/cone-text.exr"]
+Texture "conetexture" "color" "imagemap" "string filename" ["blue_stainedglass.exr"] #["cone-text.exr"]
 Material "matte" "texture Kd" "conetexture"
 Translate -.01 0 0
 Rotate -17 0 1 0
@@ -86,7 +86,7 @@ Shape "cone" "float height" 0.15 "float radius" 0.05 "float phimax" 360
 ObjectEnd
 
 AttributeBegin
-Material "measured"  "string filename" "brdfs/garnet_red.brdf"
+Material "measured"  "string filename" "garnet_red.brdf"
 Translate 2.17  .035  -.5
 Shape "sphere" "float radius" .015
 AttributeEnd

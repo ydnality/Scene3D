@@ -13,10 +13,9 @@ classdef pbrtObject <  clonableHandleObject
         sampler;
         surfaceIntegrator;
         renderer;
-        lightSourceArray;
-        %materialArray;  %we will use .fileName for now to avoid declaring all the materials stuff
-        geometryArray;   %we will use .fileName for now to avoid declaring all the geometry stuff
-%         shapeArray; %built in shapes
+        lightSourceArray;   
+        geometryArray;   %can either contain a pbrtGeometryObject or a filename
+        includeArray;  %if there are miscellaneous .pbrt files that must be included, put them in this array
     end
     properties
        materialArray; %TODO: make this more elegant later 
@@ -106,6 +105,21 @@ classdef pbrtObject <  clonableHandleObject
             
             fprintf(fid,'\n\nWorldBegin\n');
             
+            %% Include File
+            for i = 1:length(obj.includeArray)
+                curInclude =obj.includeArray{i}; 
+                if (ischar(curInclude))
+                    if(exist(curInclude, 'file'))
+                        fprintf(fid,'\n\nInclude "%s"\n', curInclude);
+                    else
+                        error('Include file %s does not exist!',curInclude);
+                    end
+                else
+                    error('Include files must be character arrays');
+                    
+                end
+            end
+            
             %% Lightsource
             
             %loop through each light source
@@ -134,7 +148,7 @@ classdef pbrtObject <  clonableHandleObject
                 end
                 %end
             end
-            
+
             %% Materials File
             for i = 1:length(obj.materialArray)
                 if (isa(obj.materialArray{i},'pbrtMaterialObject')); 
@@ -196,7 +210,28 @@ classdef pbrtObject <  clonableHandleObject
         %TODO: error checking     
             obj.geometryArray{end+1} = newGeometry;
         end        
+
+        function addInclude(obj, newInclude)
+        %addInclude(obj, newInclude)
+        %
+        %%adds include file to the include array
+        %
+        %newGeometry: must be of type char
+        %TODO: error checking     
+        if (ischar(newInclude))
+            if(exist(newInclude, 'file'))
+                obj.includeArray{end+1} = newInclude;
+            else
+                error('Include file %s does not exist!',newInclude);
+            end
+        else
+            error('Include files must be character arrays');
+            
+        end
+           
+        end        
         
+                
 %         function addShape(obj, newShape, newTransform)
 %         %addShape(obj, newShape, newTransform)
 %         %
@@ -251,6 +286,21 @@ classdef pbrtObject <  clonableHandleObject
                 obj.materialArray(deleteIndex) = [];
             end
         end        
+        
+        function returnVal = removeInclude(obj, deleteIndex)
+        %removeInclude(obj, deleteIndex)
+        %
+        %removes the include file corresponding to the specified index
+        %if deleteIndex is undefined, remove from the end
+        %returns the deleted value
+            if (ieNotDefined('deleteIndex'))
+                returnVal = obj.includeArray(end);
+                obj.includeArray(end) = [];
+            else
+                returnVal = obj.includeArray(deleteIndex);
+                obj.includeArray(deleteIndex) = [];
+            end
+        end                
         %example code
         %     function obj = batchFileClass(inStem, inPostfix)
         %         obj.inputStem = inStem;

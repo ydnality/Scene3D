@@ -34,12 +34,13 @@ curPbrt.addLightSource(lightFront);
 %% Scene Materials
 
 % add a new material
+curPbrt.removeMaterial();
 matRGB= [1 1 1];
 newMaterial = pbrtMaterialObject('grayMat', 'matte', pbrtPropertyObject('color Kd', matRGB));
 curPbrt.addMaterial(newMaterial);
 
 % add material file
-curPbrt.addMaterial(fullfile(s3dRootPath, 'data', 'materials', 'simpleTarget-mat.pbrt'));
+%curPbrt.addMaterial(fullfile(s3dRootPath, 'data', 'materials', 'simpleTarget-mat.pbrt'));
 
 %% Scene Geometry
 

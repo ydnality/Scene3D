@@ -126,6 +126,10 @@ classdef lensC <  handle
                     sArray = obj.surfaceArray;
                     res    = -1*sArray(1).get('zpos');
                     % res = -(obj.surfaceArray(1).sCenter(3) - obj.surfaceArray(1).sRadius);
+                case 'offsets'
+                    % Offsets format (like PBRT files) from center/zPos
+                    % data
+                    res = obj.offsetCompute();
                 case 'surfacearray'
                     % lens.get('surface array',[which surface])
                     if isempty(varargin), res = obj.surfaceArray;
@@ -429,6 +433,26 @@ classdef lensC <  handle
             % (nSurfaces x 3)
             z = zeros(nSurfaces,1);
             centers = [z z zIntercept + sRadius];
+        end
+
+                
+        function offsets = offsetCompute(obj)
+            % Computes offsets from the object's z positions
+
+            %get the radii
+            nEls = obj.get('nsurfaces');
+            zPos = zeros(1, nEls);
+            offsets = zeros(1,nEls);
+            sArray = obj.get('surfaceArray');
+
+            for i = 1:nEls
+                zPos(i) = sArray(i).get('zpos');
+                if (i > 1)
+                    offsets(i-1) = zPos(i) - zPos(i-1);
+                else
+                    offsets(i) = 0;
+                end
+            end
         end
         
         function elementsSet(obj, sOffset, sRadius, sAperture, sN)

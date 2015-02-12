@@ -3,6 +3,7 @@ classdef pbrtCameraObject <  handle
     
     properties (SetAccess = private)
         position;
+        transformArray;
         lens;
         film;    
     end
@@ -12,6 +13,14 @@ classdef pbrtCameraObject <  handle
         function obj = pbrtCameraObject(inPos, inLens, inFilm)
             % Placement of the camera.  Defined by a vector that looks in a certain
             % direction, and then tells you which way is up.
+            %
+            % Usage of the transformArray and position elements are
+            % mutually exlusive.  If TransformArray has elements, then
+            % position will be ignored.  If Position is nonempty, then
+            % transformArray will be ignored. This is in efforts for
+            % backwards compatibility and flexibility.  If both are
+            % nonempty, then transformArray has precedence.
+            
             if (ieNotDefined('inPos'))
                 obj.position = ...
                     [4.5 -80 7; % Starting up
@@ -39,6 +48,18 @@ classdef pbrtCameraObject <  handle
                 %TODO: verify the film
                 obj.film = inFilm;
             end
+            
+            %initialize the transform array
+            obj.transformArray = cell(0,1);
+        end
+        
+        function addTransform(obj, inTrans)
+        %addTransform(obj, inTrans)
+            if (isa(inTrans, 'pbrtTransformObject'));
+                obj.transformArray{end+1} = inTrans;
+            else
+                error('input transform must be of type pbrtTransformObject');
+            end
         end
         
         %TODO: error checking
@@ -50,6 +71,7 @@ classdef pbrtCameraObject <  handle
         %moves the camera by an offset
         %TODO: error checking
         function moveCamera(obj, offset)
+            
             obj.position = obj.position + cat(1, repmat(offset, [2 1]), [ 0 0 0]);
         end
         
@@ -68,13 +90,19 @@ classdef pbrtCameraObject <  handle
         end
         
         function returnVal = writeFile(obj, fid)
-            %camera position
-            fprintf(fid,'\n\nLookAt\n');
+            
             
             if (isfield(obj.position, 'fileName'))
                 fprintf(fid,'\n\nInclude "%s"\n', obj.position.fileName);  %TODO: this might need to be fixed later
-            else
+            elseif(isempty(obj.transformArray))
+                %camera position
+                fprintf(fid,'\n\nLookAt\n');
                 fprintf(fid,'\t%f %f %f\n',obj.position');
+            else
+                %we will use transformArray and print those properties
+                for i = 1:length(obj.transformArray)
+                   obj.transformArray{i}.writeFile(fid); 
+                end
             end
             
             %lens

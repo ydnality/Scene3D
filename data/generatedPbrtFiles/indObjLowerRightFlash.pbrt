@@ -1,0 +1,55 @@
+# PBRT v2.0 Blender Scene file (written from Scene3D)
+#
+
+Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
+
+
+LookAt
+	-56.914787 -105.385544 35.014800
+	-56.487434 -104.481461 34.800000
+	0.089749 0.189867 0.977699
+
+Camera "pinhole"
+	"float filmdistance" 140.000000
+	"float filmdiag" 50.911700
+
+
+Film "image"
+	"integer xresolution" [200]
+	"integer yresolution" [200]
+
+
+Sampler "lowdiscrepancy"
+	"integer pixelsamples" [128]
+
+
+SurfaceIntegrator "directlighting"
+	"integer maxdepth" [0]
+
+
+Renderer "sample"
+
+
+WorldBegin
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-48.771428 -111.557750 25.237808 ]
+		"point to" [-48.344075 -110.653667 25.023008 ]
+
+AttributeEnd
+
+
+Include "/home/andy/Dropbox/Scene3D/Scene3DMatlabBW/Scene3D/data/twoFlashDepth/indObject/pbrt/graycard-mat.pbrt"
+
+
+Include "/home/andy/Dropbox/Scene3D/Scene3DMatlabBW/Scene3D/data/twoFlashDepth/indObject/pbrt/lambertian-geom.pbrt"
+
+
+WorldEnd

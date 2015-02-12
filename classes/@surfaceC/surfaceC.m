@@ -107,6 +107,8 @@ classdef surfaceC <  handle
                     res = obj.wave;
                 case 'n'
                     res = obj.n;
+                case 'sRadius'
+                    res = obj.sRadius;
                 case {'zpos','zintercept'}
                     % The z-position of the surface.  
                     % The surface is a sphere.  We know the position of the

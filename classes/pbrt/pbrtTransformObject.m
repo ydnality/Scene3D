@@ -45,6 +45,10 @@ classdef pbrtTransformObject <  handle
         %write the pbrt output to file
         %TODO: check fid error checking
         function writeFile(obj, fid)
+            if(ieNotDefined('fid'))
+                error ('fid not specified!');
+            end
+            
             fprintf(fid,'%s ', obj.type);
             fprintf(fid,'%f ', obj.data);
             fprintf(fid,'\n');

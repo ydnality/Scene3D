@@ -33,16 +33,17 @@ curPbrt.camera.setLens(pbrtLensRealisticObject());
 curPbrt.surfaceIntegrator.setMaxDepth(1); %1 reflection
 
 %specify camera properties
-curPbrt.camera.lens.filmDistance = 13;  %90; %70; %133.33;
-curPbrt.camera.lens.filmDiag = 70;
+curPbrt.camera.lens.filmDistance = 15;  %90; %70; %133.33;
+curPbrt.camera.lens.filmDiag = 43.75; %; 70;
 %curPbrt.camera.lens.specFile = 'dgauss.50mmSA2.dat';
 curPbrt.camera.lens.specFile = '2ElLens.dat';
 curPbrt.camera.lens.specFile = '2ElLens13.5mm.dat';
+%curPbrt.camera.lens.specFile = 'testLens.dat';
 
 
-curPbrt.camera.lens.apertureDiameter = 8; % in mm
-curPbrt.camera.lens.curveRadius = 0;  %experimental
-%curPbrt.camera.lens.curveRadius = -70;  %experimental
+curPbrt.camera.lens.apertureDiameter = 7; % in mm
+%curPbrt.camera.lens.curveRadius = 0;  %experimental
+curPbrt.camera.lens.curveRadius = -13.5;  %experimental
 
 %curPbrt.camera.setResolution(300, 200);
 curPbrt.camera.setResolution(450, 300);
@@ -84,7 +85,7 @@ curPbrt.addGeometry(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'indestructibleO
 
 %oi = s3dRenderOI( inputFile, .050, sceneName);
 dockerFlag = false;
-oi = s3dRenderOI( curPbrt, .050, sceneName, dockerFlag);
+oi = s3dRenderOIAndDepthMap( curPbrt, .050, sceneName, dockerFlag);
 
 
 % strip the file name from the path and assign that as the name of the

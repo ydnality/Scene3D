@@ -114,7 +114,7 @@ end
 if ~exist(sprintf('%s/Data/',ReflDepthRootPath),'dir')
    mkdir(sprintf('%s/Data/',ReflDepthRootPath));
 end
-save(sprintf('%s/Data/MacbethImage.mat',ReflDepthRootPath),'Img','cameraGain','cameraOffset','cameraExposure');
+save(sprintf('%s/Data/02062015_scenes/MacbethImage.mat',ReflDepthRootPath),'Img','cameraGain','cameraOffset','cameraExposure');
 
 %%
 sceneWindow;

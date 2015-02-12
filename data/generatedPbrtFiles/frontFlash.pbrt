@@ -1,0 +1,208 @@
+# PBRT v2.0 Blender Scene file (written from Scene3D)
+#
+
+Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
+
+
+LookAt
+	0.000000 100.000000 80.000000
+	0.000000 99.600000 79.000000
+	0.000000 1.000000 0.000000
+
+Camera "pinhole"
+	"float filmdistance" 140.000000
+	"float filmdiag" 43.267000
+
+
+Film "image"
+	"integer xresolution" [200]
+	"integer yresolution" [200]
+
+
+Sampler "lowdiscrepancy"
+	"integer pixelsamples" [128]
+
+
+SurfaceIntegrator "directlighting"
+	"integer maxdepth" [0]
+
+
+Renderer "sample"
+
+
+WorldBegin
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [0.000000 100.000000 80.000000 ]
+		"point to" [0.000000 99.600000 79.000000 ]
+
+AttributeEnd
+
+
+Include "/home/andy/Dropbox/Scene3D/Scene3DMatlabBW/Scene3D/data/validate/pbrtObject/depthTargetSpheres-mat.pbrt"
+
+
+MakeNamedMaterial "grayMat"
+	"string type" ["matte"]
+	"color Kd" [1.000000 1.000000 1.000000 ]
+
+
+AttributeBegin #backdrop
+
+	Transform 
+	[
+	312.500000 0.000000 0.000000 0.000000 
+	0.000000 312.500000 0.000000 0.000000 
+	0.000000 0.000000 1.000000 0.000000 
+	0.000000 0.000000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "trianglemesh" "integer indices" 
+	[
+	0 1 2
+	0 2 3
+	]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #backdrop
+
+	Transform 
+	[
+	312.500000 0.000000 0.000000 0.000000 
+	0.000000 0.000000 312.500000 0.000000 
+	0.000000 -312.500000 0.000000 0.000000 
+	2.000000 0.000000 0.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "trianglemesh" "integer indices" 
+	[
+	0 1 2
+	0 2 3
+	]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone0
+
+	Transform 
+	[
+	8.000000 0.000000 0.000000 0.000000 
+	0.000000 0.000000 -8.000000 0.000000 
+	0.000000 8.000000 0.000000 0.000000 
+	-9.500000 0.000000 -120.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [3.500000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #sphere0
+
+	Transform 
+	[
+	1.000000 0.000000 0.000000 0.000000 
+	0.000000 1.000000 0.000000 0.000000 
+	0.000000 0.000000 1.000000 0.000000 
+	18.750000 6.000000 -140.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "sphere" "float radius" [9.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #sphere0
+
+	Transform 
+	[
+	1.000000 0.000000 0.000000 0.000000 
+	0.000000 0.000000 -1.000000 0.000000 
+	0.000000 1.000000 0.000000 0.000000 
+	0.000000 6.000000 -160.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cylinder" "float radius" [7.000000 ]
+"float zmin" [-6.000000 ]
+"float zmax" [14.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #sphere0
+
+	Transform 
+	[
+	1.000000 0.000000 0.000000 0.000000 
+	0.000000 0.000000 1.000000 0.000000 
+	0.000000 -1.000000 0.000000 0.000000 
+	-16.000000 20.000000 -140.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "paraboloid" "float radius" [8.000000 ]
+"float zmin" [0.000000 ]
+"float zmax" [20.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+WorldEnd

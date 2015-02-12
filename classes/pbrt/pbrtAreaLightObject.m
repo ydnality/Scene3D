@@ -22,9 +22,9 @@ classdef pbrtAreaLightObject <  pbrtLightObject
                 obj.setSpectrum(inSpectrum);
             end
             
-            obj.transformArray = cell(1,1);
-            obj.addTransform(pbrtTransformObject());
-            obj.shapeArray = cell(1,1);
+            obj.transformArray = cell(0,1);
+            %obj.addTransform(pbrtTransformObject());
+            obj.shapeArray = cell(0,1);
         
         end
 
@@ -53,17 +53,18 @@ classdef pbrtAreaLightObject <  pbrtLightObject
 %            writeFile@lightObject(obj, fid);
            
            fprintf(fid,'\n\tAreaLightSource "%s" "%s" [', obj.type,obj.spectrum.type);
-           fprintf(fid,'%f]\n', obj.spectrum.value);
+           fprintf(fid,'%f ', obj.spectrum.value);
+           fprintf(fid, ']\n');
            
            %write transforms
            for i = 1:length(obj.transformArray)
                fprintf(fid,'\t\t');
-               obj.transformArray{i}.writeFile();
+               obj.transformArray{i}.writeFile(fid);
            end
            
            %write shapes
            for i = 1:length(obj.shapeArray)
-                obj.shapeArray{i}.writeFile();
+                obj.shapeArray{i}.writeFile(fid);
            end           
         end
     end

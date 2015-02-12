@@ -39,12 +39,7 @@ if(isa(inputPbrt, 'pbrtObject'))
             [directory, ~, ~] = fileparts(inputPbrt.materialArray{ii});
             inputPbrt.materialArray{ii} = [fName,extension];
             
-             %TODO: make into helper function
-            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
-            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
-            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
+            copyRelFiles(directory, generatedDir);        
         end
     end
     %do the same thing for the lights
@@ -53,16 +48,10 @@ if(isa(inputPbrt, 'pbrtObject'))
             copyfile(inputPbrt.lightSourceArray{ii},generatedDir)
             [~,fName,extension] = fileparts(inputPbrt.lightSourceArray{ii});
             
-             [directory, ~, ~] = fileparts(inputPbrt.lightSourceArray{ii});
+            [directory, ~, ~] = fileparts(inputPbrt.lightSourceArray{ii});
             inputPbrt.lightSourceArray{ii} = [fName,extension];
             
-             %TODO: make into helper function
-            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
-            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
-            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-
+            copyRelFiles(directory, generatedDir);
         end
     end
    %do the same thing for geometry
@@ -74,15 +63,22 @@ if(isa(inputPbrt, 'pbrtObject'))
             [directory, ~, ~] = fileparts(inputPbrt.geometryArray{ii});
             inputPbrt.geometryArray{ii} = [fName,extension];
 
-            %TODO: make into helper function
-            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
-            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
-            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-
+            copyRelFiles(directory, generatedDir);
         end
     end
+    
+    %do the same thing for include files
+    for ii = 1:numel(inputPbrt.includeArray)
+        if ischar(inputPbrt.includeArray{ii}) && exist(inputPbrt.includeArray{ii},'file')
+            copyfile(inputPbrt.includeArray{ii},generatedDir)
+            [~,fName,extension] = fileparts(inputPbrt.includeArray{ii});
+            
+            [directory, ~, ~] = fileparts(inputPbrt.includeArray{ii});
+            inputPbrt.includeArray{ii} = [fName,extension];
+
+            copyRelFiles(directory, generatedDir);
+        end
+    end    
     fullfname = fullfile(dataPath, 'generatedPbrtFiles', [name '.pbrt']);
     inputPbrt.writeFile(fullfname);
 elseif (ischar(inputPbrt))
@@ -95,11 +91,7 @@ elseif (ischar(inputPbrt))
     %copy all relavent files into the temp directory
     [directory, ~, ~] = fileparts(fullfname);
     
-    [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir);
-    [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-    [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
-    [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-    [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
+    copyRelFiles(directory, generatedDir);
 else
     error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
 end
@@ -116,7 +108,7 @@ if dockerFlag
     s = system('which docker');
     if s, error('Docker not found'); end
     
-    dHub = 'vistalab/pbrt';  % Docker container at dockerhub
+    dHub = 'vistalab/pbrt:spherical';  % Docker container at dockerhub
     dCommand = 'pbrt';       % Command run in the docker
     
     [~,n,e] = fileparts(fullfname); % Get name of pbrt input file

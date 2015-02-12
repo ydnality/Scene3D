@@ -46,9 +46,11 @@ for i = 1:14
     spectrum = lights(:, i)';
     %spectrum = ones(size(spectrum));  %temp debug
     tempMatrix = [400:10:700; spectrum];  %helps put data in 400 1 500 .5 600 .5 700 1 format
-    spectrumObject = pbrtSpectrumObject('spectrum L', tempMatrix(:));
-   % lightFront = pbrtLightSpotObject(['light' int2str(i)], spectrumObject, [], [], [0 0 80], [0 0 -79]);
-    lightFront = pbrtLightDistantObject(['light' int2str(i)],spectrumObject, [0 0 80], [0 0 79]); 
+    %spectrumObject = pbrtSpectrumObject('spectrum L', tempMatrix(:));
+    %%for infinite lightsource
+    spectrumObject = pbrtSpectrumObject('spectrum I', tempMatrix(:));    %for finite light source
+    lightFront = pbrtLightSpotObject(['light' int2str(i)], spectrumObject, [], [], [0 0 0], [0 0 -1]);
+    %lightFront = pbrtLightDistantObject(['light' int2str(i)],spectrumObject, [0 0 80], [0 0 79]); 
     curPbrt.addLightSource(lightFront);
     
     %add a new material
@@ -106,7 +108,7 @@ for i = 1:14
     scene = s3dRenderSceneAndDepthMap( curPbrt, 'simpleScene', dockerFlag, noScale);
     
     vcAddObject(scene); sceneWindow;
-    fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '02062015_scenes', ['light' int2str(i) '.mat']));
+    fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '02102015_finiteLight', ['light' int2str(i) '.mat']));
 end
 
 
@@ -158,9 +160,11 @@ for i = 1:14
     spectrum = lights(:, i)';
     %spectrum = ones(size(spectrum));  %temp debug
     tempMatrix = [400:10:700; spectrum];  %helps put data in 400 1 500 .5 600 .5 700 1 format
-    spectrumObject = pbrtSpectrumObject('spectrum L', tempMatrix(:));
-   % lightFront = pbrtLightSpotObject(['light' int2str(i)], spectrumObject, [], [], [0 0 80], [0 0 -79]);
-    lightFront = pbrtLightDistantObject(['light' int2str(i)],spectrumObject, [0 0 80], [0 0 79]); 
+    %spectrumObject = pbrtSpectrumObject('spectrum L', tempMatrix(:));
+    %%for infinite light source
+    spectrumObject = pbrtSpectrumObject('spectrum I', tempMatrix(:));     %for finite light source
+    lightFront = pbrtLightSpotObject(['light' int2str(i)], spectrumObject, [], [], [0 0 0], [0 0 -1]);
+   % lightFront = pbrtLightDistantObject(['light' int2str(i)],spectrumObject, [0 0 80], [0 0 79]); 
     curPbrt.addLightSource(lightFront);
     
     %add a new material
@@ -218,5 +222,5 @@ for i = 1:14
     scene = s3dRenderSceneAndDepthMap( curPbrt, 'simpleScene', dockerFlag, noScale);
     
     vcAddObject(scene); sceneWindow;
-    fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '02062015_scenes', ['whitelight' int2str(i) '.mat']));
+    fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '02102015_finiteLight', ['whitelight' int2str(i) '.mat']));
 end

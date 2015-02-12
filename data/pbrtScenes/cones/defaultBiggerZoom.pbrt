@@ -6,7 +6,7 @@
 Film "image"
    "integer xresolution" [300] 
    "integer yresolution" [300]
-   "string filename" ["output_d.exr"]
+   #"string filename" ["output_d.exr"]
 
 
 #Scale -1 1 1  # account for fixed lookat bug...
@@ -30,7 +30,7 @@ Translate -2.3 -.05 .5
 
 
 Camera "realisticDiffraction" 
-	"string specfile" "dgauss.50mmSA2.dat" 
+	"string specfile" "dgauss.50mm.dat" 
 	"float filmdistance" 36.77
     #"float filmdistance" 64
 	"float aperture_diameter" 3 #3

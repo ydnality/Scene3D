@@ -65,62 +65,62 @@ fprintf(fid,'%s',hdr);
 %% Write the data matrix
 d  = lensMatrix(obj);
 for ii=1:size(d,1)
-    fprintf(fid,'%.3f\n',d(ii));
+    fprintf(fid,'%f\t%f\t%f\t%f\n', d(ii,1), d(ii, 2), d(ii,3), d(ii,4));
 end
 
-ftr = lensFooter(obj);
-fprintf(fid,'%s',ftr);
-
-end
-
-
-
-
-% i is the row where the data begin
-
-% The next values are the matrix data
-% put these data into lens object
-radius = str2double(import{1});
-radius = radius(dStart:length(firstColumn));
-
-% Change from pbrt Scene3D format to raytrace Scene3D format
-% In PBRT, the row has the offset from the previous surface.  In
-% PBRT the data are read from the bottom up.  The last row has no
-% offset.
-% In PBRT, we trace from the sensor to the scene.
-% In Scene3D we trace from the scene to the sensor.
-% So, the offsets are shifted down.  This means:
-%
-offset = str2double(import{2});
-offset = offset(dStart:length(firstColumn));
-offset = [0; offset(1:(end-1))];
-
-% Index of refraction in the 3rd column
-N = str2double(import{3});
-N = N(dStart:length(firstColumn));
-
-% Diameter of the aperture (or maybe radius.  Must determine).
-aperture = str2double(import{4});
-aperture = aperture(dStart:length(firstColumn));
-
-%modify the object and reinitialize
-obj.elementsSet(offset, radius, aperture, N);
-
-% Figure out which is the aperture/diaphragm by looking at the radius.
-% When the spherical radius is 0, that means the object is an aperture.
-lst = find(radius == 0);
-if length(lst) > 1,         error('Multiple non-refractive elements %i\n',lst);
-elseif length(lst) == 1,    obj.apertureIndex(lst);
-else                        error('No non-refractive (aperture/diaphragm) element found');
+%ftr = lensFooter(obj);
+%fprintf(fid,'%s',ftr);
+fclose(fid);
 end
 
 
-end
+
+
+% % i is the row where the data begin
+% 
+% % The next values are the matrix data
+% % put these data into lens object
+% radius = str2double(import{1});
+% radius = radius(dStart:length(firstColumn));
+% 
+% % Change from pbrt Scene3D format to raytrace Scene3D format
+% % In PBRT, the row has the offset from the previous surface.  In
+% % PBRT the data are read from the bottom up.  The last row has no
+% % offset.
+% % In PBRT, we trace from the sensor to the scene.
+% % In Scene3D we trace from the scene to the sensor.
+% % So, the offsets are shifted down.  This means:
+% %
+% offset = str2double(import{2});
+% offset = offset(dStart:length(firstColumn));
+% offset = [0; offset(1:(end-1))];
+% 
+% % Index of refraction in the 3rd column
+% N = str2double(import{3});
+% N = N(dStart:length(firstColumn));
+% 
+% % Diameter of the aperture (or maybe radius.  Must determine).
+% aperture = str2double(import{4});
+% aperture = aperture(dStart:length(firstColumn));
+% 
+% %modify the object and reinitialize
+% obj.elementsSet(offset, radius, aperture, N);
+% 
+% % Figure out which is the aperture/diaphragm by looking at the radius.
+% % When the spherical radius is 0, that means the object is an aperture.
+% lst = find(radius == 0);
+% if length(lst) > 1,         error('Multiple non-refractive elements %i\n',lst);
+% elseif length(lst) == 1,    obj.apertureIndex(lst);
+% else                        error('No non-refractive (aperture/diaphragm) element found');
+% end
+% 
+% 
+% end
 
 
 %% The header
 
-function str = lensHeader(obj)
+function hdr = lensHeader(obj, description)
 
 hdr = sprintf('# Name: %s\n',obj.name);
 
@@ -148,6 +148,9 @@ hdr = addText(hdr,str);
 str = sprintf('# the image\n');
 hdr = addText(hdr,str);
 
+str = sprintf('#    radius	 axpos	N	aperture\n');
+hdr = addText(hdr, str);
+
 end
 
 
@@ -162,8 +165,17 @@ nSurfaces = lens.get('n surfaces');
 
 % The PBRT data matrix
 d = zeros(nSurfaces,4);
+offsets = lens.get('offsets');
+nArray = lens.get('index of refraction');
+nArray = nArray(round((length(nArray) + 1)/2), :);
 for ii=1:nSurfaces
     d(ii,1) = lens.get('s radius',ii);
+    d(ii,2) = offsets(ii);
+    
+    % Pbrt does not yet support custom specified index of refractions. 
+    % Thus, we will take the middle one 
+    d(ii,3) = nArray(ii);
+    d(ii,4) = lens.get('sdiameter', ii);
 end
 
 

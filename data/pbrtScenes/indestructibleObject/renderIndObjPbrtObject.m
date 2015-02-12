@@ -40,8 +40,8 @@ curPbrt.removeLight();
 curPbrt.addLightSource(lightSource);
 
 %write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
+% tmpFileName = ['deleteMe'  '.pbrt'];
+% curPbrt.writeFile(tmpFileName);
 frontOi = s3dRenderOI(curPbrt, .050, tmpFileName);
 
 toc
