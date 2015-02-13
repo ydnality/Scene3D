@@ -178,15 +178,32 @@ classdef lensC <  handle
                     end
                     res = obj.surfaceArray(this).sRadius;
                 case 'sdiameter'
+                    % lens.get('s diameter',nS);
                     % Aperture diameter of this surface.
                     % lens.get('sradius',whichSurface)
                     if isempty(varargin), this = 1;
                     else this = varargin{1};
                     end
                     res = obj.surfaceArray(this).apertureD;
+                case {'aperture','diaphragm'}
+                    % lens.get('aperture')
+                    % Returns the surface number of the aperture
+                    % (diaphragm)
+                    s = obj.surfaceArray;
+                    for ii=1:length(s)
+                        if strcmp(s(ii).subtype,'diaphragm')
+                            res = ii;
+                            return;
+                        end
+                    end
                 case 'aperturesample'
                     res =  obj.apertureSample ;    
                 case {'middleapertured','aperturemiddled'}
+                    % The middle aperture is the diameter of the diaphragm,
+                    % which is normally the middle aperture.  We should
+                    % change this somehow for clarity.  Or we should find
+                    % the diaphragm and return its diameter.
+                    %
                     % The diameter of the middle aperture
                     % units are mm
                     res = obj.apertureMiddleD;
