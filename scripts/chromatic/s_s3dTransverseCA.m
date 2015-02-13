@@ -79,7 +79,7 @@ for ii=1:length(d)
     oi = ppsfCamera.oiCreate;
     oi = oiSet(oi,'name',sprintf('Pos = %.1f',p));
     vcAddObject(oi); oiWindow;
-    
+    ppsfCamera.film.clear();
     % Plots
     %     x = 1; y = 100; w = 7;
     %     uData = plotOI(oi,'irradiance hline',[x,y]);  % (x,y) position
