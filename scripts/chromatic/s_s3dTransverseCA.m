@@ -62,7 +62,8 @@ d =[0, -30];
 for ii=1:length(d)
     aSurface = lens.get('aperture');  % The surface with the aperture
     s        = lens.get('surface array',aSurface);
-
+    ppsfCamera.film.clear();    % Clear the film
+    
     s.set('zpos',pOrig + d(ii));  % Change the z position of the aperture
     lens.sortSurfaceOrder;        % Make sure the s array is updated with the new position
     % vcNewGraphWin; lens.draw;
@@ -79,7 +80,8 @@ for ii=1:length(d)
     oi = ppsfCamera.oiCreate;
     oi = oiSet(oi,'name',sprintf('Pos = %.1f',p));
     vcAddObject(oi); oiWindow;
-    ppsfCamera.film.clear();
+    
+    
     % Plots
     %     x = 1; y = 100; w = 7;
     %     uData = plotOI(oi,'irradiance hline',[x,y]);  % (x,y) position
