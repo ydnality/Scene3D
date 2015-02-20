@@ -1,5 +1,7 @@
 % this is a pinhole "lens object.  The only 2 parameters are film distance
 % and film diagonal. 
+% 
+% function obj = lensPinholeObject(inFilmDistance, inFilmDiag)
 classdef pbrtLensPinholeObject <  pbrtLensObject
     properties 
         %additional properties go here

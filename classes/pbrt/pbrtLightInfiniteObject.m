@@ -34,7 +34,7 @@ classdef pbrtLightInfiniteObject <  pbrtLightObject
             if(ieNotDefined('inNSamples'))
                 obj.setNSamples(8);
             else
-                obj.setDeltaAngle(inNSamples);
+                obj.setNSamples(inNSamples);
             end
             if(~ieNotDefined('inMapName'))
                 obj.setMapName(inMapName);

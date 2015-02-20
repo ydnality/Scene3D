@@ -9,7 +9,7 @@ Film "image"
    #"string filename" ["output_d.exr"]
 
 
-#Scale -1 1 1  # account for fixed lookat bug...
+Scale -1 1 1  # account for fixed lookat bug...
 
 # Please render final images at 4 and 512 samples per pixel
 Sampler "lowdiscrepancy" "integer pixelsamples" [64]

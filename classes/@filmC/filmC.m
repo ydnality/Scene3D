@@ -36,6 +36,7 @@ classdef filmC <  clonableHandleObject
         %default constructor
         function obj = filmC(varargin)
             
+            %loop through all parameters and assign them
             for ii=1:2:length(varargin)
                 p = ieParamFormat(varargin{ii});
                 

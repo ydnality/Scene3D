@@ -10,26 +10,29 @@ classdef pbrtSamplerObject <  pbrtPropertyArrayObject
     methods
         
         %default constructor
-        function obj = pbrtSamplerObject(inType, inProperty)
+        function obj = pbrtSamplerObject( inType, inProperty)
             %function obj = pbrtSamplerObject(inType, inProperty)
             
             %sampler type
             if (ieNotDefined('inType'))
                 obj.type = 'lowdiscrepancy';
+                obj.addProperty(pbrtPropertyObject('integer pixelsamples', 128));
             else
                 obj.type = inType;
             end
-            
-%             if (ieNotDefined('inPixelSamples'))
-%                 % Example lens
-%                 obj.pixelSamples = 128;
-%             else
-%                 obj.pixelSamples = inPixelSamples;
-%             end
-%           
-            validateattributes(inProperty, {'pbrtPropertyObject'}, {'nonempty'});  
-            obj.removeProperty();
-            obj.addProperty(inProperty);
+            if(~ieNotDefined('inProperty'))
+
+    %             if (ieNotDefined('inPixelSamples'))
+    %                 % Example lens
+    %                 obj.pixelSamples = 128;
+    %             else
+    %                 obj.pixelSamples = inPixelSamples;
+    %             end
+    %           
+                validateattributes(inProperty, {'pbrtPropertyObject'}, {'nonempty'});  
+                %obj.removeProperty();
+                obj.addProperty(inProperty);
+            end
         end
         
         %TODO: error checking

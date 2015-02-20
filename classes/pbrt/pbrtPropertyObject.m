@@ -1,7 +1,7 @@
 % propertyObject - contains the type and value of each property.  This is
 % meant to be put in array for general properties.
 % TODO: document what this does
-classdef pbrtPropertyObject <  handle
+classdef pbrtPropertyObject < handle
     properties 
         type;
         value;

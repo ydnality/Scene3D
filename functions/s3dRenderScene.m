@@ -106,43 +106,29 @@ if dockerFlag
     % We assume docker is installed on this system and we execute the
     % function in a docker container
     s = system('which docker');
-    if s, error('Docker not found'); end
-    
-    dHub = 'vistalab/pbrt:spherical';  % Docker container at dockerhub
-    dCommand = 'pbrt';       % Command run in the docker
-    
-    [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
-    [~,outstem,outext] = fileparts(outfile); % Get name of output file
-    
-    cmd = sprintf('docker run -t -i -v %s:/data %s %s /data/%s --outfile /data/%s',generatedDir,dHub,dCommand,[n,e],[outstem,outext]);
-    
-    % Execute the docker call
-    [s,r] = system(cmd);
-    if s, error('Docker execution failure %s\n',r); end
-    disp(r);
-    
-    % Tell the user where the result iss
-    fprintf('Wrote: %s',outfile);
-    
+    if s
+        %, error('Docker not found'); 
+        warning('Docker not found! Trying on system pbrt instead!');
+        s3dPbrtLocalCall(fullfname, generatedDir, outfile);
+    else
+        dHub = 'vistalab/pbrt:spherical';  % Docker container at dockerhub
+        dCommand = 'pbrt';       % Command run in the docker
+
+        [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
+        [~,outstem,outext] = fileparts(outfile); % Get name of output file
+
+        cmd = sprintf('docker run -t -i -v %s:/data %s %s /data/%s --outfile /data/%s',generatedDir,dHub,dCommand,[n,e],[outstem,outext]);
+
+        % Execute the docker call
+        [s,r] = system(cmd);
+        if s, error('Docker execution failure %s\n',r); end
+        disp(r);
+
+        % Tell the user where the result iss
+        fprintf('Wrote: %s',outfile);
+    end
 else
-    % We assume pbrt exists in the local file system and we run it
-    % here.
-    
-    % Use pinhole and pbrt to create the scene data
-    %pbrtExe = fullfile(pbrtRootPath, 'src','bin','pbrt');
-    
-   % [s,pbrtExe] = system('which pbrt');  %this doesn't work.  not sure
-   % why.
-    pbrtExe = 'pbrt';
-   %if s, error('PBRT not found'); end
-    
-    % [p,n,ext] = fileparts(fullfname);
-    %cmd = sprintf('%s %s --outfile %s\n',pbrtExe,fullfname,outfile);
-    [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
-    tempInputFile = fullfile(generatedDir, [n e]);
-    cmd = sprintf('%s %s --outfile %s\n',pbrtExe,tempInputFile,outfile);
-    % chdir(p)
-    unix(cmd)
+    s3dPbrtLocalCall(fullfname, generatedDir, outfile);
 end
 
 
@@ -167,3 +153,4 @@ end
 
 
 end
+

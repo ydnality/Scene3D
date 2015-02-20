@@ -19,7 +19,7 @@ Camera "realisticDiffraction"
 Film "image"
 	"integer xresolution" [200]
 	"integer yresolution" [200]
-
+	"cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
 Sampler "stratified"
 	"integer xsamples" 1
@@ -37,36 +37,18 @@ Renderer "sample"
 WorldBegin
 
 
-Include "cones.pbrt"
-
-
 AttributeBegin
 
-	LightSource
-		"spot"
-		"rgb I" [1000.000000 1000.000000 1000.000000 ]
-		"float coneangle" 180.000000
-		"float conedeltaangle" 180.000000
-		"point from" [4.500000 -90.000000 8.500000 ]
-		"point to" [4.500000 -89.000000 8.500000 ]
-
-AttributeEnd
-
-
-AttributeBegin
-
-	AreaLightSource "arealight" "rgb I" [1000.000000 1000.000000 1000.000000 ]
+	AreaLightSource "area" "color L" [1000.000000 1000.000000 1000.000000 ]
 		Translate 0.000000 9.900000 0.000000 
 		Rotate 90.000000 1.000000 0.000000 0.000000 
 	Shape "disk" "float radius" [8.000000 ]
+	"integer nsamples" [4.000000 ]
 
 AttributeEnd
 
 
-Include "depthTargetSpheres-mat.pbrt"
-
-
-Include "depthTargetSpheres-geom.pbrt"
+Include "cones.pbrt"
 
 
 WorldEnd

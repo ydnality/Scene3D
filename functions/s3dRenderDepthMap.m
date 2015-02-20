@@ -13,7 +13,7 @@
 % produced!
 
 
-function output = s3dRenderDepthMap(inputPbrt, numRenders, sceneName, dockerFlag)
+function output = s3dRenderDepthMap(inputPbrtIn, numRenders, sceneName, dockerFlag)
 
 if ieNotDefined('dockerFlag'), dockerFlag = 0; end
 
@@ -30,10 +30,15 @@ generatedDir = tempname();
 mkdir(generatedDir);
 
 % Make the pbrt file from the pbrtObject
-if(isa(inputPbrt, 'pbrtObject'))
+if(isa(inputPbrtIn, 'pbrtObject'))
     % first, make sure the sampler is of type stratified, so that we get a
     % clean depth map.  Also, set samples to 1, and jitter off to eliminate
     % noise.
+    
+    %clone pbrt object first
+    inputPbrt = pbrtObject();
+    inputPbrt.makeDeepCopy(inputPbrtIn);
+    
     inputPbrt.sampler.setType('stratified');
     for i = 1:length(inputPbrt.sampler.propertyArray)
         inputPbrt.sampler.removeProperty();
@@ -164,33 +169,28 @@ for i = 1:numRenders
         % We assume docker is installed on this system and we execute the
         % function in a docker container
         s = system('which docker');
-        if s, error('Docker not found'); end
-        
-        dHub = 'vistalab/pbrt:spherical';  % Docker container at dockerhub
-        dCommand = 'pbrt';       % Command run in the docker
-        
-        [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
-        [~,outstem,outext] = fileparts(outfile); % Get name of output file
-        
-        cmd = sprintf('docker run -t -i -v %s:/data %s %s /data/%s --outfile /data/%s',generatedDir,dHub,dCommand,[n,e],[outstem,outext]);
-        
-        % Execute the docker call
-        [s,r] = system(cmd);
-        if s, error('Docker execution failure %s\n',r); end
-        disp(r);
-        
-        % Tell the user where the result iss
-        fprintf('Wrote: %s',outfile);
+        if s
+            warning('Docker not found! Trying on system pbrt instead!');
+            s3dPbrtLocalCall(fullfname, generatedDir, outfile);
+        else
+            dHub = 'vistalab/pbrt:spherical';  % Docker container at dockerhub
+            dCommand = 'pbrt';       % Command run in the docker
+            [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
+            [~,outstem,outext] = fileparts(outfile); % Get name of output file
+            
+            cmd = sprintf('docker run -t -i -v %s:/data %s %s /data/%s --outfile /data/%s',generatedDir,dHub,dCommand,[n,e],[outstem,outext]);
+            
+            % Execute the docker call
+            [s,r] = system(cmd);
+            if s, error('Docker execution failure %s\n',r); end
+            disp(r);
+            
+            % Tell the user where the result iss
+            fprintf('Wrote: %s',outfile);
+        end
     else
-        %cmd = sprintf('%s %s --outfile %s',pbrtExe,fullfname,outfile);
-        %[s,pbrtExe] = system('which pbrt');
-        %if s, error('PBRT not found'); end
-         pbrtExe = 'pbrt';
-         [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
-         tempInputFile = fullfile(generatedDir, [n e]);
-        % [p,n,ext] = fileparts(fullfname);
-        cmd = sprintf('%s %s --outfile %s',pbrtExe,tempInputFile,outfile);
-        unix(cmd);
+        warning('Docker not found! Trying on system pbrt instead!');
+        s3dPbrtLocalCall(fullfname, generatedDir, outfile);
     end
     if (i ==1)
         oi = pbrt2oi(outfile);

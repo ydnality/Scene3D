@@ -25,7 +25,7 @@ macbethReflectances = ieReadSpectra(fileName,standardWave);
 
 %% Make a prediction of the sensor responsivity on an ideally white,
 %  uniform surface.
-load(sprintf('%s/Data/UniformImage.mat',ReflDepthRootPath));
+load(sprintf('%s/Data/02062015_scenes/UniformImage.mat',ReflDepthRootPath));
 
 prediction = deltaL*cameraGain.*((cameraFilters')*illuminant); % + cameraOffset;
 
@@ -77,7 +77,7 @@ end
 
 %% Extract data from a Macbeth image
 
-load(sprintf('%s/Data/%s.mat',ReflDepthRootPath,testFileName));
+load(sprintf('%s/Data/02062015_scenes/%s.mat',ReflDepthRootPath,testFileName));
 Img = im2double(Img);
 Img = reshape(Img,[h, w,  nChannels, nFilters]);
 
@@ -124,10 +124,10 @@ measVals = measVals/(2^sensorGet(sensor,'nbits'));
 
 
 %% Use only the monochromatic channel
-channelIDs = [1 2 3 4 5 6 7 8 9 10 11 12 13 14];
+channelIDs = [1 2 3 4 5 6 7 8 13 14];
 filterIDs = 1;
 
-lambdaSet = linspace(0,0.00001,1001);
+lambdaSet = linspace(0,1,1001);
 
 [optLambda, rmsError, est, ~, ~, pred] = xValidateLambdaV2(measVals(filterIDs,channelIDs,:),...
     cameraFilters(:,filterIDs),...

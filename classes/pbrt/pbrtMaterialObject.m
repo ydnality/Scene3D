@@ -1,5 +1,5 @@
 % A pbrt material.
-classdef pbrtMaterialObject <  handle
+classdef pbrtMaterialObject < handle
     
 %     greenLambertian.type = 'material';
 %     greenLambertian.name = 'greenLambertian';

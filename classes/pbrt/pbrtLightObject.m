@@ -1,5 +1,5 @@
 % pbrtLightObject contains the superclass that makes 
-classdef pbrtLightObject <  handle & pbrtPropertyArrayObject
+classdef pbrtLightObject <  pbrtPropertyArrayObject
     
     properties (SetAccess = private)
         name;

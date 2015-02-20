@@ -1,5 +1,5 @@
 % a class that is meant to be inherited that handles the propertyArray
-classdef pbrtPropertyArrayObject <  handle
+classdef pbrtPropertyArrayObject  <  handle   % we dont' want this to be handle because it's hard to make recursive deep copies of objects
     properties (SetAccess = private)
         propertyArray;
     end
@@ -9,10 +9,9 @@ classdef pbrtPropertyArrayObject <  handle
         %TODO: doccument
         function obj = pbrtPropertyArrayObject(inProperty)
             % obj = pbrtPropertyArrayObject(inProperty)
-            obj.propertyArray = cell(1,1);
-            if (ieNotDefined('inProperty'))  %default property
-                obj.propertyArray{1} = pbrtPropertyObject('color Kd', [0 0 0]);
-            else
+            obj.propertyArray = cell(0,1);
+            if (~ieNotDefined('inProperty'))  %default property
+                %obj.propertyArray{1} = pbrtPropertyObject('color Kd', [0 0 0]);
                 obj.propertyArray{1} = inProperty;
             end
         end

@@ -1,12 +1,13 @@
 % pbrtCameraObject contains the camera position, lens, sensor
-classdef pbrtCameraObject <  handle
+classdef pbrtCameraObject < handle
     
     properties (SetAccess = private)
         position;
         transformArray;
-        lens;
-        film;    
+        lens; 
+        film; 
     end
+    
     methods
         
         %default constructor
@@ -44,6 +45,7 @@ classdef pbrtCameraObject <  handle
                 obj.film.name = 'image';
                 obj.film.xresolution = 200;
                 obj.film.yresolution = 200;
+                obj.film.cropwindow = [0 1 0 1];
             else
                 %TODO: verify the film
                 obj.film = inFilm;
@@ -89,6 +91,26 @@ classdef pbrtCameraObject <  handle
             obj.film.yresolution = inYRes;
         end
         
+        function setCropWindow(obj, inMinX, inMaxX, inMinY, inMaxY)
+        %Sets the crop window of the camera.  All inputs must be between 0
+        %and 1.  Crop window is set using ratios of the full film size.
+        %
+        %inMinX: min bounding window for X
+        %inMaxX: max bounding window for X
+        %inMinY: min bounding window for Y
+        %inMaxy: max bounding window for Y
+        
+            validateattributes(inMinX, {'numeric'}, {'nonnegative'});
+            validateattributes(inMaxX, {'numeric'}, {'nonnegative'});  
+            validateattributes(inMinY, {'numeric'}, {'nonnegative'});  
+            validateattributes(inMaxY, {'numeric'}, {'nonnegative'});
+            
+            if (inMinX < inMaxX && inMinX >= 0 && inMaxX <= 1 && inMinX <= inMaxY && inMinY >=0 && inMaxY <= 1)
+                obj.film.cropwindow = [inMinX inMaxX inMinY inMaxY];
+            else
+               warning('Inputs inconsistent! All inputs must be between 0 and 1.  inMinX must be <= inMaxX, and inMinY must be <= inMaxY.'); 
+            end
+        end
         function returnVal = writeFile(obj, fid)
             
             
@@ -117,6 +139,7 @@ classdef pbrtCameraObject <  handle
             fprintf(fid,'\n\nFilm "image"\n');
             fprintf(fid,'\t"integer xresolution" [%i]\n',obj.film.xresolution);
             fprintf(fid,'\t"integer yresolution" [%i]\n',obj.film.yresolution);
+            fprintf(fid,'\t"float cropwindow" [%f %f %f %f]', obj.film.cropwindow);
             
         end
     end

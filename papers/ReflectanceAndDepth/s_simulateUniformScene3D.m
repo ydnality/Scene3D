@@ -33,7 +33,7 @@ for f=1:1
         
         fprintf('Simulating filter %i channel %i\n',f,ch);
         
-        
+        %{
         load(sprintf('%s/Data/02062015_scenes/whitelight%i.mat',ReflDepthRootPath,ch));
         scene = sceneSet(scene,'photons',sceneGet(scene,'photons'));
         depthMap = sceneGet(scene,'depthMap');
@@ -42,17 +42,17 @@ for f=1:1
         scene = sceneSet(scene,'distance',centerDist);
         scene = sceneSet(scene,'fov',0.08);
         vcAddObject(scene);
+        %}
         
         
-        %{
         spectrum.wave = standardWave;
         scene = sceneCreate('uniformd65',200,spectrum);
-        scene = sceneAdjustIlluminant(scene,7.66*illuminantEnergy(:,ch),0);
+        scene = sceneAdjustIlluminant(scene,illuminantEnergy(:,ch),0);
         scene = sceneSet(scene,'distance',1);
         scene = sceneSet(scene,'fov',0.48);
         scene = sceneSet(scene,'name',sprintf('Filter %i, channel %i',f,ch));
         vcAddObject(scene);
-        %}
+        
         
         % Compute the optical image
         oi = oiCreate();
@@ -110,7 +110,6 @@ if ~exist(sprintf('%s/Data/',ReflDepthRootPath),'dir')
    mkdir(sprintf('%s/Data/',ReflDepthRootPath));
 end
 save(sprintf('%s/Data/02062015_scenes/UniformImage.mat',ReflDepthRootPath),'Img','cameraGain','cameraOffset','cameraExposure');
-
 
 %%
 sceneWindow;

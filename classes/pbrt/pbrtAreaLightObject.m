@@ -13,7 +13,7 @@ classdef pbrtAreaLightObject <  pbrtLightObject
         function obj = pbrtAreaLightObject(inName, inSpectrum)
             %superclass properties
             obj@pbrtLightObject();
-            obj.setType('arealight');
+            obj.setType('area');
             
             if (~ieNotDefined('inName'))
                 obj.setName(inName);
@@ -65,7 +65,12 @@ classdef pbrtAreaLightObject <  pbrtLightObject
            %write shapes
            for i = 1:length(obj.shapeArray)
                 obj.shapeArray{i}.writeFile(fid);
-           end           
+           end
+           
+           %write properties
+           for i = 1:length(obj.propertyArray)
+               obj.propertyArray{i}.writeFile(fid);
+           end
         end
     end
 

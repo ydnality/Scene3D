@@ -1,5 +1,7 @@
 % Runs PBRT and imports it in ISET for the cones scene. 
 
+ieInit;
+
 %% This section runs the PBRT script directly (demo) 
 dockerFlag = false;
 fname = fullfile(dataPath, 'pbrtScenes', 'cones', 'defaultBiggerZoom.pbrt');  %defaultBiggerZoom_depth.pbrt is for depth map
@@ -30,11 +32,22 @@ lens = pbrtLensRealisticObject(filmDist, filmDiag, specFile, apertureDiameter, d
 curPbrt.camera.setLens(lens);
 
 %make an area light and add to pbrt object
-light = pbrtAreaLightObject('area', pbrtSpectrumObject('rgb I', [1000 1000 1000]));
-light.addShape(pbrtShapeObject('disk', 'radius', 8));
+light = pbrtAreaLightObject('area', pbrtSpectrumObject('color L', [1000 1000 1000]));
+areaLightShape = pbrtShapeObject('disk', 'radius', 8);
+light.addShape(areaLightShape);
 light.addTransform(pbrtTransformObject('Translate', [ 0 9.9 0]));
 light.addTransform(pbrtTransformObject('Rotate', [90 1 0 0]));
+light.removeProperty();
+light.addProperty(pbrtPropertyObject('integer nsamples', 4));
+curPbrt.removeLight();
 curPbrt.addLightSource(light);
+
+% curPbrt.removeLight();
+% curPbrt.addLightSource(pbrtLightInfiniteObject('infiniteLight', 16, [], [], []));
+% 
+
+curPbrt.removeMaterial();
+curPbrt.removeGeometry();
 
 frontOi = s3dRenderOIAndDepthMap(curPbrt, .050, []);
 vcAddObject(frontOi); oiWindow;

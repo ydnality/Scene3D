@@ -28,10 +28,10 @@
 %
 % A few demos here.  We can add more examples.
 
-addpath(genpath((fullfile(isetRootPath,'../external','LFToolbox0.4'))))
+%addpath(genpath((fullfile(isetRootPath,'../external','LFToolbox0.4'))))
 
 %% Example data set
-cd(fullfile(isetRootPath,'../isetdata','lightfields','Stanford'))
+cd(fullfile(dataPath,'lightfields'))
 
 % Read the light field data
 lightF = LFReadGantryArray('Chess/rectified',struct('UVLimit',256));

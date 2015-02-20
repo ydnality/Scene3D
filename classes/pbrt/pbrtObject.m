@@ -5,7 +5,6 @@
 %TODO: check types
 classdef pbrtObject <  clonableHandleObject
     
-    %matlab.mixin.Copyable
     properties %(SetAccess = protected)  %TODO: see how to make this protected while able to clone
         name;
         scale;
@@ -49,7 +48,8 @@ classdef pbrtObject <  clonableHandleObject
             %  Attribute Begin
             %   Light source
             obj.lightSourceArray = cell(1,1);
-            whiteLight = pbrtLightSpotObject();
+            %whiteLight = pbrtLightSpotObject();
+            whiteLight = pbrtLightInfiniteObject('infiniteLight', 16, [], [], []);  %this is a better default light so that we at least see something
             obj.lightSourceArray{1} = whiteLight;
             %  Attribute End
             
@@ -105,20 +105,7 @@ classdef pbrtObject <  clonableHandleObject
             
             fprintf(fid,'\n\nWorldBegin\n');
             
-            %% Include File
-            for i = 1:length(obj.includeArray)
-                curInclude =obj.includeArray{i}; 
-                if (ischar(curInclude))
-                    if(exist(curInclude, 'file'))
-                        fprintf(fid,'\n\nInclude "%s"\n', curInclude);
-                    else
-                        error('Include file %s does not exist!',curInclude);
-                    end
-                else
-                    error('Include files must be character arrays');
-                    
-                end
-            end
+
             
             %% Lightsource
             
@@ -149,6 +136,22 @@ classdef pbrtObject <  clonableHandleObject
                 %end
             end
 
+            
+            %% Include File
+            for i = 1:length(obj.includeArray)
+                curInclude =obj.includeArray{i}; 
+                if (ischar(curInclude))
+                    if(exist(curInclude, 'file'))
+                        fprintf(fid,'\n\nInclude "%s"\n', curInclude);
+                    else
+                        error('Include file %s does not exist!',curInclude);
+                    end
+                else
+                    error('Include files must be character arrays');
+                    
+                end
+            end
+            
             %% Materials File
             for i = 1:length(obj.materialArray)
                 if (isa(obj.materialArray{i},'pbrtMaterialObject')); 
@@ -228,9 +231,17 @@ classdef pbrtObject <  clonableHandleObject
             error('Include files must be character arrays');
             
         end
-           
+
         end        
         
+                
+        function setSampler(obj, samplerIn)
+           %setSampler(obj, samplerIn)
+           %
+           %sets the sampler of the pbrtObject
+           validateattributes(samplerIn, {'pbrtSamplerObject'}, {'nonempty'});
+           obj.sampler = samplerIn;
+        end
                 
 %         function addShape(obj, newShape, newTransform)
 %         %addShape(obj, newShape, newTransform)
@@ -328,6 +339,34 @@ classdef pbrtObject <  clonableHandleObject
         %     function postFix = getPostFix(obj)
         %         postFix = obj.postfix;
         %     end
+        
+        
+        
+        %% TODO: make a better makeDeepCopy method
+%         function obj = makeDeepCopy(obj, oldObj)
+%             %clones the oldObj and makes a copy as the current object
+%             
+%              
+% 
+%             %only look at the current object for properties - this deals
+%             %with inheritance cases
+%             props = properties(obj);
+%             for i = 1:length(props)
+%                 % Use Dynamic Expressions to copy the required property.
+%                 % For more info on usage of Dynamic Expressions, refer to
+%                 % the section "Creating Field Names Dynamically" in:
+%                 % web([docroot '/techdoc/matlab_prog/br04bw6-38.html#br1v5a9-1'])
+% %                 if isa(oldObj.(props{i}), 'clonableHandleObject')
+% %                     obj.(props{i}) = clonableHandleObject();
+% %                     obj.(props{i}).makeDeepCopy(oldObj.(props{i}));
+% %                 else
+%                     obj.(props{i}) = oldObj.(props{i});
+% %                 end
+%             end
+% %             newObj = class(newObj, class(obj));   %TODO: FIX - want a
+% %             real copy that's automated
+%         end
+%         
     end
 end
 

@@ -5,22 +5,32 @@ Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
 
 
 LookAt
-	0.000000 0.000000 0.000000
-	0.000000 0.000000 -1.000000
-	0.000000 1.000000 0.000000
+	324.941584 -307.527894 51.386833
+	324.215387 -306.844483 51.312130
+	-0.046965 0.059093 0.997147
 
-Camera "pinhole"
-	"float filmdistance" 133.330000
-	"float filmdiag" 70.000000
+Camera "realisticDiffraction"
+	"float filmdistance" 45.000000
+	"float filmdiag" 12.000000
+	"float aperture_diameter" 16.000000
+	"float diffractionEnabled" 0.000000
+	"float chromaticAberrationEnabled" 0.000000
+	"float curveRadius" 0.000000
+	"string specfile" "dgauss.50mm.dat"
+	"float pinhole_exit_x" -3.206394
+	"float pinhole_exit_y" -3.206394
+	"float pinhole_exit_z" -44.601900
 
 
 Film "image"
-	"integer xresolution" [200]
-	"integer yresolution" [200]
+	"integer xresolution" [800]
+	"integer yresolution" [800]
+	"float cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
-
-Sampler "lowdiscrepancy"
-	"integer pixelsamples" [128]
+Sampler "stratified"
+	"integer xsamples" 1
+	"integer ysamples" 1
+	"bool jitter" "false"
 
 
 SurfaceIntegrator "directlighting"
@@ -33,85 +43,16 @@ Renderer "sample"
 WorldBegin
 
 
-AttributeBegin
-
-	LightSource
-		"spot"
-		"rgb I" [1000.000000 1000.000000 1000.000000 ]
-		"float coneangle" 180.000000
-		"float conedeltaangle" 180.000000
-		"point from" [4.500000 -90.000000 8.500000 ]
-		"point to" [4.500000 -89.000000 8.500000 ]
-
-AttributeEnd
+Include "sunsetEnvironmentLight.pbrt"
 
 
-AttributeBegin
-
-	LightSource
-		"spot"
-		"rgb I" [1000.000000 1000.000000 1000.000000 ]
-		"float coneangle" 180.000000
-		"float conedeltaangle" 180.000000
-		"point from" [0.000000 0.000000 0.000000 ]
-		"point to" [0.000000 0.000000 -1.000000 ]
-
-AttributeEnd
+Include "depthTargetSpheres-mat.pbrt"
 
 
-MakeNamedMaterial "grayMat"
-	"string type" ["matte"]
-	"color Kd" [1.000000 1.000000 1.000000 ]
+Include "default-mat.pbrt"
 
 
-AttributeBegin #backdrop
-
-	Transform 
-	[
-	50.000000 0.000000 0.000000 0.000000 
-	0.000000 50.000000 0.000000 0.000000 
-	0.000000 0.000000 1.000000 0.000000 
-	0.000000 0.000000 -160.000000 1.000000 
-	]
-	NamedMaterial "Material"
-	Shape "trianglemesh" "integer indices" 
-	[
-	0 1 2
-	0 2 3
-	]
-	"point P" 
-	[
-	1.000000 1.000000 0.000000
-	-1.000000 1.000000 0.000000
-	-1.000000 -1.000000 0.000000
-	1.000000 -1.000000 0.000000
-	]
-
-
-AttributeEnd
-
-
-AttributeBegin #sphere
-
-	Transform 
-	[
-	1.000000 0.000000 0.000000 0.000000 
-	0.000000 1.000000 0.000000 0.000000 
-	0.000000 0.000000 1.000000 0.000000 
-	0.000000 0.000000 0.000000 1.000000 
-	]
-	NamedMaterial "grayMat"
-	Shape "sphere" "float radius" [20.000000 ]
-	"point P" 
-	[
-	1.000000 1.000000 0.000000
-	-1.000000 1.000000 0.000000
-	-1.000000 -1.000000 0.000000
-	1.000000 -1.000000 0.000000
-	]
-
-
-AttributeEnd
+Include "default-geom-big-bigfloor.pbrt"
 
 
 WorldEnd

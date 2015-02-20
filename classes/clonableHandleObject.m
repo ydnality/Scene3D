@@ -26,7 +26,12 @@ classdef clonableHandleObject < handle
                 % For more info on usage of Dynamic Expressions, refer to
                 % the section "Creating Field Names Dynamically" in:
                 % web([docroot '/techdoc/matlab_prog/br04bw6-38.html#br1v5a9-1'])
-                obj.(props{i}) = oldObj.(props{i});
+%                 if isa(oldObj.(props{i}), 'clonableHandleObject')
+%                     obj.(props{i}) = clonableHandleObject();
+%                     obj.(props{i}).makeDeepCopy(oldObj.(props{i}));
+%                 else
+                    obj.(props{i}) = oldObj.(props{i});
+%                 end
             end
 %             newObj = class(newObj, class(obj));   %TODO: FIX - want a
 %             real copy that's automated

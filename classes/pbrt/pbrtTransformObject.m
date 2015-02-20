@@ -1,5 +1,5 @@
 % wrapper class for a transform
-classdef pbrtTransformObject <  handle
+classdef pbrtTransformObject < handle
 %     enumeration
 %        Translate ('Translate', [1 1 1])
 %        Scale ('Scale', [1 1 1])
