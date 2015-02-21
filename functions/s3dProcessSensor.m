@@ -1,15 +1,15 @@
-%% sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
-% 
+function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
 % Processes the sensor using assigned readNoise, resolution, exposureTime,
 % and bitDepth.  
+% 
+% sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
+% 
 %
 % size: 1 x 2 int specifying sensor size. For example, [400 600]
 % exposureTime: exposure duration in seconds.
 % bitDepth: the bit depth of the sensor.  For float, use 'analog.'
 % Otherwise, '8 bit', '12 bit' etc. are possible options. '12 bit' is the
 % max.
-function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
-
     if (ieNotDefined('readNoise'))
        readNoise = .00096; %default low noise 
     end
@@ -40,7 +40,7 @@ function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
     
     %using desired sensor size, set pixel size accordingly
     sensorWidth = 36;  %*make this a parameter later
-    sensorHeight = 24;
+    % sensorHeight = 24;
     pixelSize = sensorWidth * .001/size(2);
     
     % We set the sensor properties using sensorSet and sensorGet routines.

@@ -32,6 +32,9 @@ function output = s3dRenderScene(inputPbrt, name, noScale, dockerFlag, oiFlag)
 %   inputPbrt = pbrtObject;
 %   scene = s3dRenderScene(inputPbrt,'deleteMe.mat',false, true, false);
 %
+%  Bad idea.  
+%   oi = s3dRenderScene(inputPbrt,'deleteMe.mat',false, true, true);
+%
 % See also: s3dRenderOi
 %
 % Todo: figure out consistency between s3dRenderScene and s3dRenderOi
