@@ -28,10 +28,11 @@ function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
     end
     
     % oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );
-    vcAddAndSelectObject(oi);
-    oiWindow;
-    m = oiGet(oi, 'mean illuminance')
-
+    %     vcAddAndSelectObject(oi);
+    %     oiWindow;
+    %     m = oiGet(oi, 'mean illuminance');
+    %     fprintf('Mean illuminance %.2f\n',m);
+    
     % sensor processing - may want to consider putting this into an external
     % helper function
     sensor = sensorCreate('bayer (gbrg)');

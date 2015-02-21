@@ -1,19 +1,40 @@
 function output = s3dRenderScene(inputPbrt, name, noScale, dockerFlag, oiFlag)
-% scene = s3dRenderScene(inputPbrt, sceneName, noScale, dockerFlag) Uses a
-% pinhole camera model to calculate scene radiance
+% Render a scene using pbrt from a docker container
 %
-% inputPbrt: either (1) a pbrtObject, or (2) full path (file name) of the
-% pbrt file that we render path.  **All includes and referenced files in
-% the pbrt file should be of files in the same directory as that pbrt file.
+% sscene = s3dRenderScene(inputPbrt, sceneName, noScale, dockerFlag, oiFlag) 
 %
-% This function renders a PBRT scene using the given a full fname, then
-% returns the data as an ISET scene. 
+% Renders a PBRT scene using the given full fname, then returns the data as
+% an ISET scene.
+%
+% When called with oiFlag true, the output format is an OI.  Otherwise
+% the output format is a scene.
+% 
+% To create scene radiance, the inputPBRT should use a pinhole camera
+% model. We should probably enforce this at some point. **** TODO ***
+%
+%  inputPbrt: either (1) a pbrtObject, or (2) full path (file name) of the
+%    pbrt file that we render path.  **All includes and referenced files in
+%    the pbrt file should be of files in the same directory as that pbrt file.
+%  name:      Name of the scene
+%  noScale:   Scales the pbrt values or not.  (true)s
+%             Sometimes we do not want to
+%             scale, when the relative intensities matter (e.g., two flash
+%             estimation).
+%  dockerFlag: Use the docker container at vistalab/pbrt (false)
+%  oiFlag:     Return on oi or a scene (false)
+%
 % The pbrt file is generated in a temporary directory. The output file is
 % placed in that same directory. The proper optics is also placed into this
 % optical image that corresponds to the focal length and field of view
 % (FOV).
-
-% Todo: figure out consistency between s3dRenderScen and s3dRenderOi
+%
+% Example
+%   inputPbrt = pbrtObject;
+%   scene = s3dRenderScene(inputPbrt,'deleteMe.mat',false, true, false);
+%
+% See also: s3dRenderOi
+%
+% Todo: figure out consistency between s3dRenderScene and s3dRenderOi
 
 %% Set up parameters
 
@@ -111,13 +132,20 @@ if dockerFlag
         warning('Docker not found! Trying on system pbrt instead!');
         s3dPbrtLocalCall(fullfname, generatedDir, outfile);
     else
-        dHub = 'vistalab/pbrt:spherical';  % Docker container at dockerhub
-        dCommand = 'pbrt';       % Command run in the docker
-
+        % Initialize the docker container
+        dHub = 'vistalab/pbrt';  % Docker container at dockerhub
+        fprintf('Checking for most recent docker container\n');
+        system(sprintf('docker pull %s',dHub));
+        
+        % Start the docker container that runs pbrt
+        dCommand = 'pbrt';       % Command run in the dockers
         [~,n,e] = fileparts(fullfname); % Get name of pbrt input file
         [~,outstem,outext] = fileparts(outfile); % Get name of output file
 
-        cmd = sprintf('docker run -t -i -v %s:/data %s %s /data/%s --outfile /data/%s',generatedDir,dHub,dCommand,[n,e],[outstem,outext]);
+        % rm = clears the container when it is finished running
+        % -t = terminal to grab tty output
+        % -i = interactive (not sure it's needed)
+        cmd = sprintf('docker run -t -i --rm -v %s:/data %s %s /data/%s --outfile /data/%s',generatedDir,dHub,dCommand,[n,e],[outstem,outext]);
 
         % Execute the docker call
         [s,r] = system(cmd);
