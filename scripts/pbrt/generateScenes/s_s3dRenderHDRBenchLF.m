@@ -116,6 +116,9 @@ numPinholesH = 80;
 superPixelPitch = filmDiag/sqrt(2)/numPinholesW;  %assumes square aspect ratio
 pinholeArrayDist = .3981;  %calculated using equation
 
+%todo: don't hard code 9,9, 31
+lightField = zeros(numPinholesW, numPinholesH, 9, 9, 31);
+
 for i = 1:numPinholesW
     for j = 1:numPinholesH
 
@@ -140,7 +143,7 @@ for i = 1:numPinholesW
         % Sampler
         sampler = pbrtSamplerObject();
         samples = curPbrt.sampler.removeProperty();
-        samples.value = 32;
+        samples.value = 128;
         curPbrt.setSampler(sampler);
 
         curPbrt.camera.setResolution(720, 720);
@@ -156,8 +159,11 @@ for i = 1:numPinholesW
         % curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt'));
 
         scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', true);
-        vcAddObject(scene); sceneWindow;
+        %vcAddObject(scene); sceneWindow;
         
+        fullName = vcSaveObject(scene, fullfile(dataPath, 'pbrtScenes', 'benchScene', 'LF', ['superpixel' int2str(i) int2str(j) '.mat']));
+        photons = sceneGet(scene, 'photons');
+        lightField(i,j, :,:, :) = photons(1:9, 1:9, :);  %there is an annoying rounding bug in pbrt.  This could be a problem.  hopefully not... 
     end
 end
 %instead of visualizing scenes, we will save it

@@ -17,15 +17,15 @@ Camera "realisticDiffraction"
 	"float chromaticAberrationEnabled" 0.000000
 	"float curveRadius" 0.000000
 	"string specfile" "dgauss.50mm.dat"
-	"float pinhole_exit_x" 4.152544
-	"float pinhole_exit_y" 4.152544
+	"float pinhole_exit_x" -4.152544
+	"float pinhole_exit_y" -3.837161
 	"float pinhole_exit_z" -44.601900
 
 
 Film "image"
 	"integer xresolution" [720]
 	"integer yresolution" [720]
-	"float cropwindow" [0.000000 0.012500 0.987500 1.000000]
+	"float cropwindow" [0.987500 1.000000 0.037500 0.050000]
 
 Sampler "stratified"
 	"integer xsamples" 1
