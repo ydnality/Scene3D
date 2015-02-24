@@ -17,10 +17,12 @@ Camera "pinhole"
 Film "image"
 	"integer xresolution" [200]
 	"integer yresolution" [200]
+	"float cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
-
-Sampler "lowdiscrepancy"
-	"integer pixelsamples" [128]
+Sampler "stratified"
+	"integer xsamples" 1
+	"integer ysamples" 1
+	"bool jitter" "false"
 
 
 SurfaceIntegrator "directlighting"
@@ -46,7 +48,7 @@ AttributeBegin
 AttributeEnd
 
 
-Include "/home/andy/Dropbox/Scene3D/Scene3DMatlabBW/Scene3D/data/validate/pbrtObject/depthTargetSpheres-mat.pbrt"
+Include "depthTargetSpheres-mat.pbrt"
 
 
 MakeNamedMaterial "grayMat"

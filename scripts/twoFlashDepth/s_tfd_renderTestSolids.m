@@ -154,10 +154,12 @@ curPbrt.addGeometry(newGeometry);
 
 
 sceneName = ['frontFlash'];
+
 % curPbrt.writeFile(tmpFileName);
-frontOi = s3dRenderOI(curPbrt, .050, sceneName);
+frontOi = s3dRenderOIAndDepthMap(curPbrt, .050, sceneName);
 
 %% render Back Oi
+% ** for now, we need to regenerate curPbrt, because of cloning bug.  
 
 
 % lightRight = pbrtLightSpotObject('rightLight', [], [], [], inFrom, inTo);
@@ -186,17 +188,18 @@ backOi = s3dRenderOI(curPbrt, .050, tmpFileName);
 %% render depth map
 
 %change the sampler to stratified for non-noisy depth map
-samplerProp = pbrtPropertyObject();
-curPbrt.sampler.setType('stratified');
-curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
+% samplerProp = pbrtPropertyObject();
+% curPbrt.sampler.setType('stratified');
+% curPbrt.sampler.removeProperty();
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
 
 %write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
+% tmpFileName = ['deleteMe'  '.pbrt'];
+% curPbrt.writeFile(tmpFileName);
+% groundTruthDepthMap = s3dRenderDepthMap(curPbrt, 1);
+groundTruthDepthMap = oiGet(frontOi, 'depthMap');
 figure; imagesc(groundTruthDepthMap);
 
 

@@ -73,11 +73,13 @@ apertureDiameter = 16;
 diffraction = false;
 chromaticAberration =false;
 pinholeExitApLoc = [2 2 -35];
-lens = pbrtLensRealisticObject(filmDist, filmDiag, specFile, apertureDiameter, diffraction, chromaticAberration, [], pinholeExitApLoc);
+%lens = pbrtLensRealisticObject(filmDist, filmDiag, specFile, apertureDiameter, diffraction, chromaticAberration, [], pinholeExitApLoc);
+lens = pbrtLensRealisticObject(filmDist, filmDiag, specFile, apertureDiameter, diffraction, chromaticAberration, [], []);
 
 curPbrt.camera.setLens(lens);
 
 curPbrt.camera.setResolution(300, 300);    %LQ mode
+curPbrt.camera.setCropWindow(0, 1, 0, 1);
 
 % Sampler
 samples = curPbrt.sampler.removeProperty();
@@ -141,22 +143,21 @@ for i = 1:numPinholesW
         samples.value = 32;
         curPbrt.setSampler(sampler);
 
-        curPbrt.camera.setResolution(800, 800);
+        curPbrt.camera.setResolution(720, 720);
         widthUnit = 1/numPinholesW;
         heightUnit = 1/numPinholesH;
         
              
         %order for cropWindow is x y
-        posI = i + numPinholesW/2;
-        posJ = j + numPinholesH/2;
-        curPbrt.camera.setCropWindow(0, 1, 0, 1);
-        %curPbrt.camera.setCropWindow(widthUnit * (posI), widthUnit * (posI+1), heightUnit* (posJ),  heightUnit * (posJ + 1));
+        %curPbrt.camera.setCropWindow(0, 1, 0, 1);
+        curPbrt.camera.setCropWindow((numPinholesW - i)/numPinholesW, (numPinholesW - i + 1)/numPinholesW, (j-1)/numPinholesH,  (j)/numPinholesH);
         
         %uncomment to use a 2 element lens instead of a pinhole
         % curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt'));
 
         scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', true);
         vcAddObject(scene); sceneWindow;
+        
     end
 end
 %instead of visualizing scenes, we will save it

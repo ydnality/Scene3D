@@ -130,17 +130,17 @@ if(isa(inputPbrtIn, 'pbrtObject'))
     
     fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
     inputPbrt.writeFile(fullfname);
-elseif (ischar(inputPbrt))
+elseif (ischar(inputPbrtIn))
     pbrtExe = 'pbrt';
     
     if ~exist(pbrtExe,'file')
         error('PBRT executable not found');
     end
-    if (~exist(inputPbrt,'file'))
+    if (~exist(inputPbrtIn,'file'))
         error('PBRT full file name required.  File not found');
     end
     %if inputPbrt is a char, then it becomes the input file
-    fullfname = inputPbrt;
+    fullfname = inputPbrtIn;
 
     %copy all relavent files into the temp directory
     [directory, ~, ~] = fileparts(fullfname);

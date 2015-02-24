@@ -105,10 +105,10 @@ classdef pbrtCameraObject < handle
             validateattributes(inMinY, {'numeric'}, {'nonnegative'});  
             validateattributes(inMaxY, {'numeric'}, {'nonnegative'});
             
-            if (inMinX < inMaxX && inMinX >= 0 && inMaxX <= 1 && inMinX <= inMaxY && inMinY >=0 && inMaxY <= 1)
+            if (inMinX <= inMaxX && inMinX >= 0 && inMaxX <= 1 && inMinY <= inMaxY && inMinY >=0 && inMaxY <= 1)
                 obj.film.cropwindow = [inMinX inMaxX inMinY inMaxY];
             else
-               warning('Inputs inconsistent! All inputs must be between 0 and 1.  inMinX must be <= inMaxX, and inMinY must be <= inMaxY.'); 
+               error('Inputs inconsistent! All inputs must be between 0 and 1.  inMinX must be <= inMaxX, and inMinY must be <= inMaxY.'); 
             end
         end
         function returnVal = writeFile(obj, fid)
