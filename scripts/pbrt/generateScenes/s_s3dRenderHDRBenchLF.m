@@ -133,8 +133,10 @@ for i = 1:numPinholesW
         pinholePos = [t * chiefRayDir(1) t * chiefRayDir(2)];
         
         pinholeExitApLoc = [pinholePos -(filmDist - pinholeArrayDist)];  %note that sensor is negative in pbrt world
+        filmDiagSmall = filmDiag/numPinholesW;  
         %assign pinhole position to PBRT, and figure out correct cropWindow
-        lens = pbrtLensRealisticObject(filmDist, filmDiag, specFile, apertureDiameter, diffraction, chromaticAberration, [], pinholeExitApLoc);
+        lens = pbrtLensRealisticObject(filmDist, filmDiagSmall, specFile, apertureDiameter, ...
+            diffraction, chromaticAberration, [], pinholeExitApLoc, [centerPos(1) centerPos(2)]);
         curPbrt.camera.setLens(lens);
 
         
@@ -146,14 +148,16 @@ for i = 1:numPinholesW
         samples.value = 128;
         curPbrt.setSampler(sampler);
 
-        curPbrt.camera.setResolution(720, 720);
-        widthUnit = 1/numPinholesW;
-        heightUnit = 1/numPinholesH;
+        %curPbrt.camera.setResolution(720, 720);
+        curPbrt.camera.setResolution(9, 9);
+        
+        %widthUnit = 1/numPinholesW;
+        %heightUnit = 1/numPinholesH;
         
              
         %order for cropWindow is x y
         %curPbrt.camera.setCropWindow(0, 1, 0, 1);
-        curPbrt.camera.setCropWindow((numPinholesW - i)/numPinholesW, (numPinholesW - i + 1)/numPinholesW, (j-1)/numPinholesH,  (j)/numPinholesH);
+        %curPbrt.camera.setCropWindow((numPinholesW - i)/numPinholesW, (numPinholesW - i + 1)/numPinholesW, (j-1)/numPinholesH,  (j)/numPinholesH);
         
         %uncomment to use a 2 element lens instead of a pinhole
         % curPbrt.camera.setLens(fullfile(s3dRootPath, 'data', 'lens', '2ElLens50mm.pbrt'));

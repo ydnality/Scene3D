@@ -11,21 +11,23 @@ LookAt
 
 Camera "realisticDiffraction"
 	"float filmdistance" 45.000000
-	"float filmdiag" 12.000000
+	"float filmdiag" 0.150000
 	"float aperture_diameter" 16.000000
 	"float diffractionEnabled" 0.000000
 	"float chromaticAberrationEnabled" 0.000000
 	"float curveRadius" 0.000000
 	"string specfile" "dgauss.50mm.dat"
-	"float pinhole_exit_x" -4.152544
-	"float pinhole_exit_y" -3.837161
+	"float film_center_x" -0.053033
+	"float film_center_y" -0.053033
+	"float pinhole_exit_x" -0.052564
+	"float pinhole_exit_y" -0.052564
 	"float pinhole_exit_z" -44.601900
 
 
 Film "image"
-	"integer xresolution" [720]
-	"integer yresolution" [720]
-	"float cropwindow" [0.987500 1.000000 0.037500 0.050000]
+	"integer xresolution" [9]
+	"integer yresolution" [9]
+	"float cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
 Sampler "stratified"
 	"integer xsamples" 1
