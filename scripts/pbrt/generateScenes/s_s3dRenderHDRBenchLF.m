@@ -165,7 +165,7 @@ for i = 1:numPinholesW
         scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', true);
         %vcAddObject(scene); sceneWindow;
         
-        fullName = vcSaveObject(scene, fullfile(dataPath, 'pbrtScenes', 'benchScene', 'LF', ['superpixel' int2str(i) int2str(j) '.mat']));
+        fullName = vcSaveObject(scene, fullfile(dataPath, 'pbrtScenes', 'benchScene', 'LF', ['superpixel' int2str(i) '_' int2str(j) '.mat']));
         photons = sceneGet(scene, 'photons');
         lightField(i,j, :,:, :) = photons(1:9, 1:9, :);  %there is an annoying rounding bug in pbrt.  This could be a problem.  hopefully not... 
     end
