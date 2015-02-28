@@ -192,10 +192,11 @@ for i = 1:numPinholesW
     end
 end
 
-%% try rendering some light field sub images
+%% try rendering some light field sub images at specific aperture locations.  
+% This renders a pinhole image at a particular aperture location. 
 
 testScene = sceneCreate;
-centerImagePhotons = lightField(:,:, 7, 7, :);
+centerImagePhotons = lightField(:,:, 7, 7, :);  %7,7 is a specific aperture location.  The middle would be 5,5.
 centerImagePhotons = reshape(centerImagePhotons, [80 80 31]);
 centerImagePhotons = permute(centerImagePhotons, [2 1 3]);
 centerImagePhotons = centerImagePhotons(:,end:-1:1, :);
