@@ -182,6 +182,8 @@ else
     end
 end
 
+%remove the temporary directory and all the files
+rmdir(generatedDir, 's');
 
 end
 

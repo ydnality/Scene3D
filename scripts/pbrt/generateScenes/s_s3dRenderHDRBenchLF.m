@@ -119,9 +119,10 @@ pinholeArrayDist = .3981;  %calculated using equation
 %todo: don't hard code 9,9, 31
 lightField = zeros(numPinholesW, numPinholesH, 9, 9, 31);
 
-for i = 1:numPinholesW
+for i = 13:19
     for j = 1:numPinholesH
-
+        i
+        j
         % identify center position of superPixel
         centerPos = [(i - numPinholesW/2 - .5) * superPixelPitch (j- numPinholesH/2 - .5) * superPixelPitch filmDist];
         
@@ -172,3 +173,44 @@ for i = 1:numPinholesW
 end
 %instead of visualizing scenes, we will save it
 %fullName = vcSaveObject(scene, fullfile(dataPath, 'pbrtScenes', 'benchScene', 'HDRVideo', ['frame' int2str(i) '.mat']));
+
+
+%% Load scenes from file and store it as a light field
+numPinholesW = 80;  %these 2 parameters must be even (for now)
+numPinholesH = 80;
+
+%todo: don't hard code 9,9, 31
+lightField = zeros(numPinholesW, numPinholesH, 9, 9, 31);
+
+for i = 1:numPinholesW
+    i
+    for j = 1:numPinholesH
+        loadedScene = load(fullfile(dataPath, 'pbrtScenes', 'benchScene', 'LF', ['superpixel' int2str(i) '_' int2str(j) '.mat']));
+        photons = sceneGet(loadedScene.scene, 'photons');
+        %vcAddObject(loadedScene.scene); sceneWindow;
+        lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
+    end
+end
+
+%% try rendering some light field sub images
+
+testScene = sceneCreate;
+centerImagePhotons = lightField(:,:, 7, 7, :);
+centerImagePhotons = reshape(centerImagePhotons, [80 80 31]);
+centerImagePhotons = permute(centerImagePhotons, [2 1 3]);
+centerImagePhotons = centerImagePhotons(:,end:-1:1, :);
+testScene = sceneSet(testScene, 'photons', centerImagePhotons);
+vcAddObject(testScene); sceneWindow;
+
+%% try rendering a basic light field blurred image
+
+%sum all the sub aperture views (3rd and 4th dimensions)  
+summedimage = sum(sum(lightField, 3), 4);
+summedimage = reshape(summedimage, [80 80 31]);
+summedimage = permute(summedimage, [2 1 3]);
+summedimage = summedimage(:,end:-1:1, :);
+
+testScene = sceneSet(testScene, 'photons', summedimage);
+vcAddObject(testScene); sceneWindow;
+
+

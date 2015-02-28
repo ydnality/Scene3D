@@ -66,15 +66,7 @@ if(isa(inputPbrtIn, 'pbrtObject'))
             [directory, ~, ~] = fileparts(inputPbrt.materialArray{ii});
             inputPbrt.materialArray{ii} = [fName,extension];
             
-             %TODO: make into helper function
-            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
-            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
-            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-            [status,message,messageid] = copyfile(fullfile(directory, '*.brdf'), generatedDir);   %copies all .dat files (lens files)
-
+            copyRelFiles(directory, generatedDir);      
         end
     end
     %do the same thing for the lights
@@ -86,14 +78,7 @@ if(isa(inputPbrtIn, 'pbrtObject'))
              [directory, ~, ~] = fileparts(inputPbrt.lightSourceArray{ii});
             inputPbrt.lightSourceArray{ii} = [fName,extension];
             
-             %TODO: make into helper function
-            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
-            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
-            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-            [status,message,messageid] = copyfile(fullfile(directory, '*.brdf'), generatedDir);   %copies all .dat files (lens files)
-
+            copyRelFiles(directory, generatedDir);      
         end
     end
    %do the same thing for geometry
@@ -105,14 +90,7 @@ if(isa(inputPbrtIn, 'pbrtObject'))
             [directory, ~, ~] = fileparts(inputPbrt.geometryArray{ii});
             inputPbrt.geometryArray{ii} = [fName,extension];
 
-            %TODO: make into helper function
-            [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir); 
-            [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.exr'), generatedDir);  %image textures
-            [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-            [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-            [status,message,messageid] = copyfile(fullfile(directory, '*.brdf'), generatedDir);   %copies all .dat files (lens files)
-
+            copyRelFiles(directory, generatedDir);      
         end
     end
     %do the same thing for include files
@@ -145,12 +123,7 @@ elseif (ischar(inputPbrtIn))
     %copy all relavent files into the temp directory
     [directory, ~, ~] = fileparts(fullfname);
     
-    [status,message,messageid] = copyfile(fullfile(directory, '*.pbrt'), generatedDir);
-    [status,message,messageid] = copyfile(fullfile(directory, '*.tga'), generatedDir);
-    [status,message,messageid] = copyfile(fullfile(directory, '*.jpg'), generatedDir);
-    [status,message,messageid] = copyfile(fullfile(directory, '*.dat'), generatedDir);   %copies all .dat files (lens files)
-    [status,message,messageid] = copyfile(fullfile(directory, '*.brdf'), generatedDir);   %copies all .dat files (lens files)
-
+    copyRelFiles(directory, generatedDir);      
 else
     error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
 end
@@ -203,4 +176,7 @@ end
 
 depthMapProcessedMedian = median(depthMap, 3);
 output = depthMapProcessedMedian;
+
+%remove the temporary directory and all the files
+rmdir(generatedDir, 's');
 end
