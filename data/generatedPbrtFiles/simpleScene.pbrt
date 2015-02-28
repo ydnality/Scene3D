@@ -17,10 +17,10 @@ Camera "realisticDiffraction"
 	"float chromaticAberrationEnabled" 0.000000
 	"float curveRadius" 0.000000
 	"string specfile" "dgauss.50mm.dat"
-	"float film_center_x" -0.053033
-	"float film_center_y" -0.053033
-	"float pinhole_exit_x" -0.052564
-	"float pinhole_exit_y" -0.052564
+	"float film_center_x" -2.280419
+	"float film_center_y" 4.189608
+	"float pinhole_exit_x" -2.260245
+	"float pinhole_exit_y" 4.152544
 	"float pinhole_exit_z" -44.601900
 
 
