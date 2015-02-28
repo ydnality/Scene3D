@@ -8,10 +8,10 @@
 
 initialIntensity = 10;
 numSamples = 300000;
-numApertureSamples = 2;
+numApertureSamples = 80;
 lambda = 550;  %nm
 binSize = 1/5; %nm
-apertureSize = 550;
+apertureSize = 10;
 numPixels = 5000;
 
 imagePlaneLocation = [lambda * 20 0];
@@ -40,19 +40,23 @@ for apertureSample = 1:numApertureSamples
         %condition the intersectionPoint so it fits in the 1D image plane;
         phase(i) = (mod(distance(i), lambda)/lambda);
         intersectionPointR(i) = round(intersectionPoint(i) * binSize + size(imagePlane,2)/2);
-        if (intersectionPointR(i) > size(imagePlane,2))
-            intersectionPointR(i) = size(imagePlane,2);
-        elseif(intersectionPointR(i) < 1)
-            intersectionPointR(i) = 1;   
-        end
+%         if (intersectionPointR(i) > size(imagePlane,2))
+%             intersectionPointR(i) = size(imagePlane,2);
+%         elseif(intersectionPointR(i) < 1)
+%             intersectionPointR(i) = 1;   
+%         end
 
-        intensity(i) = cos(2*pi * phase(i));
-        %imagePlane(intersectionPointR(i)) = imagePlane(intersectionPointR(i)) + intensity(i);
-        imagePlane(intersectionPointR(i)) = imagePlane(intersectionPointR(i)) + intensity(i);
+        %if ray is still within bounds, record it
+        if(intersectionPointR(i) <= size(imagePlane,2) && intersectionPointR(i) >=1)
+            intensity(i) = cos(2*pi * phase(i));
+            %imagePlane(intersectionPointR(i)) = imagePlane(intersectionPointR(i)) + intensity(i);
+            imagePlane(intersectionPointR(i)) = imagePlane(intersectionPointR(i)) + intensity(i);
+        end
     end
 end
 
 sensorAxis = linspace(0, binSize * numPixels, numPixels);
 figure; plot(sensorAxis, abs(imagePlane.^2));
 
+%% try in 3D instead
 

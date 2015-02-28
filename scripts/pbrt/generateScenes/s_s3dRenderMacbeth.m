@@ -54,7 +54,7 @@ for i = 1:14
     curPbrt.addLightSource(lightFront);
     
     %add a new material
-    matRGB= [400 1 500 1 600 1 700 1 ];
+    matRGB= [400 1 500 1 600 1 700 1 ]';
     newMaterial = pbrtMaterialObject('grayMat', 'matte', pbrtPropertyObject('spectrum Kd', matRGB));
     curPbrt.addMaterial(newMaterial);
     
@@ -97,7 +97,7 @@ for i = 1:14
             frontSquare = pbrtGeometryObject(['checker' int2str(ii) int2str(jj)], ['macbeth' int2str(3 -(jj -1) + (ii-1) * 4 + 1)], [], [], foregroundTransform);
             
             %uncomment to make all targets white
-            %frontSquare = pbrtGeometryObject(['checker' int2str(ii) int2str(jj)], ['graymat'], [], [], foregroundTransform);
+            %frontSquare = pbrtGeometryObject(['checker' int2str(ii) int2str(jj)], ['grayMat'], [], [], foregroundTransform);
 
             curPbrt.addGeometry(frontSquare);
         end
@@ -169,7 +169,7 @@ for i = 1:14
     curPbrt.addLightSource(lightFront);
     
     %add a new material
-    matRGB= [400 1 500 1 600 1 700 1 ];
+    matRGB= [400 1 500 1 600 1 700 1 ]';
     newMaterial = pbrtMaterialObject('grayMat', 'matte', pbrtPropertyObject('spectrum Kd', matRGB));
     curPbrt.addMaterial(newMaterial);
     
@@ -212,7 +212,7 @@ for i = 1:14
             frontSquare = pbrtGeometryObject(['checker' int2str(ii) int2str(jj)], ['macbeth' int2str(3 -(jj -1) + (ii-1) * 4 + 1)], [], [], foregroundTransform);
             
             %uncomment to make all targets white
-            frontSquare = pbrtGeometryObject(['checker' int2str(ii) int2str(jj)], ['graymat'], [], [], foregroundTransform);
+            frontSquare = pbrtGeometryObject(['checker' int2str(ii) int2str(jj)], ['grayMat'], [], [], foregroundTransform);
 
             curPbrt.addGeometry(frontSquare);
         end
