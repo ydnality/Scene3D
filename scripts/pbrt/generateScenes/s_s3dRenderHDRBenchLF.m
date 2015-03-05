@@ -119,7 +119,7 @@ pinholeArrayDist = .3981;  %calculated using equation
 %todo: don't hard code 9,9, 31
 lightField = zeros(numPinholesW, numPinholesH, 9, 9, 31);
 
-for i = 13:19
+for i = 1:numPinholesW
     for j = 1:numPinholesH
         i
         j
@@ -174,7 +174,30 @@ end
 %instead of visualizing scenes, we will save it
 %fullName = vcSaveObject(scene, fullfile(dataPath, 'pbrtScenes', 'benchScene', 'HDRVideo', ['frame' int2str(i) '.mat']));
 
+%% Render the LF using the new pbrt-incorporated technique instead (more efficient)
 
+
+numPinholesW = 80;  %these 2 parameters must be even (for now)
+numPinholesH = 80;
+
+%assign pinhole position to PBRT, and figure out correct cropWindow
+lens = pbrtLensRealisticObject(filmDist, filmDiag, specFile, apertureDiameter, ...
+    diffraction, chromaticAberration, [], [], [], numPinholesW, numPinholesH);
+curPbrt.camera.setLens(lens);
+
+
+% we need to reset the sampler because of some cloning limitations
+% Sampler
+sampler = pbrtSamplerObject();
+samples = curPbrt.sampler.removeProperty();
+samples.value = 32;
+curPbrt.setSampler(sampler);
+
+%curPbrt.camera.setResolution(720, 720);
+curPbrt.camera.setResolution(720, 720);
+scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', true);
+vcAddObject(scene); sceneWindow;
+ 
 %% Load scenes from file and store it as a light field
 numPinholesW = 80;  %these 2 parameters must be even (for now)
 numPinholesH = 80;

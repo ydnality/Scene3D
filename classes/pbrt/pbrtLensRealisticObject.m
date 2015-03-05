@@ -12,13 +12,16 @@ classdef pbrtLensRealisticObject < pbrtLensObject
         curveRadius = 0;
         pinholeExitApLoc;
         filmCenter = [0 0]; %because of a pbrt oddity, we had to put this here although it doesn't make intuitive sense
+        numPinholesW = -1;   %similar oddity here.  These 2 properties are for a pinhole array
+        numPinholesH = -1;  
     end
     methods
         
         %default constructor
         function obj = pbrtLensRealisticObject(inFilmDistance, inFilmDiag, ...
                 specFile, apertureDiameter, diffractionEnabled, ...
-                chromaticAberrationEnabled, curveRadius, pinholeExitApLoc, filmCenter)
+                chromaticAberrationEnabled, curveRadius, pinholeExitApLoc, filmCenter, ...
+                numPinholesW, numPinholesH)
             
 
             if (ieNotDefined('inFilmDistance'))
@@ -70,6 +73,13 @@ classdef pbrtLensRealisticObject < pbrtLensObject
             if(~ieNotDefined('filmCenter'))
                obj.filmCenter  = filmCenter;  
             end
+            if(~ieNotDefined('numPinholesW'))
+                obj.numPinholesW = numPinholesW;
+            end
+            if(~ieNotDefined('numPinholesH'))
+                obj.numPinholesH = numPinholesH;
+            end
+                
         end
         
         
@@ -92,6 +102,11 @@ classdef pbrtLensRealisticObject < pbrtLensObject
                 fprintf(fid,'\t"float pinhole_exit_x" %f\n', obj.pinholeExitApLoc(1));
                 fprintf(fid,'\t"float pinhole_exit_y" %f\n', obj.pinholeExitApLoc(2));
                 fprintf(fid,'\t"float pinhole_exit_z" %f\n', obj.pinholeExitApLoc(3));
+            end
+            
+            if( obj.numPinholesH > 0 && obj.numPinholesW > 0)
+                 fprintf(fid,'\t"float num_pinholes_w" %i\n', obj.numPinholesW);
+                 fprintf(fid,'\t"float num_pinholes_h" %i\n', obj.numPinholesH);
             end
             
             returnVal = 1;

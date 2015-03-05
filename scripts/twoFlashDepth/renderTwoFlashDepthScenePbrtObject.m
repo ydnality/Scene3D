@@ -10,8 +10,12 @@ clear curPbrt;
 curPbrt = pbrtObject();
 
 %specify scene properties
-matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'graycard-mat.pbrt');
-geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'lambertian-geom.pbrt');
+%matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'graycard-mat.pbrt');
+matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-mat.pbrt');
+
+%geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'lambertian-geom.pbrt');
+geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-geom.pbrt');
+
 
 %light properties
 spectrum = pbrtSpectrumObject('rgb I', [1000 1000 1000]);
@@ -30,6 +34,7 @@ lens = pbrtLensPinholeObject();
 filmDistance = 140;
 filmDiag = 50.9117;
 curPbrt.camera.setLens(pbrtLensPinholeObject(filmDistance, filmDiag));  %TODO: may want to switch to a real lens later
+curPbrt.camera.setResolution(300, 300);
 
 % add old parts, put in new ones
 curPbrt.removeMaterial();
@@ -39,19 +44,29 @@ curPbrt.addGeometry(geoFile);
 curPbrt.removeLight();
 curPbrt.addLightSource(lightSource);
 
+% set sampler
+curPbrt.sampler.removeProperty();
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', 256));
+
 %write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-frontOi = s3dRenderOI(curPbrt, .050, tmpFileName);
+frontOi = s3dRenderOI(curPbrt, .050);
 
 toc
 %% render scene with PBRT using pbrtObjects (back flash)
 tic
 
+%** must run first part of last section for now.  Cloning while rendering
+%is broken.
+
 %light properties
 spectrum = pbrtSpectrumObject('rgb I', [1000 1000 1000]);
 lightBackFrom = [ -77.8060 -149.5817   45.5153];
 lightBackTo = [-77.3786 -148.6776   45.3005 ];
+from = lightBackFrom;
+to = lightBackTo;
+position = [from; to; 0 0 1];
+curPbrt.camera.setPosition(position);
+
 coneAngle = 180;
 coneDeltaAngle = 180;
 lightSource = pbrtLightSpotObject('light', spectrum, coneAngle, coneDeltaAngle, lightBackFrom, lightBackTo);  %lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
@@ -61,9 +76,7 @@ curPbrt.removeLight();
 curPbrt.addLightSource(lightSource);
 
 %write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-backOi = s3dRenderOI(curPbrt, .050, tmpFileName);
+backOi = s3dRenderOI(curPbrt, .050);
 
 toc
 %% render depthMap with PBRT using pbrtObjects
