@@ -190,7 +190,7 @@ curPbrt.camera.setLens(lens);
 % Sampler
 sampler = pbrtSamplerObject();
 samples = curPbrt.sampler.removeProperty();
-samples.value = 32;
+samples.value = 512;
 curPbrt.setSampler(sampler);
 
 %curPbrt.camera.setResolution(720, 720);

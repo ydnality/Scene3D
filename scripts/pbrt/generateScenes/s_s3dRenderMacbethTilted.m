@@ -2,7 +2,7 @@
     theta = 30 * pi/180;
     
 %% Render Scene Radiance Using pbrtObjects (make all checkers completely white)
-i = 1;
+for i = 1:14
 
     clear curPbrt;
     curPbrt = pbrtObject();
@@ -81,13 +81,13 @@ i = 1;
     [reflectances,wave,comment,fName]  = ieReadSpectra(macbethSpectrumFile, 400:10:700, []);
 
     %add new material for macbeth color checker reflectances
-    for index = 1:24
-        spectrum= [wave;
-                   reflectances(:, index)'];
-        spectrumObject = pbrtPropertyObject('spectrum Kd', spectrum(:));
-        newMaterial = pbrtMaterialObject(['macbeth' int2str(index)], 'matte', spectrumObject);
-        curPbrt.addMaterial(newMaterial);
-    end
+%     for index = 1:24
+%         spectrum= [wave;
+%                    reflectances(:, index)'];
+%         spectrumObject = pbrtPropertyObject('spectrum Kd', spectrum(:));
+%         newMaterial = pbrtMaterialObject(['macbeth' int2str(index)], 'matte', spectrumObject);
+%         curPbrt.addMaterial(newMaterial);
+%     end
 
    % for ii = 1:6
    %     for jj = 1:4
@@ -112,13 +112,12 @@ i = 1;
     frontSquare = pbrtGeometryObject(['checker'], ['grayMat'], [], [], totalTransform);
 
     curPbrt.addGeometry(frontSquare);
-   %     end
-   % end
     
     noScale = true;
     dockerFlag = false;
     scene = s3dRenderSceneAndDepthMap( curPbrt, 'simpleScene', dockerFlag, noScale);
     
     vcAddObject(scene); sceneWindow;
-   % fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '02102015_finiteLight', ['whitelight' int2str(i) '.mat']));
-  %  fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '02062015_scenes', ['whitelight' int2str(i) '.mat']));
+    %fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '03052015_finiteLight', ['whitelight' int2str(i) '.mat']));
+    % fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '02062015_scenes', ['whitelight' int2str(i) '.mat']));
+end

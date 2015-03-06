@@ -8,10 +8,10 @@
 
 initialIntensity = 10;
 numSamples = 300000;
-numApertureSamples = 80;
+numApertureSamples = 400;
 lambda = 550;  %nm
 binSize = 1/5; %nm
-apertureSize = 10;
+apertureSize =20;
 numPixels = 5000;
 
 imagePlaneLocation = [lambda * 20 0];

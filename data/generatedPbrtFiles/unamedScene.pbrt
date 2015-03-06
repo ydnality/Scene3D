@@ -2,24 +2,31 @@
 #
 
 Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
-Scale 1000.000000 1000.000000 1000.000000 
-Rotate -3.000000 1.000000 0.000000 0.000000 
-Rotate 52.000000 0.000000 1.000000 0.000000 
-Translate -2.300000 -0.050000 0.500000 
+
+
+LookAt
+	-56.914787 -105.385544 35.014800
+	-56.487434 -104.481461 34.800000
+	0.000000 0.000000 1.000000
 
 Camera "realisticDiffraction"
-	"float filmdistance" 36.770000
-	"float filmdiag" 10.000000
-	"float aperture_diameter" 3.000000
+	"float filmdistance" 72.000000
+	"float filmdiag" 30.000000
+	"float aperture_diameter" 16.000000
 	"float diffractionEnabled" 0.000000
 	"float chromaticAberrationEnabled" 0.000000
 	"float curveRadius" 0.000000
 	"string specfile" "dgauss.50mm.dat"
+	"float film_center_x" 0.000000
+	"float film_center_y" 0.000000
+	"float num_pinholes_w" 80
+	"float num_pinholes_h" 80
+
 
 Film "image"
-	"integer xresolution" [200]
-	"integer yresolution" [200]
-	"cropwindow" [0.000000 1.000000 0.000000 1.000000]
+	"integer xresolution" [720]
+	"integer yresolution" [720]
+	"float cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
 Sampler "stratified"
 	"integer xsamples" 1
@@ -39,16 +46,21 @@ WorldBegin
 
 AttributeBegin
 
-	AreaLightSource "area" "color L" [1000.000000 1000.000000 1000.000000 ]
-		Translate 0.000000 9.900000 0.000000 
-		Rotate 90.000000 1.000000 0.000000 0.000000 
-	Shape "disk" "float radius" [8.000000 ]
-	"integer nsamples" [4.000000 ]
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-56.914787 -105.385544 35.014800 ]
+		"point to" [-56.487434 -104.481461 34.800000 ]
 
 AttributeEnd
 
 
-Include "cones.pbrt"
+Include "default-mat.pbrt"
+
+
+Include "default-geom.pbrt"
 
 
 WorldEnd
