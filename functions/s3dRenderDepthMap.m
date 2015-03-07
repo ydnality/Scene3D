@@ -106,8 +106,18 @@ if(isa(inputPbrtIn, 'pbrtObject'))
         end
     end    
     
+    % Copy the lens file into the generated directory
+    if isa(inputPbrt.camera.lens,'pbrtLensRealisticObject')
+        lensFileName = inputPbrt.camera.lens.specFile;
+        lensFilePath = which(lensFileName);
+        lensFileG = fullfile(generatedDir,lensFileName);
+        status = copyfile(lensFilePath,lensFileG);
+        if ~status, warning('Copying lens spec file to generatedDir failed'); end
+    end
+    
     fullfname = fullfile(dataPath, 'generatedPbrtFiles', [sceneName '.pbrt']);
     inputPbrt.writeFile(fullfname);
+    
 elseif (ischar(inputPbrtIn))
     pbrtExe = 'pbrt';
     

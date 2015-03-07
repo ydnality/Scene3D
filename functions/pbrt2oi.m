@@ -79,10 +79,10 @@ fID = fopen(fname,'r','l');
 
 if (~isempty(FOV))
     focalLength = FOV(1);   %do something with this information in the future
-    aperture = FOV(2);
-    fiedOfView = FOV(3);
+    aperture    = FOV(2);
+    fieldOfView  = FOV(3);
 else
-    'no lens information!!'
+    disp('no lens information!!')
 end
 
 
@@ -96,16 +96,17 @@ fclose(fID);
 % Set the OI data
 oi = oiCreate;
 oi = initDefaultSpectrum(oi);
+
+% Put the irradiance in
+% Check about this 32nd, and wavelength and all that!
+% For now, we always run at 400:10:700 really, but AL needed to add one
+% more for something about the PBRT calculation.  Here we toss the last
+% wavelength.
+oi = oiSet(oi,'photons',single(photons(:,:,1:31)));
+
 % Set the optics parameters from somewhere
-% optics = oiGet(oi,'optics');
-
-%oi = oiSet(oi,'cphotons',photons);
-oi = oiSet(oi,'photons',double(photons(:,:,1:31)));   %ignore 32nd wavelength for now
-
-%temporarily disable depth map reading
-% [path,name,ext] = fileparts(fname); 
-% dMapFile = [name '_dm_DM.dat']; 
-% oi.depthMap = s3dReadDepthMapFile(dMapFile);
-%oi.depthMap = imresize(scene.depthMap, [sceneGet(scene, 'rows') sceneGet(scene, 'cols')]);
+oi = oiSet(oi,'optics focal length',focalLength);
+oi = oiSet(oi,'optics fnumber',focalLength/aperture);
+oi = oiSet(oi,'fov',fieldOfView);
 
 return

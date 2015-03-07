@@ -10,6 +10,7 @@
 % They are named superpixel'i'_'j'.mat
 % 
 % On black, I made a link to Scene3d/data/LF
+% I copied the data on to neurostor, also.
 %
 % So, we need to be able to read these in and convert them into one
 % irradiance matrix suitable for an OI.

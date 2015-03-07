@@ -1,19 +1,20 @@
+function oi = s3dRenderOIAndDepthMap(inputPbrt, focalLength, sceneName, dockerFlag)
 %This function renders an oi AND the depth map, given a pbrt object.
 %Note that this function only works if the camera.lens of inputPbrt is of type
 %lensPinhole. 
-function oi = s3dRenderOIAndDepthMap(inputPbrt, focalLength, sceneName, dockerFlag)
 
+%%
 if (ieNotDefined('dockerFlag'))
     dockerFlag = false;
 end
 if (ieNotDefined('sceneName'))
     sceneName = 'unamedScene';
 end
-
 if (ieNotDefined('focalLength'))
-    focalLength = 50; %default focal length
+    focalLength = 0.050; %default focal length in meters
 end
 
+%%
 if (isa(inputPbrt, 'pbrtObject'))
     %% render scene radiance
     radianceRenderPbrt = pbrtObject;

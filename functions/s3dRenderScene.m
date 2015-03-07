@@ -102,7 +102,18 @@ if(isa(inputPbrt, 'pbrtObject'))
 
             copyRelFiles(directory, generatedDir);
         end
-    end    
+    end
+    
+    % Sometimes we need to copy the camera lens file.  This is a draft of
+    % how we might approach it.
+    if isa(inputPbrt.camera.lens,'pbrtLensRealisticObject')
+        lensFileName = inputPbrt.camera.lens.specFile;
+        lensFilePath = which(lensFileName);
+        lensFileG = fullfile(generatedDir,lensFileName);
+        status = copyfile(lensFilePath,lensFileG);
+        if ~status, disp('Copying lens spec file seems problematic'); end
+    end
+    
     fullfname = fullfile(dataPath, 'generatedPbrtFiles', [name '.pbrt']);
     inputPbrt.writeFile(fullfname);
 elseif (ischar(inputPbrt))

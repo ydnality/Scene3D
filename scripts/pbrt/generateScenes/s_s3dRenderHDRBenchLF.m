@@ -190,13 +190,15 @@ curPbrt.camera.setLens(lens);
 % Sampler
 sampler = pbrtSamplerObject();
 samples = curPbrt.sampler.removeProperty();
-samples.value = 512;
+samples.value = 32;
 curPbrt.setSampler(sampler);
 
 %curPbrt.camera.setResolution(720, 720);
 curPbrt.camera.setResolution(720, 720);
-scene = s3dRenderSceneAndDepthMap(curPbrt, 'simpleScene', true);
-vcAddObject(scene); sceneWindow;
+dockerFlag = true;
+focalLength = .050; %meters
+oi = s3dRenderOIAndDepthMap(curPbrt, focalLength, 'simpleScene',dockerFlag);
+vcAddObject(oi); oiWindow;
  
 %% Load scenes from file and store it as a light field
 numPinholesW = 80;  %these 2 parameters must be even (for now)
