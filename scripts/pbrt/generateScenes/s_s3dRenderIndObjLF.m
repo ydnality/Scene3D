@@ -82,7 +82,7 @@ curPbrt.camera.setResolution(720, 720);
 focalLength = 0.050;   % In meters
 sceneName = [];
 dockerFlag = true;
-frontOi = s3dRenderOIAndDepthMap(curPbrt,focalLength,sceneName,dockerFlag);
-vcAddObject(frontOi); oiWindow;
+oi = s3dRenderOIAndDepthMap(curPbrt,focalLength,sceneName,dockerFlag);
+vcAddObject(oi); oiWindow;
 
 %% END
