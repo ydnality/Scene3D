@@ -125,6 +125,7 @@ apYGridFlat = apYGrid(:);
 %reduce aperture grid by applying a circular aperture.  Try different
 %apertures!!
 withinAperture = (apXGridFlat.^2 + apYGridFlat.^2) < (apertureSize/2)^2;
+%withinAperture = logical(ones(size(apXGridFlat)));
 apXGridFlat = apXGridFlat(withinAperture);
 apYGridFlat = apYGridFlat(withinAperture);
 numApertureSamplesTot = (sum(withinAperture));
