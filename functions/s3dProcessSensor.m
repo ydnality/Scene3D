@@ -111,6 +111,8 @@ function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
     sensor = sensorSet(sensor, 'quantization', bitDepth);
     
     % We are now ready to compute the sensor image
+    
+    %oi = oiSet(oi, 'wangular', 5);  %test to remove error... TODO: determine if this is the right thing to set...
     sensor = sensorCompute(sensor,oi);
 
     % Add name to correspond to oi name

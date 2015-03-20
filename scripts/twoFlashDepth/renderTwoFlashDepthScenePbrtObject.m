@@ -1,7 +1,7 @@
 %% Runs PBRT and imports it in ISET for the bench scene. 
 % TODO: incorporate this into 1 main script, or generalize/organize it
 
-s_initISET
+ieInit
 %% render scene with PBRT using pbrtObjects (front flash)
 tic
 
@@ -10,9 +10,9 @@ clear curPbrt;
 curPbrt = pbrtObject();
 
 %specify scene properties
-%matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'graycard-mat.pbrt');
+matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'graycard-mat.pbrt');
 %matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-mat.pbrt');
-matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'mixed-mat.pbrt');
+%matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'mixed-mat.pbrt');
 
 %geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'lambertian-geom.pbrt');
 geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-geom.pbrt');
@@ -65,8 +65,8 @@ lightBackFrom = [ -77.8060 -149.5817   45.5153];
 lightBackTo = [-77.3786 -148.6776   45.3005 ];
 from = lightBackFrom;
 to = lightBackTo;
-position = [from; to; 0 0 1];
-curPbrt.camera.setPosition(position);
+%position = [from; to; 0 0 1];
+%curPbrt.camera.setPosition(position);
 
 coneAngle = 180;
 coneDeltaAngle = 180;
@@ -110,7 +110,7 @@ vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 % image processing
 vciFlash = s3dProcessImage(sensor);
-vcAddAndSelectObject(vciFlash); vcimageWindow;
+vcAddObject(vciFlash); ipWindow;
 
 %% back flash image processing
 %load oi from file
@@ -125,7 +125,7 @@ vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 % image processing
 vciFlashBack = s3dProcessImage(sensor);
-vcAddAndSelectObject(vciFlashBack); vcimageWindow;
+vcAddAndSelectObject(vciFlashBack); ipWindow;
 
 %%  generate and read and output depth map (obsolete)
 

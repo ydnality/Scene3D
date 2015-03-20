@@ -18,7 +18,7 @@ myOptics = opticsSet(myOptics,'focalLength', focalLength);  %distance from lens 
 oi = oiSet(oi, 'optics', myOptics);
 sensor = s3dProcessSensor(oi, 0, [], 0); %we pre-compute this to find the sensor FOV
 
-fov = sensorGet(sensor, 'fov');
+fov = sensorGet(sensor, 'fov');   %TODO: is this the right thing to do to get fov??
 oi = oiSet(oi,'fov', fov);
 
 end

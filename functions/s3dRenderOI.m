@@ -50,6 +50,7 @@ elseif isa(inputPbrt,'pbrtObject')
     % length.
 end
 
+oi = oiSet(oi, 'wangular', 5);  %prevent error
 oi = s3dFixOi(oi, focalLength);
  
 end

@@ -13,8 +13,10 @@
 
 %% load 1st image - uncomment this section if you wish to load saved vcimages
 %fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
-fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
+%fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
 % fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
+fullName = 'twoFlashDepth/indObj/frontFlashCam.mat';  
+
 
 load([s3dRootPath '/data/' fullName],'vci');
 vciFlash = vci;
@@ -121,6 +123,14 @@ d1Test1st = d1Test;
 
 figure; imagesc(d1Test);
 colorbar; title('Calculated Depth (1st pass)'); caxis([80 150]);
+
+%% get quadratic coefficients out
+c = (1 - ratioImage);
+b = 2 .* cos(alpha) .* sin(phi) .*f;
+a = ones(size(b)) * (f.^2);
+
+%solves for 1/d1Test
+
 %% First filter the depth map using a separable median, and bilateral filter
 %This will provide better data for calculating the normal map later
 pixelUnit = sensorWidth / size(ratioImage,2);

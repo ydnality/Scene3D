@@ -24,7 +24,7 @@ ieInit
 
 % numSamples = 100000;
 lambda    = 550;                % nm
-binSize   = 2500   %25;                 % nm
+binSize   = 2500;   %25;                 % nm
 numPixels = 1000;                % In the sensor
 %apertureSample = 100;           % nm
 %nApertureSamples = 1e3;
@@ -71,7 +71,7 @@ for rPhase = 0 %:pi/256:(255 * pi/256)
 
         d = sqrt(diag((endLocations - apLocations)'*(endLocations - apLocations)));
         % vcNewGraphWin; plot(d)
-        intensity = exp(2 * pi * i * (d/lambda)) + intensity;
+        intensity = exp(2 * pi * 1i * (d/lambda)) + intensity;
     end
 end
 % Get the real intensity
@@ -164,7 +164,7 @@ for lambda = wave
 
         d = sqrt(xDiff.^2 + yDiff.^2 + zDiff.^2);
 
-        intensityFlat = exp(2 * pi * i .* (d/lambda)) + intensityFlat;
+        intensityFlat = exp(2 * pi * 1i .* (d/lambda)) + intensityFlat;
     end
     
     intensityFlat = 1/lambda .* abs(intensityFlat).^2;
