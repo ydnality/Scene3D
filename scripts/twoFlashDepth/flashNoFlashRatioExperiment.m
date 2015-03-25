@@ -15,24 +15,27 @@
 %fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
 %fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
 % fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
-fullName = 'twoFlashDepth/indObj/frontFlashCam.mat';  
+name = 'frontFlashIp.mat';  
 
-
-load([s3dRootPath '/data/' fullName],'vci');
+%load([s3dRootPath '/data/' fullName],'vci');
+load([s3dRootPath '/papers/ReflectanceAndDepth/Data/03192015_depthEstimation/' name]);
 vciFlash = vci;
-vcAddAndSelectObject('vcimage',vciFlash);
-vcimageWindow;
+vcAddObject(vciFlash);
+ipWindow;
 
 %% load 2nd flash image (flash now placed in back)
 %fullName = '2FlashDepth/indObject/idealDownBackFlashImage.mat';
-fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
+%fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
 % fullName = 'twoFlashDepth/depthTargetDepths/50mmBack10s.pbrt.image.mat';  
+name = 'backFlashIp.mat';
+
 % 
 % multiplicationFactor = 1;  %to account for differences in exposure
 % load([s3dRootPath '/data/' fullName],'vci');
-% vciFlashBack = vci;
-% vcAddAndSelectObject('vcimage',vciFlashBack);
-% vcimageWindow;
+load([s3dRootPath '/papers/ReflectanceAndDepth/Data/03192015_depthEstimation/' name]);
+vciFlashBack = vci;
+vcAddObject(vciFlashBack);
+ipWindow;
 
 %% load depth map - uncomment if you wish to load a depth map from file
 %GTDepthMap = '2FlashDepth/indObject/depthMaps/groundTruthDepthMapDown.mat';
@@ -52,7 +55,7 @@ if(~exist('curPbrt', 'var'))
     
     
     sensorDistance = 140; %get this from the render file
-    f = 50;  % f signifies distance between 2 flashes    
+    %f = 50;  % f signifies distance between 2 flashes    
 else    
     sensorDistance = curPbrt.camera.lens.filmDistance;
     %height has a ratio of 1
@@ -62,7 +65,8 @@ else
     sensorWidth = (curPbrt.camera.lens.filmDiag/hypotneuseRatio) * aspectRatio;
     f = norm( curPbrt.camera.position(1,:) - curPbrt.lightSourceArray{1}.from, 2); %distance between 2 flashes
 end
-% DELETE THIS!!!
+
+f = 2;  %make sure to set this
 fieldOfView = atan(sensorWidth/2/sensorDistance) * 2 * 180/pi;  %this does not need to be changed
 
 %% Process images and obtain ratio image
@@ -188,7 +192,8 @@ for i = 2:(size(d1TestFiltered, 2) - 1)
         baNormal = cross(bVector, aVector);
         baNormal = baNormal./norm(baNormal);
         
-        averageNormal = (adNormal + dcNormal + cbNormal + baNormal);
+        %averageNormal = (adNormal + dcNormal + cbNormal + baNormal);
+        averageNormal = median([adNormal',dcNormal',cbNormal',baNormal'],  2);
         averageNormal = averageNormal./norm(averageNormal);
         
         normalMap(j, i,:) = reshape(averageNormal, [1 1 3]);
@@ -198,6 +203,31 @@ scaledNormalMap = normalMap./2 + .5;
 
 figure; imshow(scaledNormalMap);
 title('Calculated Normal Map');
+
+%% filter the normal map...
+% 
+% %not sure what to use here since the 3 dimensions are coupled, but for now,
+% %use a bilateral filter?
+
+%filter first 2 dimensions
+normalMap1 = medianFilter(normalMap(:,:,1),5);
+normalMap1 = medianFilter(normalMap1',5)';
+% normalMap1 = bilateralFilter(normalMap1, 10, 4, 25);  
+figure; imagesc(normalMap1);
+
+normalMap2 = medianFilter(normalMap(:,:,2),5);
+normalMap2 = medianFilter(normalMap2',5)';
+% normalMap2 = bilateralFilter(normalMap2, 10, 4, 25);  
+figure; imagesc(normalMap2);
+
+normalMap3 = ones(size(normalMap1)) - normalMap1.^2 + normalMap2.^2;
+normalMap3 = sqrt(normalMap3);
+
+filtNormalMap = cat(3, normalMap1, normalMap2, normalMap3);
+
+scaledFiltNormalMap = filtNormalMap./2 + .5;
+figure; imshow(scaledFiltNormalMap);
+
 %% Correcting for Lambert's Law error
 % Depending on the relation of the surface normal, and the light direction,
 % the intensity is attenuated according to the dot product (proportional to
@@ -251,6 +281,7 @@ end
 
 ratioImage = linearIntensityFlashCorrected./linearIntensityFlashBCorrected;
 
+
 %% Use ratio image to calculate distance (2nd pass)
 % We've corrected for Lambert's Law, so now we can compute the calculated
 % distance once again using the identical math.
@@ -274,6 +305,14 @@ d1Test = (2.*f.^2)./(-2.*cos(alpha).*sin(phi).*f + radical);
 
 figure; imagesc(d1Test);
 colorbar; title('Calculated Depth (2nd pass)'); caxis([80 150]);
+
+%% get quadratic coefficients out
+ratioImageCor = ratioImage;
+ratioImageCor(ratioImageCor<1) = 1;
+c = (1 - ratioImageCor);
+b = 2 .* cos(alpha) .* sin(phi) .*f;
+a = ones(size(b)) * (f.^2);
+
 
 %% Filter the depth map using a separable median, and bilateral filter (2nd pass)
 %This will provide better data 

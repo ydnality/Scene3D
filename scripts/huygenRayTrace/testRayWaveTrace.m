@@ -122,6 +122,7 @@ ap1DY = linspace(-.5,.5, numApertureSamples(2) + 1) * apertureSize;
 [apXGrid apYGrid] = meshgrid(ap1DX, ap1DY);
 apXGridFlat = apXGrid(:);   %flatten to 1D for simplicity
 apYGridFlat = apYGrid(:);
+
 %reduce aperture grid by applying a circular aperture.  Try different
 %apertures!!
 withinAperture = (apXGridFlat.^2 + apYGridFlat.^2) < (apertureSize/2)^2;
@@ -146,11 +147,13 @@ oi = initDefaultSpectrum(oi);
 oi = oiSet(oi, 'wave', wave);
 
 countWave = 1;
+%loop through all wavelenghts
 for lambda = wave
     disp(lambda);
     
     intensityFlat = zeros(numPixels);
     intensityFlat = intensityFlat(:);
+    %process 1 ray at the aperture at once
     for apertureSample = 1:numApertureSamplesTot
         %disp(apertureSample)
         % These are the locations on the aperture (we will take 1 at a time),
@@ -162,8 +165,11 @@ for lambda = wave
         yDiff = endLGridYFlat - apLocationsY;
         zDiff = endLGridZFlat; %aperture is assumed to be at Z = 0;
 
-        d = sqrt(xDiff.^2 + yDiff.^2 + zDiff.^2);
-
+        %compute the distance from the apeture location
+        d = sqrt(xDiff.^2 + yDiff.^2 + zDiff.^2);  %if we plug in a different d, then we can trace an entire lens
+    
+        %add the complex exponential contribution to the entire sensor and
+        %sum
         intensityFlat = exp(2 * pi * 1i .* (d/lambda)) + intensityFlat;
     end
     
