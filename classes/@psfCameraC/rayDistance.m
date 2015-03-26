@@ -1,16 +1,14 @@
-function estimatePSF(obj,nLines, jitterFlag)
-% Estimate the PSF of a psfCamera
+function rayDistance(obj, nLines, jitterFlag)
+% Estimate distances in meters of each ray to the exist aperture
 %
-%   psfCamera.estimatePSF(obj)
+%   psfCamera.rayDistance(obj)
 %
-% The camera has a point source, lens, and film.  This function saves the
-% estimated psf into the psf camera object.  
+% The camera has a point source, lens, and film.
 %
-% You can visualize it using the optical image derived from the psfCamera.
-% To obtain the optical image of the PSF, use the following command after 
-% calling this function:
+% THe calculation is done
 %
-%   psfCamera.oiCreate();
+%
+% See also: psfCamera.estimatePSF, psfCamera.oiCreate
 %
 % AL/BW Vistasoft Team, Copyright 2014
 

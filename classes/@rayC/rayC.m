@@ -13,13 +13,16 @@ classdef rayC <  clonableHandleObject
     % AL Vistasoft Copyright 2014
     
     properties
-        origin;
-        direction;
-        %wavelength;  %no longer used.  use obj.get('wavelength')
+        origin;      % Starting point of ray
+        direction;   % Direction of ray
+        distance;    % Distance from origin to surface
+        
+        %wavelength; %no longer used.  use obj.get('wavelength')
         waveIndex;   
-        wave;  %this is the same wave in the film, which gives a range of wavelengths used
+        wave;         %this is the same wave in the film, which gives a range of wavelengths used
         drawSamples;   
         plotHandle = [];
+        
     end
     
     methods (Access = private)
@@ -260,6 +263,19 @@ classdef rayC <  clonableHandleObject
            obj.direction = normvec(obj.direction,'p',2,'dim',2);
         end
         
+        function obj = addDistance(obj, D)
+            % D is the distance in the current ray segment
+            % This is added to the current path, stored in .distsance
+            obj.distance = obj.distance + D;
+        end
+        
+        function endPoint = endPoint(obj,D)
+            % Given a distance, direction and origin, calculate the end
+            % point of the ray.
+            repD = repmat(D, [1 3]);
+            endPoint = obj.origin + repD .* obj.direction;
+        end
+        
         function obj = projectOnPlane(obj, planeLocation)
             % ray.projectOnPlane(planeLocation)
             %
@@ -295,15 +311,11 @@ classdef rayC <  clonableHandleObject
             % This is the number of rays.
             subLength = size(obj.origin, 1);
             
-            % Not sure why we need to repmat the origin and direction
+            % Not sure why we need to repmat the origin and direction and
+            % distance
             obj.origin = repmat(obj.origin, [length(wave) 1]);
             obj.direction = repmat(obj.direction, [length(wave) 1]);
-            
-            % Creates a vector representing wavelengths... for example:
-            % [400 400 400... 410 410 410... ..... 700] 
-%             tmp = (wave' * ones(1, subLength))'; 
-%             obj.wavelength = tmp(:);
-            
+            obj.distance  = repmat(obj.distance,[length(wave) 1]);
             obj.set('wave', wave);
             
             
@@ -314,13 +326,14 @@ classdef rayC <  clonableHandleObject
         end
         
         function removeDead(obj, deadIndices)
-            %removeDead(deadIndices)
+            % Sets unused (dead) ray parameters to NaNs.
             
-            %Removes dead rays (these are usually those that do not make it
-            %out an aperture) by setting these dead indices to Nan.
+            % These are usually those that do not make it out an aperture by
+            % setting these dead indices to Nan.
             obj.origin(deadIndices, : ) = NaN;
             obj.direction(deadIndices, : ) = NaN;
             obj.waveIndex(deadIndices) = NaN;
+            obj.distance(deadIndices) = NaN;
         end
     end
 end

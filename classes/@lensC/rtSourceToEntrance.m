@@ -123,9 +123,12 @@ ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];
 % points in the aperture
 rays.origin    = repmat(pointSource, [nPts, 1, 1] );
 rays.direction = rayDirection(rays.origin,ePoints);
+rays.distance  = ptDistances(pointSource,ePoints);
 
 
-%% Project occlude
+%% Project occlude - Experimental code. Does not run normally
+%
+% Need to deal with removing dead rays differently below.
 %
 % Some rays will be occluded from the aperture by scene objects.  If we
 % have a triangle mesh, then we can check for which rays will be occluded
