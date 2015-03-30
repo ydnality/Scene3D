@@ -92,7 +92,7 @@ for lensEl = 1:nSurfaces
         end
         
         % Add this segment to the total distance
-        rays.addDistance(intersectT);
+        %rays.addDistance(intersectT);
         
         % Figure out the new end point position for drawing
         endPoint = rays.endPoint(intersectT);
@@ -122,12 +122,18 @@ for lensEl = 1:nSurfaces
         end
     end
     
+     
+        
     % Set rays outside of the aperture to NaN
     outsideAperture = endPoint(:, 1).^2 + endPoint(:, 2).^2 >= curAperture^2;
     endPoint(outsideAperture, :) = NaN;
     prevN(outsideAperture) = NaN;
     rays.removeDead(outsideAperture);
-       
+    
+    % Add this segment to the total distance
+    rays.addDistance(intersectT.*prevN);     
+        
+        
     % Apply Snell's law to the spherical surface rays.
     % Determine the new ray directions and origin
     if(curEl.sRadius ~= 0)

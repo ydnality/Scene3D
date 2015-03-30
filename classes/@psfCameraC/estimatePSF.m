@@ -1,4 +1,4 @@
-function estimatePSF(obj,nLines, jitterFlag)
+function estimatePSF(obj,nLines, jitterFlag, subsection)
 % Estimate the PSF of a psfCamera
 %
 %   psfCamera.estimatePSF(obj)
@@ -20,7 +20,7 @@ if ieNotDefined('jitterFlag'), jitterFlag = false; end
 % Trace from the point source to the entrance aperture of the
 % multielement lens
 ppsfCFlag = false;
-obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag);
+obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag, [], subsection);
 
 % Duplicate the existing rays for each wavelength
 % Note that both lens and film have a wave, sigh.

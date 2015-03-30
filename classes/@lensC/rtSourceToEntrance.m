@@ -123,8 +123,9 @@ ePoints = [aGrid.X(:),aGrid.Y(:),aGrid.Z(:)];
 % points in the aperture
 rays.origin    = repmat(pointSource, [nPts, 1, 1] );
 rays.direction = rayDirection(rays.origin,ePoints);
-rays.distance  = ptDistances(pointSource,ePoints);
-
+%rays.distance  = ptDistances(pointSource,ePoints);  %we don't need this
+%-we are calculating this at the first lens intersection already!
+rays.distance  = zeros(nPts, 1);
 
 %% Project occlude - Experimental code. Does not run normally
 %

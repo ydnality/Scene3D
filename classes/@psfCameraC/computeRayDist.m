@@ -1,7 +1,7 @@
-function rayDistance(obj, nLines, jitterFlag)
-% Estimate distances in meters of each ray to the exist aperture
+function computeRayDist(obj, nLines, jitterFlag, subsection)
+% Estimate distances in millimeters of each ray to the exist aperture
 %
-%   psfCamera.rayDistance(obj)
+%   psfCamera.computeRayDist(obj)
 %
 % The camera has a point source, lens, and film.
 %
@@ -12,13 +12,14 @@ function rayDistance(obj, nLines, jitterFlag)
 %
 % AL/BW Vistasoft Team, Copyright 2014
 
+
 if ieNotDefined('nLines'),     nLines = false;     end
 if ieNotDefined('jitterFlag'), jitterFlag = false; end
 
 % Trace from the point source to the entrance aperture of the
 % multielement lens
 ppsfCFlag = false;
-obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag);
+obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag,[], subsection);
 
 % Duplicate the existing rays for each wavelength
 % Note that both lens and film have a wave, sigh.
@@ -32,6 +33,6 @@ obj.lens.rtThroughLens(obj.rays, nLines);
 % if nLines > 0; obj.rays.draw(obj.film); end
 
 % intersect with "film" and add to film
-obj.rays.recordOnFilm(obj.film, nLines);
+%obj.rays.recordOnFilm(obj.film, nLines);
 
 end

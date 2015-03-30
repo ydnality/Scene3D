@@ -190,3 +190,174 @@ end
 
 oi = oiSet(oi, 'photons', intensity);
 vcAddObject(oi); oiWindow;
+
+%% try using PSF camera
+
+% Make a volume of point.  A little boring in this case
+point = psCreate(0,0,-200);
+
+% Read a lens file and create a lens
+lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
+
+nSamples = 501; %151;
+apertureMiddleD = .5;   % mm
+lens = lensC('apertureSample', [nSamples nSamples], ...
+    'fileName', lensFileName, ...
+    'apertureMiddleD', apertureMiddleD);
+
+% Create a film (sensor)
+
+% position - relative to center of final lens surface
+% size - 'mm'
+% wavelength samples
+wave = lens.get('wave');
+
+film = filmC('position', [0 0 1 ], ...
+    'size', [1 1], ...
+    'wave', wave);
+
+
+% Ray trace the point to the film
+
+camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
+
+% Sequence of events for estimating the PSF, 
+nLines = 100;
+jitter = false;
+%camera.estimatePSF(nLines,jitter);
+
+%limits the entrance aperture so this can run faster
+subsection = [-.025, -.025, .025, .025];
+%camera.estimatePSF(nLines,jitter,subsection);
+camera.computeRayDist(nLines,jitter,subsection);
+
+%vcAddObject(camera.oiCreate); oiWindow;
+%%  huygens ray trace part (this will become a function and better
+% integrated)
+
+lambda = 550;  %for now
+binSize   = [40000 40000];   %25;                 % nm
+numPixels = [50 50];                % In the sensor
+numPixelsTot = numPixels(1) * numPixels(2);
+imagePlaneDist     = 16*10^6; %100 * 10^6; %100mm
+lensMode = false;
+
+
+%estimated that the width of the 1st zero of airy disk will be .0336
+apXGridFlat = camera.rays.origin(:,1) * 10^6; %convert to nm
+apYGridFlat = camera.rays.origin(:,2) * 10^6;
+apXGridFlat = apXGridFlat(~isnan(apXGridFlat));
+apYGridFlat = apYGridFlat(~isnan(apYGridFlat));
+numApertureSamplesTot = length(apXGridFlat);
+
+% figure; plot(apXGridFlat, apYGridFlat, 'o');  %plot the aperture samples
+
+%create sensor grid
+% These are the locations on the sensor
+endLocations1DX = linspace(-numPixels(1)/2 * binSize(1), numPixels(1)/2 * binSize(1), numPixels(1));
+endLocations1DY = linspace(-numPixels(2)/2 * binSize(2), numPixels(2)/2 * binSize(2), numPixels(2));
+[endLGridX endLGridY] = meshgrid(endLocations1DX, endLocations1DY);
+endLGridXFlat = endLGridX(:);    %flatten the meshgrid
+endLGridYFlat = endLGridY(:);
+endLGridZFlat = ones(size(endLGridYFlat)) * imagePlaneDist;
+
+intensity = zeros(numPixels(1), numPixels(2), length(wave));
+intensityFlat = zeros(numPixels);
+intensityFlat = intensityFlat(:);
+    
+
+if (lensMode)
+    initialD = camera.rays.distance(~isnan(camera.rays.distance));
+else
+    initialD = zeros(numApertureSamplesTot, 1);
+end
+
+for apertureSample = 1:numApertureSamplesTot
+%     if(mod(apertureSample, 10) == 0)
+%         disp(apertureSample)
+%     end
+
+    % These are the locations on the aperture (we will take 1 at a time),
+    % and repmat that.
+    apLocationsX = ones(numPixelsTot, 1) * apXGridFlat(apertureSample);
+    apLocationsY = ones(numPixelsTot, 1) * apYGridFlat(apertureSample);
+
+    xDiff = endLGridXFlat - apLocationsX;
+    yDiff = endLGridYFlat - apLocationsY;
+    zDiff = endLGridZFlat; %aperture is assumed to be at Z = 0;
+
+    %compute the distance from the apeture location
+    d = sqrt(xDiff.^2 + yDiff.^2 + zDiff.^2) + initialD(apertureSample) * 10^6;  %if we plug in a different d, then we can trace an entire lens
+
+    %add the complex exponential contribution to the entire sensor and
+    %sum
+    intensityFlat = exp(2 * pi * 1i .* (d/lambda)) + intensityFlat;
+end
+ 
+
+%visualize - take note that we have a square root here to better visualize
+intensityFlat = 1/lambda .* abs(intensityFlat).^2;
+intensity1Wave = reshape(intensityFlat, size(intensity, 1), size(intensity, 2));
+
+figure; imagesc(sqrt(intensity1Wave));
+colormap('gray');
+
+
+if(lensMode)
+    lensModeText = 'Lens'
+else
+    lensModeText = 'No Lens'
+end
+title([lensModeText ', ' int2str(imagePlaneDist/10^6) 'mm,' ' apDiameter: ' num2str(apertureMiddleD) 'mm, pointSourceLocation: ' num2str(-point{1}(3)) 'mm']);
+xlabel([num2str(binSize(1) *numPixels(1)/10^6) 'mm']);
+
+
+%% do it faster
+tic
+%eventually want to limit this to several different passes because we will
+%run out of memory...
+xDiffMat = bsxfun(@minus, endLGridXFlat, apXGridFlat');
+yDiffMat = bsxfun(@minus, endLGridYFlat, apYGridFlat');
+zDiffMat = repmat(endLGridZFlat, [1, numApertureSamplesTot]);
+expD = exp(2 * pi * 1i .* (sqrt(xDiffMat.^2 + yDiffMat.^2 + zDiffMat.^2)/lambda));
+intensityFlat = sum(expD, 2) + intensityFlat;
+    
+toc
+%% do it faster but better memory management
+
+
+tic
+
+
+intensityFlat = zeros(numPixels);
+intensityFlat = intensityFlat(:);
+jobInterval = 50000;
+numJobs = ceil(numApertureSamplesTot/jobInterval);
+
+%split aperture into segments and do bsxfun on that, then combine later.
+%This can be parallelized later
+for job = 1:numJobs
+    
+    apXGridFlatCur = apXGridFlat((job-1) * jobInterval + 1:min(job * jobInterval, numApertureSamplesTot));
+    xDiffMat = bsxfun(@minus, endLGridXFlat, apXGridFlat');
+    yDiffMat = bsxfun(@minus, endLGridYFlat, apYGridFlat');
+    zDiffMat = repmat(endLGridZFlat, [1, numApertureSamplesTot]);
+
+    expD = exp(2 * pi * 1i .* (sqrt(xDiffMat.^2 + yDiffMat.^2 + zDiffMat.^2)/lambda));
+    intensityFlat = sum(expD, 2) + intensityFlat;
+end
+
+toc
+
+
+%% observations
+
+%aperture szie: .1mm
+%sensor size:.25  mm
+%sensor position (10*10^6 nm) 
+%barely any difference.  the distance tracking one seems more "Focused"
+%which could make sense.  
+%pattern does not look like airy disk.  This might be ok since we are in
+%near field diffraction
+
+
