@@ -179,10 +179,11 @@ end
 
 numPinholesW = 80;  %these 2 parameters must be even (for now)
 numPinholesH = 80;
+microlensMode = true;
 
 %assign pinhole position to PBRT, and figure out correct cropWindow
 lens = pbrtLensRealisticObject(filmDist, filmDiag, specFile, apertureDiameter, ...
-    diffraction, chromaticAberration, [], [], [], numPinholesW, numPinholesH);
+    diffraction, chromaticAberration, [], [], [], numPinholesW, numPinholesH, microlensMode);
 curPbrt.camera.setLens(lens);
 
 
