@@ -190,8 +190,9 @@ curPbrt.camera.setLens(lens);
 % we need to reset the sampler because of some cloning limitations
 % Sampler
 sampler = pbrtSamplerObject();
-samples = curPbrt.sampler.removeProperty();
-samples.value = 32;
+tempProp = sampler.removeProperty();   %remove integer pixelsamples, modify, then add back in
+tempProp.value = 512;
+sampler.addProperty(tempProp);
 curPbrt.setSampler(sampler);
 
 %curPbrt.camera.setResolution(720, 720);

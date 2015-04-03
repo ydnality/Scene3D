@@ -159,6 +159,23 @@ colorbar; title('Filtered Depth'); caxis([80 150]);
 
 % d1TestFiltered = imresize(groundTruthDepthMap, [400 600]);
 
+%calculate the x,y,z, point cloud from the depth map, then use this point
+%cloud to determine the normal vectors
+width = size(d1Test, 2);
+height = size(d1Test, 1);
+theta = linspace(-fieldOfView/2,fieldOfView/2, width);
+phi = linspace(-fieldOfView/2,fieldOfView/2, height);
+
+[thetaImage phiImage] = meshgrid(theta, phi);
+
+yImage = sin(phiImage * pi/180) .* d1TestFiltered;
+hyp = cos(phiImage * pi/180) .* d1TestFiltered;
+xImage = hyp .* cos(thetaImage * pi/180);
+zImage = hyp .* sin(thetaImage * pi/180);
+
+figure; imagesc(zImage);
+
+
 % calculate normal vectors using averaged cross products
 recordedLateralDistance = zeros(size(d1Test));
 normalMap = zeros([size(d1Test,1) size(d1Test,2) 3]);
@@ -169,11 +186,10 @@ for i = 2:(size(d1TestFiltered, 2) - 1)
         cRelief = d1TestFiltered(j + 1,i) - d1TestFiltered(j,i);
         dRelief = d1TestFiltered(j,i - 1) - d1TestFiltered(j,i);
         
-        %lateralDistance = d1TestFiltered(j,i) * pixelUnit/sensorDistance;
+        lateralDistance = d1TestFiltered(j,i) * pixelUnit/sensorDistance;
         %%this does not make a lot of sense
-        
-%         lateralDistance = d1TestFiltered(j,i) * tan(fieldOfView/size(ratioImage,2) * pi/180);
-        lateralDistance = 100 * tan(fieldOfView/size(ratioImage,2) * pi/180);
+        %lateralDistance = d1TestFiltered(j,i) * tan(fieldOfView/size(ratioImage,2) * pi/180);
+        %lateralDistance = 100 * tan(fieldOfView/size(ratioImage,2) * pi/180);
         recordedLateralDistance(j,i) = lateralDistance;
         aVector = [0 lateralDistance -aRelief];
         bVector = [lateralDistance 0 -bRelief];
@@ -201,6 +217,8 @@ for i = 2:(size(d1TestFiltered, 2) - 1)
 end
 scaledNormalMap = normalMap./2 + .5;
 
+
+
 figure; imshow(scaledNormalMap);
 title('Calculated Normal Map');
 
@@ -210,14 +228,16 @@ title('Calculated Normal Map');
 % %use a bilateral filter?
 
 %filter first 2 dimensions
-normalMap1 = medianFilter(normalMap(:,:,1),5);
-normalMap1 = medianFilter(normalMap1',5)';
-% normalMap1 = bilateralFilter(normalMap1, 10, 4, 25);  
+%normalMap1 = medianFilter(normalMap(:,:,1),5);
+%normalMap1 = medianFilter(normalMap1',5)';
+normalMap1 = normalMap(:,:,1);
+normalMap1 = crossBilateralFilter(normalMap1, d1TestFiltered, 10, 4, 25);  
 figure; imagesc(normalMap1);
 
-normalMap2 = medianFilter(normalMap(:,:,2),5);
-normalMap2 = medianFilter(normalMap2',5)';
-% normalMap2 = bilateralFilter(normalMap2, 10, 4, 25);  
+%normalMap2 = medianFilter(normalMap(:,:,2),5);
+%normalMap2 = medianFilter(normalMap2',5)';
+normalMap2 = normalMap(:,:,2);
+normalMap2 = crossBilateralFilter(normalMap2, d1TestFiltered, 10, 4, 25);  
 figure; imagesc(normalMap2);
 
 normalMap3 = ones(size(normalMap1)) - normalMap1.^2 + normalMap2.^2;
@@ -365,3 +385,46 @@ meanPercentErrorFiltered= mean(errorFiltered(realValues)) * 100
 % use local windows to improve accuracy, while sacrificing resolution.  
 
 
+
+% OLD NorMAL VECTOR CALCULATION
+
+% % calculate normal vectors using averaged cross products
+% recordedLateralDistance = zeros(size(d1Test));
+% normalMap = zeros([size(d1Test,1) size(d1Test,2) 3]);
+% for i = 2:(size(d1TestFiltered, 2) - 1)
+%     for j = 2:(size(d1TestFiltered,1) -1)
+%         aRelief = d1TestFiltered(j - 1,i) - d1TestFiltered(j,i);
+%         bRelief = d1TestFiltered(j, i + 1) - d1TestFiltered(j,i);
+%         cRelief = d1TestFiltered(j + 1,i) - d1TestFiltered(j,i);
+%         dRelief = d1TestFiltered(j,i - 1) - d1TestFiltered(j,i);
+%         
+%         lateralDistance = d1TestFiltered(j,i) * pixelUnit/sensorDistance;
+%         %%this does not make a lot of sense
+%         %lateralDistance = d1TestFiltered(j,i) * tan(fieldOfView/size(ratioImage,2) * pi/180);
+%         %lateralDistance = 100 * tan(fieldOfView/size(ratioImage,2) * pi/180);
+%         recordedLateralDistance(j,i) = lateralDistance;
+%         aVector = [0 lateralDistance -aRelief];
+%         bVector = [lateralDistance 0 -bRelief];
+%         cVector = [0 -lateralDistance -cRelief];
+%         dVector = [-lateralDistance 0 -dRelief];
+%         
+%         adNormal = cross(aVector, dVector);
+%         adNormal = adNormal./norm(adNormal);
+%         
+%         dcNormal = cross(dVector, cVector);
+%         dcNormal = dcNormal./norm(dcNormal);
+%         
+%         cbNormal = cross(cVector, bVector);
+%         cbNormal = cbNormal./norm(cbNormal);
+%         
+%         baNormal = cross(bVector, aVector);
+%         baNormal = baNormal./norm(baNormal);
+%         
+%         %averageNormal = (adNormal + dcNormal + cbNormal + baNormal);
+%         averageNormal = median([adNormal',dcNormal',cbNormal',baNormal'],  2);
+%         averageNormal = averageNormal./norm(averageNormal);
+%         
+%         normalMap(j, i,:) = reshape(averageNormal, [1 1 3]);
+%     end
+% end
+% scaledNormalMap = normalMap./2 + .5;

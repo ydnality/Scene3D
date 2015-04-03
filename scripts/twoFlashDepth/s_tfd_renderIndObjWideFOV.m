@@ -24,6 +24,7 @@ from = [ -56.914787 -105.385544 35.0148];
 to = [-56.487434 -104.481461 35 ];
 
 vector = from - to;
+vector = vector./norm(vector);
 from = from - vector * 40;
 to = to - vector * 40;
 position = [from; to; 0 0 1];
