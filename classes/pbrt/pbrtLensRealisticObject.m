@@ -14,6 +14,7 @@ classdef pbrtLensRealisticObject < pbrtLensObject
         filmCenter = [0 0]; %because of a pbrt oddity, we had to put this here although it doesn't make intuitive sense
         numPinholesW = -1;   %similar oddity here.  These 2 properties are for a pinhole array
         numPinholesH = -1;  
+        microlensMode = false;  %flag for microlenses
     end
     methods
         
@@ -21,7 +22,7 @@ classdef pbrtLensRealisticObject < pbrtLensObject
         function obj = pbrtLensRealisticObject(inFilmDistance, inFilmDiag, ...
                 specFile, apertureDiameter, diffractionEnabled, ...
                 chromaticAberrationEnabled, curveRadius, pinholeExitApLoc, filmCenter, ...
-                numPinholesW, numPinholesH)
+                numPinholesW, numPinholesH, microlensMode)
             
 
             if (ieNotDefined('inFilmDistance'))
@@ -79,7 +80,10 @@ classdef pbrtLensRealisticObject < pbrtLensObject
             if(~ieNotDefined('numPinholesH'))
                 obj.numPinholesH = numPinholesH;
             end
-                
+            
+            if(~ieNotDefined('microlensMode'))
+                obj.microlensMode = true;
+            end
         end
         
         
@@ -107,6 +111,10 @@ classdef pbrtLensRealisticObject < pbrtLensObject
             if( obj.numPinholesH > 0 && obj.numPinholesW > 0)
                  fprintf(fid,'\t"float num_pinholes_w" %i\n', obj.numPinholesW);
                  fprintf(fid,'\t"float num_pinholes_h" %i\n', obj.numPinholesH);
+            end
+            
+            if (obj.microlensMode)
+                fprintf(fid,'\t"float microlens_enabled" 1\n');
             end
             
             returnVal = 1;
