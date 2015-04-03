@@ -60,7 +60,7 @@ superPixelH = 9;
 ss = oiGet(oi,'sample spacing','m');
 sensor = sensorCreate;
 sensor = sensorSet(sensor,'pixel size same fill factor',ss(1));
-sensor = sensorSet(sensor,'size',oiGet(oi,'size')+[superPixelH superPixelW]);
+sensor = sensorSet(sensor,'size',oiGet(oi,'size'));
 sensor = sensorSet(sensor,'exp time',0.010);
 
 % Describe
@@ -86,62 +86,92 @@ vcAddObject(ip); ipWindow;
 % Show in a separate window
 rgb = ipGet(ip,'result');
 vcNewGraphWin; image(lrgb2srgb(rgb));
+axis image
 
-%% Convert to a 5D matrix form
+%% Pack the samples of the rgb image into the lightfield structure
 
+% If we had a lightfield structure, lf, this could become
+%    rgb2lf(rgb,lf)
+
+% This is the array size of pinholes (or microlens)
+% The reason for floor() is ... well rounding or something.  Shouldn't
+% really be needed.
 numSuperPixW = floor(size(rgb, 2)/superPixelW);
 numSuperPixH = floor(size(rgb, 1)/superPixelH);
 
-lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
+% Allocate space
+% lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
+lightfield = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
+
+% LF = permute(lightfield, [4 3 1 2 5]);
 
 for i = 1:numSuperPixW
     for j = 1:numSuperPixH
-        lightfield(i,j, :, :, :) = rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
+        lightfield(:,:, j, i, :) = ...
+            rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
             ((i-1) * superPixelW + 1):(i*superPixelW), :);
     end
 end
 
-%% Some views
-% Use the light field toolbox to calculate stuff?
+%% Some views of the light field data
 
-% lightField(:,:, row, col, :) gives us a pinhole view at a specific
-% position on the aperture. 
-%  Notice that the pixels at the edges don't really get any rays or if they
-%  do they get very little late (are noisier).
+% lightField(:,:, row, col, :) gives us a view from corresponding pixels in
+% each of the pinhole (microlens array) data sets.
+
+% The pixels at the edges don't really get any rays or if they do they get
+% very little late (are noisier).
+
 vcNewGraphWin;
 cnt = 1;
 row = superPixelH; col = superPixelW;
-rList = 1:3:row;
-cList = 1:3:col;
+rList = 1:2:row;
+cList = 1:2:col;
 for rr=rList
     for cc=cList
-        img = squeeze(lightfield(:,:,rr,cc,:));
-        img = imageTranspose(img);
+        img = squeeze(lightfield(rr,cc,:,:,:));
         img = lrgb2srgb(img);
         subplot(length(rList),length(cList),cnt), imshow(img);
         cnt = cnt + 1;
     end
 end
 
+%% Compare the leftmost and rightmost images in the middle
+vcNewGraphWin([],'wide');
+
+img = squeeze(lightfield(3,2,:,:,:));
+img = lrgb2srgb(img);
+subplot(1,2,1), imshow(img);
+
+img = squeeze(lightfield(3,8,:,:,:));
+img = lrgb2srgb(img);
+subplot(1,2,2), imshow(img);
 
 %% render some example images
 
-%sum all the sub aperture views (3rd and 4th dimensions)  
-summedimage = sum(sum(lightfield, 3), 4);
-summedimage = reshape(summedimage, [80 80 3]);
-summedimage = permute(summedimage, [2 1 3]);
-%summedimage = summedimage(:,end:-1:1, :);
-summedimage = summedimage./(superPixelW * superPixelH); %normalize image by the number of summed images
+% If we sume all the r,g and b pixels within each aperture we get a single
+% RGB image corresponding to the mean.  This is the image at the microlens
+% itself
+tmp = squeeze(sum(sum(lightfield,2),1));
+vcNewGraphWin;
+tmp = tmp/max(tmp(:));
+imagescRGB(lrgb2srgb(tmp));
 
-vcNewGraphWin; imshow(summedimage);
+%% Now what would the image have been if we move the sensor forward?
 
+vcNewGraphWin
+for Slope = -0.5:0.1:0.5
+    ShiftImg = LFFiltShiftSum(lightfield, Slope );
+    imagesc(lrgb2srgb(ShiftImg(:,:,1:3)));
+    axis image
+    title(sprintf('Parameter %0.2f',Slope))
+    pause(0.5)
+end
 
-%% LF workshop stuff
-
-%change into LF workshop format
-LF = permute(lightfield, [4 3 1 2 5]);
-ShiftSumSlope1 = .2;
-ShiftSumSlope2 = 0;
+%%
+% Change into LF workshop format.
+% We should do this up above, if this is true.
+% ShiftSumSlope1 = .2;
+% ShiftSumSlope2 = 0;
 
 %---Demonstrate shift sum filter---
 for( Slope = -.3:.1:.3 )
