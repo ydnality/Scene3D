@@ -1,32 +1,96 @@
 %  Experiments with light fields and ISET
-
 %
+%  See also: s_s3dISETLF.m, LFToolbox0.4
+%
+%  To retrieve some of the lightfield data use
+%     urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/Lightfield';
+%     fname = 'indObjLFOiDirect.mat';
+%     fname = 'benchLFScene.mat';
+%     urlwrite(fullfile(urlBase,fname),fname)
+% 
 % (AL) Vistasoft Team, 2015
+
+%%
+ieInit
 
 %% inputs
 
-%load LF as oi
+%load a lightfield as an oi object
 %in = load(fullfile(dataPath, 'lightfields', 'benchLFSceneDirect.mat'))
+
+% How did this get created?  Through PBRT.
+% The way in which got created should be up at scarlet
+% This is a script named XXX
 in = load(fullfile(dataPath, 'lightfields', 'indObjLFOiDirect.mat'));
 oi = in.opticalimage;
 
-%convert to RGB (we are skipping the sensor processing step for simplicity.
-%That will come later)
-rgb = oiGet(oi, 'rgb');
+% The optics should be reasonable.  We set a focal length of 3.5mm here.
+oi = oiSet(oi,'optics focal length',3.5e-3);
 
+% We say the field of view is 10 deg.  This produces a reasonable sample
+% spacing, corresponding to about one pretty big pixel.
+oi = oiSet(oi,'fov',20);
 
-%% process sensor and image processing data
+% Set the mean illuminance in lux to 10.  Reasonably bright (bright room)
+oi = oiAdjustIlluminance(oi,10);
 
+vcAddObject(oi); oiWindow;
 
+% Description - Just checking
+oiGet(oi,'sample spacing','um')
+oiGet(oi,'fov')
+oiGet(oi,'mean illuminance')
 
-%% Convert to a 5D matrix form
-
+% These parameters should always be part of an oi lightfield description.
 %lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
 superPixelW = 9;
 superPixelH = 9;
 
-numSuperPixW = size(rgb, 2)/superPixelW;
-numSuperPixH = size(rgb, 1)/superPixelH;
+%convert to RGB (we are skipping the sensor processing step for simplicity.
+%That will come later)
+% rgb = oiGet(oi, 'rgb');
+% vcNewGraphWin;
+% imagescRGB(rgb);
+
+%% process sensor and image processing data
+%
+% Create a sensor in which each pixel is aligned with a single sample in
+% the OI.  Then produce the sensor data (which will include color filters)
+%
+ss = oiGet(oi,'sample spacing','m');
+sensor = sensorCreate;
+sensor = sensorSet(sensor,'pixel size same fill factor',ss(1));
+sensor = sensorSet(sensor,'size',oiGet(oi,'size')+[superPixelH superPixelW]);
+sensor = sensorSet(sensor,'exp time',0.010);
+
+% Describe
+sensorGet(sensor,'pixel size','um')
+sensorGet(sensor,'size')
+sensorGet(sensor,'fov',[],oi)
+
+%
+vcReplaceObject(oi); oiWindow;
+oiGet(oi,'fov')
+
+%% Compute the sensor response
+
+sensor = sensorCompute(sensor,oi);
+vcAddObject(sensor); sensorWindow('scale',1);
+
+%% Interpolate the color filter data to produce a full sensor
+%
+ip = ipCreate;
+ip = ipCompute(ip,sensor);
+vcAddObject(ip); ipWindow;
+
+% Show in a separate window
+rgb = ipGet(ip,'result');
+vcNewGraphWin; image(lrgb2srgb(rgb));
+
+%% Convert to a 5D matrix form
+
+numSuperPixW = floor(size(rgb, 2)/superPixelW);
+numSuperPixH = floor(size(rgb, 1)/superPixelH);
 
 lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
 
@@ -38,6 +102,8 @@ for i = 1:numSuperPixW
 end
 
 %% Some views
+% Use the light field toolbox to calculate stuff?
+
 % lightField(:,:, row, col, :) gives us a pinhole view at a specific
 % position on the aperture. 
 %  Notice that the pixels at the edges don't really get any rays or if they
@@ -45,12 +111,14 @@ end
 vcNewGraphWin;
 cnt = 1;
 row = superPixelH; col = superPixelW;
-for rr=1:row
-    for cc=1:col
+rList = 1:3:row;
+cList = 1:3:col;
+for rr=rList
+    for cc=cList
         img = squeeze(lightfield(:,:,rr,cc,:));
         img = imageTranspose(img);
-        
-        subplot(9,9,cnt), imshow(img);
+        img = lrgb2srgb(img);
+        subplot(length(rList),length(cList),cnt), imshow(img);
         cnt = cnt + 1;
     end
 end
