@@ -327,16 +327,16 @@ classdef lensC <  handle
                     % Variable to append
                     %                     efl=OptSyst.cardPoints.fi; %focal lenght of the system
                     efl=paraxGet(OptSyst,'efl');
-                    obj=obj.bbmSetField('effectivefocallength',efl);
+                    obj.bbmSetField('effectivefocallength',efl);
                     %                     pRad = OptSyst.Petzval.radius; % radius of curvature of focal plane
                     pRad = paraxGet(OptSyst,'focalradius'); % radius of curvature of focal plane
-                    obj=obj.bbmSetField('focalradius',pRad);
+                    obj.bbmSetField('focalradius',pRad);
                     %                     Fi=OptSyst.cardPoints.dFi;     %Focal point in the image space
                     Fi= paraxGet(OptSyst,'imagefocalpoint')-z0;     %Focal point in the image space
-                    obj=obj.bbmSetField('imagefocalpoint',Fi);
+                    obj.bbmSetField('imagefocalpoint',Fi);
                     %                     Hi=OptSyst.cardPoints.dHi; % Principal point in the image space
                     Hi= paraxGet(OptSyst,'imageprincipalpoint')-z0; % Principal point in the image space
-                    obj=obj.bbmSetField('imageprincipalpoint',Hi);
+                    obj.bbmSetField('imageprincipalpoint',Hi);
                     %                     Ni=OptSyst.cardPoints.dNi;     % Nodal point in the image space
                     Ni=paraxGet(OptSyst,'imagenodalpoint')-z0;    % Nodal point in the image space
                     obj.bbmSetField('imagenodalpoint',Ni);

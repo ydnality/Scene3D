@@ -226,82 +226,84 @@ classdef psfCameraC <  handle
                     ImagSyst=val;
                     psPolar=varargin{1};
                     z0 = paraxGet(ImagSyst,'lastvertex');
+                    
                     % Variable to append
                     efl=paraxGet(ImagSyst,'effectivefocallength'); %focal lenght of the system
-                    obj=obj.bbmSetField('effectivefocallength',efl);
+                    obj.bbmSetField('effectivefocallength',efl);
                     pRad = paraxGet(ImagSyst,'effectivefocallength'); % radius of curvature of focal plane
-                    obj=obj.bbmSetField('focalradius',pRad);
+                    obj.bbmSetField('focalradius',pRad);
                     Fi=paraxGet(ImagSyst,'imagefocalpoint')-z0;     %Focal point in the image space
-                    obj=obj.bbmSetField('imagefocalpoint',Fi);
+                    obj.bbmSetField('imagefocalpoint',Fi);
                     Hi=paraxGet(ImagSyst,'imageprincipalpoint')-z0; % Principal point in the image space
-                    obj=obj.bbmSetField('imageprincipalpoint',Hi);
+                    obj.bbmSetField('imageprincipalpoint',Hi);
                     Ni=paraxGet(ImagSyst,'imagenodalpoint')-z0;     % Nodal point in the image space
-                    obj=obj.bbmSetField('imagenodalpoint',Ni);
+                    obj.bbmSetField('imagenodalpoint',Ni);
                     Fo=paraxGet(ImagSyst,'objectfocalpoint')-z0; %Focal point in the object space
-                    obj=obj.bbmSetField('objectfocalpoint',Fo);
+                    obj.bbmSetField('objectfocalpoint',Fo);
                     Ho=paraxGet(ImagSyst,'objectprincipalpoint')-z0; % Principal point in the object space
-                    obj=obj.bbmSetField('objectprincipalpoint',Ho);
+                    obj.bbmSetField('objectprincipalpoint',Ho);
                     No=paraxGet(ImagSyst,'objectnodalpoint')-z0; % Nodal point in the object space
-                    obj=obj.bbmSetField('objectnodalpoint',No);
+                    obj.bbmSetField('objectnodalpoint',No);
+                    
                     % abcd Matrix (Paraxial)
                     M = ImagSyst.matrix.abcd; % The 4 coefficients of the ABCD matrix of the overall system
-                    obj=obj.bbmSetField('abcd',M);
+                    obj.bbmSetField('abcd',M);
                     
                     % IMAGE FORMATION                    
                     % Effective F number
                     Fnum=ImagSyst.object{end}.Radiance.Fnumber.eff; %effective F number
-                    obj=obj.bbmSetField('fnumber',Fnum);
+                    obj.bbmSetField('fnumber',Fnum);
                     % Numerical Aperture
                     NA=ImagSyst.n_im.*sin(atan(ImagSyst.object{end}.Radiance.ExP.diam(:,1)./(ImagSyst.object{end}.ConjGauss.z_im-mean(ImagSyst.object{end}.Radiance.ExP.z_pos,2))));
-                    obj=obj.bbmSetField('numericalaperture',NA);
+                    obj.bbmSetField('numericalaperture',NA);
                     %Field of View
                     FoV=ImagSyst.object{end}.Radiance.FoV;
-                    obj=obj.bbmSetField('fieldofview',FoV);
+                    obj.bbmSetField('fieldofview',FoV);
                     % Lateral magnification
                     magn_lateral=ImagSyst.object{end}.ConjGauss.m_lat; %
-                    obj=obj.bbmSetField('lateralmagnification',magn_lateral);                                   
+                    obj.bbmSetField('lateralmagnification',magn_lateral);                                   
                     % Exit Pupil
                     ExitPupil.zpos=mean(ImagSyst.object{end}.Radiance.ExP.z_pos,2)-z0;
                     ExitPupil.diam=ImagSyst.object{end}.Radiance.ExP.diam(:,1)-ImagSyst.object{end}.Radiance.ExP.diam(:,2);
-                    obj=obj.bbmSetField('exitpupil',ExitPupil);
+                    obj.bbmSetField('exitpupil',ExitPupil);
                     % Entrance Pupil
                     EntrancePupil.zpos=mean(ImagSyst.object{end}.Radiance.EnP.z_pos,2)-z0;
                     EntrancePupil.diam=ImagSyst.object{end}.Radiance.EnP.diam(:,1)-ImagSyst.object{end}.Radiance.EnP.diam(:,2);
-                    obj=obj.bbmSetField('entrancepupil',EntrancePupil);                    
+                    obj.bbmSetField('entrancepupil',EntrancePupil);                    
                     % Gaussian Image Point
                     iP_zpos=ImagSyst.object{end}.ConjGauss.z_im-z0; %image point z position
                     iP_h=psPolar(1).*magn_lateral;% image point distance from the optical axis
                     [iP(:,1),iP(:,2),iP(:,3)]=coordPolar2Cart3D(iP_h,psPolar(2),iP_zpos);
-                    obj=obj.bbmSetField('gaussianimagepoint',iP);                    
+                    obj.bbmSetField('gaussianimagepoint',iP);                    
                     % Aberration
                     % Primary Aberration
                     paCoeff=ImagSyst.object{end}.Wavefront.PeakCoeff;
-                    obj=obj.bbmSetField('primaryaberration',paCoeff);
+                    obj.bbmSetField('primaryaberration',paCoeff);
                     % Defocus
                     [obj_x,obj_y,obj_z]=coordPolar2Cart3D(psPolar(1),psPolar(2),psPolar(3)); 
 %                     Obj.z=obj_z; Obj.y=obj_y;                    
                     Obj.z=obj_z+paraxGet(ImagSyst,'lastVertex'); 
                     Obj.y=sqrt(obj_x.^+obj_y.^2); % eccentricity (height)
                     [defCoeff] = paEstimateDefocus(ImagSyst,Obj,'best');
-                    obj=obj.bbmSetField('defocus',defCoeff);
+                    obj.bbmSetField('defocus',defCoeff);
                                         
                     % REFRACTIVE INDEX
                     % object space
                     n_ob=ImagSyst.n_ob;
-                    obj=obj.bbmSetField('n_ob',n_ob);
+                    obj.bbmSetField('n_ob',n_ob);
                     % image space
                     n_im=ImagSyst.n_im;
-                    obj=obj.bbmSetField('n_im',n_im);
+                    obj.bbmSetField('n_im',n_im);
                     
-                case {'fftpsf';'psffft'} 
-                % get the fftPSF 
-                  obj.fftPSF=val;   
-                 case {'fftpsfmodulus';'psffftvalue'} 
-                      % get the fftPSF modolus, 
-                      % Specifying the wavelength if you want a specific PSF
+                case {'fftpsf';'psffft'}
+                    % get the fftPSF
+                    obj.fftPSF=val;
+                case {'fftpsfmodulus';'psffftvalue'}
+                    % get the fftPSF modolus,
+                    % Specifying the wavelength if you want a specific PSF
                     if nargin>3
                         wave0=varargin{1};
-                        waveV=obj.get('wave');
+                        % waveV=obj.get('wave');
                         indW0=find(wave==wave0);
                         if isempty(indW0)
                             obj.fftPSF.abs=val;
@@ -311,9 +313,9 @@ classdef psfCameraC <  handle
                         end
                     end
                     obj.fftPSF.abs=val;
-                    case {'fftpsfcoordinate';'psffftcoord'} 
-                      % get the fftPSF coord, 
-                      % Specifying the wavelength if you want a specific PSF
+                case {'fftpsfcoordinate';'psffftcoord'}
+                    % get the fftPSF coord,
+                    % Specifying the wavelength if you want a specific PSF
                     if nargin>3
                         wave0=varargin{1};
                         waveV=obj.get('wave');

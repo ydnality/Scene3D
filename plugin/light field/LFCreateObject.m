@@ -18,6 +18,10 @@ function [LFobject]=LFCreateObject(type,unit, wave,varargin)
 %OUTPUT
 %LFobject: light field object
 
+error('LFCreateObject is deprecated');
+
+end
+
 %Append fields to the OUTPUT
 LFobject.wave=wave;
 LFobject.unit=unit;

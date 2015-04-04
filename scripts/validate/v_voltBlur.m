@@ -49,8 +49,6 @@ pSPhi = [0 pSPhi];
 
 wantedPSLocation = [0 7 -103];  %in [degrees depth(mm)] format
 
-
-
 %% Define the Lens and Film
 lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 % lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
@@ -179,8 +177,11 @@ VoLTCameraObject = VoLTCameraC('film', film, ...
                                'scene', scene, ...
                                'lens', lens);
 
-tic
-VoLTCameraObject.blurScene([2 2]);
-toc
+%%
+if exist('matlabpool','builtin')
+    tic
+    VoLTCameraObject.blurScene([2 2]);
+    toc
+end
 
 %%

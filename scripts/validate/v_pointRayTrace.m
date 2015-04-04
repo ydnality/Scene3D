@@ -8,7 +8,7 @@
 % AL/BW VISTASOFT 2014
 
 %%
-s_initISET
+ieInit
 
 %% Make a volume of point.  A little boring in this case
 

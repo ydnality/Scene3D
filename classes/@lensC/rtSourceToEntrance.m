@@ -18,16 +18,19 @@ function rays = rtSourceToEntrance(obj, pointSource, ppsfCFlag, jitterFlag, rtTy
 %
 % See also: rtEntranceToExit
 
+%% PROGRAMMING NOTES
+%
+%  The depthTriangles argument and related section of the code below are
+%  experimental and not yet debugged.  Don't try to run it.
+%
+
 %% Parameter checking
 
-if ieNotDefined('ppsfCFlag'), ppsfCFlag = false; end
+if ieNotDefined('ppsfCFlag'),      ppsfCFlag = false; end
 if ieNotDefined('jitterFlag'),     jitterFlag = false;     end
 if ieNotDefined('rtType'),         rtType = 'realistic';   end
-if ieNotDefined('subSection'),      subSection = [];    end
-if ieNotDefined('depthTriangles'),    depthTriangles = []; end
-
-% Could pass as an argument
-debugOn = false;
+if ieNotDefined('subSection'),     subSection = [];    end
+if ieNotDefined('depthTriangles'), depthTriangles = []; end
 
 % Define rays object
 if (~ppsfCFlag), rays = rayC();

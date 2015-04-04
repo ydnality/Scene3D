@@ -13,6 +13,10 @@ function [PSF1D]=LFComputePSF1D(LF,method,vectY)
 %PSF1D: is the point spread funtion along the axis of the given LF object 
 %       
 
+error('Deprecated')
+
+end
+
 
 % %% CHECK whether the Y vector is sampled uniformally
 dy=vectY(2:end)-vectY(1:end-1);

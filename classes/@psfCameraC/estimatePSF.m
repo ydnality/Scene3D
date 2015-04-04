@@ -16,10 +16,12 @@ function estimatePSF(obj,nLines, jitterFlag, subsection)
 
 if ieNotDefined('nLines'),     nLines = false;     end
 if ieNotDefined('jitterFlag'), jitterFlag = false; end
+if ieNotDefined('subsection'), subsection = []; end
 
 % Trace from the point source to the entrance aperture of the
 % multielement lens
 ppsfCFlag = false;
+% (pointSource, ppsfCFlag, jitterFlag, rtType, subSection, depthTriangles)
 obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag, [], subsection);
 
 % Duplicate the existing rays for each wavelength

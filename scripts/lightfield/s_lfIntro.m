@@ -5,7 +5,10 @@
 %  To retrieve some of the lightfield data use
 %     urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD';
 %     fname = 'indObjLFOiDirect.mat';
-%     fname = 'benchLFScene.mat';
+%
+%     urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes'
+%     fname = 'benchLF.mat';
+%
 %     urlwrite(fullfile(urlBase,fname),fname)
 % 
 % (AL) Vistasoft Team, 2015
@@ -18,13 +21,13 @@ ieInit
 %load a lightfield as an oi object
 %in = load(fullfile(dataPath, 'lightfields', 'benchLFSceneDirect.mat'))
 
-% How did this get created?  Through PBRT.
-% The way in which got created should be up at scarlet
-% This is a script named XXX
+% Created using PBRT.
+% The way in which got created should be up included with the data
+% somewhere, perhaps on the remote data path (at scarlet).
 in = load(fullfile(dataPath, 'lightfields', 'indObjLFOiDirect.mat'));
 oi = in.opticalimage;
 
-% The optics should be reasonable.  We set a focal length of 3.5mm here.
+%% The optics should be reasonable.  We set a focal length of 3.5mm here.
 oi = oiSet(oi,'optics focal length',3.5e-3);
 
 % We say the field of view is 10 deg.  This produces a reasonable sample
@@ -52,6 +55,10 @@ superPixelH = 9;
 % vcNewGraphWin;
 % imagescRGB(rgb);
 
+%
+vcAddObject(oi); oiWindow;
+oiGet(oi,'fov')
+
 %% process sensor and image processing data
 %
 % Create a sensor in which each pixel is aligned with a single sample in
@@ -68,10 +75,6 @@ sensorGet(sensor,'pixel size','um')
 sensorGet(sensor,'size')
 sensorGet(sensor,'fov',[],oi)
 
-%
-vcReplaceObject(oi); oiWindow;
-oiGet(oi,'fov')
-
 %% Compute the sensor response
 
 sensor = sensorCompute(sensor,oi);
@@ -85,8 +88,6 @@ vcAddObject(ip); ipWindow;
 
 % Show in a separate window
 rgb = ipGet(ip,'result');
-vcNewGraphWin; image(lrgb2srgb(rgb));
-axis image
 
 %% Pack the samples of the rgb image into the lightfield structure
 
@@ -100,7 +101,6 @@ numSuperPixW = floor(size(rgb, 2)/superPixelW);
 numSuperPixH = floor(size(rgb, 1)/superPixelH);
 
 % Allocate space
-% lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
 lightfield = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
 
 % For numerical calculations, we would use this
@@ -175,7 +175,7 @@ for Slope = -0.5:0.1:0.5
     imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
     axis image; truesize
     title(sprintf('Parameter %0.2f',Slope))
-    pause(0.2)
+    pause(0.1)
 end
 
 %% The white image
@@ -196,66 +196,4 @@ LFDispMousePan(LF)
 %
 LFDispVidCirc(LF)
 
-%%
-% Change into LF workshop format.
-% We should do this up above, if this is true.
-% ShiftSumSlope1 = .2;
-% ShiftSumSlope2 = 0;
-
-%---Demonstrate shift sum filter---
-for( Slope = -.3:.1:.3 )
-	fprintf('Applying shift sum filter');
-	[ShiftImg, FiltOptionsOut] = LFFiltShiftSum( LF, Slope );
-	fprintf(' Done\n');
-	FiltOptionsOut
-	
-	%LFFigure(CurFigure); 
-	%CurFigure = CurFigure + 1;
-    figure;
-    ShiftImg = permute(ShiftImg, [2 1 3]);
-    imshow(ShiftImg(:,:,1:3));
-	%LFDisp(ShiftImg);
-	axis image off
- 	truesize
-	title(sprintf('Shift sum filter, slope %.3g', Slope));
-	drawnow
-end
-
-
-
-%% Experiment with "hyperfan" filter.  I initially thought this could render all in focus images, but I appera to be incorrect...
-
-%---Demonstrate 4D Hyperfan filter---
-LFSize = size(LF);
-HyperfanSlope1 = 0; HyperfanSlope2 = .3;
-HyperfanBW = 0.035;  % What does this mean?!?!
-
-fprintf('Building 4D frequency hyperfan... ');
-[H, FiltOptionsOut] = LFBuild4DFreqHyperfan( LFSize, HyperfanSlope1, HyperfanSlope2, HyperfanBW );
-fprintf('Applying filter');
-[LFFilt, FiltOptionsOut] = LFFilt4DFFT( LF, H, FiltOptionsOut );
-FiltOptionsOut
-
-% LFFigure(CurFigure);
-% CurFigure = CurFigure + 1;
-%figure; 
-%LFFilt = permute(LFFilt, [2 1 3]);
-%imshow(LFFilt);
-figure;
-LFDisp(LFFilt);
-
-%sum all the sub aperture views (3rd and 4th dimensions)  
-% summedimage = sum(sum(LFFilt(:,:,:,:, 1:3), 1), 2);
-% summedimage = reshape(summedimage, [80 80 3]);
-% summedimage = permute(summedimage, [2 1 3]);
-% %summedimage = summedimage(:,end:-1:1, :);
-% summedimage = summedimage./(superPixelW * superPixelH); %normalize image by the number of summed images
-% vcNewGraphWin; imshow(summedimage);
-
-
-axis image off
-truesize
-title(sprintf('Frequency hyperfan filter, slopes %.3g, %.3g, HyperfanBW %.3g', HyperfanSlope1, HyperfanSlope2, HyperfanBW));
-drawnow
-
-
+%% END

@@ -7,7 +7,7 @@ function [PSF2D]=LFComputePSF2D(PSF1D,method,varargin)
 %PSF1D: psf along 1 axis (contains .Y,.normI)
 %method: specify the method of computation for the 2D PSF
 %          -> 'meridional' varargin{1} 
-
+error('Deprecated');
 
 %OUTPUT
 %PSF2D: is the point spread funtion along the axis of the given LF object 

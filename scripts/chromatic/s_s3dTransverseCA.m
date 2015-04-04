@@ -15,7 +15,6 @@ ieInit
 
 %% Make a lens with an aperture in the middle.
 lens = lensC;
-% lens.draw;
 
 %% Set index of refraction
 
@@ -39,10 +38,10 @@ ps = [-5 0 -100];
 
 ppsfCamera = ppsfCameraC('lens',lens,'film',film,'point source',ps);
 
-%% 
+%% Compute the point spread and show the lens
 
-% Should we add to the psf or should we start fresh?  We need to be
-% clearer.
+% The estimated PSF is added to the current camera film.
+% Note below that we clear the film before recomputing.
 nLines = 0; jitterFlag = true;
 ppsfCamera.estimatePSF(nLines,jitterFlag);
 
@@ -56,8 +55,9 @@ aSurface = lens.get('aperture');  % The surface with the aperture
 s        = lens.get('surface array',aSurface);
 pOrig    = s.get('zpos');     % Original position of the aperture
 
+
 %% Show the changing magnification with aperture z position
-d =[0, -30];
+d =[0, -20];
 
 for ii=1:length(d)
     aSurface = lens.get('aperture');  % The surface with the aperture
@@ -66,7 +66,7 @@ for ii=1:length(d)
     
     s.set('zpos',pOrig + d(ii));  % Change the z position of the aperture
     lens.sortSurfaceOrder;        % Make sure the s array is updated with the new position
-    % vcNewGraphWin; lens.draw;
+    lens.draw;
     
     % Should we add to the psf or should we start fresh?  We need to be
     % clearer.

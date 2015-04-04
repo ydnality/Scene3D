@@ -1,19 +1,23 @@
 function obj =  draw(obj)
-% Draw the the multi-element lens in a graph window
+% Draw the the multi-element lens surfaces in a graph window
 %
 %   lens.draw
 %
 % See also:  psfCamera.draw
 %  That calls this lens draw and also draws the rays for the point spread,
-%  I think.
 %
 % AL/BW Vistasoft Team, Copyright 2014
 
-% Create the figure and set the parameters
-axis equal;
+%% Create the figure and set the parameters
+vcNewGraphWin; axis equal;
 lWidth = 2; lColor = 'k';  % Drawing parameters
+xlabel('mm'); ylabel('mm');
 
-% We draw one surface/aperture at a time
+% Make sure that 
+minx = 0; maxx = 0;
+miny = 0; maxy = 0;
+
+%% We draw one surface/aperture at a time
 nSurfaces = obj.get('n surfaces');
 for lensEl = 1:nSurfaces
     
@@ -26,7 +30,9 @@ for lensEl = 1:nSurfaces
          
         % One edge of the lens sits at this z intercept
         zIntercept = curEl.get('z intercept');
-        
+        minx = min(minx,zIntercept);
+        maxx = max(maxx,zIntercept);
+
         % Solve for the points on the curve for this lens
         % surface element.  We are drawing in the z-y plane
         % because the z-axis is the horizontal axis, and the
@@ -71,6 +77,9 @@ for lensEl = 1:nSurfaces
         line('xData',zPlot, 'yData',yPlotN,...
             'color',lColor,'linewidth',lWidth);
         
+        miny = min(miny, min(yPlotN(:)));
+        maxy = max(maxy, max(yPlot(:)));
+        
     else
         %Draw the aperture opening if radius = 0
         
@@ -79,14 +88,25 @@ for lensEl = 1:nSurfaces
         
         %right now: take the minimum value
         curAperture = min(curEl.apertureD/2, obj.apertureMiddleD/2);
+        zIntercept = curEl.sCenter(3);
         
-        l = line(curEl.sCenter(3) * ones(2,1), -1*[curEl.apertureD/2 curAperture]);
+        l = line(zIntercept * ones(2,1), -1*[curEl.apertureD/2 curAperture]);
         set(l,'linewidth',lWidth,'color',lColor);
-        l = line(curEl.sCenter(3) * ones(2,1), [curAperture curEl.apertureD/2]);
+        l = line(zIntercept * ones(2,1), [curAperture curEl.apertureD/2]);
         set(l,'linewidth',lWidth,'color',lColor);
         
+        minx = min(minx,zIntercept);
+        maxx = max(maxx,zIntercept);
+        miny = min(miny,-1*curEl.apertureD/2);
+        maxy = max(maxy,   curEl.apertureD/2);
     end
     
 end
+
+% Make sure the surfaces are all shown within the range
+% We believe that maxx and maxy are always positive, and minx and miny are
+% always negative.  But maybe we should deal with the sign issue here for
+% generality in the future.  If you have a bug, that might be.
+set(gca,'xlim',1.1*[minx,maxx],'ylim',1.1*[miny,maxy])
 
 end

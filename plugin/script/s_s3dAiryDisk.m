@@ -33,7 +33,7 @@
 
 %% Initialize ISET
 
-s_initISET
+ieInit
 
 %% Specify the point source
 

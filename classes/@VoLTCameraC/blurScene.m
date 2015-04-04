@@ -43,12 +43,16 @@ wave = obj.film.wave;
 
 % originally 3580 sec
 % with parfor: 376 sec
-if (matlabpool('size') > 0)
-    matlabpool close;
+if exist('matlabpool','builtin')
+    % Close the pool if it is open
+    if (matlabpool('size') > 0),  matlabpool close; end
+    
+    %TODO:need to detect # of cores first
+    matlabpool open 8;
+else
+    error('Not running blur scene, no matlab pool available.');
 end
 
-%TODO:need to detect # of cores first
-matlabpool open 8;
 
 parfor i = 1:oiSize(2)
     i
