@@ -8,7 +8,7 @@ function rdataGet(rurl,fname)
 
 % Example
 %
-%  rurl = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes/benchLFScene.mat'
+%  rurl = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes/benchLF.mat'
 %  rdataGet(rurl,'benchLF.mat');
 %
 % getpref('scene3d','rdatadir')
