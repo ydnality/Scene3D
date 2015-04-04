@@ -1,6 +1,7 @@
 function newImage = crossBilateralFilter(inputImage, flashImage, sigmaS, sigmaI, kernelSize)
-% performs the bilateral filter, using spatial sigma, sigmaS, and intensity
-% sigma, sigmaI
+% performs the cross bilateral filter, using spatial sigma, sigmaS, and intensity
+% sigma, sigmaI.  Flash image is used as the "gauge" whether or not to
+% smooth over in the intensity space.
 %
 % boundary cases for now, are chopped off.  We will consider using
 % reflection approaches soon. 

@@ -29,6 +29,9 @@ lightSource = pbrtLightSpotObject('light', spectrum, coneAngle, coneDeltaAngle, 
 %camera properties
 from = [ -56.914787 -105.385544 35.0148];
 to = [-56.487434 -104.481461 34.8 ];
+cameraVector = (from - to);
+cameraVector = cameraVector./norm(cameraVector);
+
 position = [from; to; 0 0 1];
 curPbrt.camera.setPosition(position);
 lens = pbrtLensPinholeObject();
@@ -59,12 +62,16 @@ tic
 %** must run first part of last section for now.  Cloning while rendering
 %is broken.
 
+flashSeparation = 3;
+
 %light properties
 spectrum = pbrtSpectrumObject('rgb I', [1000 1000 1000]);
-lightBackFrom = [ -77.8060 -149.5817   45.5153];
-lightBackTo = [-77.3786 -148.6776   45.3005 ];
-from = lightBackFrom;
-to = lightBackTo;
+lightBackFrom = lightFrom + cameraVector * flashSeparation; %[ -77.8060 -149.5817   45.5153];
+lightBackTo = lightTo + cameraVector * flashSeparation; % [-77.3786 -148.6776   45.3005 ];
+
+%from = lightBackFrom;   %this is for moving the entire camera
+%to = lightBackTo;
+
 %position = [from; to; 0 0 1];
 %curPbrt.camera.setPosition(position);
 
