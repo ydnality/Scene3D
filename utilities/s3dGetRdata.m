@@ -15,21 +15,23 @@ function s3dGetRdata(rurl,fname)
 % In ISETBIO this is set to setpref('isetbio','rdatadir') and the default
 % is fullfile(isetbioRootPath,'rdata').
 %
+% To check the remote data directory for scene3d use: 
+%    getpref('scene3d','rdatadir')
+%
 % Example
 %
 %  rurl = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes/benchLF.mat'
 %  s3dGetRdata(rurl,'benchLF.mat');
-%
-% getpref('scene3d','rdatadir')
+% 
+% BW, Vistasoft Team, 2015
 
-% d = fullfile(s3dRootPath,'rdata');
-
-% setpref('scene3d','rdatadir',
+%%
 if ieNotDefined('rurl')
     web('http://scarlet.stanford.edu/validation/SCIEN')
     error('You must specify a remote url'); 
 end
 
+% Check for a remote data directory.  If not set, use the default
 if ispref('scene3d','rdatadir'), 
     rdatadir = getpref('scene3d','rdatadir'); 
 else
@@ -45,10 +47,15 @@ else
     end
 end
 
+% Make the call
 oname = fullfile(rdatadir,fname);
+[s,r] = urlwrite(rurl,oname);
 
-[s,r] = urlwrite(rurl,oname)
+if r
+    fprintf('Remote data written to %s\n',oname);
+else
+    fprintf('Problem writing file\n');
+end
 
-fprintf('Remote data written to %s\n',oname);
 
 end

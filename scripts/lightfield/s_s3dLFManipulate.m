@@ -3,10 +3,14 @@
 %  See also: s_s3dISETLF.m, LFToolbox0.4
 %
 %  To retrieve some of the lightfield data use
-%     urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD';
+%     urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes';
 %     fname = 'indObjLFOiDirect.mat';
-%     fname = 'benchLFScene.mat';
+%     fname = 'benchLF.mat';
 %     urlwrite(fullfile(urlBase,fname),fname)
+%
+% This will work some day (sort of works now, but more checking needed)
+%    rdataGet(fullfile(urlBase,fname),fname);
+%    
 % 
 % (AL) Vistasoft Team, 2015
 
@@ -15,13 +19,11 @@ ieInit
 
 %% inputs
 
-%load a lightfield as an oi object
-%in = load(fullfile(dataPath, 'lightfields', 'benchLFSceneDirect.mat'))
+% load a lightfield as an oi object.
+% These should be available on the scarlet/validation web site.
+% in = load('benchLF.mat');
+in = load('indObjLFOiDirect.mat'); in.numPinholesW = 80; in.numPinholesH = 80;
 
-% How did this get created?  Through PBRT.
-% The way in which got created should be up at scarlet
-% This is a script named XXX
-in = load(fullfile(dataPath, 'lightfields', 'indObjLFOiDirect.mat'));
 oi = in.opticalimage;
 
 % The optics should be reasonable.  We set a focal length of 3.5mm here.
@@ -40,11 +42,6 @@ vcAddObject(oi); oiWindow;
 oiGet(oi,'sample spacing','um')
 oiGet(oi,'fov')
 oiGet(oi,'mean illuminance')
-
-% These parameters should always be part of an oi lightfield description.
-%lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
-superPixelW = 9;
-superPixelH = 9;
 
 %convert to RGB (we are skipping the sensor processing step for simplicity.
 %That will come later)
@@ -92,6 +89,12 @@ axis image
 
 % If we had a lightfield structure, lf, this could become
 %    rgb2lf(rgb,lf)
+
+% These parameters should always be part of an oi lightfield description.
+%lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
+sz = oiGet(oi,'size');
+superPixelW = sz(2)/in.numPinholesW;
+superPixelH = sz(1)/in.numPinholesH;
 
 % This is the array size of pinholes (or microlens)
 % The reason for floor() is ... well rounding or something.  Shouldn't
@@ -169,8 +172,10 @@ imagescRGB(lrgb2srgb(tmp));
 
 %% Now what would the image have been if we move the sensor forward?
 
+% -0.8:.2:0.6 for indestructible object.
+% -.6 to 3.4 for bench light field
 vcNewGraphWin
-for Slope = -0.5:0.1:0.5
+for Slope = -0.8:.2:0.6 
     ShiftImg = LFFiltShiftSum(lightfield, Slope );
     imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
     axis image; truesize
