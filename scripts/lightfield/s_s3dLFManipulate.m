@@ -76,56 +76,56 @@ vcAddObject(sensor); sensorWindow('scale',1);
 
 %% Interpolate the color filter data to produce a full sensor
 %
-ip = ipCreate;
-ip = ipCompute(ip,sensor);
-vcAddObject(ip); ipWindow;
-
-% Show in a separate window
-rgb = ipGet(ip,'result');
-vcNewGraphWin; image(lrgb2srgb(rgb));
-axis image
-
-%% Pack the samples of the rgb image into the lightfield structure
-
-% If we had a lightfield structure, lf, this could become
-%    rgb2lf(rgb,lf)
-
-% These parameters should always be part of an oi lightfield description.
-%lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
-sz = oiGet(oi,'size');
-superPixelW = sz(2)/in.numPinholesW;
-superPixelH = sz(1)/in.numPinholesH;
-
-% This is the array size of pinholes (or microlens)
-% The reason for floor() is ... well rounding or something.  Shouldn't
-% really be needed.
-% numSuperPixW = floor(size(rgb, 2)/superPixelW);
-% numSuperPixH = floor(size(rgb, 1)/superPixelH);
-
-% Allocate space
-% lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
-lightfield = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
-
-% For numerical calculations, we would use this
-for i = 1:numSuperPixW
-    for j = 1:numSuperPixH
-        lightfield(:,:, j, i, :) = ...
-            rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
-            ((i-1) * superPixelW + 1):(i*superPixelW), :);
-    end
-end
-
-% For visualization, thismight be a good idea - use lrgb2srgb
-% LF = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
-LF = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
-rgb = lrgb2srgb(double(rgb));
-for i = 1:numSuperPixW
-    for j = 1:numSuperPixH
-        LF(:,:, j, i, :) = ...
-            rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
-            ((i-1) * superPixelW + 1):(i*superPixelW), :);
-    end
-end
+% ip = ipCreate;
+% ip = ipCompute(ip,sensor);
+% vcAddObject(ip); ipWindow;
+% 
+% % Show in a separate window
+% rgb = ipGet(ip,'result');
+% vcNewGraphWin; image(lrgb2srgb(rgb));
+% axis image
+% 
+% %% Pack the samples of the rgb image into the lightfield structure
+% 
+% % If we had a lightfield structure, lf, this could become
+% %    rgb2lf(rgb,lf)
+% 
+% % These parameters should always be part of an oi lightfield description.
+% %lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
+% sz = oiGet(oi,'size');
+% superPixelW = sz(2)/in.numPinholesW;
+% superPixelH = sz(1)/in.numPinholesH;
+% 
+% % This is the array size of pinholes (or microlens)
+% % The reason for floor() is ... well rounding or something.  Shouldn't
+% % really be needed.
+% % numSuperPixW = floor(size(rgb, 2)/superPixelW);
+% % numSuperPixH = floor(size(rgb, 1)/superPixelH);
+% 
+% % Allocate space
+% % lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
+% lightfield = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
+% 
+% % For numerical calculations, we would use this
+% for i = 1:numSuperPixW
+%     for j = 1:numSuperPixH
+%         lightfield(:,:, j, i, :) = ...
+%             rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
+%             ((i-1) * superPixelW + 1):(i*superPixelW), :);
+%     end
+% end
+% 
+% % For visualization, thismight be a good idea - use lrgb2srgb
+% % LF = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
+% LF = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
+% rgb = lrgb2srgb(double(rgb));
+% for i = 1:numSuperPixW
+%     for j = 1:numSuperPixH
+%         LF(:,:, j, i, :) = ...
+%             rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
+%             ((i-1) * superPixelW + 1):(i*superPixelW), :);
+%     end
+% end
 
 
 %% Some views of the light field data
@@ -136,37 +136,37 @@ end
 % The pixels at the edges don't really get any rays or if they do they get
 % very little late (are noisier).
 
-vcNewGraphWin;
-cnt = 1;
-row = superPixelH; col = superPixelW;
-rList = 1:2:row;
-cList = 1:2:col;
-for rr=rList
-    for cc=cList
-        img = squeeze(LF(rr,cc,:,:,:));
-        subplot(length(rList),length(cList),cnt), imshow(img);
-        cnt = cnt + 1;
-    end
-end
+% vcNewGraphWin;
+% cnt = 1;
+% row = superPixelH; col = superPixelW;
+% rList = 1:2:row;
+% cList = 1:2:col;
+% for rr=rList
+%     for cc=cList
+%         img = squeeze(LF(rr,cc,:,:,:));
+%         subplot(length(rList),length(cList),cnt), imshow(img);
+%         cnt = cnt + 1;
+%     end
+% end
 
 %% Compare the leftmost and rightmost images in the middle
-vcNewGraphWin([],'wide');
-
-img = squeeze(LF(3,2,:,:,:));
-subplot(1,2,1), imagescRGB(img);
-
-img = squeeze(LF(3,8,:,:,:));
-subplot(1,2,2), imagescRGB(img);
+% vcNewGraphWin([],'wide');
+% 
+% img = squeeze(LF(3,2,:,:,:));
+% subplot(1,2,1), imagescRGB(img);
+% 
+% img = squeeze(LF(3,8,:,:,:));
+% subplot(1,2,2), imagescRGB(img);
 
 %% render some example images
 
 % If we sume all the r,g and b pixels within each aperture we get a single
 % RGB image corresponding to the mean.  This is the image at the microlens
 % itself
-tmp = squeeze(sum(sum(LF,2),1));
-vcNewGraphWin;
-tmp = tmp/max(tmp(:));
-imagescRGB(tmp);
+% tmp = squeeze(sum(sum(LF,2),1));
+% vcNewGraphWin;
+% tmp = tmp/max(tmp(:));
+% imagescRGB(tmp);
 
 %% Now what would the image have been if we move the sensor forward?
 
@@ -206,23 +206,23 @@ LFDispVidCirc(LF)
 % ShiftSumSlope2 = 0;
 
 %---Demonstrate shift sum filter---
-for( Slope = -.3:.1:.3 )
-	fprintf('Applying shift sum filter');
-	[ShiftImg, FiltOptionsOut] = LFFiltShiftSum( LF, Slope );
-	fprintf(' Done\n');
-	FiltOptionsOut
-	
-	%LFFigure(CurFigure); 
-	%CurFigure = CurFigure + 1;
-    figure;
-    ShiftImg = permute(ShiftImg, [2 1 3]);
-    imshow(ShiftImg(:,:,1:3));
-	%LFDisp(ShiftImg);
-	axis image off
- 	truesize
-	title(sprintf('Shift sum filter, slope %.3g', Slope));
-	drawnow
-end
+% for( Slope = -.3:.1:.3 )
+% 	fprintf('Applying shift sum filter');
+% 	[ShiftImg, FiltOptionsOut] = LFFiltShiftSum( LF, Slope );
+% 	fprintf(' Done\n');
+% 	FiltOptionsOut
+% 	
+% 	%LFFigure(CurFigure); 
+% 	%CurFigure = CurFigure + 1;
+%     figure;
+%     ShiftImg = permute(ShiftImg, [2 1 3]);
+%     imshow(ShiftImg(:,:,1:3));
+% 	%LFDisp(ShiftImg);
+% 	axis image off
+%  	truesize
+% 	title(sprintf('Shift sum filter, slope %.3g', Slope));
+% 	drawnow
+% end
 
 
 
