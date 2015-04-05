@@ -10,8 +10,7 @@
 %
 % This will work some day (sort of works now, but more checking needed)
 %    s3dGetRdata(fullfile(urlBase,fname),fname);
-%    
-% 
+%
 % (AL) Vistasoft Team, 2015
 
 %%
