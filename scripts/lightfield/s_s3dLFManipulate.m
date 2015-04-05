@@ -4,12 +4,12 @@
 %
 %  To retrieve some of the lightfield data use
 %     urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes';
-%     fname = 'indObjLFOiDirect.mat';
+%     fname = 'metronomeLF.mat';
 %     fname = 'benchLF.mat';
 %     urlwrite(fullfile(urlBase,fname),fname)
 %
 % This will work some day (sort of works now, but more checking needed)
-%    rdataGet(fullfile(urlBase,fname),fname);
+%    s3dGetRdata(fullfile(urlBase,fname),fname);
 %    
 % 
 % (AL) Vistasoft Team, 2015
@@ -22,9 +22,9 @@ ieInit
 % load a lightfield as an oi object.
 % These should be available on the scarlet/validation web site.
 % in = load('benchLF.mat');
-in = load('indObjLFOiDirect.mat'); in.numPinholesW = 80; in.numPinholesH = 80;
+in = load('metronomeLF.mat');
 
-oi = in.opticalimage;
+oi = in.oi;
 
 % The optics should be reasonable.  We set a focal length of 3.5mm here.
 oi = oiSet(oi,'optics focal length',3.5e-3);
@@ -99,12 +99,12 @@ superPixelH = sz(1)/in.numPinholesH;
 % This is the array size of pinholes (or microlens)
 % The reason for floor() is ... well rounding or something.  Shouldn't
 % really be needed.
-numSuperPixW = floor(size(rgb, 2)/superPixelW);
-numSuperPixH = floor(size(rgb, 1)/superPixelH);
+% numSuperPixW = floor(size(rgb, 2)/superPixelW);
+% numSuperPixH = floor(size(rgb, 1)/superPixelH);
 
 % Allocate space
 % lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
-lightfield = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
+lightfield = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
 
 % For numerical calculations, we would use this
 for i = 1:numSuperPixW
@@ -116,7 +116,8 @@ for i = 1:numSuperPixW
 end
 
 % For visualization, thismight be a good idea - use lrgb2srgb
-LF = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
+% LF = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
+LF = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
 rgb = lrgb2srgb(double(rgb));
 for i = 1:numSuperPixW
     for j = 1:numSuperPixH
@@ -142,8 +143,7 @@ rList = 1:2:row;
 cList = 1:2:col;
 for rr=rList
     for cc=cList
-        img = squeeze(lightfield(rr,cc,:,:,:));
-        img = lrgb2srgb(img);
+        img = squeeze(LF(rr,cc,:,:,:));
         subplot(length(rList),length(cList),cnt), imshow(img);
         cnt = cnt + 1;
     end
@@ -152,30 +152,28 @@ end
 %% Compare the leftmost and rightmost images in the middle
 vcNewGraphWin([],'wide');
 
-img = squeeze(lightfield(3,2,:,:,:));
-img = lrgb2srgb(img);
-subplot(1,2,1), imshow(img);
+img = squeeze(LF(3,2,:,:,:));
+subplot(1,2,1), imagescRGB(img);
 
-img = squeeze(lightfield(3,8,:,:,:));
-img = lrgb2srgb(img);
-subplot(1,2,2), imshow(img);
+img = squeeze(LF(3,8,:,:,:));
+subplot(1,2,2), imagescRGB(img);
 
 %% render some example images
 
 % If we sume all the r,g and b pixels within each aperture we get a single
 % RGB image corresponding to the mean.  This is the image at the microlens
 % itself
-tmp = squeeze(sum(sum(lightfield,2),1));
+tmp = squeeze(sum(sum(LF,2),1));
 vcNewGraphWin;
 tmp = tmp/max(tmp(:));
-imagescRGB(lrgb2srgb(tmp));
+imagescRGB(tmp);
 
 %% Now what would the image have been if we move the sensor forward?
 
 % -0.8:.2:0.6 for indestructible object.
 % -.6 to 3.4 for bench light field
 vcNewGraphWin
-for Slope = -0.8:.2:0.6 
+for Slope = -0.5:.25:1.5 
     ShiftImg = LFFiltShiftSum(lightfield, Slope );
     imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
     axis image; truesize
@@ -188,9 +186,9 @@ end
 % What is this fourth plane?  I think it is an overall intensity estimate.
 % We need to calculate this for our simulation.  At present, it is just
 % arbitrary.
-wImage = ShiftImg(:,:,4);
-vcNewGraphWin;
-imagesc(wImage);
+% wImage = ShiftImg(:,:,4);
+% vcNewGraphWin;
+% imagesc(wImage);
 
 %%  Interact with the lightfield using the toolbox
 

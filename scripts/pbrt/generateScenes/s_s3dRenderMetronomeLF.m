@@ -23,11 +23,12 @@ geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-geom
 % light properties
 spectrum = pbrtSpectrumObject('rgb I', [1000 1000 1000]);
 lightFrom = [  -56.914787 -105.385544 35.0148];  % Position of source
-lightTo = [-56.487434 -104.481461 34.8  ];       % Direction of principal ray
-coneAngle = 180;         % Angle of rays from light source
+lightTo =   [-56.487434 -104.481461 34.8  ];       % Direction of principal ray
+coneAngle      = 180;    % Angle of rays from light source
 coneDeltaAngle = 180;    % Drop off of illumination???
 lightSource = pbrtLightSpotObject('light', spectrum, coneAngle, coneDeltaAngle, lightFrom, lightTo);  
-%lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
+
+% lightSpotObject(inName, inSpectrum, inConeAngle, inDeltaAngle, inFrom, inTo)
 
 %% camera properties
 from = [ -56.914787 -105.385544 35.0148];
@@ -52,7 +53,7 @@ curPbrt.addLightSource(lightSource);
 
 % set sampler
 curPbrt.sampler.removeProperty();
-nSamples = 32; %512;
+nSamples = 64; %512;
 curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
 
 %% setup the lightfield camera properties
@@ -88,6 +89,6 @@ oi = s3dRenderOIAndDepthMap(curPbrt,focalLength,oiName,dockerFlag);
 vcAddObject(oi); oiWindow;
 
 %% Save all the key variables that enable running the previous cell
-save('metronome','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
+save('metronomeLF','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
 
 %% END
