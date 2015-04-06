@@ -66,7 +66,7 @@ else
     f = norm( curPbrt.camera.position(1,:) - curPbrt.lightSourceArray{1}.from, 2); %distance between 2 flashes
 end
 
-f = 2;  %make sure to set this
+f = 6;  %make sure to set this
 fieldOfView = atan(sensorWidth/2/sensorDistance) * 2 * 180/pi;  %this does not need to be changed
 
 %% Process images and obtain ratio image
@@ -170,31 +170,42 @@ phi = linspace(-fieldOfView/2,fieldOfView/2, height);
 
 yImage = sin(phiImage * pi/180) .* d1TestFiltered;
 hyp = cos(phiImage * pi/180) .* d1TestFiltered;
-xImage = hyp .* cos(thetaImage * pi/180);
-zImage = hyp .* sin(thetaImage * pi/180);
+xImage = hyp .* sin(thetaImage * pi/180);
 
-figure; imagesc(zImage);
-
+zImage = hyp .* cos(thetaImage * pi/180);
+% 
+% figure; imagesc(zImage);
+% figure; imagesc(xImage);
+% figure; imagesc(yImage);
 
 % calculate normal vectors using averaged cross products
 recordedLateralDistance = zeros(size(d1Test));
 normalMap = zeros([size(d1Test,1) size(d1Test,2) 3]);
 for i = 2:(size(d1TestFiltered, 2) - 1)
     for j = 2:(size(d1TestFiltered,1) -1)
-        aRelief = d1TestFiltered(j - 1,i) - d1TestFiltered(j,i);
-        bRelief = d1TestFiltered(j, i + 1) - d1TestFiltered(j,i);
-        cRelief = d1TestFiltered(j + 1,i) - d1TestFiltered(j,i);
-        dRelief = d1TestFiltered(j,i - 1) - d1TestFiltered(j,i);
         
-        lateralDistance = d1TestFiltered(j,i) * pixelUnit/sensorDistance;
-        %%this does not make a lot of sense
-        %lateralDistance = d1TestFiltered(j,i) * tan(fieldOfView/size(ratioImage,2) * pi/180);
-        %lateralDistance = 100 * tan(fieldOfView/size(ratioImage,2) * pi/180);
-        recordedLateralDistance(j,i) = lateralDistance;
-        aVector = [0 lateralDistance -aRelief];
-        bVector = [lateralDistance 0 -bRelief];
-        cVector = [0 -lateralDistance -cRelief];
-        dVector = [-lateralDistance 0 -dRelief];
+        
+        aVectorX = xImage(j-1,i) - xImage(j,i) ;
+        aVectorY = yImage(j-1,i) - yImage(j,i) ;
+        aVectorZ = zImage(j-1,i) - zImage(j, i); 
+        aVector = [aVectorX -aVectorY -aVectorZ];
+        
+        bVectorX = xImage(j,i+1) - xImage(j,i) ;
+        bVectorY = yImage(j,i+1) - yImage(j,i) ;
+        bVectorZ = zImage(j,i+1) - zImage(j, i); 
+        bVector = [bVectorX -bVectorY -bVectorZ];       
+        
+        cVectorX = xImage(j+1,i) - xImage(j,i) ;
+        cVectorY = yImage(j+1,i) - yImage(j,i) ;
+        cVectorZ = zImage(j+1,i) - zImage(j, i); 
+        cVector = [cVectorX -cVectorY -cVectorZ];
+        
+        
+        dVectorX = xImage(j,i - 1) - xImage(j,i) ;
+        dVectorY = yImage(j,i - 1) - yImage(j,i) ;
+        dVectorZ = zImage(j,i - 1) - zImage(j, i); 
+        dVector = [dVectorX -dVectorY -dVectorZ];
+        
         
         adNormal = cross(aVector, dVector);
         adNormal = adNormal./norm(adNormal);
@@ -240,7 +251,7 @@ normalMap2 = normalMap(:,:,2);
 normalMap2 = crossBilateralFilter(normalMap2, d1TestFiltered, 10, 4, 25);  
 figure; imagesc(normalMap2);
 
-normalMap3 = ones(size(normalMap1)) - normalMap1.^2 + normalMap2.^2;
+normalMap3 = ones(size(normalMap1)) - (normalMap1.^2 + normalMap2.^2);
 normalMap3 = sqrt(normalMap3);
 
 filtNormalMap = cat(3, normalMap1, normalMap2, normalMap3);
@@ -290,8 +301,8 @@ for i = 1:(size(d1TestFiltered, 2))
         
         tempVector = tempVector ./ norm(tempVector);
         rayVectors2(j, i, :) = reshape(tempVector, [1 1 3]);
-        frontDot(j,i) = sum(rayVectors1(j,i,:) .* normalMap(j,i,:));
-        backDot(j,i) = sum(rayVectors2(j,i,:) .* normalMap(j,i,:));
+        frontDot(j,i) = sum(rayVectors1(j,i,:) .* filtNormalMap(j,i,:));
+        backDot(j,i) = sum(rayVectors2(j,i,:) .* filtNormalMap(j,i,:));
         
         %calculate correction factors for both images
         linearIntensityFlashCorrected(j,i, :) = linearIntensityFlashCorrected(j,i, :) ./ frontDot(j,i) ; 

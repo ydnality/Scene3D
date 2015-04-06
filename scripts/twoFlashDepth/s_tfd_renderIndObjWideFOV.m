@@ -67,7 +67,7 @@ tic
 %is broken.
 
 %light properties
-f = 2;
+f = 6;
 spectrum = pbrtSpectrumObject('rgb I', [1000 1000 1000]);
 lightBackFrom = lightFrom + f * vector;
 lightBackTo = lightTo + f * vector

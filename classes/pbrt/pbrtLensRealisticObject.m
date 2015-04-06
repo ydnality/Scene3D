@@ -82,7 +82,7 @@ classdef pbrtLensRealisticObject < pbrtLensObject
             end
             
             if(~ieNotDefined('microlensMode'))
-                obj.microlensMode = true;
+                obj.microlensMode = microlensMode;
             end
         end
         

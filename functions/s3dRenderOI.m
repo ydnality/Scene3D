@@ -25,7 +25,7 @@ function oi = s3dRenderOI(inputPbrt, focalLength, oiName, dockerFlag, noScale)
 % 
 % Todo: backwards compatibility to render pbrt files
 
-if (ieNotDefined('sceneName')),    oiName = 'default'; end
+if (ieNotDefined('oiName')),    oiName = 'default'; end
 if (ieNotDefined('dockerFlag')),   dockerFlag = false;  end
 if (ieNotDefined('focalLength')),  focalLength = 0.05; end
 if ieNotDefined('noScale'),        noScale = false; end
