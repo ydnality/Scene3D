@@ -20,8 +20,8 @@ ieInit
 
 % load a lightfield as an oi object.
 % These should be available on the scarlet/validation web site.
-% in = load('benchLF.mat');
-in = load('metronomeLF.mat');
+in = load('benchLF.mat');
+% in = load('metronomeLF.mat');
 
 oi = in.oi;
 
@@ -75,56 +75,55 @@ vcAddObject(sensor); sensorWindow('scale',1);
 
 %% Interpolate the color filter data to produce a full sensor
 %
-% ip = ipCreate;
-% ip = ipCompute(ip,sensor);
+ip = ipCreate;
+ip = ipCompute(ip,sensor);
 % vcAddObject(ip); ipWindow;
-% 
-% % Show in a separate window
-% rgb = ipGet(ip,'result');
-% vcNewGraphWin; image(lrgb2srgb(rgb));
-% axis image
-% 
-% %% Pack the samples of the rgb image into the lightfield structure
-% 
-% % If we had a lightfield structure, lf, this could become
-% %    rgb2lf(rgb,lf)
-% 
-% % These parameters should always be part of an oi lightfield description.
-% %lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
-% sz = oiGet(oi,'size');
-% superPixelW = sz(2)/in.numPinholesW;
-% superPixelH = sz(1)/in.numPinholesH;
-% 
-% % This is the array size of pinholes (or microlens)
-% % The reason for floor() is ... well rounding or something.  Shouldn't
-% % really be needed.
-% % numSuperPixW = floor(size(rgb, 2)/superPixelW);
-% % numSuperPixH = floor(size(rgb, 1)/superPixelH);
-% 
-% % Allocate space
-% % lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
-% lightfield = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
-% 
-% % For numerical calculations, we would use this
-% for i = 1:numSuperPixW
-%     for j = 1:numSuperPixH
-%         lightfield(:,:, j, i, :) = ...
-%             rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
-%             ((i-1) * superPixelW + 1):(i*superPixelW), :);
-%     end
-% end
-% 
-% % For visualization, thismight be a good idea - use lrgb2srgb
-% % LF = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
-% LF = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
-% rgb = lrgb2srgb(double(rgb));
-% for i = 1:numSuperPixW
-%     for j = 1:numSuperPixH
-%         LF(:,:, j, i, :) = ...
-%             rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
-%             ((i-1) * superPixelW + 1):(i*superPixelW), :);
-%     end
-% end
+
+% Show in a separate window
+rgb = ipGet(ip,'result');
+% vcNewGraphWin; image(lrgb2srgb(rgb)); axis image
+
+%% Pack the samples of the rgb image into the lightfield structure
+
+% If we had a lightfield structure, lf, this could become
+%    rgb2lf(rgb,lf)
+
+% These parameters should always be part of an oi lightfield description.
+%lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
+sz = oiGet(oi,'size');
+superPixelW = sz(2)/in.numPinholesW;
+superPixelH = sz(1)/in.numPinholesH;
+
+% This is the array size of pinholes (or microlens)
+% The reason for floor() is ... well rounding or something.  Shouldn't
+% really be needed.
+numSuperPixW = floor(size(rgb, 2)/superPixelW);
+numSuperPixH = floor(size(rgb, 1)/superPixelH);
+
+% Allocate space
+% lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
+lightfield = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
+
+% For numerical calculations, we would use this
+for i = 1:numSuperPixW
+    for j = 1:numSuperPixH
+        lightfield(:,:, j, i, :) = ...
+            rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
+            ((i-1) * superPixelW + 1):(i*superPixelW), :);
+    end
+end
+
+% For visualization, thismight be a good idea - use lrgb2srgb
+% LF = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
+LF = zeros(superPixelH, superPixelW, in.numPinholesW, in.numPinholesH, 3);
+rgb = lrgb2srgb(double(rgb));
+for i = 1:numSuperPixW
+    for j = 1:numSuperPixH
+        LF(:,:, j, i, :) = ...
+            rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
+            ((i-1) * superPixelW + 1):(i*superPixelW), :);
+    end
+end
 
 
 %% Some views of the light field data
@@ -193,7 +192,7 @@ end
 
 % In this case, we use the srgb representation because we are just
 % visualizing
-LFDispMousePan(LF)
+% LFDispMousePan(LF)
 
 %
 LFDispVidCirc(LF)
@@ -228,23 +227,23 @@ LFDispVidCirc(LF)
 %% Experiment with "hyperfan" filter.  I initially thought this could render all in focus images, but I appera to be incorrect...
 
 %---Demonstrate 4D Hyperfan filter---
-LFSize = size(LF);
-HyperfanSlope1 = 0; HyperfanSlope2 = .3;
-HyperfanBW = 0.035;  % What does this mean?!?!
-
-fprintf('Building 4D frequency hyperfan... ');
-[H, FiltOptionsOut] = LFBuild4DFreqHyperfan( LFSize, HyperfanSlope1, HyperfanSlope2, HyperfanBW );
-fprintf('Applying filter');
-[LFFilt, FiltOptionsOut] = LFFilt4DFFT( LF, H, FiltOptionsOut );
-FiltOptionsOut
-
-% LFFigure(CurFigure);
-% CurFigure = CurFigure + 1;
-%figure; 
-%LFFilt = permute(LFFilt, [2 1 3]);
-%imshow(LFFilt);
-figure;
-LFDisp(LFFilt);
+% LFSize = size(LF);
+% HyperfanSlope1 = 0; HyperfanSlope2 = .3;
+% HyperfanBW = 0.035;  % What does this mean?!?!
+% 
+% fprintf('Building 4D frequency hyperfan... ');
+% [H, FiltOptionsOut] = LFBuild4DFreqHyperfan( LFSize, HyperfanSlope1, HyperfanSlope2, HyperfanBW );
+% fprintf('Applying filter');
+% [LFFilt, FiltOptionsOut] = LFFilt4DFFT( LF, H, FiltOptionsOut );
+% FiltOptionsOut
+% 
+% % LFFigure(CurFigure);
+% % CurFigure = CurFigure + 1;
+% %figure; 
+% %LFFilt = permute(LFFilt, [2 1 3]);
+% %imshow(LFFilt);
+% figure;
+% LFDisp(LFFilt);
 
 %sum all the sub aperture views (3rd and 4th dimensions)  
 % summedimage = sum(sum(LFFilt(:,:,:,:, 1:3), 1), 2);
@@ -255,9 +254,9 @@ LFDisp(LFFilt);
 % vcNewGraphWin; imshow(summedimage);
 
 
-axis image off
-truesize
-title(sprintf('Frequency hyperfan filter, slopes %.3g, %.3g, HyperfanBW %.3g', HyperfanSlope1, HyperfanSlope2, HyperfanBW));
-drawnow
+% axis image off
+% truesize
+% title(sprintf('Frequency hyperfan filter, slopes %.3g, %.3g, HyperfanBW %.3g', HyperfanSlope1, HyperfanSlope2, HyperfanBW));
+% drawnow
 
 
