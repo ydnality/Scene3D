@@ -1,9 +1,16 @@
+%% Render the macbeth color chiecker as a 3D object, tilted
+%
+% AL Vistasoft, 2015
 
-    theta = 30 * pi/180;
-    
+%%
+ieInit
+
+%% Angle of tilt?
+theta = 30 * pi/180;
+
 %% Render Scene Radiance Using pbrtObjects (make all checkers completely white)
 for i = 1:14
-
+    
     clear curPbrt;
     curPbrt = pbrtObject();
     
@@ -38,8 +45,8 @@ for i = 1:14
     yValues = linspace(-1.5*scaleFactor, 1.5*scaleFactor, 4);
     [xOffset yOffset] = meshgrid(xValues, yValues);
     
-    lightSpectrumFile = fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Illuminant.mat');
-    [lights,wave,comment,fName]  = ieReadSpectra(lightSpectrumFile, 400:10:700, []);
+    % lightSpectrumFile = fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Illuminant.mat');
+    [lights,wave,comment,fName]  = ieReadSpectra('D65', 400:10:700, []);
     lights = Energy2Quanta(wave, lights); %convert to photons
     %res is returned as a 31 x 14 matrix, where it's rows: wavelength and cols:
     
@@ -53,7 +60,7 @@ for i = 1:14
     %%for infinite light source
     %spectrumObject = pbrtSpectrumObject('spectrum I', tempMatrix(:));     %for finite light source
     lightFront = pbrtLightSpotObject(['light' int2str(i)], spectrumObject, [], [], [0 0 0], [0 0 -1]);
-    %lightFront = pbrtLightDistantObject(['light' int2str(i)],spectrumObject, [0 0 80], [0 0 79]); 
+    %lightFront = pbrtLightDistantObject(['light' int2str(i)],spectrumObject, [0 0 80], [0 0 79]);
     curPbrt.addLightSource(lightFront);
     
     %add a new material
@@ -79,19 +86,19 @@ for i = 1:14
     %read macbeth color checker refletance values
     macbethSpectrumFile = fullfile(isetRootPath, 'data', 'surfaces', 'macbethChart.mat');
     [reflectances,wave,comment,fName]  = ieReadSpectra(macbethSpectrumFile, 400:10:700, []);
-
+    
     %add new material for macbeth color checker reflectances
-%     for index = 1:24
-%         spectrum= [wave;
-%                    reflectances(:, index)'];
-%         spectrumObject = pbrtPropertyObject('spectrum Kd', spectrum(:));
-%         newMaterial = pbrtMaterialObject(['macbeth' int2str(index)], 'matte', spectrumObject);
-%         curPbrt.addMaterial(newMaterial);
-%     end
-
-   % for ii = 1:6
-   %     for jj = 1:4
-            %add a foreground target
+    %     for index = 1:24
+    %         spectrum= [wave;
+    %                    reflectances(:, index)'];
+    %         spectrumObject = pbrtPropertyObject('spectrum Kd', spectrum(:));
+    %         newMaterial = pbrtMaterialObject(['macbeth' int2str(index)], 'matte', spectrumObject);
+    %         curPbrt.addMaterial(newMaterial);
+    %     end
+    
+    % for ii = 1:6
+    %     for jj = 1:4
+    %add a foreground target
     foregroundTransform = ...
         [10 0 0 0;
         0 10 0 0 ;
@@ -107,17 +114,18 @@ for i = 1:14
     totalTransform = rotationTransform * foregroundTransform;
     %totalTransform = rotationTransform;
     %frontSquare = pbrtGeometryObject(['checker' int2str(ii) int2str(jj)], ['macbeth'], [], [], totalTransform);
-
+    
     %uncomment to make all targets white
     frontSquare = pbrtGeometryObject(['checker'], ['grayMat'], [], [], totalTransform);
-
+    
     curPbrt.addGeometry(frontSquare);
     
-    noScale = true;
+    % noScale = true;
     dockerFlag = false;
-    scene = s3dRenderSceneAndDepthMap( curPbrt, 'simpleScene', dockerFlag, noScale);
+    focalLength = 0.050;
+    oi = s3dRenderOIAndDepthMap( curPbrt, focalLength, 'simpleScene', dockerFlag);
     
-    vcAddObject(scene); sceneWindow;
+    vcAddObject(oi); oiWindow;
     %fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '03052015_finiteLight', ['whitelight' int2str(i) '.mat']));
     % fullName = vcSaveObject(scene, fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Data', '02062015_scenes', ['whitelight' int2str(i) '.mat']));
 end

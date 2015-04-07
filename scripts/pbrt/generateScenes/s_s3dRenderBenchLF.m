@@ -1,6 +1,12 @@
-%% Render the HDR scene of the bench scene as a light field (oi)
+%% Render the bench scene as an optical image
 %
-% 
+% Say more stuff. 
+% Rendered as a light field if ...
+%
+% Rendered as a standard OI if ..
+%
+% AL Vistasoft 2015
+
 
 %%
 ieInit
@@ -21,7 +27,8 @@ diffraction      = false;
 chromaticAberration = false;
 pinholeExitApLoc    = [2  2 -35];
 
-% This is the microlens (pinhole) array
+% This is the microlens (pinhole) array.  If these are set to empty, the
+% rendering is a standard rendering with out the LF calculation.
 numPinholesW = 160;      % These 2 parameters must be even (for now)
 numPinholesH = 160;
 microlensMode = false;  % Feature will arrive
@@ -38,7 +45,7 @@ curPbrt.camera.setCropWindow(0, 1, 0, 1);  % Show everything
 
 % Sampler
 samples = curPbrt.sampler.removeProperty();
-samples.value = 64;
+samples.value = 64;   % Could be even 32 for a pinhole
 curPbrt.sampler.addProperty(samples);
 
 
@@ -93,8 +100,12 @@ dockerFlag = true;
 oi = s3dRenderOIAndDepthMap(curPbrt, focalLength, 'benchLF',dockerFlag);
 vcAddObject(oi); oiWindow;
 
-%% To save do this
-save('benchLF','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
+%% To save depends on whether light field or note
+if isempty(numPinholesW) || isempty(numPinholesH)
+    save('bench','oi','focalLength','curPbrt');
+else
+    save('benchLF','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
+end
 
 %% End
 

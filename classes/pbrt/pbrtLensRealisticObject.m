@@ -1,20 +1,26 @@
-% this is the simplest lens - no aperture is required because pinhole cameras
-% have no aperture and the pinhole lens will inherit this superclas.
-% This will be a superclass that will be inherited by other classes in the future
+% A lens model
+%
+%  Creates a pbrtLensRealisticObject.  This object includes parameters
+%  about the lens.  It enables specification of a light field design if you
+%  set numPinholesW and numPinholesH to positive numbers.  The pinholes are
+%  counted as part of the optics, rather than part of the sensor.
+%   
+% TODO
+%   We would like to limit where the rays are being sent towards the lens
+%   and this would make the calculation much more efficient.
+%
 classdef pbrtLensRealisticObject < pbrtLensObject
     properties
-        %filmDistance;
-        %filmDiag;
-        apertureDiameter;  %in mm
+        apertureDiameter;        % in mm
         diffractionEnabled = false;
         chromaticAberrationEnabled = false;
         specFile = '';
         curveRadius = 0;
-        pinholeExitApLoc;
-        filmCenter = [0 0]; %because of a pbrt oddity, we had to put this here although it doesn't make intuitive sense
-        numPinholesW = -1;   %similar oddity here.  These 2 properties are for a pinhole array
+        pinholeExitApLoc = [];   % If you want a pin hole on the exit, put (x,y) value here.
+        filmCenter = [0 0];      % because of a pbrt oddity, we had to put this here although it doesn't make intuitive sense
+        numPinholesW = -1;       % These 2 properties are for a pinhole array above the sensor
         numPinholesH = -1;  
-        microlensMode = false;  %flag for microlenses
+        microlensMode = false;   % flag for microlenses
     end
     methods
         
