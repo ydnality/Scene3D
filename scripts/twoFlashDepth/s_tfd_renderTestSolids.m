@@ -25,7 +25,7 @@ curPbrt.camera.setPosition(newCamPos);
 sphereDepths = -170;  %negative is into the screen
 
 %flash separation
-flashSeparation = 50;
+flashSeparation = 6;
 
 %scaleFactor
 scaleFactor = (-sphereDepths + 80)/(80);
@@ -155,6 +155,18 @@ curPbrt.addGeometry(newGeometry);
 
 sceneName = ['frontFlash'];
 
+
+%samplerProp = pbrtPropertyObject();
+curPbrt.sampler.setType('stratified');
+% curPbrt.sampler.removeProperty();
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '32'));
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '32'));
+curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
+
+%curPbrt.sampler.removeProperty();
+%nSamples = 1024; %512;
+%curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
+
 % curPbrt.writeFile(tmpFileName);
 frontOi = s3dRenderOIAndDepthMap(curPbrt, .050, sceneName);
 
@@ -180,6 +192,16 @@ else
     lightBack = pbrtLightSpotObject('lightBack', [], [], [], lightLocationBackFrom, lightLocationBackTo);
     curPbrt.addLightSource(lightBack);
 end
+
+% curPbrt.sampler.removeProperty();
+% nSamples = 1024; %512;
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
+%samplerProp = pbrtPropertyObject();
+curPbrt.sampler.setType('stratified');
+curPbrt.sampler.removeProperty();
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '32'));
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '32'));
+curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
 
 tmpFileName = ['backFlash'];
 backOi = s3dRenderOI(curPbrt, .050, tmpFileName);
@@ -218,7 +240,7 @@ vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 % image processing
 vciFlash = s3dProcessImage(sensor);
-vcAddAndSelectObject(vciFlash); vcimageWindow;
+vcAddAndSelectObject(vciFlash); ipWindow;
 
 %% back flash image processing
 %load oi from file
@@ -233,5 +255,5 @@ vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 % image processing
 vciFlashBack = s3dProcessImage(sensor);
-vcAddAndSelectObject(vciFlashBack); vcimageWindow;
+vcAddAndSelectObject(vciFlashBack); ipWindow;
 

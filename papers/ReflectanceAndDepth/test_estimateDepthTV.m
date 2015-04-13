@@ -13,14 +13,14 @@ delta = 100;  %used to be 10
 
 figure; 
 subplot(1,3,1);
-imagesc(real(init),[50 130]);
+imagesc(real(init),[200 300]);
 title('Initial estimate');
 
 subplot(1,3,2);
-imagesc(real(est),[50 130]);
+imagesc(real(est),[200 300]);
 title(sprintf('TV %i',delta));
 subplot(1,3,3);
-imagesc(groundTruthDepthMap,[50 130]);
+imagesc(groundTruthDepthMap,[200 300]);
 title('Ground truth');
 
 figure;

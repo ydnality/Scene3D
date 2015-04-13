@@ -134,18 +134,18 @@ end
 % The pixels at the edges don't really get any rays or if they do they get
 % very little late (are noisier).
 
-% vcNewGraphWin;
-% cnt = 1;
-% row = superPixelH; col = superPixelW;
-% rList = 1:2:row;
-% cList = 1:2:col;
-% for rr=rList
-%     for cc=cList
-%         img = squeeze(LF(rr,cc,:,:,:));
-%         subplot(length(rList),length(cList),cnt), imshow(img);
-%         cnt = cnt + 1;
-%     end
-% end
+vcNewGraphWin;
+cnt = 1;
+row = superPixelH; col = superPixelW;
+rList = 1:2:row;
+cList = 1:2:col;
+for rr=rList
+    for cc=cList
+        img = squeeze(LF(rr,cc,:,:,:));
+        subplot(length(rList),length(cList),cnt), imshow(img);
+        cnt = cnt + 1;
+    end
+end
 
 %% Compare the leftmost and rightmost images in the middle
 % vcNewGraphWin([],'wide');

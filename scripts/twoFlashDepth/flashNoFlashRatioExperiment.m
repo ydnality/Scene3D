@@ -304,6 +304,11 @@ for i = 1:(size(d1TestFiltered, 2))
         frontDot(j,i) = sum(rayVectors1(j,i,:) .* filtNormalMap(j,i,:));
         backDot(j,i) = sum(rayVectors2(j,i,:) .* filtNormalMap(j,i,:));
         
+        %regularize the dot products - we will never allow the dot product
+        %to be 0, so that the value doesn't blow up.
+        frontDot(j,i) = .3 * exp(-2.*frontDot(j,i)) + frontDot(j,i);
+        backDot(j,i) = .3 * exp(-2.*backDot(j,i)) + backDot(j,i);
+        
         %calculate correction factors for both images
         linearIntensityFlashCorrected(j,i, :) = linearIntensityFlashCorrected(j,i, :) ./ frontDot(j,i) ; 
         linearIntensityFlashBCorrected(j,i, :) = linearIntensityFlashBCorrected(j,i, :) ./ backDot(j,i) ; 

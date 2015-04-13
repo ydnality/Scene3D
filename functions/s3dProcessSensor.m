@@ -91,7 +91,8 @@ function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
     sensor = sensorSet(sensor,'prnulevel',prnu); 
     sensor = sensorSet(sensor,'analogGain',analogGain);     
     sensor = sensorSet(sensor,'analogOffset',analogOffset);   
-
+    sensor = sensorSet(sensor, 'noiseFlag', 0); %!!set to no noise for now! We can experiment later!!
+    
     % Stuff the pixel back into the sensor structure
     sensor = sensorSet(sensor,'pixel',pixel);
     
