@@ -10,8 +10,8 @@ LookAt
 	0.000000 1.000000 0.000000
 
 Camera "pinhole"
-	"float filmdistance" 140.000000
-	"float filmdiag" 43.267000
+	"float filmdistance" 44.000000
+	"float filmdiag" 50.911700
 
 
 Film "image"
@@ -20,9 +20,8 @@ Film "image"
 	"float cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
 Sampler "stratified"
-	"integer pixelsamples" [128]
-	"integer xsamples" 32
-	"integer ysamples" 32
+	"integer xsamples" 1
+	"integer ysamples" 1
 	"integer xsamples" 32
 	"integer ysamples" 32
 	"bool jitter" "false"
@@ -113,18 +112,18 @@ AttributeBegin #backdrop
 AttributeEnd
 
 
-AttributeBegin #cone0
+AttributeBegin #cone400
 
 	Transform 
 	[
 	8.000000 0.000000 0.000000 0.000000 
 	0.000000 0.000000 -8.000000 0.000000 
 	0.000000 8.000000 0.000000 0.000000 
-	-9.500000 0.000000 -120.000000 1.000000 
+	-19.000000 0.000000 -80.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "cone" "float radius" [1.000000 ]
-"float height" [3.500000 ]
+	Shape "cone" "float radius" [3.000000 ]
+"float height" [10.500000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000
@@ -137,17 +136,17 @@ AttributeBegin #cone0
 AttributeEnd
 
 
-AttributeBegin #sphere0
+AttributeBegin #sphere400
 
 	Transform 
 	[
 	1.000000 0.000000 0.000000 0.000000 
 	0.000000 1.000000 0.000000 0.000000 
 	0.000000 0.000000 1.000000 0.000000 
-	18.750000 6.000000 -140.000000 1.000000 
+	75.000000 24.000000 -140.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "sphere" "float radius" [9.000000 ]
+	Shape "sphere" "float radius" [36.000000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000
@@ -160,19 +159,19 @@ AttributeBegin #sphere0
 AttributeEnd
 
 
-AttributeBegin #sphere0
+AttributeBegin #sphere400
 
 	Transform 
 	[
 	1.000000 0.000000 0.000000 0.000000 
 	0.000000 0.000000 -1.000000 0.000000 
 	0.000000 1.000000 0.000000 0.000000 
-	0.000000 6.000000 -160.000000 1.000000 
+	0.000000 24.000000 -160.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "cylinder" "float radius" [7.000000 ]
-"float zmin" [-6.000000 ]
-"float zmax" [14.000000 ]
+	Shape "cylinder" "float radius" [28.000000 ]
+"float zmin" [-24.000000 ]
+"float zmax" [56.000000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000
@@ -185,19 +184,19 @@ AttributeBegin #sphere0
 AttributeEnd
 
 
-AttributeBegin #sphere0
+AttributeBegin #sphere400
 
 	Transform 
 	[
 	1.000000 0.000000 0.000000 0.000000 
 	0.000000 0.000000 1.000000 0.000000 
 	0.000000 -1.000000 0.000000 0.000000 
-	-16.000000 20.000000 -140.000000 1.000000 
+	-64.000000 80.000000 -140.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "paraboloid" "float radius" [8.000000 ]
+	Shape "paraboloid" "float radius" [32.000000 ]
 "float zmin" [0.000000 ]
-"float zmax" [20.000000 ]
+"float zmax" [80.000000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000

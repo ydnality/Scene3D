@@ -85,7 +85,16 @@ linearIntensityFlash = sum(temp, 3);
 linearIntensityFlash = linearIntensityFlash * multiplicationFactor; %for exposure adjustment!
 temp = imageGet(vciFlashBack, 'results');
 linearIntensityFlashBack = sum(temp, 3); 
+
+%back flash 2 stuff
+% temp = imageGet(vciFlashBack2, 'results');
+% linearIntensityFlashBack2 = sum(temp, 3); 
+%
+% linearIntensityFlashBack = max(linearIntensityFlashBack, linearIntensityFlashBack2);
+
 ratioImage = linearIntensityFlash./linearIntensityFlashBack;
+
+
 
 %% Use ratio image to calculate crude depth
 % After obtaining the ratio image, we can then go through the algebraic
@@ -239,16 +248,16 @@ title('Calculated Normal Map');
 % %use a bilateral filter?
 
 %filter first 2 dimensions
-%normalMap1 = medianFilter(normalMap(:,:,1),5);
-%normalMap1 = medianFilter(normalMap1',5)';
-normalMap1 = normalMap(:,:,1);
-normalMap1 = crossBilateralFilter(normalMap1, d1TestFiltered, 10, 4, 25);  
+normalMap1 = medianFilter(normalMap(:,:,1),5);
+normalMap1 = medianFilter(normalMap1',5)';
+%normalMap1 = normalMap(:,:,1);
+%normalMap1 = crossBilateralFilter(normalMap1, d1TestFiltered, 10, 4, 25);  
 figure; imagesc(normalMap1);
 
-%normalMap2 = medianFilter(normalMap(:,:,2),5);
-%normalMap2 = medianFilter(normalMap2',5)';
-normalMap2 = normalMap(:,:,2);
-normalMap2 = crossBilateralFilter(normalMap2, d1TestFiltered, 10, 4, 25);  
+normalMap2 = medianFilter(normalMap(:,:,2),5);
+normalMap2 = medianFilter(normalMap2',5)';
+%normalMap2 = normalMap(:,:,2);
+%normalMap2 = crossBilateralFilter(normalMap2, d1TestFiltered, 10, 4, 25);  
 figure; imagesc(normalMap2);
 
 normalMap3 = ones(size(normalMap1)) - (normalMap1.^2 + normalMap2.^2);
@@ -306,8 +315,8 @@ for i = 1:(size(d1TestFiltered, 2))
         
         %regularize the dot products - we will never allow the dot product
         %to be 0, so that the value doesn't blow up.
-        frontDot(j,i) = .3 * exp(-2.*frontDot(j,i)) + frontDot(j,i);
-        backDot(j,i) = .3 * exp(-2.*backDot(j,i)) + backDot(j,i);
+        frontDot(j,i) = .2 * exp(-2.*frontDot(j,i)) + frontDot(j,i);
+        backDot(j,i) = .2 * exp(-2.*backDot(j,i)) + backDot(j,i);
         
         %calculate correction factors for both images
         linearIntensityFlashCorrected(j,i, :) = linearIntensityFlashCorrected(j,i, :) ./ frontDot(j,i) ; 

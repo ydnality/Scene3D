@@ -31,7 +31,11 @@ if (ieNotDefined('focalLength')),  focalLength = 0.05; end
 if ieNotDefined('noScale'),        noScale = false; end
 
 oiFlag = true;
-oi = s3dRenderScene(inputPbrt, oiName, noScale, dockerFlag, oiFlag);
+
+radianceRenderPbrt = pbrtObject;
+radianceRenderPbrt.makeDeepCopy(inputPbrt);
+    
+oi = s3dRenderScene(radianceRenderPbrt, oiName, noScale, dockerFlag, oiFlag);
 
 % We need the right way to figure out the effective focal length.  If
 % inputPbrt is a pbrtObject we can query.  If inputPbrt is a file name, we
