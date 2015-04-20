@@ -178,7 +178,7 @@ end
 
 if (oiFlag)
     % ISET will read the PBRT output
-    output = pbrt2oi(outfile);
+    output = pbrt2oi(outfile,inputPbrt);
     %rename the oi
     output = oiSet(output, 'name', name);
 else

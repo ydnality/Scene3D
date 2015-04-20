@@ -1,29 +1,37 @@
-%% output = s3dRenderDepthMap(fname)
+function depthMap = s3dRenderDepthMap(inputPbrtIn, numRenders, sceneName, dockerFlag)
+% Calculate the depth map used in ISET optical images
 %
-%s3dRenderDepthMap(inputPbrt, numRenders, sceneName, dockerFlag)
+%  depthMap = s3dRenderDepthMap(inputPbrt, numRenders, sceneName, dockerFlag)
 %
-% Accepts 2 types of input for inputPbrt: 
-% (1) pbrtObject: This is the preferred type, as the function will change
-% the sampler to the correct one, and should run as is.
-% (2) pbrt text file. 
-% Returns the ground truth depth map from given fname.  
-% This mode requires some manipulation of the .pbrt file before execution!
-% ****Note that the number of pixel samples here must be set to 1,
-% and the number of reflections must be set to 0 for a correct output to be
-% produced!
+% Calls pbrt to calculate the scene depth map. The calculation sends a ray
+% from the sensor out through a pinhole. One ray is sent out through the
+% center of the entrance aperture.  This ray arrives at a surface in the
+% scene.  That surface is at some distance from the aperture.  That's we
+% return in the depth map.
+%
+% inputPbrt: 
+%   (1) pbrtObject: This is the preferred input type, as the function will
+%   change the sampler parameters to the correct ones, and should run as
+%   is.
+%   (2) name of a pbrt text file
+%       This mode requires some manipulation of the .pbrt file before
+%       execution! If you have a textfile input for the pbrt, then the
+%       number of pixel samples must be set to 1, and the number of
+%       reflections must be set to 0 
+% dockerFlag: If true, then pbrt is called from dockerHub.
+% numRenders: Default is 1. We used to render multiple times and return the
+%             median.  But there isn't a lot of noise with the current
+%             sampling strategy (one sample at the center of the aperture).
+% sceneName:  Default scene
+%
+% output:  Estimated ground truth depth map
+%
+% AL, VISTASOFT, 2014
 
 
-function output = s3dRenderDepthMap(inputPbrtIn, numRenders, sceneName, dockerFlag)
-
-if ieNotDefined('dockerFlag'), dockerFlag = 0; end
-
-if (ieNotDefined('numRenders'))
-    numRenders = 1;
-end
-
-if (ieNotDefined('sceneName'))
-    sceneName = 'deleteMe';
-end
+if ieNotDefined('dockerFlag'),   dockerFlag = 0; end
+if (ieNotDefined('numRenders')), numRenders = 1; end
+if (ieNotDefined('sceneName')),  sceneName = 'deleteMe'; end
 
 %make a temporary directory
 generatedDir = tempname();
@@ -39,6 +47,7 @@ if(isa(inputPbrtIn, 'pbrtObject'))
     inputPbrt = pbrtObject();
     inputPbrt.makeDeepCopy(inputPbrtIn);
     
+    % Initialize the pbrt object for depth calculation
     inputPbrt.sampler.setType('stratified');
     for i = 1:length(inputPbrt.sampler.propertyArray)
         inputPbrt.sampler.removeProperty();
@@ -47,17 +56,9 @@ if(isa(inputPbrtIn, 'pbrtObject'))
     inputPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
     inputPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
 
-    % Strip the path off of each materialArray entry before writing the
-    % pbrt file to disk.
-%     for ii = 1:numel(inputPbrt.materialArray)
-%         if ischar(inputPbrt.materialArray{ii}) && exist(inputPbrt.materialArray{ii},'file')
-%             copyfile(inputPbrt.materialArray{ii},generatedDir)
-%             [~,fName,extension] = fileparts(inputPbrt.materialArray{ii});
-%             inputPbrt.materialArray{ii} = [fName,extension];
-%         end
-%         
-%     end
-%     
+    % Adjust the file names and then copies them ...
+    % The next series of loops could be a function
+    %
     for ii = 1:numel(inputPbrt.materialArray)
         if ischar(inputPbrt.materialArray{ii}) && exist(inputPbrt.materialArray{ii},'file')
             copyfile(inputPbrt.materialArray{ii},generatedDir)
@@ -69,6 +70,7 @@ if(isa(inputPbrtIn, 'pbrtObject'))
             copyRelFiles(directory, generatedDir);      
         end
     end
+    
     %do the same thing for the lights
     for ii = 1:numel(inputPbrt.lightSourceArray)
         if ischar(inputPbrt.lightSourceArray{ii}) && exist(inputPbrt.lightSourceArray{ii},'file')
@@ -81,6 +83,7 @@ if(isa(inputPbrtIn, 'pbrtObject'))
             copyRelFiles(directory, generatedDir);      
         end
     end
+    
    %do the same thing for geometry
     for ii = 1:numel(inputPbrt.geometryArray)
         if ischar(inputPbrt.geometryArray{ii}) && exist(inputPbrt.geometryArray{ii},'file')
@@ -93,6 +96,7 @@ if(isa(inputPbrtIn, 'pbrtObject'))
             copyRelFiles(directory, generatedDir);      
         end
     end
+    
     %do the same thing for include files
     for ii = 1:numel(inputPbrt.includeArray)
         if ischar(inputPbrt.includeArray{ii}) && exist(inputPbrt.includeArray{ii},'file')
@@ -119,6 +123,8 @@ if(isa(inputPbrtIn, 'pbrtObject'))
     inputPbrt.writeFile(fullfname);
     
 elseif (ischar(inputPbrtIn))
+    % It was a string, so we are going to run the pbrt calculation.
+    % This will run only on a file system that has the pbrt installed.
     pbrtExe = 'pbrt';
     
     if ~exist(pbrtExe,'file')
@@ -138,13 +144,12 @@ else
     error('invalid inputPbrt type.  Must be either a character array of the pbrt file, or a pbrtObject');
 end
 
-
+% Start the work.
 copyfile(fullfname,generatedDir);
 outfile  = fullfile(generatedDir, 'temp_out.dat');
 dMapFile  = fullfile(generatedDir, 'temp_out_DM.dat');
 
-
-%renders a few times then takes the median.  This median operation is
+% Might render a few times then take the median.  This median operation is
 %only necessary if not using stratified pbrt sampling.  The default of
 %numRenders is 1, and this should be what we use 99% of the time.
 for i = 1:numRenders
@@ -184,9 +189,10 @@ for i = 1:numRenders
     depthMap(:,:, i) = s3dReadDepthMapFile(dMapFile, [imageHeight imageWidth]);
 end
 
-depthMapProcessedMedian = median(depthMap, 3);
-output = depthMapProcessedMedian;
+% Over-write the full depth map.  
+depthMap = median(depthMap, 3);
 
 %remove the temporary directory and all the files
 rmdir(generatedDir, 's');
+
 end

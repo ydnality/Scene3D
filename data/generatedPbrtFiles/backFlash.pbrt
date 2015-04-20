@@ -5,13 +5,13 @@ Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
 
 
 LookAt
-	0.000000 100.000000 80.000000
-	0.000000 99.600000 79.000000
+	0.000000 0.000000 80.000000
+	0.000000 0.000000 79.000000
 	0.000000 1.000000 0.000000
 
 Camera "pinhole"
-	"float filmdistance" 44.000000
-	"float filmdiag" 50.911700
+	"float filmdistance" 140.000000
+	"float filmdiag" 43.260000
 
 
 Film "image"
@@ -19,12 +19,8 @@ Film "image"
 	"integer yresolution" [200]
 	"float cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
-Sampler "stratified"
-	"integer xsamples" 1
-	"integer ysamples" 1
-	"integer xsamples" 32
-	"integer ysamples" 32
-	"bool jitter" "false"
+Sampler "lowdiscrepancy"
+	"integer pixelsamples" [128]
 
 
 SurfaceIntegrator "directlighting"
@@ -44,8 +40,203 @@ AttributeBegin
 		"rgb I" [1000.000000 1000.000000 1000.000000 ]
 		"float coneangle" 180.000000
 		"float conedeltaangle" 180.000000
-		"point from" [0.000000 102.228344 85.570860 ]
-		"point to" [0.000000 101.856953 84.642383 ]
+		"point from" [2.000000 0.000000 130.000000 ]
+		"point to" [2.000000 0.000000 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [1.847759 0.765367 130.000000 ]
+		"point to" [1.847759 0.765367 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [1.414214 1.414214 130.000000 ]
+		"point to" [1.414214 1.414214 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [0.765367 1.847759 130.000000 ]
+		"point to" [0.765367 1.847759 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [0.000000 2.000000 130.000000 ]
+		"point to" [0.000000 2.000000 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-0.765367 1.847759 130.000000 ]
+		"point to" [-0.765367 1.847759 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-1.414214 1.414214 130.000000 ]
+		"point to" [-1.414214 1.414214 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-1.847759 0.765367 130.000000 ]
+		"point to" [-1.847759 0.765367 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-2.000000 0.000000 130.000000 ]
+		"point to" [-2.000000 0.000000 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-1.847759 -0.765367 130.000000 ]
+		"point to" [-1.847759 -0.765367 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-1.414214 -1.414214 130.000000 ]
+		"point to" [-1.414214 -1.414214 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-0.765367 -1.847759 130.000000 ]
+		"point to" [-0.765367 -1.847759 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-0.000000 -2.000000 130.000000 ]
+		"point to" [-0.000000 -2.000000 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [0.765367 -1.847759 130.000000 ]
+		"point to" [0.765367 -1.847759 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [1.414214 -1.414214 130.000000 ]
+		"point to" [1.414214 -1.414214 129.000000 ]
+
+AttributeEnd
+
+
+AttributeBegin
+
+	LightSource
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [1.847759 -0.765367 130.000000 ]
+		"point to" [1.847759 -0.765367 129.000000 ]
 
 AttributeEnd
 
@@ -85,21 +276,18 @@ AttributeBegin #backdrop
 AttributeEnd
 
 
-AttributeBegin #backdrop
+AttributeBegin #cone1
 
 	Transform 
 	[
-	312.500000 0.000000 0.000000 0.000000 
-	0.000000 0.000000 312.500000 0.000000 
-	0.000000 -312.500000 0.000000 0.000000 
-	2.000000 0.000000 0.000000 1.000000 
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-18.750000 -18.750000 -170.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "trianglemesh" "integer indices" 
-	[
-	0 1 2
-	0 2 3
-	]
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000
@@ -112,18 +300,18 @@ AttributeBegin #backdrop
 AttributeEnd
 
 
-AttributeBegin #cone400
+AttributeBegin #cone2
 
 	Transform 
 	[
-	8.000000 0.000000 0.000000 0.000000 
-	0.000000 0.000000 -8.000000 0.000000 
-	0.000000 8.000000 0.000000 0.000000 
-	-19.000000 0.000000 -80.000000 1.000000 
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-18.750000 -9.375000 -170.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "cone" "float radius" [3.000000 ]
-"float height" [10.500000 ]
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000
@@ -136,17 +324,18 @@ AttributeBegin #cone400
 AttributeEnd
 
 
-AttributeBegin #sphere400
+AttributeBegin #cone3
 
 	Transform 
 	[
-	1.000000 0.000000 0.000000 0.000000 
-	0.000000 1.000000 0.000000 0.000000 
-	0.000000 0.000000 1.000000 0.000000 
-	75.000000 24.000000 -140.000000 1.000000 
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-18.750000 0.000000 -170.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "sphere" "float radius" [36.000000 ]
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000
@@ -159,19 +348,18 @@ AttributeBegin #sphere400
 AttributeEnd
 
 
-AttributeBegin #sphere400
+AttributeBegin #cone4
 
 	Transform 
 	[
-	1.000000 0.000000 0.000000 0.000000 
-	0.000000 0.000000 -1.000000 0.000000 
-	0.000000 1.000000 0.000000 0.000000 
-	0.000000 24.000000 -160.000000 1.000000 
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-18.750000 9.375000 -170.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "cylinder" "float radius" [28.000000 ]
-"float zmin" [-24.000000 ]
-"float zmax" [56.000000 ]
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000
@@ -184,19 +372,498 @@ AttributeBegin #sphere400
 AttributeEnd
 
 
-AttributeBegin #sphere400
+AttributeBegin #cone5
 
 	Transform 
 	[
-	1.000000 0.000000 0.000000 0.000000 
-	0.000000 0.000000 1.000000 0.000000 
-	0.000000 -1.000000 0.000000 0.000000 
-	-64.000000 80.000000 -140.000000 1.000000 
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-18.750000 18.750000 -170.000000 1.000000 
 	]
 	NamedMaterial "grayMat"
-	Shape "paraboloid" "float radius" [32.000000 ]
-"float zmin" [0.000000 ]
-"float zmax" [80.000000 ]
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone6
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-9.375000 -18.750000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone7
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-9.375000 -9.375000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone8
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-9.375000 0.000000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone9
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-9.375000 9.375000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone10
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	-9.375000 18.750000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone11
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	0.000000 -18.750000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone12
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	0.000000 -9.375000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone13
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	0.000000 0.000000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone14
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	0.000000 9.375000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone15
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	0.000000 18.750000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone16
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	9.375000 -18.750000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone17
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	9.375000 -9.375000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone18
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	9.375000 0.000000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone19
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	9.375000 9.375000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone20
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	9.375000 18.750000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone21
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	18.750000 -18.750000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone22
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	18.750000 -9.375000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone23
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	18.750000 0.000000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone24
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	18.750000 9.375000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
+	"point P" 
+	[
+	1.000000 1.000000 0.000000
+	-1.000000 1.000000 0.000000
+	-1.000000 -1.000000 0.000000
+	1.000000 -1.000000 0.000000
+	]
+
+
+AttributeEnd
+
+
+AttributeBegin #cone25
+
+	Transform 
+	[
+	3.125000 0.000000 0.000000 0.000000 
+	0.000000 3.125000 0.000000 0.000000 
+	0.000000 0.000000 3.125000 0.000000 
+	18.750000 18.750000 -170.000000 1.000000 
+	]
+	NamedMaterial "grayMat"
+	Shape "cone" "float radius" [1.000000 ]
+"float height" [5.000000 ]
 	"point P" 
 	[
 	1.000000 1.000000 0.000000

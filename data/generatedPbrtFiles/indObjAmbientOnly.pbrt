@@ -5,23 +5,26 @@ Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
 
 
 LookAt
-	-22.726490 -33.058783 13.017442
-	-22.299137 -32.154700 13.017475
-	-0.000013 -0.000031 1.000000
+	-56.914787 -105.385544 35.014800
+	-56.487434 -104.481461 34.800000
+	0.000000 0.000000 1.000000
 
 Camera "realisticDiffraction"
-	"float filmdistance" 15.000000
-	"float filmdiag" 43.750000
-	"float aperture_diameter" 7.000000
+	"float filmdistance" 90.000000
+	"float filmdiag" 70.000000
+	"float aperture_diameter" 16.000000
 	"float diffractionEnabled" 0.000000
 	"float chromaticAberrationEnabled" 0.000000
-	"float curveRadius" -13.500000
-	"string specfile" "testLens.dat"
+	"float curveRadius" 0.000000
+	"string specfile" "2ElLens.dat"
+	"float film_center_x" 0.000000
+	"float film_center_y" 0.000000
+
 
 Film "image"
 	"integer xresolution" [450]
 	"integer yresolution" [300]
-
+	"float cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
 Sampler "stratified"
 	"integer xsamples" 1
@@ -30,7 +33,7 @@ Sampler "stratified"
 
 
 SurfaceIntegrator "directlighting"
-	"integer maxdepth" [1]
+	"integer maxdepth" [0]
 
 
 Renderer "sample"
@@ -42,12 +45,8 @@ WorldBegin
 AttributeBegin
 
 	LightSource
-		"spot"
-		"rgb I" [1000.000000 1000.000000 1000.000000 ]
-		"float coneangle" 180.000000
-		"float conedeltaangle" 180.000000
-		"point from" [4.500000 -90.000000 8.500000 ]
-		"point to" [4.500000 -89.000000 8.500000 ]
+		"infinite"
+		"integer nsamples" [16]
 
 AttributeEnd
 
@@ -68,13 +67,14 @@ AttributeEnd
 AttributeBegin
 
 	LightSource
-		"infinite"
-		"integer nsamples" [8]
+		"spot"
+		"rgb I" [1000.000000 1000.000000 1000.000000 ]
+		"float coneangle" 180.000000
+		"float conedeltaangle" 180.000000
+		"point from" [-56.914787 -105.385544 35.014800 ]
+		"point to" [-56.487434 -104.481461 34.800000 ]
 
 AttributeEnd
-
-
-Include "depthTargetSpheres-mat.pbrt"
 
 
 Include "default-mat.pbrt"

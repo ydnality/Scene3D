@@ -1,5 +1,8 @@
 %% Runs PBRT and imports it in ISET for the bench scene. 
 
+error('Deprecated.  Use Metronome version');
+
+%%
 s_initISET
 %% specify the scene using pure .pbrt text file
 sceneName = 'indObjAmbientOnly';

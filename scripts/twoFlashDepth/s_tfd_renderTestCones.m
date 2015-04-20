@@ -1,12 +1,15 @@
+% Render test cones for two flash depth analysis.
+%
 % This script renders the basic setup of 2 side-by-side light sources and a
-% simple surface in between them.  There will be 2 captures.  One with each
-% light source.  The hope is that we can derive some information on the
-% normal vectors using this setup.  These captures are rendered using
-% pbrtObjects. 
+% simple surface (test cones) in between them.  
+%
+% There will be 2 captures.  One with each light source.  The hope is that
+% we can derive some information on the normal vectors using this setup.
+% These captures are rendered using pbrtObjects.
 
+%%
+ieInit
 
-
-s_initISET
 %% Render FrontOi
 clear curPbrt;
 curPbrt = pbrtObject();
@@ -30,29 +33,25 @@ filmDiag = 43.26;
 pinholeLens = pbrtLensPinholeObject(filmDistance, filmDiag) ;
 curPbrt.camera.setLens(pinholeLens)
 
-
-
 %depths
 sphereDepths = -170;  %negative is into the screen
 
 %flash separation
 flashSeparation = 50;
 
-%scaleFactor
+%scaleFactor - To set the size of the cones
 scaleFactor = (-sphereDepths + 80)/(80);   % * 4 * .470; % for 20 degree FOV
 % * 4; % for 42.5 degree FOV
 
-%backdrop Depth
 % backDropDepth = -100 * scaleFactor;  %backdrop distance increases with depth of spheres
 backDropDepth = sphereDepths;  %backdrop distance increases with depth of spheres
 
-%calculate sphere offsets
+% Calculate XXXX offsets
 xValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
 yValues = linspace(-6*scaleFactor, 6*scaleFactor, 5);
 [xOffsets yOffsets] = meshgrid(xValues, yValues); 
 
-%light sources
-
+%% Light sources
 %make a circle of lights
 %use 16 different radially symmetric lights for now
 lightLocation = 80;
@@ -63,8 +62,6 @@ angleSample = angleSample(1:end-1);  %so we don't double count 0 degrees
 lightClusterRadius = 2; 
 lightXCoord = cos(angleSample) * lightClusterRadius;
 lightYCoord = sin(angleSample) * lightClusterRadius;
-
-
 
 % lightRight = pbrtLightSpotObject('rightLight', [], [], [], inFrom, inTo);
 curPbrt.removeLight();
@@ -78,12 +75,13 @@ else
     lightFront = pbrtLightSpotObject('lightFront', [], [], [], [0 0 lightLocation], [0 0 lightLocation-1]);
     curPbrt.addLightSource(lightFront);
 end
-%add a new material
+
+%% Add a new material
 matRGB= [1 1 1];
 newMaterial = pbrtMaterialObject('grayMat', 'matte', pbrtPropertyObject('color Kd', matRGB));
 curPbrt.addMaterial(newMaterial);
 
-% remove default geometry
+%% remove default geometry
 curPbrt.removeGeometry();
 %add a backdrop
 backDropTransform = ...
@@ -94,7 +92,9 @@ backDropTransform = ...
 backDrop = pbrtGeometryObject('backdrop', 'grayMat', [], [], backDropTransform);
 curPbrt.addGeometry(backDrop);
 
-%serialize the x and y values for easier looping
+%% Build the cone objects
+
+% Serialize the cone positions for easier looping
 xOffsets = xOffsets(:);
 yOffsets = yOffsets(:);
 for i = 1:length(xOffsets)
@@ -103,20 +103,26 @@ for i = 1:length(xOffsets)
         0 scaleFactor 0 0 ;
         0 0 scaleFactor 0;
         xOffsets(i) yOffsets(i) sphereDepths  1]; %8.87306690216     %x direction is to the right, y is into the screen, z is up
+    
+    % This is where the object is created
     tempShape = pbrtShapeObject('cone', 'radius', 1);
     tempShape.addParameter('height', 5);
+    
+    % Build and add the object to the pbrt data structure
     newGeometry = pbrtGeometryObject(['cone' int2str(i)], 'grayMat', tempShape, [], translateTransform);
     curPbrt.addGeometry(newGeometry);
 end
 
-sceneName = ['frontFlash'];
-% curPbrt.writeFile(tmpFileName);
-frontOi = s3dRenderOI(curPbrt, .050, sceneName);
+%%
+sceneName = 'frontFlash';
+focalLength = 0.05;
+dockerFlag = true;
+frontOi = s3dRenderOI(curPbrt, focalLength, sceneName, dockerFlag);
+% vcAddObject(frontOi); oiWindow;
 
-%% render Back Oi
+%% Render OI when the ring light is at the back
 
-
-% lightRight = pbrtLightSpotObject('rightLight', [], [], [], inFrom, inTo);
+% Ring cluster means it is a ring light.
 if (lightCluster)
    for i = 1:length(lightXCoord)
        curPbrt.removeLight();
@@ -135,30 +141,31 @@ else
     curPbrt.addLightSource(lightBack);
 end
 
-tmpFileName = ['backFlash'];
+tmpFileName = 'backFlash';
 backOi = s3dRenderOI(curPbrt, .050, tmpFileName);
+% vcAddObject(backOi); oiWindow;
 
 
-%% render depth map
+%% render depth map - Outdated
 
 %change the sampler to stratified for non-noisy depth map
-samplerProp = pbrtPropertyObject();
-curPbrt.sampler.setType('stratified');
-curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
+% samplerProp = pbrtPropertyObject();
+% curPbrt.sampler.setType('stratified');
+% curPbrt.sampler.removeProperty();
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
+% 
+% %write file and render
+% tmpFileName = ['deleteMe'  '.pbrt'];
+% curPbrt.writeFile(tmpFileName);
+% groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
+% figure; imagesc(groundTruthDepthMap);
 
-%write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
-figure; imagesc(groundTruthDepthMap);
 
 
-
-%% front flash image processing
-%load oi from file (optional)
+%% Front flash image processing
+%  load oi from file (optional)
 % vcLoadObject('opticalimage', ['50mmFront.pbrt.mat']);
 % oi = vcGetObject('oi');
 

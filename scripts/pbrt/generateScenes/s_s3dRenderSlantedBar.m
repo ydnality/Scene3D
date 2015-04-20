@@ -1,10 +1,12 @@
 %% Render a slanted bar target
 %
-% Goal is to emphasize the chromatic aberration measurement
+% Used to illustrate the longitudinal chromatic aberration 
 %
+% TODO: 
 % As things stand, we need too many samples.  We really want to have the
 % rays be confined to the aperture.  Or we want to blur a little bit in a
 % wavelength independent way.
+%
 % You can see the chromatic aberration here, but the picture isn't yet
 % quite what we want.
 %
