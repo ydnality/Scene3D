@@ -85,7 +85,7 @@ focalLength = 0.050;   % In meters
 oiName = [];
 dockerFlag = true;
 
-oi = s3dRenderOIAndDepthMap(curPbrt,focalLength,oiName,dockerFlag);
+oi = s3dRenderOIAndDepthMap(curPbrt,oiName,dockerFlag);
 vcAddObject(oi); oiWindow;
 
 %% Save all the key variables that enable running the previous cell
