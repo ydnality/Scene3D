@@ -5,27 +5,25 @@ Scale -1.000000  1.000000  1.000000  # account for fixed lookat bug
 
 
 LookAt
-	-56.914787 -105.385544 35.014800
-	-56.487434 -104.481461 34.800000
-	0.000000 0.000000 1.000000
+	0.000000 0.000000 8001.000000
+	0.000000 0.000000 8000.000000
+	0.000000 1.000000 0.000000
 
 Camera "realisticDiffraction"
-	"float filmdistance" 72.000000
-	"float filmdiag" 30.000000
-	"float aperture_diameter" 16.000000
+	"float filmdistance" 36.400000
+	"float filmdiag" 0.125000
+	"float aperture_diameter" 2.000000
 	"float diffractionEnabled" 0.000000
-	"float chromaticAberrationEnabled" 0.000000
+	"float chromaticAberrationEnabled" 1.000000
 	"float curveRadius" 0.000000
 	"string specfile" "dgauss.50mm.dat"
 	"float film_center_x" 0.000000
 	"float film_center_y" 0.000000
-	"float num_pinholes_w" 160
-	"float num_pinholes_h" 160
 
 
 Film "image"
-	"integer xresolution" [1440]
-	"integer yresolution" [1440]
+	"integer xresolution" [128]
+	"integer yresolution" [128]
 	"float cropwindow" [0.000000 1.000000 0.000000 1.000000]
 
 Sampler "stratified"
@@ -51,16 +49,16 @@ AttributeBegin
 		"rgb I" [1000.000000 1000.000000 1000.000000 ]
 		"float coneangle" 180.000000
 		"float conedeltaangle" 180.000000
-		"point from" [-56.914787 -105.385544 35.014800 ]
-		"point to" [-56.487434 -104.481461 34.800000 ]
+		"point from" [0.000000 0.000000 8001.000000 ]
+		"point to" [0.000000 0.000000 8000.000000 ]
 
 AttributeEnd
 
 
-Include "default-mat.pbrt"
+Include "slantedBar-mat.pbrt"
 
 
-Include "default-geom.pbrt"
+Include "slantedBar-geom.pbrt"
 
 
 WorldEnd

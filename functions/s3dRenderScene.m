@@ -41,11 +41,11 @@ function output = s3dRenderScene(inputPbrt, name, noScale, dockerFlag, oiFlag)
 
 %% Set up parameters
 
-if ieNotDefined('dockerFlag'), dockerFlag = 0; end
 if (ieNotDefined('inputPbrt')), error('PBRT full file name or pbrtObject required.');end
-if (ieNotDefined('name')), name = 'default'; end
-if (ieNotDefined('noScale')), noScale = false; end
-if (ieNotDefined('oiFlag')), oiFlag = false; end
+if ieNotDefined('dockerFlag'),  dockerFlag = 0;   end
+if (ieNotDefined('name')),      name = 'default'; end
+if (ieNotDefined('noScale')),   noScale = false;  end
+if (ieNotDefined('oiFlag')),    oiFlag = false;   end
 
 %% Make a tempPBRT directory where the output files will go
 generatedDir = tempname;
@@ -163,11 +163,13 @@ if dockerFlag
 
         % Execute the docker call
         [s,r] = system(cmd);
-        if s, error('Docker execution failure %s\n',r); end
-        disp(r);
+        if s, error('Docker execution failure %s\n',r);
+        else disp('Docker appears to have run succesfully')
+        end
+        % disp(r);
 
         % Tell the user where the result iss
-        fprintf('Wrote: %s',outfile);
+        fprintf('Wrote: %s\n',outfile);
     end
 else
     s3dPbrtLocalCall(fullfname, generatedDir, outfile);

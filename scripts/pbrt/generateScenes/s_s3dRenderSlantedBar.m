@@ -84,37 +84,19 @@ curPbrt.camera.setLens(lens);
 curPbrt.camera.setResolution(rows, cols);
 
 %% render
-focalLength = 0.050;   % In meters
 oiName = [];
 dockerFlag = true;
-oi = s3dRenderOIAndDepthMap(curPbrt,focalLength,oiName,dockerFlag);
+oi = s3dRenderOIAndDepthMap(curPbrt,oiName,dockerFlag);
+
 vcAddObject(oi); oiWindow;
 plotOI(oi,'irradiance hline',[1 round(rows/2)])
 
 %% To save depends on whether light field or note
 if isempty(numPinholesW) || isempty(numPinholesH)
-    save('slantedBar','oi','focalLength','curPbrt');
+    save('slantedBar','oi','curPbrt');
 else
-    save('slantedBarLF','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
+    save('slantedBarLF','oi','numPinholesW','numPinholesH','curPbrt');
 end
 
 %% END
-% 
-% %% PBRT will run the PBRT script
-% chdir(fullfile(s3dRootPath, 'scripts', 'pbrtFiles'));
-% 
-% % list of all chromatic aberration renderings - uncomment and run the one
-% % you wish to run
-% 
-% % slanted bar rendering
-% unix([fullfile(pbrtHome, '/src/bin/pbrt') 'chromaticAberration.pbrt']);
-% 
-% %% ISET will read the PBRT output
-% % scene = sceneSet(scene,'fov', 8);
-% oi = pbrt2oi('output_d.dat');
-% % oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );
-% vcAddAndSelectObject(oi);
-% oiWindow;
-% 
-% m = oiGet(oi, 'mean illuminance')
-% unix('cd ..');
+
