@@ -30,7 +30,7 @@ elseif (ischar(inputPbrt))
     [directory, fileName, extension] = fileparts(inputPbrt);
     %depth map pbrt file must have a _depth appended to name
     depthPbrtFile = fullfile(directory, [fileName '_depth', extension]);
-    if ~exist('depthPbrtFile','file')
+    if ~exist(depthPbrtFile,'file')
         disp('No depth file found.  Returning scene without depth map');
         return;
     else
