@@ -71,7 +71,7 @@ if isequal(class(inputPbrt),'pbrtObject')
     y = inputPbrt.camera.film.yresolution;
     d = sqrt(x^2+y^2);
     fwidth = (fdiag/d)*x;
-    fov = 2*atan2d(fwidth/2,dist);
+    fov = 2*atan2(fwidth/2,dist) * 180/pi;
     
 elseif ~isempty(inputPbrt) && isnumeric(inputPbrt)
     % This should never happen!  Alert the user that we are completely

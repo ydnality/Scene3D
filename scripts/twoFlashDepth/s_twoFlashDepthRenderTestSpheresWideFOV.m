@@ -141,11 +141,11 @@ curPbrt.removeLight();
 %         curPbrt.addLightSource(lightBack);
 %     end
 % else
-%lightBack = pbrtLightSpotObject('lightBack', [], [], [], [0 0 lightLocation + flashSeparation], [0 0 lightLocation + flashSeparation - 1]);
-%curPbrt.addLightSource(lightBack);
-theta = pi/4/2;
-lightBack2 = pbrtLightSpotObject('lightBack2', [], [], [], [flashSeparation * sin(theta) 0 lightLocation + flashSeparation * cos(theta)], [0 0 lightLocation]);
-curPbrt.addLightSource(lightBack2);
+lightBack = pbrtLightSpotObject('lightBack', [], [], [], [0 0 lightLocation + flashSeparation], [0 0 lightLocation + flashSeparation - 1]);
+curPbrt.addLightSource(lightBack);
+% theta = pi/6;
+% lightBack2 = pbrtLightSpotObject('lightBack2', [], [], [], [flashSeparation * sin(theta) 0 lightLocation + flashSeparation * cos(theta)], [flashSeparation * sin(theta) 0 lightLocation + flashSeparation * cos(theta) - 1]);
+% curPbrt.addLightSource(lightBack2);
 %lightBack3 = pbrtLightSpotObject('lightBack3', [], [], [], [-flashSeparation/2 0 lightLocation + flashSeparation/2 * sqrt(3)], [0 0 lightLocation]);
 %curPbrt.addLightSource(lightBack3);
 
@@ -200,12 +200,12 @@ curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
 %light sources
 curPbrt.removeLight();
 
-%lightBack = pbrtLightSpotObject('lightBack', [], [], [], [0 0 lightLocation + flashSeparation], [0 0 lightLocation + flashSeparation - 1]);
-%curPbrt.addLightSource(lightBack);
-%lightBack2 = pbrtLightSpotObject('lightBack2', [], [], [], [flashSeparation/2 0 lightLocation + flashSeparation/2 * sqrt(3)], [0 0 lightLocation]);
-%curPbrt.addLightSource(lightBack2);
-lightBack3 = pbrtLightSpotObject('lightBack3', [], [], [], [-flashSeparation/2 0 lightLocation + flashSeparation/2 * sqrt(3)], [0 0 lightLocation]);
-curPbrt.addLightSource(lightBack3);
+% lightBack = pbrtLightSpotObject('lightBack', [], [], [], [0 0 lightLocation + flashSeparation], [0 0 lightLocation ]);
+% curPbrt.addLightSource(lightBack);
+lightBack2 = pbrtLightSpotObject('lightBack2', [], [], [], [flashSeparation/2 0 lightLocation + flashSeparation/2 * sqrt(3)], [flashSeparation/2 0 lightLocation + flashSeparation/2 * sqrt(3) - 1]);
+curPbrt.addLightSource(lightBack2);
+%lightBack3 = pbrtLightSpotObject('lightBack3', [], [], [], [-flashSeparation/2 0 lightLocation + flashSeparation/2 * sqrt(3)], [0 0 lightLocation]);
+%curPbrt.addLightSource(lightBack3);
 
 % end
 
@@ -246,19 +246,29 @@ backOi2 = s3dRenderOI(curPbrt, .050, backName);
 groundTruthDepthMap = oiGet(frontOi, 'depthMap');
 figure; imagesc(groundTruthDepthMap);
 
-%% front flash image processi
+%% front flash image processing
 
 % uncomment this section if you wish to load oi from file
 % vcLoadObject('opticalimage', ['50mmBack.pbrt.mat']);
 % oi = vcGetObject('oi');
 
-% sensor processing
-frontFlashExpDur = sensorGet(sensor, 'expTime');
-sensor = s3dProcessSensor(backOi2, 0, [400 400],frontFlashExpDur, 'analog');    %low noise
+sensor = s3dProcessSensor(frontOi, 0, [400 400],0, 'analog');    %low noise, auto exposure
 % sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 % image processing
-vciFlashBack2 = s3dProcessImage(sensor);
-vcAddAndSelectObject(vciFlashBack2); ipWindow;
+vciFlash = s3dProcessImage(sensor);
+vcAddAndSelectObject(vciFlash); ipWindow;
+
+%% back flash image processing
+
+% sensor processing
+frontFlashExpDur = sensorGet(sensor, 'expTime');
+sensor = s3dProcessSensor(backOi, 0, [400 400],frontFlashExpDur, 'analog');    %low noise
+% sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
+vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
+
+% image processing
+vciFlashBack = s3dProcessImage(sensor);
+vcAddAndSelectObject(vciFlashBack); ipWindow;
 

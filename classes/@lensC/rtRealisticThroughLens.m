@@ -235,7 +235,7 @@ else
     if (nLines > 0)
         if (lensEl ==1)
             rays.plotHandle = vcNewGraphWin;
-            obj.draw();
+            obj.draw(rays.plotHandle);
         end
         xCoordVector = [rays.origin(samps,3) endPoint(samps,3) NaN([nLines 1])]';
         yCoordVector = [rays.origin(samps,2) endPoint(samps,2) NaN([nLines 1])]';

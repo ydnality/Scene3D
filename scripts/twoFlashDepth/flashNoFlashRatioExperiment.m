@@ -135,7 +135,7 @@ d1Test = (2.*f.^2)./(-2.*cos(alpha).*sin(phi).*f + radical);
 d1Test1st = d1Test;
 
 figure; imagesc(d1Test);
-colorbar; title('Calculated Depth (1st pass)'); caxis([80 150]);
+colorbar; title('Calculated Depth (1st pass)'); %caxis([80 150]);
 
 %% get quadratic coefficients out
 c = (1 - ratioImage);
@@ -143,6 +143,19 @@ b = 2 .* cos(alpha) .* sin(phi) .*f;
 a = ones(size(b)) * (f.^2);
 
 %solves for 1/d1Test
+
+%% general case for when flash in the back can be anywhere
+
+fx = f/2;
+fy = 0; %f/2;
+fz = f/2 * sqrt(3);
+
+b = -2 .* (fx .* cos(alpha) .* cos(phi) + fy .* sin(alpha) - fz .* cos(alpha) .* sin(phi));
+a = fx^2 + fy^2 + fz^2;
+c = 1 - ratioImage;
+
+d1Test =1./((-b + abs(sqrt(b.^2 - 4 .*a .*c))) ./ (2.*a));
+
 
 %% First filter the depth map using a separable median, and bilateral filter
 %This will provide better data for calculating the normal map later
@@ -242,6 +255,15 @@ scaledNormalMap = normalMap./2 + .5;
 figure; imshow(scaledNormalMap);
 title('Calculated Normal Map');
 
+
+%% use a "prior" as the normal map instead 
+
+%in this case we will use a completely flat surface, with normals facing us
+%(0,0,1)
+zeroMap = zeros(size(d1Test));
+oneMap = ones(size(d1Test));
+normalMap = cat(3, zeroMap, zeroMap, oneMap);
+
 %% filter the normal map...
 % 
 % %not sure what to use here since the 3 dimensions are coupled, but for now,
@@ -315,8 +337,8 @@ for i = 1:(size(d1TestFiltered, 2))
         
         %regularize the dot products - we will never allow the dot product
         %to be 0, so that the value doesn't blow up.
-        frontDot(j,i) = .2 * exp(-2.*frontDot(j,i)) + frontDot(j,i);
-        backDot(j,i) = .2 * exp(-2.*backDot(j,i)) + backDot(j,i);
+        %frontDot(j,i) = .2 * exp(-2.*frontDot(j,i)) + frontDot(j,i);
+        %backDot(j,i) = .2 * exp(-2.*backDot(j,i)) + backDot(j,i);
         
         %calculate correction factors for both images
         linearIntensityFlashCorrected(j,i, :) = linearIntensityFlashCorrected(j,i, :) ./ frontDot(j,i) ; 
@@ -349,7 +371,7 @@ radical = abs(sqrt(4*cos(alpha).^2.*sin(phi).^2.*f.^2 - 4*f^2.*(1 - ratioImage))
 d1Test = (2.*f.^2)./(-2.*cos(alpha).*sin(phi).*f + radical);
 
 figure; imagesc(d1Test);
-colorbar; title('Calculated Depth (2nd pass)'); caxis([80 150]);
+colorbar; title('Calculated Depth (2nd pass)'); %caxis([80 150]);
 
 %% get quadratic coefficients out
 ratioImageCor = ratioImage;

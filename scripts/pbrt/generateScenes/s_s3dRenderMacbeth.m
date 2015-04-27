@@ -53,18 +53,33 @@ if addLight
 end
 
 %% Standard camera properties
+
+%uncomment to use a 2ElLens instead
 from = [ 0 0 0];
 to =   [0 0 -1];
-position = [from; to; 0 0 1];
+position = [from; to; 0 1 0 ];
+%  Need to test the rank or something of the positon matrix
+% rank(position) cannot be 1
+% the third row determines the up vector for the camera
+
 curPbrt.camera.setPosition(position);
     
 curPbrt.camera.setLens(pbrtLensRealisticObject());   
-curPbrt.camera.lens.filmDistance = 90; % 70;  % 133.33;
+curPbrt.camera.lens.filmDistance = 131.33; %90; % 70;  % 133.33;
 curPbrt.camera.lens.filmDiag = 70;
 curPbrt.camera.lens.specFile = '2ElLens.dat';
 curPbrt.camera.lens.apertureDiameter = 16; % in mm
 curPbrt.camera.lens.curveRadius = 0;       % Experimental
 curPbrt.camera.setResolution(450, 300);
+% 
+
+%uncomment to use a pinhole camera instead
+% newCamPos =    [0  0 0;
+%     0   0 -1;
+%     0 1.00000 0];
+% curPbrt.camera.setPosition(newCamPos);
+% curPbrt.camera.lens.filmDistance = 133.33;
+% curPbrt.camera.lens.filmDiag = 70;
 
 %% Backdrop
 

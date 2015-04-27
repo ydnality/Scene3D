@@ -199,7 +199,7 @@ point = psCreate(0,0,-200);
 % Read a lens file and create a lens
 lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 
-nSamples = 501; %151;
+nSamples = 151; %501; %151;
 apertureMiddleD = .5;   % mm
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
@@ -331,7 +331,7 @@ tic
 
 intensityFlat = zeros(numPixels);
 intensityFlat = intensityFlat(:);
-jobInterval = 50000;
+jobInterval = 5000;
 numJobs = ceil(numApertureSamplesTot/jobInterval);
 
 %split aperture into segments and do bsxfun on that, then combine later.
@@ -339,17 +339,124 @@ numJobs = ceil(numApertureSamplesTot/jobInterval);
 for job = 1:numJobs
     
     apXGridFlatCur = apXGridFlat((job-1) * jobInterval + 1:min(job * jobInterval, numApertureSamplesTot));
-    xDiffMat = bsxfun(@minus, endLGridXFlat, apXGridFlat');
-    yDiffMat = bsxfun(@minus, endLGridYFlat, apYGridFlat');
+    apYGridFlatCur = apYGridFlat((job-1) * jobInterval + 1:min(job * jobInterval, numApertureSamplesTot));
+
+    xDiffMat = bsxfun(@minus, endLGridXFlatCur, apXGridFlatCur');
+    yDiffMat = bsxfun(@minus, endLGridYFlatCur, apYGridFlatCur');
     zDiffMat = repmat(endLGridZFlat, [1, numApertureSamplesTot]);
 
     expD = exp(2 * pi * 1i .* (sqrt(xDiffMat.^2 + yDiffMat.^2 + zDiffMat.^2)/lambda));
     intensityFlat = sum(expD, 2) + intensityFlat;
 end
 
+intensityFlat = abs(intensityFlat);
+
 toc
 
+%% test the new infrastructure with PSFCamera and estimatePSF
 
+% Make a volume of point.  A little boring in this case
+point = psCreate(0,0,-200);
+
+% Read a lens file and create a lens
+lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
+
+nSamples = 501; %501; %151;
+apertureMiddleD = .1;  %.5;   % mm
+lens = lensC('apertureSample', [nSamples nSamples], ...
+    'fileName', lensFileName, ...
+    'apertureMiddleD', apertureMiddleD, ...
+    'diffractionEnabled', true);
+
+% Create a film (sensor)
+
+% position - relative to center of final lens surface
+% size - 'mm'
+% wavelength samples
+lens.set('wave', [400:100:700 ]);
+
+wave = lens.get('wave');
+
+%put it 16 mm away
+film = filmC('position', [0 0 16 ], ...
+    'resolution', [50 50 1], ...
+    'size', [2/2 2/2], ...
+    'wave', wave);
+
+
+% Ray trace the point to the film
+
+camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
+
+% Sequence of events for estimating the PSF, 
+nLines = 100;
+jitter = false;
+%camera.estimatePSF(nLines,jitter);
+
+%limits the entrance aperture so this can run faster
+%subsection = [-.03, -.03, .03, .03];  % for aperture .5
+subsection = [-.03/5, -.03/5, .03/5, .03/5];
+
+%camera.estimatePSF(nLines,jitter,subsection);
+
+method = 'huygens';
+camera.estimatePSF(nLines,jitter,subsection, method);
+
+oi = camera.oiCreate(); vcAddObject(oi); oiWindow;
+
+
+%% produce diffraction pattern for the test case
+
+% Make a volume of point.  A little boring in this case
+point = psCreate(0,0,-90000000);
+
+% Read a lens file and create a lens
+%lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
+lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
+
+
+nSamples = 4001; %501; %151;
+apertureMiddleD = 2.2727;  %.5;   % mm
+lens = lensC('apertureSample', [nSamples nSamples], ...
+    'fileName', lensFileName, ...
+    'apertureMiddleD', apertureMiddleD, ...
+    'diffractionEnabled', true);
+
+% Create a film (sensor)
+
+% position - relative to center of final lens surface
+% size - 'mm'
+% wavelength samples
+lens.set('wave', [400:100:700 ]);
+
+wave = lens.get('wave');
+
+%put it 16 mm away
+film = filmC('position', [0 0 48.5 ], ...
+    'resolution', [25 25 1], ...
+    'size', [2/sqrt(2) 2/sqrt(2)], ...
+    'wave', wave);
+
+
+% Ray trace the point to the film
+
+camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
+
+% Sequence of events for estimating the PSF, 
+nLines = 100;
+jitter = false;
+%camera.estimatePSF(nLines,jitter);
+
+%limits the entrance aperture so this can run faster
+%subsection = [-.03, -.03, .03, .03];  % for aperture .5
+subsection = [-.25, -.25, .25, .25];
+
+%camera.estimatePSF(nLines,jitter,subsection);
+
+method = 'huygens';
+camera.estimatePSF(nLines,jitter,subsection, method);
+
+oi = camera.oiCreate(); vcAddObject(oi); oiWindow;
 %% observations
 
 %aperture szie: .1mm
