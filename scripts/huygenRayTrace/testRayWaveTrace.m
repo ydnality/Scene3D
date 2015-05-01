@@ -26,6 +26,7 @@ ieInit
 lambda    = 550;                % nm
 binSize   = 2500;   %25;                 % nm
 numPixels = 1000;                % In the sensor
+
 %apertureSample = 100;           % nm
 %nApertureSamples = 1e3;
 
@@ -50,6 +51,8 @@ distance = zeros(1, numPixels);         % From aperture sample to sensor sample
 % Pick a set of sample points on the aperture
 numApertureSamples = 100;   % Number of points in the slit aperture
 apertureSize = 2500;         % nm   25
+
+
 aperturePoint = linspace(-.5,.5, numApertureSamples + 1) * apertureSize;
 
 % These are the locations on the sensor
@@ -80,6 +83,111 @@ intensity = abs(intensity).^2;
 
 sensorAxis = linspace(0, binSize * numPixels, numPixels);
 plot(sensorAxis, intensity);
+
+
+%% Sum the wavefronts from a series of points in a slit aperture (but this time, do a truly uniform spherical sample for huygens)
+
+%assume single pinhole is at origin
+
+% numSamples = 100000;
+lambda    = 550;                % nm
+binSize   = 2500;   %25;                 % nm
+numPixels = 1000;                % In the sensor
+
+binSize   = 10000;   %25;                 % nm
+numPixels = 250;                % In the sensor
+
+
+%apertureSample = 100;           % nm
+%nApertureSamples = 1e3;
+
+% We do the calculation one aperture sample at a time
+% imagePlaneLocation = [lambda * 20 0];    % This many wavelengths from the aperture
+imagePlaneDist     = lambda*20000;  %20
+% imagePlane         = zeros(1,numPixels); % A 1D sensor
+ph = zeros(1, numPixels);               % Phase of ray at that sample
+distance = zeros(1, numPixels);         % From aperture sample to sensor sample
+
+% intersectionPointR = zeros(1, numPixels);
+
+% imagePlanePhase = zeros(1,numPixels);   
+% intersectionPoint = zeros(1, numPixels);
+
+%we are using known incremental directions
+%since all the rays that make it through are assumed to go through pinhole
+%at the same phase, we can just start tracing from the pinhole
+
+%aperturePoint = (rand(1,numApertureSamples) - .5) * 2 * apertureSize/2;
+
+% Pick a set of sample points on the aperture
+numApertureSamples = 100;   % Number of points in the slit aperture
+apertureSize = 2500;         % nm   25
+
+numApertureSamples = 1000;   % Number of points in the slit aperture
+apertureSize = 250000;         % nm   25
+
+
+aperturePoint = linspace(-.5,.5, numApertureSamples + 1) * apertureSize;
+
+% These are the locations on the sensor
+% A 2xN matrix (x,y) for the two rows
+endLocations = linspace(-numPixels/2 * binSize, numPixels/2 * binSize, numPixels);
+endLocations = [ones(1,numPixels)*imagePlaneDist;endLocations(:)'];
+
+%for rPhase = linspace(0, 2* pi, 14)
+% For each aperture sample, calculate the distance and phase to each pixel
+intensity = zeros(numPixels,1);
+
+% For each aperture calculate the distance to all the pixels, keeping the
+% phase information
+for rPhase = 0 %:pi/256:(255 * pi/256)
+    for apertureSample = 1:numApertureSamples
+
+        % These are the locations on the aperture
+        apLocations = [zeros(1,numPixels); ones(1, numPixels) * aperturePoint(apertureSample)];
+
+        d = sqrt(diag((endLocations - apLocations)'*(endLocations - apLocations)));
+        
+        %sampling correction term
+        dir = (endLocations - apLocations);
+        normDir = normvec(dir, 'p', 2, 'dim', 1);
+        
+        %this factor accounts for the fact that we AREN'T sampling uniformly in theta.  
+        %theta = uniform
+        %y = sin(theta)
+        %use transformation of random variables to compute that fY(y) ~
+        %1/(1-y^2). We take the inverse of this that is (1-y^2) since we
+        %are sampling uniformly in y instead of theta.
+        normalizeAmount = (sqrt(1 - normDir(2,:).^2))';  
+        
+        
+        thetaCapture = atan2(dir(2,:)+ binSize/2, dir(1,:) ) - atan2(dir(2,:)- binSize/2, dir(1,:) );
+        
+        % vcNewGraphWin; plot(d)
+        %intensity = exp(2 * pi * 1i * (d/lambda)).*normalizeAmount + intensity;
+       % intensity = exp(2 * pi * 1i * (d/lambda)).*thetaCapture'  + intensity;
+        
+        intensity = exp(2 * pi * 1i * (d/lambda))./d.^2  + intensity;
+        %intensity = exp(2 * pi * 1i * (d/lambda)) + intensity;
+    end
+end
+% Get the real intensity
+vcNewGraphWin;
+intensity = abs(intensity).^2;
+
+sensorAxis = linspace(0, binSize * numPixels, numPixels);
+plot(sensorAxis, intensity);
+
+
+
+% Key observation: we don't always get an airy disk patern.  It depends
+% heavily on the distance from the aperture, the aperture size, and the
+% wavelength.  
+%
+% See
+% http://en.wikipedia.org/wiki/Fresnel_diffractionhttp://en.wikipedia.org/wiki/Fresnel_diffraction
+% for more details.  We are seeing a transition between Fresnel (near
+% field, and Frau
 
 %% plot theoretical solution
 theta = linspace(-pi/2, pi/2, 200);
@@ -415,8 +523,12 @@ point = psCreate(0,0,-90000000);
 lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
 
-nSamples = 4001; %501; %151;
-apertureMiddleD = 2.2727;  %.5;   % mm
+%nSamples = 4001; %501; %151;
+%apertureMiddleD = 2.2727;  %.5;   % mm
+
+nSamples = 101; %501; %151;
+apertureMiddleD = .22727;  %.5;   % mm
+
 lens = lensC('apertureSample', [nSamples nSamples], ...
     'fileName', lensFileName, ...
     'apertureMiddleD', apertureMiddleD, ...
@@ -455,6 +567,76 @@ subsection = [-.25, -.25, .25, .25];
 
 method = 'huygens';
 camera.estimatePSF(nLines,jitter,subsection, method);
+
+oi = camera.oiCreate(); vcAddObject(oi); oiWindow;
+
+%% produce diffraction pattern for the test case using an ideal lens instead
+
+% Make a volume of point.  A little boring in this case
+point = psCreate(0,0,-1000000000000000000);
+
+% Read a lens file and create a lens
+%lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
+lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
+
+
+nSamples = 5001; %501; %151;
+apertureMiddleD = 2.2727;  %.5;   % mm   %DID NOT WORK - WHY?
+
+nSamples = 4001; %501; %151;
+apertureMiddleD = .22727;  %.5;   % mm    %WORKS BRILLIANTLY
+
+nSamples = 1001; %501; %151;
+apertureMiddleD = .44;  %.5;   % mm     %did not work - WHY    1/sqrt(2)
+%size sensor
+
+%nSamples = 251; %501; %151;
+%apertureMiddleD = .11;  %.5;   % mm    %WORKS BRILLIANTLY
+
+
+lens = lensC('apertureSample', [nSamples nSamples], ...
+    'fileName', lensFileName, ...
+    'apertureMiddleD', apertureMiddleD, ...
+    'diffractionEnabled', true);
+
+% Create a film (sensor) 
+
+% position - relative to center of final lens surface
+% size - 'mm'
+% wavelength samples
+lens.set('wave', [400:100:700 ]);
+
+wave = lens.get('wave');
+
+%put it 16 mm away
+film = filmC('position', [0 0 50], ...
+    'resolution', [100 100 1], ...
+    'size', [1/sqrt(2) 1/sqrt(2)], ...
+    'wave', wave);
+
+
+% Ray trace the point to the film
+
+camera = psfCameraC('lens',lens,'film',film,'point source',point{1});
+
+% Sequence of events for estimating the PSF, 
+nLines = 100;
+jitter = false;
+%camera.estimatePSF(nLines,jitter);
+
+%limits the entrance aperture so this can run faster
+%subsection = [-.03, -.03, .03, .03];  % for aperture .5
+%subsection = [-.25, -.25, .25, .25];
+%subsection = [-1 -1, 1, 1];
+subsection = [];
+
+
+%camera.estimatePSF(nLines,jitter,subsection);
+
+method = 'HURB';
+method = 'huygens';
+rtType = 'ideal';
+camera.estimatePSF(nLines,jitter,subsection, method, rtType);
 
 oi = camera.oiCreate(); vcAddObject(oi); oiWindow;
 %% observations
