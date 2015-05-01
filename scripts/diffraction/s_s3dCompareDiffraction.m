@@ -128,16 +128,15 @@ oi = camera.oiCreate(); vcAddObject(oi); oiWindow;
 %vcAddAndSelectObject(scene); sceneWindow;
 
 %load scene file
-d = displayCreate('LCD-Apple');
+d = displayCreate('equal energy');
 scene = sceneFromFile('pointTest.png', 'rgb', [], d);
-
 wave = sceneGet(scene, 'wave');
-scene = sceneAdjustIlluminant(scene, ones(size(wave)) * 10^-3, true);
+
+% scene = sceneAdjustIlluminant(scene, ones(size(wave)) * 10^-3, true);
 
 % pointPhotons = zeros(size(sceneGet(scene, 'photons')));
 % pointPhotons(256, 256, :) = 1;
 %scene = sceneSet(scene, 'photons', pointPhotons);
-
 
 %scene = sceneSet(scene, 'illuminant', )
 %scene = sceneFromFile('usairforce.png', 'rgb');
