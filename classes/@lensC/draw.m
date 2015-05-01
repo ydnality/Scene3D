@@ -1,4 +1,4 @@
-function obj =  draw(obj)
+function obj =  draw(obj, figureHandle)
 % Draw the the multi-element lens surfaces in a graph window
 %
 %   lens.draw
@@ -9,7 +9,13 @@ function obj =  draw(obj)
 % AL/BW Vistasoft Team, Copyright 2014
 
 %% Create the figure and set the parameters
-vcNewGraphWin; axis equal;
+
+if(ieNotDefined('figureHandle'))
+    figureHandle = vcNewGraphWin; axis equal;
+else
+    figure(figureHandle);
+end
+
 lWidth = 2; lColor = 'k';  % Drawing parameters
 xlabel('mm'); ylabel('mm');
 
