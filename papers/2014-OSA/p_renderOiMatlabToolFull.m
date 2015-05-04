@@ -10,33 +10,15 @@
 
 %%
 ieInit
+clear all
+ieInit
 
-%% Render a pinhole scene.  It can be treated as the scene radiance
-
-% %TODO: save these scenes and depth maps so that brian can import them
-% sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinhole.pbrt');
-% scene = s3dRenderScene(sceneName, 'indObj');
-%
-% %% Render the depthmap for that pinhole scene
-% sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinholeDepth.pbrt');
-% depthMap = s3dRenderDepthMap(sceneName, 1);
-%
-% figure; imagesc(depthMap);
-% title('Depth-map For Indestructible Object(units mm)');
-% colorbar;
-% scene = sceneSet(scene, 'depthmap', depthMap);
-% vcAddAndSelectObject(scene); sceneWindow;
-
-%% If modded pbrt is NOT installed on this system
-% run this command to load a scene file
-
+%% The scene file, rendered using a pinhole model
 sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
-% sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'simpleTarget', 'pinholeSceneFile.mat');
-
 load(sceneFileName,'scene');
 vcAddAndSelectObject(scene); sceneWindow;
-%% Basic point source properties (distances)
 
+%% Basic point source properties (distances)
 wave = 400:100:700;            % Wavelength
 
 % We will loop through the point positions
@@ -47,83 +29,26 @@ normalizingZ = -16000;        % mm assumed reference Z point.
 % All other points will use the same field angle as this reference Z point
 
 
-%% Load a scene file
-%
-% These files were created using PBRT.  See the script s_sc3dSceneRadiance
-% for an explanation of how these are created.
-
-% Two possible scenes
-
-% Much nicer
-sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes', 'metronome.mat');
-load(sceneFileName,'scene');
-
-%  Much smaller
-% sceneFileName = fullfile(s3dRootPath, 'data', 'isetScenes', 'textureSquare.mat');
-% load(sceneFileName,'scene');
-
-% Synthetic test and very small
-% scene = sceneCreate('slanted bar',[64 64]);
-% d = sceneGet(scene,'depth map');
-% sz = size(d);
-% d(:) = -pZ(end);
-% d(1:(sz(1)/2),:) = -pZ(1);
-% scene = sceneSet(scene,'depth map',d);
-
-% scene = sceneCreate('sweep frequency',96,7);
-% d = sceneGet(scene,'depth map');
-% sz = size(d);
-% d(:) = -pZ(end);
-% d(1:(sz(1)/2),:) = abs(pZ(1));
-% scene = sceneSet(scene,'depth map',d);
-
-% Check scene
-vcAddObject(scene); sceneWindow;
-
-%% Render a collection of PSFs
-% Also used in p_Figure1.m - could make this a function later or separate
-% script.
-
-% For each PSF rendered, we calculate the centroid of that PSF, and
-% zoom in and calculate a "high quality" PSF using a much smaller film
-% centered around that centroid.  This procedure allows us to calculate
-% much higher quality PSFs, in case we wish to render very high resolution
-% images.
-%
-% These PSFs will be added into a PSF Collection matrix, which contains the
-% whole series of PSFs depending on field height, wavelength, depth.
-%
-% This collection will then be used to produce the forward calculation
-% rendered image, which will use this collection as a look-up  table for
-% the proper PSF to use.
-%
-% Please keep these indents, it helps divide the code
-% hierarchically.
-
-%%
+%% Make point source samples
 nWave = length(wave);
 nFH = length(pX) * length(pY);
 nDepth = length(pZ);
 nPoints = nFH*nDepth;
 
-% Old way of making point sources
-% Also, adjust for approximate difference in field position when Z changes
-%     [X, Y, Z] = meshgrid(pX,pY,pZ);
-%     for i = 1:length(pZ)
-%         X(:,:,i) = X(:,:,i) *  pZ(i)/normalizingZ;
-%     end
-
+% I don't understand the normalization here.  This probably has to do with
+% ray angles.  Ask AL (BW).
+% Actually, the pZ(ii) below doesn't make any sense.
 pointSources = cell(nFH,nDepth);
 for ii=1:nFH
     for dd = 1:nDepth
-        pointSources{ii,dd} = [pX(ii)*  pZ(ii)/normalizingZ, pY, pZ(dd)];
+        pointSources{ii,dd} = [pX(ii) *  (pZ(ii)/normalizingZ), pY, pZ(dd)];
     end
 end
 
 jitterFlag   = true;   %enable jitter for lens front element aperture samples
 nLines       = false;  %number of lines to draw for debug illustrations.
 
-% Plot the points in 3Space
+% We should plot the points in 3Space
 
 %%  Declare film properties for PSF recording (NOT for the forward calculation)
 
@@ -145,7 +70,6 @@ newWidth = 10;    %mm
 
 %% Create the lens from a lens file
 % see TwoElLens for how this lens was created
-
 lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
 load(lensFile,'lens')
 lens.apertureMiddleD = 5;
@@ -156,111 +80,139 @@ nSamplesHQ = 801;        % Number of samples for the HQ render
 
 % lens.draw;
 
-%% Loop on wavelength and depth to create PSFs
+%% Make the low resolution camera
+% We will send this in to the PSFArray routine.
 
-% Need to know number of field heights and depths
+film = filmC('position', [fX fY fZ], ...
+    'size', [fW fH], ...
+    'wave', wave, ...
+    'resolution', [lowRes lowRes length(wave)]);
+
+lens.apertureSample = ([nSamples nSamples]);
+psfCamera = psfCameraC('lens', lens, ...
+    'film', film, ...
+    'pointsource', pointSources{1,1});
+
+%% Should replace cell below
+
+PSF = psfCamera.PSFArray(pointSources);
+
+% vcNewGraphWin;
+% Could loop through these
+% ww = 3; dd = 1; ff = 4;
+% s = PSF(:,:,ww,dd,ff);
+% mesh(s); sum(s(:))
+
+
+%% Original calculation
 % 
-% These psfs will be for different field heights, depths, and
-% wavelengths
-wbar = waitbar(0,sprintf('Creating %i point spreads ...',numel(pointSources)));
-oiList = cell(nFH,nDepth);
+% wbar = waitbar(0,sprintf('Creating %i point spreads ...',numel(pointSources)));
+% oiList = cell(nFH,nDepth);
+% 
+% % ii = 3; dd = 2;
+% for ii = 1:nFH
+%     waitbar(ii/nFH,wbar);
+%     
+%     for dd = 1:nDepth
+%         
+%         %--- Initial low quality render
+%         film = filmC('position', [fX fY fZ], ...
+%             'size', [fW fH], ...
+%             'wave', wave, ...
+%             'resolution', [lowRes lowRes length(wave)]);
+%         
+%         lens.apertureSample = ([nSamples nSamples]);
+%         psfCamera = psfCameraC('lens', lens, ...
+%             'film', film, ...
+%             'pointsource', pointSources{ii,dd});
+%         
+%         % From here could could be psfCamera.get('image centroid')
+%         
+%         % What happens to each of the wavelengths?
+%         % psfCamera.estimatePSF();
+%         % psfCamera.oiCreate;
+%         
+%         % Replaced by oiGet centroid, I think
+%         
+% %         % Figure out center pos by calculating the centroid of illuminance image
+% %         img = oiGet(oi,'illuminance');
+% %         
+% %         % Force to unit area and flip up/down for a point spread
+% %         img = img./sum(img(:));
+% %         img = flipud(img);
+% %         % vcNewGraphWin; mesh(img);
+% %         
+% %         % Calculate the weighted centroid/center-of-mass
+% %         % The units here are millimeters, I think (BW)
+% %         xSample = linspace(-film.size(1)/2, film.size(1)/2, film.resolution(1));
+% %         ySample = linspace(-film.size(2)/2, film.size(2)/2, film.resolution(2));
+% %         [filmDistanceX, filmDistanceY] = meshgrid(xSample,ySample);
+% %         
+% %         distanceMatrix = sqrt(filmDistanceX.^2 + filmDistanceY.^2);
+% %         centroidX = sum(sum(img .* filmDistanceX));
+% %         centroidY = sum(sum(img .* filmDistanceY));
+%         
+%         % The centroid calculation produces the same answer
+%         % disp([ii dd])
+% %         fprintf('field height %i\nDepth %i',ii,dd);
+% %         disp([centroidX, centroidY])
+%         
+%         c = psfCamera.centroid();
+%         centroidX = c.X; centroidY = c.Y;
+%         fprintf('field height %i\nDepth %i',ii,dd);
+%         disp([centroidX, centroidY])
+% 
+%         % sz = oiGet(oi,'size'); mid = round(sz(1)/2);
+%         
+%         % Render image using new center position and width and higher resolution
+%         film = filmC('position', [centroidX centroidY fZ], ...
+%             'size', [newWidth newWidth], ...
+%             'wave', wave, ...
+%             'resolution', [highRes highRes length(wave)]);
+%         
+%         % Use more samples in the lens aperture to produce a high quality psf.
+%         % NOTE:  Changing the number of samples also changes the oi size.
+%         % This isn't good.  We need to change the sampling density without
+%         % changing the size.
+%         lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
+%         psfCamera = psfCameraC('lens', lens, ...
+%             'film', film, ...
+%             'pointsource', pointSources{ii,dd});
+%         psfCamera.estimatePSF(nLines, jitterFlag);
+%         oiList{ii,dd} = psfCamera.oiCreate();
+%         
+%         % vcAddObject(oiList{1,1}); oiWindow;
+%     end
+% end
+% 
+% delete(wbar)
+% 
+% % Form PSF matrix
+% PSF = zeros(highRes, highRes, nWave, nDepth, nFH);
+% for ww = 1:nWave
+%     for dd = 1:nDepth
+%         for ii = 1:nFH
+%             PSF(:,:,ww,dd,ii) = oiGet(oiList{ii,dd}, 'photons',wave(ww));
+%         end
+%     end
+% end
 
-for ii = 1:nFH
-    waitbar(ii/nFH,wbar);
-    
-    for dd = 1:nDepth
-        
-        %--- Initial low quality render
-        film = filmC('position', [fX fY fZ], ...
-            'size', [fW fH], ...
-            'wave', wave, ...
-            'resolution', [lowRes lowRes length(wave)]);
-        
-        lens.apertureSample = ([nSamples nSamples]);
-        psfCamera = psfCameraC('lens', lens, ...
-            'film', film, ...
-            'pointsource', pointSources{ii,dd});
-        
-        % From here could could be psfCamera.get('image centroid')
-        
-        % What happens to each of the wavelengths?
-        psfCamera.estimatePSF();
-        oi = psfCamera.oiCreate;
-        % To calculate and show, use this:
-        %   oi = psfCamera.showFilm;
-        %   oiGet(oi,'spatial resolution','mm')
-        
-        % Figure out center pos by calculating the centroid of illuminance image
-        img = oiGet(oi,'illuminance');
-        
-        % Force to unit area and flip up/down for a point spread
-        img = img./sum(img(:));
-        img = flipud(img);
-        % vcNewGraphWin; mesh(img);
-        
-        % Calculate the weighted centroid/center-of-mass
-        xSample = linspace(-film.size(1)/2, film.size(1)/2, film.resolution(1));
-        ySample = linspace(-film.size(2)/2, film.size(2)/2, film.resolution(2));
-        [filmDistanceX, filmDistanceY] = meshgrid(xSample,ySample);
-        
-        distanceMatrix = sqrt(filmDistanceX.^2 + filmDistanceY.^2);
-        centroidX = sum(sum(img .* filmDistanceX));
-        centroidY = sum(sum(img .* filmDistanceY));
-        
-        % to here
-        
-        sz = oiGet(oi,'size'); mid = round(sz(1)/2);
-        
-        % Render image using new center position and width and higher resolution
-        film = filmC('position', [centroidX centroidY fZ], ...
-            'size', [newWidth newWidth], ...
-            'wave', wave, ...
-            'resolution', [highRes highRes length(wave)]);
-        
-        % Use more samples in the lens aperture to produce a high quality psf.
-        % NOTE:  Changing the number of samples also changes the oi size.
-        % This isn't good.  We need to change the sampling density without
-        % changing the size.
-        lens.apertureSample = ([nSamplesHQ nSamplesHQ]);
-        psfCamera = psfCameraC('lens', lens, ...
-            'film', film, ...
-            'pointsource', pointSources{ii,dd});
-        psfCamera.estimatePSF(nLines, jitterFlag);
-        oiList{ii,dd} = psfCamera.oiCreate();
-        
-        % vcAddObject(oiList{1,1}); oiWindow;
-    end
-end
-
-delete(wbar)
-
-%% Compute PSF collection matrix.
-% This will serve as a lookup table for later parts of the script
-
-% Form PSF matrix
-PSF = zeros(highRes, highRes, nWave, nDepth, nFH);
-for ww = 1:nWave
-    for dd = 1:nDepth
-        for ii = 1:nFH
-            PSF(:,:,ww,dd,ii) = oiGet(oiList{ii,dd}, 'photons',wave(ww));
-        end
-    end
-end
-
+%%
 % Key data to know for interpolation later.
 % This should become the ray trace structure in ISET.
 
-% PSFFieldHeightSamples = atan(pX/normalizingZ) * 180/pi;
-% PSFDepthSamples = -pZ(:);
+% We store the field heights in terms of angle
 PSFStructure.fHAngle = atan(pX/normalizingZ) * 180/pi;
+
+% The depth is in mm
 PSFStructure.depth   = -pZ(:);
+
+% Wavelength, PSF array, and so forth
 PSFStructure.wave    = wave;
-PSFStructure.PSF     = PSF;
+PSFStructure.PSF     = PSF;   % The spatial samples are in???
 PSFStructure.film    = film;
 
 % Make some plots of this PSF structure data.
-
-
 % What we really want is just this:  To make the PSFStructure here
 % compatibility with the ray trace point spread functions in ISET, and
 % then to be able to run oiCompute in raytrace mode with the depth
@@ -272,48 +224,59 @@ PSFStructure.film    = film;
 %% This section appears to determine the size of the output image
 
 
-% Dimensions of scene data
-numRows = sceneGet(scene, 'rows');
-numCols = sceneGet(scene,'cols');
+% % Dimensions of scene data
+% numRows = sceneGet(scene, 'rows');
+% numCols = sceneGet(scene,'cols');
+% 
+% % Size of PSF film pixel
+% smallPixelSize = 75/size(PSFStructure.film.image,1);     %mm
+% 
+% % Size of scene sample pixel
+% largePixelSize = 70/sqrt(2)/numRows;  %mm
+% 
+% %should match the PSFStructure film Z to be consistent
+% filmDistance = PSFStructure.film.position(3);
+% 
+% %70/sqrt(2) represents row size/diagonal  TODO: find a way to automate this
+% %This size should correspond to the size sensor you wish to use for the
+% %forward calculation.
+% 
+% % Amount that PSF film needs to be scaled to be equivalent to scene sample
+% %size
+% scaleFactor = smallPixelSize/largePixelSize;
 
-% Size of PSF film pixel
-smallPixelSize = PSFStructure.film.size(1)/size(PSFStructure.film.image,1);     %mm
-
-% Size of scene sample pixel
-largePixelSize = 70/sqrt(2)/numRows;  %mm
+%%  Copy the scene data into an oi structure?
 renderWave = 400:100:700;
-
-%should match the PSFStructure film Z to be consistent
-filmDistance = PSFStructure.film.position(3);
-
-%70/sqrt(2) represents row size/diagonal  TODO: find a way to automate this
-%This size should correspond to the size sensor you wish to use for the
-%forward calculation.
-
-% Amount that PSF film needs to be scaled to be equivalent to scene sample
-%size
-scaleFactor = smallPixelSize/largePixelSize;
 
 % Create an oi
 oi = oiCreate;
 oi = initDefaultSpectrum(oi);
 
-% Use scene data as photons first
-scene = sceneSet(scene,'wave', renderWave);
-dM = sceneGet(scene, 'depthmap');
+% Use scene data as photons
+scene   = sceneSet(scene,'wave', renderWave);
+dM      = sceneGet(scene, 'depth map');
 photons = sceneGet(scene, 'photons');
+
+% Apply this to the oi
 oi = oiSet(oi, 'wave', renderWave);
 oi = oiSet(oi, 'photons', photons);
 
-% Pad the oi for future processing
-padAmount = (round(size(PSFStructure.film.image,1) * scaleFactor) * 2);
-oi = oiPad(oi, [padAmount padAmount]);
+% This should be set so that the resolution of the PSF samples match the
+% resolution of the oi
+oi = oiSet(oi,'optics focal length',abs(fZ)*1e-3);
+oiGet(oi,'sample spacing','mm')
+% Adjust to make the spacing 100 um, or ...
+
+% Pad the oi 
+padAmount = oiGet(oi,'size')*0.1;
+oi = oiPad(oi, padAmount);
+vcAddObject(oi); oiWindow;
 
 % Obtain unblurred image, to be used later
 unBlurredPhotons = oiGet(oi, 'photons');
-photonSum = zeros(size(oiGet(oi,'photons')));
 
-vcAddObject(oi); oiWindow;
+% This is where the output will go
+photonSum = zeros(size(oiGet(oi,'photons')));
 
 %% Apply proper PSF for every pixel - this will become a function
 
@@ -322,6 +285,17 @@ vcAddObject(oi); oiWindow;
 % - Find the corresponding PSF
 % - Multiply the PSF by the pixel radiance
 % - Add the result to the full image
+
+numRows = sceneGet(scene, 'rows');
+numCols = sceneGet(scene,'cols');
+filmDistance = PSFStructure.film.position(3);
+
+% Size of scene sample pixel
+% Not sure where the 70 comes from.
+% Not sure about this whole thing here.
+largePixelSize = 70/sqrt(2)/numRows;  %mm
+smallPixelSize = PSFStructure.film.size(1)/size(PSFStructure.film.image,1);     %mm
+scaleFactor    = smallPixelSize/largePixelSize;
 
 [X,Y] = meshgrid(1:numCols,1:numRows);
 X = X - (numCols/2);
@@ -395,6 +369,99 @@ oi = oiSet(oi, 'wave', renderWave);
 oi = oiSet(oi, 'photons',photonSum);
 vcAddObject(oi); oiWindow;
 
+
+% %% Apply proper PSF for every pixel - this will become a function
+% 
+% % For each pixel,
+% % - Find field height, angle, wavelength, and depth
+% % - Find the corresponding PSF
+% % - Multiply the PSF by the pixel radiance
+% % - Add the result to the full image
+% 
+% numRows = sceneGet(scene, 'rows');
+% numCols = sceneGet(scene,'cols');
+% filmDistance = PSFStructure.film.position(3);
+% 
+% % Size of scene sample pixel
+% % Not sure where the 70 comes from.
+% % Not sure about this whole thing here.
+% largePixelSize = 70/sqrt(2)/numRows;  %mm
+% smallPixelSize = PSFStructure.film.size(1)/size(PSFStructure.film.image,1);     %mm
+% scaleFactor    = smallPixelSize/largePixelSize;
+% 
+% [X,Y] = meshgrid(1:numCols,1:numRows);
+% X = X - (numCols/2);
+% Y = Y - (numRows/2);
+% hyp   = sqrt( Y.^2 + X.^2)*largePixelSize;
+% % vcNewGraphWin; mesh(hyp);
+% 
+% % I think the X-axis is supposed to be zero deg.
+% % This isn't quite there yet.  But it is close.
+% ang = atan2d(Y, X);
+% % vcNewGraphWin; mesh(ang);
+% 
+% % Loop through wavelength
+% wBar = waitbar(0,'Slow forward rendering');
+% for waveInd = 1:length(renderWave)
+%     
+%     curWave = renderWave(waveInd);
+%     fprintf('Wavelength %.0f\n',curWave);
+%     
+%     % Loop through pixel rows and cols
+%     for ii = 1:numRows
+%         waitbar(ii/numRows,wBar);
+%         for jj = 1:numCols
+%             
+%             % Calculate field height (in degrees) and angle(relative to
+%             % center)
+%             % hypotenuse = sqrt((ii - numRows/2)^2 + (jj - numCols/2)^2) * largePixelSize;
+%             hypotenuse = hyp(ii,jj);
+%             curFieldHeightAngle = atan(hypotenuse/filmDistance) * 180/pi;
+%             
+%             % Pixel angle
+%             angle = ang(ii,jj);
+%             
+%             % Pixel depth
+%             depth = dM(ii, jj);
+%             
+%             % Calculate the PSF for the current field height, angle, depth,
+%             % wavelength, given the PSf structure
+%             currentPSF = s3dPSFLookUp(curFieldHeightAngle, depth, curWave, PSFStructure);
+%             
+%             %rotatePSF to correct orientation
+%             scaledCPSF = imrotate(currentPSF, angle, 'bilinear', 'crop' );
+%             
+%             % Scale PSF to the right size
+%             scaledCPSF = imresize(scaledCPSF, scaleFactor);
+%             scaledCPSF = scaledCPSF./sum(scaledCPSF(:)); %normalize
+%             
+%             scaledPSFNumRows = size(scaledCPSF, 1);
+%             scaledPSFNumCols = size(scaledCPSF, 2);
+%             
+%             % Define center and starting window
+%             centerPos = ceil(size(scaledCPSF, 1)/2);
+%             
+%             startingRow = ii + padAmount - centerPos;
+%             endingRow   = startingRow + scaledPSFNumRows - 1;
+%             
+%             startingCol = jj + padAmount - centerPos;
+%             endingCol   = startingCol + scaledPSFNumCols - 1;
+%             
+%             % Add to the final image
+%             photonSum(startingRow:endingRow,startingCol:endingCol, waveInd) = ...
+%                 photonSum(startingRow:endingRow,startingCol:endingCol, waveInd) + ...
+%                 unBlurredPhotons(ii + padAmount,jj + padAmount, waveInd)*scaledCPSF;
+%         end
+%     end
+% end
+% delete(wBar);
+% 
+% % Assign sum as oi values
+% oi = oiSet(oi, 'wave', renderWave);
+% oi = oiSet(oi, 'photons',photonSum);
+% vcAddObject(oi); oiWindow;
+
+%%
 scene = sceneCreate;
 scene = sceneSet(scene,'wave',oiGet(oi,'wave'));
 

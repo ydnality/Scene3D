@@ -71,12 +71,10 @@ classdef filmC <  clonableHandleObject
         end
         
         function clear(obj)
-            %clears the content of the film
+            % Zeros the film image data
+            % The film size is set to match the film resolution
             %
-            %Example: film.clear();
-            %
-            
-           obj.image = zeros(size(obj.image)); 
+           obj.image = zeros(obj.resolution); 
         end
         
     end

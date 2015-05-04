@@ -3,6 +3,15 @@ classdef psfCameraC <  handle
     %
     % Spatial units throughout are mm
     %
+    % The psfCamera includes a lens, film, pointsource (can be an array), a
+    % black box model (see Pieroni code), and fft of the PSF.
+    %
+    % The data (image) in the film object is always cleared when the
+    % psfCamera is created.
+    %
+    % Examples
+    % psfCamera = psfCamera('lens',lens,'film',film,'pointsource',psarray);
+    %
     % AL Vistasoft Copyright 2014
     % See Also: ppsfCameraC.
     
@@ -27,6 +36,7 @@ classdef psfCameraC <  handle
             % psfCameraC('lens',lens,'film',film,'point source',point);
             
             for ii=1:2:length(varargin)
+                % Eliminates spaces and forces lower case
                 p = ieParamFormat(varargin{ii});
                 switch p
                     case 'lens'
@@ -35,15 +45,17 @@ classdef psfCameraC <  handle
                         obj.film = varargin{ii+1};
                     case 'pointsource'
                         obj.pointSource = varargin{ii+1};
-                    case {'blackboxmodel';'blackbox';'bbm'}
+                    case {'blackboxmodel','blackbox','bbm'}
                        obj.BBoxModel = varargin{ii+1};
-                    case {'fftpsf';'fftPSF'}
+                    case {'fftpsf'}
                         obj.lens = varargin{ii+1};
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
             end
             
+            % Always clear the film on a create
+            obj.film.clear;
         end
         
         function [val] = get(obj,param,varargin)
@@ -89,11 +101,11 @@ classdef psfCameraC <  handle
                     val.X = sum(sum(img .* filmDistanceX));
                     val.Y = sum(sum(img .* filmDistanceY));
                     
-                 case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
+                 case {'blackboxmodel','blackbox','bbm'} % equivalent BLACK BOX MODEL
                      if nargin>2
                          fileType = varargin{1};  %witch field of the black box to get
                      else
-                         error(['Specify also the field of the Black Box Model!'])
+                         error('Specify also the field of the Black Box Model!')
                      end
                      
                      if nargin>3                         
@@ -109,12 +121,11 @@ classdef psfCameraC <  handle
                     % by Michael's script      
                     % Can be specify refractive indices for object and
                     % image space as varargin {1} and {2}
-                    lens=obj.lens;
                     if nargin >2
                         n_ob = varargin{1};    n_im = varargin{2};
-                        OptSyst = lens.bbmComputeOptSyst(n_ob,n_im);
+                        OptSyst = obj.lens.bbmComputeOptSyst(n_ob,n_im);
                     else
-                        OptSyst = lens.bbmComputeOptSyst();                    
+                        OptSyst = obj.lens.bbmComputeOptSyst();                    
                     end
                     val = OptSyst;
                     
@@ -124,22 +135,22 @@ classdef psfCameraC <  handle
                     % Can be specify refractive indices for object and
                     % image space as varargin {1} and {2}
                     %% Get inputs
-                    lens=obj.lens;
-                    film=obj.film;
+
                     pSource=obj.pointSource;
                     %COMPUTE OPTICAL SYSTEM
                     if nargin >2
                         n_ob = varargin{1};    n_im = varargin{2};
-                        OptSyst = lens.get('optical system',n_ob,n_im);
+                        OptSyst = obj.lens.get('optical system',n_ob,n_im);
                     else
-                        OptSyst = lens.get('optical system');                  
+                        OptSyst = obj.lens.get('optical system');                  
                     end
                     unit=paraxGet(OptSyst,'unit');
+                    
                     % GET USEFUL PARAMETERs
-                    lV=paraxGet(OptSyst,'lastvertex'); % last vertex of the optical system
-%                     lV=0;                    
-                    F.z=film.position(3)+lV;
-                    F.res=film.resolution(1:2);F.pp=film.size; %um x um
+                    lV   = paraxGet(OptSyst,'lastvertex'); % last vertex of the optical system
+                    F.z  = obj.film.position(3)+lV;
+                    F.res= obj.film.resolution(1:2);
+                    F.pp = obj.film.size; %um x um
                     
                     %CREATE an Imaging System
                    [ImagSyst]=paraxOpt2Imag(OptSyst,F,pSource,unit);       
