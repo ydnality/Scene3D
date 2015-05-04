@@ -529,7 +529,7 @@ classdef lensC <  handle
             
             % Debug visualization
             if (nLines)
-                
+                vcNewGraphWin;
                 samps = randi(size(rays.origin,1),[nLines,1]);
                 
                 xCoordVector = [rays.origin(samps,3) lensIntersectPosition(samps,3) NaN([nLines 1])]';

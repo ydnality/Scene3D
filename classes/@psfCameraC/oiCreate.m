@@ -41,6 +41,7 @@ oi = oiSet(oi,'photons',photons);
 % Estimate the horizontal field of view
 hfov = rad2deg(2*atan2(obj.film.size(1)/2,obj.lens.focalLength));
 oi = oiSet(oi,'hfov', hfov);
+oi = oiSet(oi, 'optics focal length', obj.lens.focalLength * 10^-3);
 
 % Set the name based on the distance of the sensor from the
 % final surface.  But maybe the obj has a name, and we should

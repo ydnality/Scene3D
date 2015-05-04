@@ -1,4 +1,4 @@
-function estimatePSF(obj,nLines, jitterFlag, subsection, diffractionMethod)
+function estimatePSF(obj,nLines, jitterFlag, subsection, diffractionMethod, rtType)
 % Estimate the PSF of a psfCamera
 %
 %   psfCamera.estimatePSF(obj)
@@ -18,6 +18,7 @@ if ieNotDefined('nLines'),     nLines = false;     end
 if ieNotDefined('jitterFlag'), jitterFlag = false; end
 if ieNotDefined('subsection'), subsection = []; end
 if ieNotDefined('diffractionMethod'), diffractionMethod = 'HURB'; end
+if ieNotDefined('rtType'), rtType = 'realistic'; end
 
 if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled) 
     % Trace from the point source to the entrance aperture of the
@@ -27,7 +28,7 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
     
     ppsfCFlag = false;
     obj.lens.diffractionEnabled = false;
-    obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag,[], subsection);
+    obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag,rtType, subsection);
 
     % Duplicate the existing rays for each wavelength
     % Note that both lens and film have a wave, sigh.
@@ -35,7 +36,7 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
     obj.rays.expandWavelengths(obj.lens.wave);
 
     %lens intersection and raytrace
-    obj.lens.rtThroughLens(obj.rays, nLines);
+    obj.lens.rtThroughLens(obj.rays, nLines, rtType);
 
     % Something like this?  Extend the rays to the film plane?
     % if nLines > 0; obj.rays.draw(obj.film); end
@@ -49,13 +50,13 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
     % use a preset sensor size and pitch for now... somehow integrate this
     % with PSF camera later
     
-    lambda = 550;  %for now
+    %lambda = 550;  %for now
     
     %binSize   = [40000 40000];   %25;                 % nm
     binSize = [obj.film.size(1)/obj.film.resolution(1) obj.film.size(2)/obj.film.resolution(2)] .* 10^6;
     %numPixels = [50 50];                % In the sensor
     numPixels = [obj.film.resolution(1) obj.film.resolution(2)];
-    numPixelsTot = numPixels(1) * numPixels(2);
+    %numPixelsTot = numPixels(1) * numPixels(2);
     %imagePlaneDist     = 16*10^6; %100 * 10^6; %100mm
     imagePlaneDist = obj.film.position(3) * 10^6;
     %lensMode = false;
@@ -87,7 +88,7 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
         % These are the locations on the sensor
         endLocations1DX = linspace(-numPixels(1)/2 * binSize(1), numPixels(1)/2 * binSize(1), numPixels(1));
         endLocations1DY = linspace(-numPixels(2)/2 * binSize(2), numPixels(2)/2 * binSize(2), numPixels(2));
-        [endLGridX endLGridY] = meshgrid(endLocations1DX, endLocations1DY);
+        [endLGridX, endLGridY] = meshgrid(endLocations1DX, endLocations1DY);
         endLGridXFlat = endLGridX(:);    %flatten the meshgrid
         endLGridYFlat = endLGridY(:);
         endLGridZFlat = ones(size(endLGridYFlat)) * imagePlaneDist;
@@ -107,7 +108,7 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
         tic
         intensityFlat = zeros(numPixels);
         intensityFlat = intensityFlat(:);
-        jobInterval = 5000;
+        jobInterval = 10000;
         numJobs = ceil(numApertureSamplesTot/jobInterval);
 
         %split aperture into segments and do bsxfun on that, then combine later.
@@ -129,7 +130,8 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
             intensityFlat = sum(expD, 2) + intensityFlat;
         end
 
-        intensityFlat = abs(intensityFlat);
+        intensityFlat = 1/lambda .* abs(intensityFlat).^2;
+        %intensityFlat = abs(intensityFlat);
         toc
 
 %         %plot results
@@ -156,7 +158,7 @@ else
     % multielement lens
     ppsfCFlag = false;
     % (pointSource, ppsfCFlag, jitterFlag, rtType, subSection, depthTriangles)
-    obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag, [], subsection);
+    obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag, rtType, subsection);
 
     % Duplicate the existing rays for each wavelength
     % Note that both lens and film have a wave, sigh.
@@ -164,7 +166,7 @@ else
     obj.rays.expandWavelengths(obj.lens.wave);
 
     %lens intersection and raytrace
-    obj.lens.rtThroughLens(obj.rays, nLines);
+    obj.lens.rtThroughLens(obj.rays, nLines, rtType);
 
     % Something like this?  Extend the rays to the film plane?
     % if nLines > 0; obj.rays.draw(obj.film); end
