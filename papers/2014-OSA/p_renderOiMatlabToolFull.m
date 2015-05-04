@@ -9,32 +9,31 @@
 % AL Copyright Vistasoft Team 2014
 
 %%
-s_initISET
+ieInit
 
 %% Render a pinhole scene.  It can be treated as the scene radiance
 
 % %TODO: save these scenes and depth maps so that brian can import them
 % sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinhole.pbrt');
 % scene = s3dRenderScene(sceneName, 'indObj');
-% 
+%
 % %% Render the depthmap for that pinhole scene
 % sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinholeDepth.pbrt');
 % depthMap = s3dRenderDepthMap(sceneName, 1);
-% 
+%
 % figure; imagesc(depthMap);
 % title('Depth-map For Indestructible Object(units mm)');
 % colorbar;
 % scene = sceneSet(scene, 'depthmap', depthMap);
 % vcAddAndSelectObject(scene); sceneWindow;
 
-%% If modded pbrt is NOT installed on this system, run this command to 
-% load a scene file
+%% If modded pbrt is NOT installed on this system
+% run this command to load a scene file
 
 sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
 % sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'simpleTarget', 'pinholeSceneFile.mat');
 
-scene = load(sceneFileName);
-scene = scene.scene;
+load(sceneFileName,'scene');
 vcAddAndSelectObject(scene); sceneWindow;
 %% Basic point source properties (distances)
 
@@ -46,7 +45,7 @@ pY = 0;
 pZ =[-70 -80 -90 -100 -110];  % millimeters
 normalizingZ = -16000;        % mm assumed reference Z point.
 % All other points will use the same field angle as this reference Z point
-        
+
 
 %% Load a scene file
 %
@@ -81,19 +80,19 @@ load(sceneFileName,'scene');
 % Check scene
 vcAddObject(scene); sceneWindow;
 
-%% Render a collection of PSFs 
+%% Render a collection of PSFs
 % Also used in p_Figure1.m - could make this a function later or separate
-% script. 
+% script.
 
 % For each PSF rendered, we calculate the centroid of that PSF, and
 % zoom in and calculate a "high quality" PSF using a much smaller film
 % centered around that centroid.  This procedure allows us to calculate
 % much higher quality PSFs, in case we wish to render very high resolution
 % images.
-% 
+%
 % These PSFs will be added into a PSF Collection matrix, which contains the
 % whole series of PSFs depending on field height, wavelength, depth.
-% 
+%
 % This collection will then be used to produce the forward calculation
 % rendered image, which will use this collection as a look-up  table for
 % the proper PSF to use.
@@ -102,72 +101,75 @@ vcAddObject(scene); sceneWindow;
 % hierarchically.
 
 %%
-    nWave = length(wave);
-    nFH = length(pX) * length(pY);
-    nDepth = length(pZ);
-    nPoints = nFH*nDepth;
-    
-    % Old way of making point sources
-    % Also, adjust for approximate difference in field position when Z changes
-    %     [X, Y, Z] = meshgrid(pX,pY,pZ);
-    %     for i = 1:length(pZ)
-    %         X(:,:,i) = X(:,:,i) *  pZ(i)/normalizingZ;
-    %     end
-    
-    pointSources = cell(nFH,nDepth);
-    for ii=1:nFH
-        for dd = 1:nDepth
-            pointSources{ii,dd} = [pX(ii)*  pZ(ii)/normalizingZ, pY, pZ(dd)];
-        end
+nWave = length(wave);
+nFH = length(pX) * length(pY);
+nDepth = length(pZ);
+nPoints = nFH*nDepth;
+
+% Old way of making point sources
+% Also, adjust for approximate difference in field position when Z changes
+%     [X, Y, Z] = meshgrid(pX,pY,pZ);
+%     for i = 1:length(pZ)
+%         X(:,:,i) = X(:,:,i) *  pZ(i)/normalizingZ;
+%     end
+
+pointSources = cell(nFH,nDepth);
+for ii=1:nFH
+    for dd = 1:nDepth
+        pointSources{ii,dd} = [pX(ii)*  pZ(ii)/normalizingZ, pY, pZ(dd)];
     end
-    
-    jitterFlag   = true;   %enable jitter for lens front element aperture samples
-    nLines       = false;  %number of lines to draw for debug illustrations.  
+end
 
-    % Plot the points in 3Space
-    
-    %%  Declare film properties for PSF recording (NOT for the forward calculation)
+jitterFlag   = true;   %enable jitter for lens front element aperture samples
+nLines       = false;  %number of lines to draw for debug illustrations.
 
-    fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
-    
-    % Film width and height
-    fW = 120;  % mm
-    fH = 120;  % mm
-    
-    % Film resolution (preview, large film size)
-    lowRes = 151;
-    
-    % Film resolution (final render, small film size)
-    highRes = 75;
+% Plot the points in 3Space
 
-    %for now - the width of the high quality sensor is set manually - this should be
-    %somewhat automated in the future
-    newWidth = 10;    %mm
-    
-    %% Create the lens from a lens file
-    % see TwoElLens for how this lens was created
-    
-    lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
-    load(lensFile,'lens')
-    lens.apertureMiddleD = 5;
+%%  Declare film properties for PSF recording (NOT for the forward calculation)
 
-    % Preview and high quality sampling on first lens aperture
-    nSamples = 25;           % On the first aperture. x,y, before cropping
-    nSamplesHQ = 801;        % Number of samples for the HQ render
+fX = 0; fY = 0; fZ = 135.5;    % mm.  Film position
+
+% Film width and height
+fW = 120;  % mm
+fH = 120;  % mm
+
+% Film resolution (preview, large film size)
+lowRes = 151;
+
+% Film resolution (final render, small film size)
+highRes = 75;
+
+%for now - the width of the high quality sensor is set manually - this should be
+%somewhat automated in the future
+newWidth = 10;    %mm
+
+%% Create the lens from a lens file
+% see TwoElLens for how this lens was created
+
+lensFile = fullfile(s3dRootPath, 'data', 'lens', '2ElLens');
+load(lensFile,'lens')
+lens.apertureMiddleD = 5;
+
+% Preview and high quality sampling on first lens aperture
+nSamples = 25;           % On the first aperture. x,y, before cropping
+nSamplesHQ = 801;        % Number of samples for the HQ render
+
+% lens.draw;
+
+%% Loop on wavelength and depth to create PSFs
+
+% Need to know number of field heights and depths
+% 
+% These psfs will be for different field heights, depths, and
+% wavelengths
+wbar = waitbar(0,sprintf('Creating %i point spreads ...',numel(pointSources)));
+oiList = cell(nFH,nDepth);
+
+for ii = 1:nFH
+    waitbar(ii/nFH,wbar);
     
-    % lens.draw;
-    
-    %% Loop on wavelength and depth to create PSFs
-    
-    % These psfs will be for different field heights, depths, and
-    % wavelengths 
-    wbar = waitbar(0,sprintf('Creating %i point spreads ...',numel(pointSources)));
-    oiList = cell(nFH,nDepth);
-    for ii = 1:nFH
-        waitbar(ii/nFH,wbar);
+    for dd = 1:nDepth
         
-        for dd = 1:nDepth
-
         %--- Initial low quality render
         film = filmC('position', [fX fY fZ], ...
             'size', [fW fH], ...
@@ -182,7 +184,8 @@ vcAddObject(scene); sceneWindow;
         % From here could could be psfCamera.get('image centroid')
         
         % What happens to each of the wavelengths?
-        oi = psfCamera.estimatePSF();
+        psfCamera.estimatePSF();
+        oi = psfCamera.oiCreate;
         % To calculate and show, use this:
         %   oi = psfCamera.showFilm;
         %   oiGet(oi,'spatial resolution','mm')
@@ -222,48 +225,49 @@ vcAddObject(scene); sceneWindow;
         psfCamera = psfCameraC('lens', lens, ...
             'film', film, ...
             'pointsource', pointSources{ii,dd});
-        oiList{ii,dd} = psfCamera.estimatePSF(nLines, jitterFlag);
+        psfCamera.estimatePSF(nLines, jitterFlag);
+        oiList{ii,dd} = psfCamera.oiCreate();
         
         % vcAddObject(oiList{1,1}); oiWindow;
+    end
+end
+
+delete(wbar)
+
+%% Compute PSF collection matrix.
+% This will serve as a lookup table for later parts of the script
+
+% Form PSF matrix
+PSF = zeros(highRes, highRes, nWave, nDepth, nFH);
+for ww = 1:nWave
+    for dd = 1:nDepth
+        for ii = 1:nFH
+            PSF(:,:,ww,dd,ii) = oiGet(oiList{ii,dd}, 'photons',wave(ww));
         end
     end
-    
-    delete(wbar)
+end
 
-    %% Compute PSF collection matrix. 
-    % This will serve as a lookup table for later parts of the script
+% Key data to know for interpolation later.
+% This should become the ray trace structure in ISET.
 
-    % Form PSF matrix
-    PSF = zeros(highRes, highRes, nWave, nDepth, nFH);
-    for ww = 1:nWave 
-        for dd = 1:nDepth
-            for ii = 1:nFH
-                PSF(:,:,ww,dd,ii) = oiGet(oiList{ii,dd}, 'photons',wave(ww));
-            end
-        end
-    end
+% PSFFieldHeightSamples = atan(pX/normalizingZ) * 180/pi;
+% PSFDepthSamples = -pZ(:);
+PSFStructure.fHAngle = atan(pX/normalizingZ) * 180/pi;
+PSFStructure.depth   = -pZ(:);
+PSFStructure.wave    = wave;
+PSFStructure.PSF     = PSF;
+PSFStructure.film    = film;
 
-    % Key data to know for interpolation later.
-    % This should become the ray trace structure in ISET.
-    
-    % PSFFieldHeightSamples = atan(pX/normalizingZ) * 180/pi;
-    % PSFDepthSamples = -pZ(:);
-    PSFStructure.fHAngle = atan(pX/normalizingZ) * 180/pi;
-    PSFStructure.depth   = -pZ(:);
-    PSFStructure.wave    = wave;
-    PSFStructure.PSF     = PSF;
-    PSFStructure.film    = film;
-    
-    % Make some plots of this PSF structure data.
-    
-    
-    % What we really want is just this:  To make the PSFStructure here
-    % compatibility with the ray trace point spread functions in ISET, and
-    % then to be able to run oiCompute in raytrace mode with the depth
-    % image.
-    %
-    % Doing this involves eliminating the code Andy copied from ISET, but
-    % upgrading the ISET code to 3D.
+% Make some plots of this PSF structure data.
+
+
+% What we really want is just this:  To make the PSFStructure here
+% compatibility with the ray trace point spread functions in ISET, and
+% then to be able to run oiCompute in raytrace mode with the depth
+% image.
+%
+% Doing this involves eliminating the code Andy copied from ISET, but
+% upgrading the ISET code to 3D.
 
 %% This section appears to determine the size of the output image
 
@@ -276,15 +280,15 @@ numCols = sceneGet(scene,'cols');
 smallPixelSize = PSFStructure.film.size(1)/size(PSFStructure.film.image,1);     %mm
 
 % Size of scene sample pixel
-largePixelSize = 70/sqrt(2)/numRows;  %mm   
+largePixelSize = 70/sqrt(2)/numRows;  %mm
 renderWave = 400:100:700;
 
 %should match the PSFStructure film Z to be consistent
-filmDistance = PSFStructure.film.position(3); 
+filmDistance = PSFStructure.film.position(3);
 
 %70/sqrt(2) represents row size/diagonal  TODO: find a way to automate this
 %This size should correspond to the size sensor you wish to use for the
-%forward calculation.  
+%forward calculation.
 
 % Amount that PSF film needs to be scaled to be equivalent to scene sample
 %size
@@ -299,7 +303,7 @@ scene = sceneSet(scene,'wave', renderWave);
 dM = sceneGet(scene, 'depthmap');
 photons = sceneGet(scene, 'photons');
 oi = oiSet(oi, 'wave', renderWave);
-oi = oiSet(oi, 'cphotons', photons);
+oi = oiSet(oi, 'photons', photons);
 
 % Pad the oi for future processing
 padAmount = (round(size(PSFStructure.film.image,1) * scaleFactor) * 2);
@@ -315,9 +319,9 @@ vcAddObject(oi); oiWindow;
 
 % For each pixel,
 % - Find field height, angle, wavelength, and depth
-% - Find the corresponding PSF 
-% - Multiply the PSF by the pixel radiance 
-% - Add the result to the full image 
+% - Find the corresponding PSF
+% - Multiply the PSF by the pixel radiance
+% - Add the result to the full image
 
 [X,Y] = meshgrid(1:numCols,1:numRows);
 X = X - (numCols/2);
@@ -341,12 +345,12 @@ for waveInd = 1:length(renderWave)
     for ii = 1:numRows
         waitbar(ii/numRows,wBar);
         for jj = 1:numCols
-           
+            
             % Calculate field height (in degrees) and angle(relative to
-            % center)            
+            % center)
             % hypotenuse = sqrt((ii - numRows/2)^2 + (jj - numCols/2)^2) * largePixelSize;
             hypotenuse = hyp(ii,jj);
-            curFieldHeightAngle = atan(hypotenuse/filmDistance) * 180/pi; 
+            curFieldHeightAngle = atan(hypotenuse/filmDistance) * 180/pi;
             
             % Pixel angle
             angle = ang(ii,jj);
@@ -364,7 +368,7 @@ for waveInd = 1:length(renderWave)
             % Scale PSF to the right size
             scaledCPSF = imresize(scaledCPSF, scaleFactor);
             scaledCPSF = scaledCPSF./sum(scaledCPSF(:)); %normalize
-
+            
             scaledPSFNumRows = size(scaledCPSF, 1);
             scaledPSFNumCols = size(scaledCPSF, 2);
             
@@ -377,7 +381,7 @@ for waveInd = 1:length(renderWave)
             startingCol = jj + padAmount - centerPos;
             endingCol   = startingCol + scaledPSFNumCols - 1;
             
-            % Add to the final image 
+            % Add to the final image
             photonSum(startingRow:endingRow,startingCol:endingCol, waveInd) = ...
                 photonSum(startingRow:endingRow,startingCol:endingCol, waveInd) + ...
                 unBlurredPhotons(ii + padAmount,jj + padAmount, waveInd)*scaledCPSF;
@@ -388,13 +392,22 @@ delete(wBar);
 
 % Assign sum as oi values
 oi = oiSet(oi, 'wave', renderWave);
-oi = oiSet(oi,'cphotons',photonSum);
+oi = oiSet(oi, 'photons',photonSum);
 vcAddObject(oi); oiWindow;
 
-% % debugging 
-% vcNewGraphWin; 
+scene = sceneCreate;
+scene = sceneSet(scene,'wave',oiGet(oi,'wave'));
+
+p = oiGet(oi,'photons');
+
+scene = sceneSet(scene,'photons',p);
+vcAddObject(scene);
+sceneWindow;
+
+% % debugging
+% vcNewGraphWin;
 % imshow(photonSum(:,:,1)./ max(photonSum(:)))
-% vcNewGraphWin; 
+% vcNewGraphWin;
 % imshow(unBlurredPhotons(:,:,1)./ max(unBlurredPhotons(:)))
 
 %% Debugging s3dLookUp: Key data: PSF and PSFFieldHeightSamples
@@ -403,10 +416,10 @@ vcAddObject(oi); oiWindow;
 % fieldHeightAngle = 0;
 % depth = 4000;
 % PSFStructure
-% 
+%
 % %TODO: keep track of differences in size maybe?  For now, assume app PSFs
 % %are plotted on the same size sensor
-% 
+%
 % currentPSF = s3dPSFLookUp(fieldHeightAngle, depth, wavelength,PSFStructure);
 % vcNewGraphWin; imagesc(currentPSF); title(['PSF Depth: ' int2str(depth)]);
 
@@ -417,7 +430,7 @@ vcAddObject(oi); oiWindow;
 % Note: there is no way for a scene to be restructured for wavelengths so
 % we need to make this into an Oi and do it this way.  Perhaps this should
 % be a new feature of ISE to allow for scenes to change their wave samples
-% and interpolate.  
+% and interpolate.
 
 scene = sceneCreate;
 % scene = sceneSet(scene, 'photons', oiGet(oi,' photons'));
@@ -428,12 +441,12 @@ scene = sceneSet(scene, 'wave', 400:100:700);
 
 % sceneName = fullfile(s3dRootPath, 'data', 'pbrtScenes', 'metronome', 'mainDefocused2El.pbrt');
 % oi = s3dRenderOI(sceneName, .050, 'indObj');
-% 
+%
 % %reduce to 400:100:700
 % scene = sceneCreate;
 % scene = sceneSet(scene, 'photons', oiGet(oi,' photons'));
 % scene = sceneSet(scene, 'wave', 400:100:700);
-% 
+%
 % oi = oiSet(oi, 'wave', 400:100:700);
 % oi = oiSet(oi, 'photons', sceneGet(scene, 'photons'));
 % vcAddObject(oi); oiWindow;
