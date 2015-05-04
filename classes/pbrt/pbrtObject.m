@@ -11,6 +11,7 @@ classdef pbrtObject <  clonableHandleObject
         camera; %this will contain position, file, film
         sampler;
         surfaceIntegrator;
+        volumeIntegrator = [];  %by default, leave this empty because it's not necessary for all scenes
         renderer;
         lightSourceArray;   
         geometryArray;   %can either contain a pbrtGeometryObject or a filename
@@ -97,6 +98,12 @@ classdef pbrtObject <  clonableHandleObject
             
             %% SurfaceIntegrator
             obj.surfaceIntegrator.writeFile(fid);
+
+            %% VolumeIntegrator
+            %only write if volume integrator is not empty
+            if(~isempty(obj.volumeIntegrator))
+                obj.volumeIntegrator.writeFile(fid);
+            end
             
             %% Renderer
             
@@ -234,7 +241,14 @@ classdef pbrtObject <  clonableHandleObject
 
         end        
         
-                
+        function setVolumeIntegrator(obj, volumeIntegratorIn)
+           %setVolumeIntegrator(obj, samplerIn)
+           %
+           %sets the volume integrator of the pbrtObject
+           validateattributes(volumeIntegratorIn, {'pbrtVolumeIntegratorObject'}, {'nonempty'});
+           obj.volumeIntegrator = volumeIntegratorIn;            
+        end
+        
         function setSampler(obj, samplerIn)
            %setSampler(obj, samplerIn)
            %
