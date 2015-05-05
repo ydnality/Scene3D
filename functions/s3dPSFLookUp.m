@@ -1,6 +1,13 @@
 function PSF = s3dPSFLookUp(fieldHeight, depth, wavelength, PSFStructure)
 %calculates a PSF given a PSF structure, field Height, depth, and
 %wavelength
+%
+% What to do when we are outside the range?
+%
+% Also, this is the dopey interpolation.  Is there a better one that
+% doesn't go all the way to VoLT
+%
+% 
 
 
 

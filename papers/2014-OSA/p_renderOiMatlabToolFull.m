@@ -10,8 +10,6 @@
 
 %%
 ieInit
-clear all
-ieInit
 
 %% The scene file, rendered using a pinhole model
 sceneFileName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'pinholeSceneFile.mat');
@@ -19,6 +17,9 @@ load(sceneFileName,'scene');
 vcAddAndSelectObject(scene); sceneWindow;
 
 %% Basic point source properties (distances)
+
+% Make a function that provides points along a constant ray whose centroid
+% should be at different distances along the same field height.
 wave = 400:100:700;            % Wavelength
 
 % We will loop through the point positions
@@ -27,13 +28,6 @@ pY = 0;
 pZ =[-70 -80 -90 -100 -110];  % millimeters
 normalizingZ = -16000;        % mm assumed reference Z point.
 % All other points will use the same field angle as this reference Z point
-
-
-%% Make point source samples
-nWave = length(wave);
-nFH = length(pX) * length(pY);
-nDepth = length(pZ);
-nPoints = nFH*nDepth;
 
 % I don't understand the normalization here.  This probably has to do with
 % ray angles.  Ask AL (BW).
@@ -45,10 +39,24 @@ for ii=1:nFH
     end
 end
 
+nWave = length(wave);
+nFH = length(pX) * length(pY);
+nDepth = length(pZ);
+nPoints = nFH*nDepth;
+
 jitterFlag   = true;   %enable jitter for lens front element aperture samples
 nLines       = false;  %number of lines to draw for debug illustrations.
 
-% We should plot the points in 3Space
+% We should plot the points in 3 Space
+% vcNewGraphWin
+% for ff=1:nFH
+%     for dd=1:nDepth
+%         pt = pointSources{ff,dd};
+%         plot3(pt(1),pt(2),pt(3),'o');
+%         hold on
+%     end
+% end
+% xlabel('X'); ylabel('Y'); zlabel('Z')
 
 %%  Declare film properties for PSF recording (NOT for the forward calculation)
 
@@ -59,10 +67,10 @@ fW = 120;  % mm
 fH = 120;  % mm
 
 % Film resolution (preview, large film size)
-lowRes = 151;
+lowRes = 151;   % Number of sample points across the film surface
 
 % Film resolution (final render, small film size)
-highRes = 75;
+highRes = 75;   % Number of samples across the whole film
 
 %for now - the width of the high quality sensor is set manually - this should be
 %somewhat automated in the future
@@ -97,12 +105,17 @@ psfCamera = psfCameraC('lens', lens, ...
 
 PSF = psfCamera.PSFArray(pointSources);
 
-% vcNewGraphWin;
+vcNewGraphWin;
+colormap(gray)
 % Could loop through these
-% ww = 3; dd = 1; ff = 4;
-% s = PSF(:,:,ww,dd,ff);
-% mesh(s); sum(s(:))
-
+% ww = 3; 
+% for ff=1:4
+%     for dd=1:5
+%         s = PSF(:,:,ww,dd,ff);
+%         imagesc(s);
+%         pause(0.2);
+%     end
+% end
 
 %% Original calculation
 % 
@@ -263,7 +276,7 @@ oi = oiSet(oi, 'photons', photons);
 
 % This should be set so that the resolution of the PSF samples match the
 % resolution of the oi
-oi = oiSet(oi,'optics focal length',abs(fZ)*1e-3);
+oi = oiSet(oi,'optics focal length',abs(fZ)*1.1*1e-3);
 oiGet(oi,'sample spacing','mm')
 % Adjust to make the spacing 100 um, or ...
 
@@ -308,9 +321,27 @@ hyp   = sqrt( Y.^2 + X.^2)*largePixelSize;
 ang = atan2d(Y, X);
 % vcNewGraphWin; mesh(ang);
 
-% Loop through wavelength
+%% Precompute the PSFStructure to match the spatial sampling of the OI
+
+% The PSF is sampled at 100 microns, we think.  
+% The OI has a different sample.  Resample the PSFs to match the OI spatial
+% sampling.
+
+% We could also replace all of the PSFs with a functional form, say a
+% Gaussian with a couple of parameters.  Then produce the Gaussians with
+% the appropriate sampling as we step through the field heights.  The
+% parameters that are interpolated are the Gaussian parameters, not the PSF
+% values.
+
+%% Set up the dM, angle, and field height maps for each pixel
+fhMap
+dMap
+aMap
+
+%% Loop through wavelength
 wBar = waitbar(0,'Slow forward rendering');
 for waveInd = 1:length(renderWave)
+    % Should be able to stop looping on wavelength
     
     curWave = renderWave(waveInd);
     fprintf('Wavelength %.0f\n',curWave);
@@ -326,9 +357,6 @@ for waveInd = 1:length(renderWave)
             hypotenuse = hyp(ii,jj);
             curFieldHeightAngle = atan(hypotenuse/filmDistance) * 180/pi;
             
-            % Pixel angle
-            angle = ang(ii,jj);
-            
             % Pixel depth
             depth = dM(ii, jj);
             
@@ -337,7 +365,7 @@ for waveInd = 1:length(renderWave)
             currentPSF = s3dPSFLookUp(curFieldHeightAngle, depth, curWave, PSFStructure);
             
             %rotatePSF to correct orientation
-            scaledCPSF = imrotate(currentPSF, angle, 'bilinear', 'crop' );
+            scaledCPSF = imrotate(currentPSF, ang(ii,jj), 'bilinear', 'crop' );
             
             % Scale PSF to the right size
             scaledCPSF = imresize(scaledCPSF, scaleFactor);
@@ -349,6 +377,7 @@ for waveInd = 1:length(renderWave)
             % Define center and starting window
             centerPos = ceil(size(scaledCPSF, 1)/2);
             
+            % Put it in the photonSum variable
             startingRow = ii + padAmount - centerPos;
             endingRow   = startingRow + scaledPSFNumRows - 1;
             
