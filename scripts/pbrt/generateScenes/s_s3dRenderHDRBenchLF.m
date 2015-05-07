@@ -91,11 +91,11 @@ curPbrt.camera.setResolution(720, 720);
 %curPbrt.camera.setResolution(1440, 1440);
 dockerFlag = true;
 
-oi = s3dRenderOIAndDepthMap(curPbrt, focalLength, 'benchLF',dockerFlag);
+oi = s3dRenderOIAndDepthMap(curPbrt,  'benchLF',dockerFlag);
 vcAddObject(oi); oiWindow;
 
 %% To save do this
-save('benchLF','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
+save('benchLF8080','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
 
 %% End
 

@@ -1,7 +1,4 @@
-%% Render the Metronome scene with a standard camera or wide field
-%
-%  With some parameter settings below, we also can render the scene with a
-%  very wide field of view and with a curved sensor. 
+%% Render the Plants Dusk scene 
 %  
 %  Read the comments to find the key place where those parameters are set.
 %
@@ -11,10 +8,6 @@
 
 %%
 ieInit
-
-%% Rendering parameters
-%wideField    = false;
-
 
 %%
 tic
@@ -38,9 +31,33 @@ geoFile7 = fullfile(dataPath, 'pbrtScenes', 'plantsDusk', 'ecosys-terrain.pbrt')
 %% Standard camera properties
 from = [28 1.8 1.5 ];
 to =   [69 65 1.3];
+
+% from = [28000 1800 1500 ];  %large scale version
+% to =   [69000 65000 1300];
+
+vector = to - from;
+normVector = vector./sqrt(sum(vector .* vector));
+
+from = from - normVector * 2;
+to = to - normVector * 2;
+
+% from = [33 -50 40];   %standing way back
+% to = [50 50 1];
+
 position = [from; to; 0 0 1];
 curPbrt.camera.setPosition(position);
 curPbrt.camera.lens.filmDistance = 30;  %increase the FOV of the pinhole camera
+curPbrt.camera.lens.filmDistance = 50;  %increase the FOV of the pinhole camera
+
+
+% curPbrt.camera.setLens(pbrtLensRealisticObject());   
+% curPbrt.camera.lens.filmDistance = 90; % 70;  % 133.33;
+% curPbrt.camera.lens.filmDiag = 70;
+% curPbrt.camera.lens.specFile = '2ElLensSmallAp.dat';
+% curPbrt.camera.lens.apertureDiameter = .01; % in mm
+% curPbrt.camera.lens.curveRadius = 0;       % Experimental
+% curPbrt.camera.setResolution(450, 300);
+
 
 %% add old parts, put in new ones
 
@@ -73,6 +90,8 @@ curPbrt.setVolumeIntegrator(pbrtVolumeIntegratorObject());
 dockerFlag = true;
 oiName = 'plantsDusk';
 oi = s3dRenderOIAndDepthMap(curPbrt, oiName, dockerFlag);
+%oi = s3dRenderOI(curPbrt, oiName, dockerFlag);
+
 
 toc
 

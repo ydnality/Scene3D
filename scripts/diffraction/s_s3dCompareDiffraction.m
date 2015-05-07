@@ -31,7 +31,7 @@ point = psCreate(0,0,-1000000000);
 %lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
-nSamples = 1001; 
+nSamples = 2001; 
 apertureMiddleD = .11;  %.5;   % mm    %WORKS BRILLIANTLY
 
 lens = lensC('apertureSample', [nSamples nSamples], ...
@@ -211,6 +211,10 @@ oiPhotonsTemp = oiGet(oiHuygens, 'photons');
 PSFLineHuygens = sum(oiPhotonsTemp(:,:, 16) , 1);
 PSFLineHuygens = PSFLineHuygens / max(PSFLineHuygens(:));
 
+oiPhotonsTemp = oiGet(oiHURBTuned, 'photons');
+PSFLineHURBTuned = sum(oiPhotonsTemp(:,:,16), 1);
+PSFLineHURBTuned = PSFLineHURBTuned / max(PSFLineHURBTuned);
+
 oiPhotonsTemp = oiGet(oiHURB, 'photons');
 PSFLineHURB = sum(oiPhotonsTemp(:,:,16), 1);
 PSFLineHURB = PSFLineHURB / max(PSFLineHURB);
@@ -218,7 +222,7 @@ PSFLineHURB = PSFLineHURB / max(PSFLineHURB);
 positionT = linspace(-sensorWidth/2 *1000, sensorWidth/2 *1000, length(PSFLineT));
 position = linspace(-sensorWidth/2 * 1000, sensorWidth/2 * 1000, length(PSFLineHURB));
 figure;
-plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHuygens);
+plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHURBTuned,  position, PSFLineHuygens);
 
 
 title(['Linespread Comparison at 550nm;' num2str(focalLength) 'mm;f/' ...
@@ -226,7 +230,7 @@ title(['Linespread Comparison at 550nm;' num2str(focalLength) 'mm;f/' ...
 xlabel('um')
 %axis([-40 40 0 1]);  %don't show the bad part of the theoretical plot
 ylabel('Relative radiance');
-legend('Theoretical', 'HURB', 'Huygens-Fresnel');
+legend('Theoretical', 'HURB', 'HURB-tuned', 'Huygens-Fresnel');
 % 
 % 
 % %save figure as a tiff file

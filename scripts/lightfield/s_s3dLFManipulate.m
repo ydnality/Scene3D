@@ -142,10 +142,30 @@ cList = 1:2:col;
 for rr=rList
     for cc=cList
         img = squeeze(LF(rr,cc,:,:,:));
-        subplot(length(rList),length(cList),cnt), imshow(img);
+        subplot(length(rList),length(cList),cnt), imshow(img);su
         cnt = cnt + 1;
     end
 end
+
+%% create the full tiling of the pinhole images and put it in an image
+
+
+vcNewGraphWin;
+cnt = 1;
+row = superPixelH; col = superPixelW;
+rList = 1:1:row;
+cList = 1:1:col;
+tiledImage = zeros(superPixelH * numPinholesH, superPixelW * numPinholesW, 3);
+
+for rr=rList
+    for cc=cList
+        img = squeeze(LF(rr,cc,:,:,:));
+        
+        tiledImage((rr-1) * numPinholesH + 1: rr * numPinholesH , (cc-1) * numPinholesW +1: cc * numPinholesW , :) = img;
+    end
+end
+
+imshow(tiledImage);
 
 %% Compare the leftmost and rightmost images in the middle
 % vcNewGraphWin([],'wide');

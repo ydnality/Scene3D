@@ -38,6 +38,9 @@ lambda = rays.get('wavelength')' * 1e-9;  %this converts lambda to meters
 sigmaS = atan(1./(2 * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m
 sigmaL = atan(1./(2 * pointToEdgeL * .001 * 2 * pi./lambda));
 
+% sigmaS = atan(1./(sqrt(2) * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m   experimental
+% sigmaL = atan(1./(sqrt(2) * pointToEdgeL * .001 * 2 * pi./lambda));
+
 %this function regenerates a 2D gaussian sample and
 %returns it randOut
 %gsl_ran_bivariate_gaussian (r, sigmaS, sigmaL, 0, noiseSPointer, noiseLPointer);    %experiment for now
