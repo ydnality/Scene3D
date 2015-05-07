@@ -142,7 +142,7 @@ cList = 1:2:col;
 for rr=rList
     for cc=cList
         img = squeeze(LF(rr,cc,:,:,:));
-        subplot(length(rList),length(cList),cnt), imshow(img);su
+        subplot(length(rList),length(cList),cnt), imshow(img);
         cnt = cnt + 1;
     end
 end
