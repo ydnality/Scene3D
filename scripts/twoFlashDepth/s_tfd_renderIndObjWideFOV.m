@@ -57,7 +57,12 @@ curPbrt.sampler.removeProperty();
 curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', 1024));
 
 %write file and render
-frontOi = s3dRenderOI(curPbrt, .050);
+frontOi = s3dRenderOI(curPbrt, 'frontFlash'); 
+
+frontOi.optics = opticsSet(frontOi.optics, 'focalLength', .050);
+%focalLength = .050;
+
+
 vcAddObject(frontOi); oiWindow;
 toc
 %% render scene with PBRT using pbrtObjects (back flash)
@@ -85,8 +90,9 @@ curPbrt.removeLight();
 curPbrt.addLightSource(lightSource);
 
 %write file and render
-backOi = s3dRenderOI(curPbrt, .050);
-
+backOi = s3dRenderOI(curPbrt, 'backFlash');
+backOi.optics = opticsSet(backOi.optics, 'focalLength', .050);
+%focalLegnth = .050
 toc
 %% render depthMap with PBRT using pbrtObjects
 tic

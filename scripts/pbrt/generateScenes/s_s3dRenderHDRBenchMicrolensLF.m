@@ -83,7 +83,7 @@ curPbrt.addGeometry(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'benchScene','de
 % Reset the sampler because of some cloning limitations
 sampler = pbrtSamplerObject();
 tempProp = sampler.removeProperty();   %remove integer pixelsamples, modify, then add back in
-tempProp.value = 64;
+tempProp.value = 32;
 sampler.addProperty(tempProp);
 curPbrt.setSampler(sampler);
 
