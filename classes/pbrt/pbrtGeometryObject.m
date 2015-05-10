@@ -5,6 +5,7 @@ classdef pbrtGeometryObject <  handle
         material;
         triangleMesh;
         points;
+        uv;
         shape;
         transform;
     end
@@ -13,7 +14,7 @@ classdef pbrtGeometryObject <  handle
     end
     methods
 
-        function obj = pbrtGeometryObject(inName, inMaterial, inGeometry, inPoints, inTransform)
+        function obj = pbrtGeometryObject(inName, inMaterial, inGeometry, inPoints, inTransform, inUv)
         %obj = pbrtGeometryObject(inName, inMaterial, inTriMesh, inPoints, inTransform)
         %default
         %
@@ -85,6 +86,15 @@ classdef pbrtGeometryObject <  handle
             else
                 obj.transform = inTransform;
             end            
+            
+            if(ieNotDefined('inUv'))
+                 obj.uv =  [1 0;
+                   0 0;
+                   0 1;
+                   1 1];
+            else
+               obj.uv = inUv;
+            end
         end
 
         function setName(obj, inName)
@@ -155,6 +165,10 @@ classdef pbrtGeometryObject <  handle
             
             fprintf(fid,'\t"point P" \n\t[\n');
             fprintf(fid,'\t%f %f %f\n', obj.points');
+            fprintf(fid,'\t]\n');
+            
+            fprintf(fid, '\t"float uv"\n\t[\n');
+            fprintf(fid,'\t%f %f %f\n', obj.uv');
             fprintf(fid,'\t]\n');
             
             fprintf(fid,'\n\nAttributeEnd\n');

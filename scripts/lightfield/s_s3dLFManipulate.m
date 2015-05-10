@@ -20,7 +20,8 @@ ieInit
 
 % load a lightfield as an oi object.
 % These should be available on the scarlet/validation web site.
-in = load('benchLFHQ.mat');
+%in = load('benchLFHQ.mat');
+in = load('slantedBarMultLF.mat');
 % in = load('metronomeLF.mat');
 
 oi = in.oi;
@@ -194,15 +195,15 @@ imshow(tiledImage);
 % -0.8:.2:0.6 for indestructible object.
 % -.6 to 3.4 for bench light field
 vcNewGraphWin
-%for Slope = -0.5:.25:1.5 
-for Slope = [0 .25 1.75]   
+for Slope = -0.5:.25:.5  %1.5 
+%for Slope = [0 .25 1.75]   
     ShiftImg = LFFiltShiftSum(lightfield, Slope );
     imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
     axis image; truesize
     title(sprintf('Parameter %0.2f',Slope))
     pause(0.2)
     tmpImg = ShiftImg(:,:,1:3);
-    imwrite(tmpImg./max(tmpImg(:)), sprintf('BenchLFImageDSNUSlope%.2f.png', Slope))
+  %  imwrite(tmpImg./max(tmpImg(:)), sprintf('BenchLFImageDSNUSlope%.2f.png', Slope))
 
 end
 
