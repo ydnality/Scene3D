@@ -17,13 +17,13 @@ filmDiag = 12;
 lensFile    = 'dgauss.50mm.dat';
 focalLength = 0.050;
 apertureDiameter = 16;
-diffraction      = false;
+diffraction      = true;
 chromaticAberration = false;
 pinholeExitApLoc    = [2  2 -35];
 
 % This is the microlens (pinhole) array
-numPinholesW = 80; %160;      % These 2 parameters must be even (for now)
-numPinholesH = 80; %160;
+numPinholesW = 160; %160;      % These 2 parameters must be even (for now)
+numPinholesH = 160; %160;
 microlensMode = true;  % Feature will arrive
 
 % Assign pinhole position to PBRT, and figure out correct cropWindow
@@ -38,7 +38,7 @@ curPbrt.camera.setCropWindow(0, 1, 0, 1);  % Show everything
 
 % Sampler
 samples = curPbrt.sampler.removeProperty();
-samples.value = 32;
+samples.value = 64;
 curPbrt.sampler.addProperty(samples);
 
 
@@ -83,19 +83,20 @@ curPbrt.addGeometry(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'benchScene','de
 % Reset the sampler because of some cloning limitations
 sampler = pbrtSamplerObject();
 tempProp = sampler.removeProperty();   %remove integer pixelsamples, modify, then add back in
-tempProp.value = 32;
+tempProp.value = 64;
 sampler.addProperty(tempProp);
 curPbrt.setSampler(sampler);
 
 curPbrt.camera.setResolution(720, 720);
 %curPbrt.camera.setResolution(1440, 1440);
+%curPbrt.camera.setResolution(2880, 2880);
 dockerFlag = true;
 
 oi = s3dRenderOIAndDepthMap(curPbrt, 'benchLF',dockerFlag);
 vcAddObject(oi); oiWindow;
 
 %% To save do this
-save('benchLF','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
+save('benchLFHQ','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
 
 %% End
 

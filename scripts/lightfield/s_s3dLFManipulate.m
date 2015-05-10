@@ -1,4 +1,4 @@
-%  Experiments with light fields and ISET
+    %  Experiments with light fields and ISET
 %
 %  See also: s_s3dISETLF.m, LFToolbox0.4
 %
@@ -20,7 +20,7 @@ ieInit
 
 % load a lightfield as an oi object.
 % These should be available on the scarlet/validation web site.
-in = load('benchLF.mat');
+in = load('benchLFHQ.mat');
 % in = load('metronomeLF.mat');
 
 oi = in.oi;
@@ -58,6 +58,9 @@ sensor = sensorCreate;
 sensor = sensorSet(sensor,'pixel size same fill factor',ss(1));
 sensor = sensorSet(sensor,'size',oiGet(oi,'size'));
 sensor = sensorSet(sensor,'exp time',0.010);
+
+% pixel = sensorGet(sensor, 'pixel')
+sensor = sensorSet(sensor, 'dsnu level', .004);
 
 % Describe
 sensorGet(sensor,'pixel size','um')
@@ -191,13 +194,18 @@ imshow(tiledImage);
 % -0.8:.2:0.6 for indestructible object.
 % -.6 to 3.4 for bench light field
 vcNewGraphWin
-for Slope = -0.5:.25:1.5 
+%for Slope = -0.5:.25:1.5 
+for Slope = [0 .25 1.75]   
     ShiftImg = LFFiltShiftSum(lightfield, Slope );
     imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
     axis image; truesize
     title(sprintf('Parameter %0.2f',Slope))
     pause(0.2)
+    tmpImg = ShiftImg(:,:,1:3);
+    imwrite(tmpImg./max(tmpImg(:)), sprintf('BenchLFImageDSNUSlope%.2f.png', Slope))
+
 end
+
 
 %% The white image
 
