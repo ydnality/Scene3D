@@ -194,7 +194,7 @@ imshow(tiledImage);
 
 % -0.8:.2:0.6 for indestructible object.
 % -.6 to 3.4 for bench light field
-vcNewGraphWin
+fig = vcNewGraphWin
 for Slope = -0.5:.25:.5  %1.5 
 %for Slope = [0 .25 1.75]   
     ShiftImg = LFFiltShiftSum(lightfield, Slope );
@@ -206,6 +206,102 @@ for Slope = -0.5:.25:.5  %1.5
   %  imwrite(tmpImg./max(tmpImg(:)), sprintf('BenchLFImageDSNUSlope%.2f.png', Slope))
 
 end
+
+
+%.175 is in focus for far slanted bar
+
+
+
+%% Autofocus as a function call
+
+bestFocusImage = s3dLFAutofocus(lightfield, [], []); 
+
+%In focus Slopes 
+%middle: 0
+%left: -.6
+%right: .15
+
+%% perform slanted bar analysis (automatically) - eventually put this in another script
+
+% fig = vcNewGraphWin
+% 
+% Slope = 0;
+% ShiftImg = LFFiltShiftSum(lightfield, Slope );
+% imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
+% axis image; truesize
+% title(sprintf('Parameter %0.2f',Slope))
+
+%masterRect = round(getrect(fig));
+
+% Run the computation for the monochrome sensor
+% sensor = sensorCompute(sensorC,oi);
+% vcReplaceObject(sensor);   
+% vci = ipCompute(vci,sensor);
+% vcReplaceObject(vci); ipWindow;
+% 
+% % Find a good rectangle
+% masterRect = ISOFindSlantedBar(vci);
+% h = ieDrawShape(vci,'rectangle',masterRect);
+
+
+
+% these are for 80 x 80 x 18 x 18 LF's.  Multiply for different spatial
+% resolutions...
+
+% We want to try... 80 x 80 x 36 x 36
+%                   120 x 120 x 24 x 24 
+%                   160 x 160 x 18 x 18  
+%                   240 x 240 x 12 x 12
+%                   320 x 320 x 9 x 9
+%
+middleRect = [37 33 7 15];   
+rightRect = [60 35 5 9];
+leftRect = [15 31 8 19];
+masterRect = middleRect;
+
+ip = ipSet(ip, 'result', ShiftImg(:,:,1:3));
+
+barImage = vcGetROIData(ip,masterRect,'result');
+c = masterRect(3)+1;
+r = masterRect(4)+1;
+barImage = reshape(barImage,r,c,3);
+% vcNewGraphWin; imagesc(barImage(:,:,1)); axis image; colormap(gray);
+
+% Run the ISO 12233 code.  The results are stored in the window.
+pixel = sensorGet(sensor,'pixel');
+dx = pixelGet(pixel,'width','mm');
+[results, fitme, esf, h] = ISO12233(barImage, dx, [] , 'luminance') 
+results.mtf50
+
+
+
+%% Autofocus a section of the image (original experimental script)
+
+% rect = getrect(fig)
+% roundRect = round(rect);
+% %select a rectangle on the last figure
+% index = 1;
+% SlopeVec = -0.7:.05:.5;
+% varianceVec = zeros(size(SlopeVec));
+% 
+% for Slope = SlopeVec  %1.5 
+%     ShiftImg = LFFiltShiftSum(lightfield, Slope );
+%     imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
+%     tmpImg = ShiftImg(:,:,1:3);
+%     
+%     varianceVec(index) = sum(sum(var(tmpImg(roundRect(2):roundRect(2) + roundRect(4), roundRect(1): roundRect(1) + roundRect(3), :)))); 
+%     index = index + 1;
+% end
+% 
+% [maxVar, maxInd] = max(varianceVec)
+% 
+% Slope = SlopeVec(maxInd);
+% vcNewGraphWin;
+% ShiftImg = LFFiltShiftSum(lightfield, Slope );
+% imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
+% axis image; truesize
+% title(sprintf('Parameter %0.2f',Slope))
+% tmpImg = ShiftImg(:,:,1:3);
 
 
 %% The white image
