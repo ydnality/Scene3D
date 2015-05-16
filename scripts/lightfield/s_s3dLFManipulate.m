@@ -21,7 +21,7 @@ ieInit
 % load a lightfield as an oi object.
 % These should be available on the scarlet/validation web site.
 %in = load('benchLFHQ.mat');
-in = load('slantedBarMultLF.mat');
+in = load('slantedBarMultLF320Diffract.mat');
 % in = load('metronomeLF.mat');
 
 oi = in.oi;
@@ -169,6 +169,7 @@ for rr=rList
     end
 end
 
+
 imshow(tiledImage);
 
 %% Compare the leftmost and rightmost images in the middle
@@ -214,11 +215,13 @@ end
 
 %% Autofocus as a function call
 
-bestFocusImage = s3dLFAutofocus(lightfield, [], []); 
+slopeRange = [-5 -4]  %change this 
+stepSize = .05
+bestFocusImage = s3dLFAutofocus(lightfield, [], slopeRange, stepSize, []); 
 
 %In focus Slopes 
 %middle: 0
-%left: -.6
+%left: -.6 (80)      -4.45 (320)
 %right: .15
 
 %% perform slanted bar analysis (automatically) - eventually put this in another script
@@ -256,8 +259,8 @@ bestFocusImage = s3dLFAutofocus(lightfield, [], []);
 %
 middleRect = [37 33 7 15];   
 rightRect = [60 35 5 9];
-leftRect = [15 31 8 19];
-masterRect = middleRect;
+leftRect = [15 31 8 19] * 4;
+masterRect = leftRect;
 
 ip = ipSet(ip, 'result', ShiftImg(:,:,1:3));
 

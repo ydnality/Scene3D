@@ -22,8 +22,8 @@ chromaticAberration = false;
 pinholeExitApLoc    = [2  2 -35];
 
 % This is the microlens (pinhole) array
-numPinholesW = 160; %160;      % These 2 parameters must be even (for now)
-numPinholesH = 160; %160;
+numPinholesW = 320; %160;      % These 2 parameters must be even (for now)
+numPinholesH = 320; %160;
 microlensMode = true;  % Feature will arrive
 
 % Assign pinhole position to PBRT, and figure out correct cropWindow
@@ -83,20 +83,20 @@ curPbrt.addGeometry(fullfile(s3dRootPath, 'data', 'pbrtScenes', 'benchScene','de
 % Reset the sampler because of some cloning limitations
 sampler = pbrtSamplerObject();
 tempProp = sampler.removeProperty();   %remove integer pixelsamples, modify, then add back in
-tempProp.value = 64;
+tempProp.value = 256;
 sampler.addProperty(tempProp);
 curPbrt.setSampler(sampler);
 
-curPbrt.camera.setResolution(720, 720);
+%curPbrt.camera.setResolution(720, 720);
 %curPbrt.camera.setResolution(1440, 1440);
-%curPbrt.camera.setResolution(2880, 2880);
+curPbrt.camera.setResolution(2880, 2880);
 dockerFlag = true;
 
 oi = s3dRenderOIAndDepthMap(curPbrt, 'benchLF',dockerFlag);
 vcAddObject(oi); oiWindow;
 
 %% To save do this
-save('benchLFHQ','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
+save('benchLF320Diffraction','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
 
 %% End
 

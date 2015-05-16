@@ -14,7 +14,7 @@ function oi = s3dRenderOIAndDepthMap(pbrt, oiName, dockerFlag)
 
 %% Input argument checking
 if (ieNotDefined('pbrt')),        error('pbrt object required.'); end
-if (ieNotDefined('dockerFlag')),  dockerFlag = false; end
+if (ieNotDefined('dockerFlag')),  dockerFlag = true; end
 if (ieNotDefined('oiName')),      oiName = 'unamedScene'; end
 
 %%

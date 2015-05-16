@@ -31,8 +31,13 @@ if ieNotDefined('noScale'),        noScale = false; end
 oiFlag = true;
 
 % Render using the docker calculation
-radianceRenderPbrt = pbrtObject;
-radianceRenderPbrt.makeDeepCopy(inputPbrt);
+if (isa(inputPbrt, 'pbrtObject'))
+    radianceRenderPbrt = pbrtObject;
+    radianceRenderPbrt.makeDeepCopy(inputPbrt);
+else
+    radianceRenderPbrt = inputPbrt;
+end
+
 oi = s3dRenderScene(radianceRenderPbrt, oiName, noScale, dockerFlag, oiFlag);
 % vcAddObject(oi); oiWindow;
 

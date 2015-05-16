@@ -94,25 +94,25 @@ curPbrt.addLightSource(lightSource);
 
 % set sampler
 curPbrt.sampler.removeProperty();
-nSamples = 64;
+nSamples = 256;
 curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
 
 %% Set up film and lens - from slantedBar.pbrt
 filmDist = 68; %36.4;   
 filmDiag = 35;   
 
-numPinholesW = 80;   % Set if you want a light field
-numPinholesH = 80;
+numPinholesW = 160;   % Set if you want a light field
+numPinholesH = 160;
 
 % Film sample resolution
-rows = 1440;   %these must be a multiple of numPinholesW and numPinholesH
-cols = 1440;
+rows = 2880;   %these must be a multiple of numPinholesW and numPinholesH
+cols = 2880;
 
 % Lens propertiess
 %specFile = 'dgauss.50mm.dat'; 
 specFile = '2ElLens.dat';
 apertureDiameter    = 12;         
-diffraction         = false;
+diffraction         = true;
 chromaticAberration = false;
 
 %assign pinhole position to PBRT, and figure out correct cropWindow
@@ -136,7 +136,7 @@ vcAddObject(oi); oiWindow;
 if isempty(numPinholesW) || isempty(numPinholesH)
     save('slantedBarMult','oi','curPbrt');
 else
-    save('slantedBarMultLF','oi','numPinholesW','numPinholesH','curPbrt');
+    save('slantedBarMultLF160Diffract','oi','numPinholesW','numPinholesH','curPbrt');
 end
 
 %% END
