@@ -105,8 +105,8 @@ numPinholesW = 160;   % Set if you want a light field
 numPinholesH = 160;
 
 % Film sample resolution
-rows = 2880;   %these must be a multiple of numPinholesW and numPinholesH
-cols = 2880;
+rows = 720;   %these must be a multiple of numPinholesW and numPinholesH
+cols = 720;
 
 % Lens propertiess
 %specFile = 'dgauss.50mm.dat'; 
@@ -136,7 +136,7 @@ vcAddObject(oi); oiWindow;
 if isempty(numPinholesW) || isempty(numPinholesH)
     save('slantedBarMult','oi','curPbrt');
 else
-    save('slantedBarMultLF160Diffract','oi','numPinholesW','numPinholesH','curPbrt');
+    save('slantedBarMultLF160Diffract720','oi','numPinholesW','numPinholesH','curPbrt');
 end
 
 %% END

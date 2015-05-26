@@ -1,4 +1,4 @@
-function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
+function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth, noiseFlag)
 % Processes the sensor using assigned readNoise, resolution, exposureTime,
 % and bitDepth.
 %
@@ -10,7 +10,11 @@ function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth)
 % Otherwise, '8 bit', '12 bit' etc. are possible options. '12 bit' is the
 % max.
 %
-%  BW thinks this routine should go away
+% noiseFlag: 
+%                            - 0 means no noise
+%                               1 means only shot noise,
+%                               2 means shot noise and electronics noise
+%
 %
 %
 if (ieNotDefined('readNoise'))
@@ -28,6 +32,9 @@ end
 
 if (ieNotDefined('bitDepth'))
     bitDepth = 'analog';
+end
+if(ieNotDefined('noiseFlag'))
+    noiseFlag = 0;
 end
 
 % oi = oiSet (oi, 'horizontalfieldofview', 8 * 200/150 );
@@ -94,7 +101,7 @@ sensor = sensorSet(sensor,'dsnulevel',dsnu);
 sensor = sensorSet(sensor,'prnulevel',prnu);
 sensor = sensorSet(sensor,'analogGain',analogGain);
 sensor = sensorSet(sensor,'analogOffset',analogOffset);
-sensor = sensorSet(sensor, 'noiseFlag', 0); %!!set to no noise for now! We can experiment later!!
+sensor = sensorSet(sensor, 'noiseFlag', noiseFlag); %!!set to no noise for now! We can experiment later!!
 
 % Stuff the pixel back into the sensor structure
 sensor = sensorSet(sensor,'pixel',pixel);

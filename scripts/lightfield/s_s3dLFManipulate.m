@@ -21,7 +21,8 @@ ieInit
 % load a lightfield as an oi object.
 % These should be available on the scarlet/validation web site.
 %in = load('benchLFHQ.mat');
-in = load('slantedBarMultLF320Diffract.mat');
+%in = load('slantedBarMultLF320Diffract.mat')
+in = load('benchLF80.mat');
 % in = load('metronomeLF.mat');
 
 oi = in.oi;
@@ -58,10 +59,13 @@ ss = oiGet(oi,'sample spacing','m');
 sensor = sensorCreate;
 sensor = sensorSet(sensor,'pixel size same fill factor',ss(1));
 sensor = sensorSet(sensor,'size',oiGet(oi,'size'));
-sensor = sensorSet(sensor,'exp time',0.010);
+sensor = sensorSet(sensor,'exp time',0.040);
+%sensor = sensorSet(sensor,'exp time',0.50);
+
 
 % pixel = sensorGet(sensor, 'pixel')
-sensor = sensorSet(sensor, 'dsnu level', .004);
+%sensor = sensorSet(sensor, 'dsnu level', .004);
+sensor = sensorSet(sensor, 'dsnu level', .00);
 
 % Describe
 sensorGet(sensor,'pixel size','um')
@@ -171,7 +175,8 @@ end
 
 
 imshow(tiledImage);
-
+%imagescRGB(tiledImage);
+imwrite(tiledImage, 'benchLFTiled80NoDiffract.png');
 %% Compare the leftmost and rightmost images in the middle
 % vcNewGraphWin([],'wide');
 % 

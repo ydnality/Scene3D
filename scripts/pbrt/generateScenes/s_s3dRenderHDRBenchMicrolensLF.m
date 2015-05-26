@@ -17,14 +17,14 @@ filmDiag = 12;
 lensFile    = 'dgauss.50mm.dat';
 focalLength = 0.050;
 apertureDiameter = 16;
-diffraction      = true;
+diffraction      = false;
 chromaticAberration = false;
 pinholeExitApLoc    = [2  2 -35];
 
 % This is the microlens (pinhole) array
-numPinholesW = 320; %160;      % These 2 parameters must be even (for now)
-numPinholesH = 320; %160;
-microlensMode = true;  % Feature will arrive
+numPinholesW = 80; %160;      % These 2 parameters must be even (for now)
+numPinholesH = 80; %160;
+microlensMode = false;  % Feature will arrive
 
 % Assign pinhole position to PBRT, and figure out correct cropWindow
 lens = pbrtLensRealisticObject(filmDist, filmDiag, lensFile, apertureDiameter, ...
@@ -87,16 +87,16 @@ tempProp.value = 256;
 sampler.addProperty(tempProp);
 curPbrt.setSampler(sampler);
 
-%curPbrt.camera.setResolution(720, 720);
+curPbrt.camera.setResolution(720, 720);
 %curPbrt.camera.setResolution(1440, 1440);
-curPbrt.camera.setResolution(2880, 2880);
+%curPbrt.camera.setResolution(2880, 2880);
 dockerFlag = true;
 
 oi = s3dRenderOIAndDepthMap(curPbrt, 'benchLF',dockerFlag);
 vcAddObject(oi); oiWindow;
 
 %% To save do this
-save('benchLF320Diffraction','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
+save('benchLF80Pinholes','oi','numPinholesW','numPinholesH','focalLength','curPbrt');
 
 %% End
 

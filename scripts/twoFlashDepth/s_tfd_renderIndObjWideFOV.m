@@ -57,7 +57,10 @@ curPbrt.sampler.removeProperty();
 curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', 1024));
 
 %write file and render
-frontOi = s3dRenderOI(curPbrt, .050);
+frontOi = s3dRenderOIAndDepthMap(curPbrt);
+frontOi = oiSet(frontOi,'optics focal length', filmDistance * .001);  % I set these variables by hand just to avoid the zero condition
+frontOi = oiSet(frontOi,'optics f number', 2);   
+
 vcAddObject(frontOi); oiWindow;
 toc
 %% render scene with PBRT using pbrtObjects (back flash)
@@ -85,27 +88,30 @@ curPbrt.removeLight();
 curPbrt.addLightSource(lightSource);
 
 %write file and render
-backOi = s3dRenderOI(curPbrt, .050);
+backOi = s3dRenderOI(curPbrt);
+backOi = oiSet(backOi,'optics focal length', filmDistance * .001);  % I set these variables by hand just to avoid the zero condition
+backOi = oiSet(backOi,'optics f number', 2);   
+
 
 toc
 %% render depthMap with PBRT using pbrtObjects
-tic
-
-%change the sampler to stratified for non-noisy depth map
-samplerProp = pbrtPropertyObject();
-curPbrt.sampler.setType('stratified');
-curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
-
-%write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
-figure; imagesc(groundTruthDepthMap);
-
-toc
+% tic
+% 
+% %change the sampler to stratified for non-noisy depth map
+% samplerProp = pbrtPropertyObject();
+% curPbrt.sampler.setType('stratified');
+% curPbrt.sampler.removeProperty();
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
+% 
+% %write file and render
+% tmpFileName = ['deleteMe'  '.pbrt'];
+% curPbrt.writeFile(tmpFileName);
+% groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
+% figure; imagesc(groundTruthDepthMap);
+% 
+% toc
 %% front flash image processing
 %load oi from file (optional)
 % vcLoadObject('opticalimage', ['50mmFront.pbrt.mat']);

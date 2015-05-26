@@ -33,7 +33,7 @@ LookAt -39.8207  -69.2222   26.4228   #original position
 Camera "idealDiffraction"
 	"float focal_length" 50 
 	"float filmdistance" 137
-	"float aperture_diameter" 10
+	"float aperture_diameter" 5
 	"float filmdiag" [70]
 	"float diffractionEnabled" [0]
 

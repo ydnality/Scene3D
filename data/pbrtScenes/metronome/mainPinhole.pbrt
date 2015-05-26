@@ -6,10 +6,7 @@ LookAt -39.8207  -69.2222   26.4228   #original position
         -39.3933  -68.3181   26.2080
        -0.000013 -0.000031 1.000000
 
-
-#LookAt    -54.2025 -106.6676   13.0148    #shifted position
-#         -53.7752 -105.7635   13.0148
-#        -0.000013 -0.000031 1.000000
+ 
 
 #Camera "perspective"
 #   "float fov" [49.134342]
@@ -63,10 +60,10 @@ Renderer "sample"
 WorldBegin
 
 #flash
-#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-56.914787 -105.385544 13.014802] "point to" [-56.487434 -104.481461 13.014835]
+#LightSource "spot" "rgb I" [1000 10000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [-56.914787 -105.385544 13.014802] "point to" [-56.487434 -104.481461 13.014835]
 
 #flash - this one is placed further back
-#LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [20] "float conedeltaangle" [20] "point from" [   -142.3855 -286.2024   13.0082] "point to" [ -141.9582 -285.2984   13.0082]
+#LightSource "spot" "rgb I" [1000 10000 1000] "float coneangle" [20] "float conedeltaangle" [20] "point from" [   -142.3855 -286.2024   13.0082] "point to" [ -141.9582 -285.2984   13.0082]
 
 LightSource "spot" "rgb I" [1000 1000 1000] "float coneangle" [180] "float conedeltaangle" [180] "point from" [   -142.3855 -286.2024   13.0082] "point to" [ -141.9582 -285.2984   13.0082]
 

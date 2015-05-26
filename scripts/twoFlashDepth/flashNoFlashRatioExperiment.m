@@ -42,6 +42,10 @@ ipWindow;
 % GTDepthMap = 'twoFlashDepth/depthTargetDepths/GTDepthMap.mat';
 % import = load(GTDepthMap);
 % groundTruthDepthMap = import.depthMap; %ProcessedMedian;
+groundTruthDepthMap = oiGet(frontOi, 'depth map');
+figure; imagesc(groundTruthDepthMap);
+colorbar; title('GroundTruth Depth (mm)'); caxis([80 160]);
+
 
 %% Assign camera parameters
 
@@ -66,7 +70,8 @@ else
     f = norm( curPbrt.camera.position(1,:) - curPbrt.lightSourceArray{1}.from, 2); %distance between 2 flashes
 end
 
-f = 6;  %make sure to set this
+f = 50;  %make sure to set this
+%f = 50;
 fieldOfView = atan(sensorWidth/2/sensorDistance) * 2 * 180/pi;  %this does not need to be changed
 
 %% Process images and obtain ratio image
@@ -94,7 +99,21 @@ linearIntensityFlashBack = sum(temp, 3);
 
 ratioImage = linearIntensityFlash./linearIntensityFlashBack;
 
+figure; imagesc(ratioImage); colorbar; caxis([1 3]);
+title('Image Ratio (Front Flash/Back Flash)');
 
+%plot ratioImage vs. depth to get intuition that depth is inversely
+%proportional to ratio image
+resizedRatioImage = imresize(ratioImage, [300 300]);
+croppedRatioImage = resizedRatioImage(:, 1:100);
+croppedRatioImage = croppedRatioImage(:);
+croppedDM = groundTruthDepthMap(:,1:100);
+croppedDM = croppedDM(:);
+samples = randi([1 length(croppedDM)], 1, 400); 
+figure; plot(croppedRatioImage(samples), croppedDM(samples), 'x'); xlim([1.7 2.5]);
+xlabel('Image Ratio');
+ylabel('Depth');
+title('Image Ratio vs. Depth');
 
 %% Use ratio image to calculate crude depth
 % After obtaining the ratio image, we can then go through the algebraic
@@ -135,7 +154,7 @@ d1Test = (2.*f.^2)./(-2.*cos(alpha).*sin(phi).*f + radical);
 d1Test1st = d1Test;
 
 figure; imagesc(d1Test);
-colorbar; title('Calculated Depth (1st pass)'); %caxis([80 150]);
+colorbar; title('Calculated Depth: 1st pass(mm)'); caxis([80 160]);
 
 %% get quadratic coefficients out
 c = (1 - ratioImage);
@@ -168,7 +187,7 @@ d1TestFiltered = bilateralFilter(d1TestMedFiltered, 10, 4, 25);
 figure; imagesc(d1TestFiltered);
 d1TestFiltered1st = d1TestFiltered;
 
-colorbar; title('Filtered Depth'); caxis([80 150]);
+colorbar; title('Filtered Depth: 1st pass (mm)'); caxis([80 150]);
 
 %% Estimate the surface normals using the crude depth map
 % We perform surface normal estimation by taking the cross product of 2
@@ -371,7 +390,7 @@ radical = abs(sqrt(4*cos(alpha).^2.*sin(phi).^2.*f.^2 - 4*f^2.*(1 - ratioImage))
 d1Test = (2.*f.^2)./(-2.*cos(alpha).*sin(phi).*f + radical);
 
 figure; imagesc(d1Test);
-colorbar; title('Calculated Depth (2nd pass)'); %caxis([80 150]);
+colorbar; title('Calculated Depth: 2nd pass (mm)'); %caxis([80 160]);
 
 %% get quadratic coefficients out
 ratioImageCor = ratioImage;
@@ -389,7 +408,7 @@ d1TestMedFiltered = medianFilter(d1Test,5);
 d1TestMedFiltered = medianFilter(d1TestMedFiltered',5)';
 d1TestFiltered = bilateralFilter(d1TestMedFiltered, 10, 4, 25);  
 figure; imagesc(d1TestFiltered);
-colorbar; title('Filtered Depth (2nd pass)'); caxis([80 150]);
+colorbar; title('Filtered Depth: 2nd pass (mm)'); caxis([80 150]);
 
 %% Compare the depth map to the ground truth
 figure; imagesc(groundTruthDepthMap);

@@ -21,7 +21,7 @@ ieInit
 % load a lightfield as an oi object.
 % These should be available on the scarlet/validation web site.
 %in = load('benchLFHQ.mat');
-in = load('slantedBarMultLF240Diffract.mat');
+in = load('slantedBarMultLF160Diffract.mat');
 % in = load('metronomeLF.mat');
 
 oi = in.oi;
@@ -80,6 +80,29 @@ sensorGet(sensor,'fov',[],oi)
 vcReplaceObject(oi); oiWindow;
 oiGet(oi,'fov')
 
+
+%% create a larger sensor to see the difference from diffraction
+
+ss = oiGet(oi,'sample spacing','m');
+sensor = sensorCreate;
+sensor = sensorSet(sensor,'pixel size same fill factor',ss(1)/2);
+sensor = sensorSet(sensor,'size',oiGet(oi,'size') * 2);
+sensor = sensorSet(sensor,'exp time',0.0005/4);
+%sensor = sensorSet(sensor,'exp time',0.25386);
+%sensor = sensorSet(sensor, 'autoexposure', 1);
+
+% pixel = sensorGet(sensor, 'pixel')
+%sensor = sensorSet(sensor, 'prnu level', .001);
+sensor = sensorSet(sensor, 'dsnu level', .001);
+
+% Describe
+sensorGet(sensor,'pixel size','um')
+sensorGet(sensor,'size')
+sensorGet(sensor,'fov',[],oi)
+
+%
+vcReplaceObject(oi); oiWindow;
+oiGet(oi,'fov')
 %% Compute the sensor response
 
 sensor = sensorCompute(sensor,oi);
@@ -196,7 +219,7 @@ bestFocusImage = s3dLFAutofocus(lightfield, [], slopeRange, stepSize, []);
 
 % fig = 
 
-Slope = .81
+Slope = -1.15
 vcNewGraphWin;
 ShiftImg = LFFiltShiftSum(lightfield, Slope );
 imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
@@ -305,7 +328,39 @@ rightMTF = [1 2.2 2.4 2];
 
 vcNewGraphWin;
 plot(spatialSamples, leftMTF, spatialSamples, middleMTF, spatialSamples, rightMTF);
-legend('Left MTF50', 'Middle MTF50', 'Right MTF 50');
+legend('Left MTF50', 'Middle MTF50', 'Right MTF50');
 xlabel('Number of Spatial Samples');
 ylabel('MTF50');
 title('Spatial vs. Angular Resolution Trade-offs');
+
+
+%% compare diffraction vs. no diffraction
+
+diffractRes = load('MTFMiddle320.mat');
+noDiffractRes = load('MTFMiddle320NoDiffract.mat');
+
+freq = diffractRes.results.freq;
+vcNewGraphWin;
+plot(freq, diffractRes.results.mtf(:,1), 'r', freq, noDiffractRes.results.mtf(:,1), 'b');
+
+legend('Diffraction', 'No Diffraction');
+
+vcNewGraphWin;
+plot(freq, noDiffractRes.results.mtf(:,1));
+
+
+
+%% compare mtf plots for different spatial/angular tradeoffs
+mtfLeft320 = load('MTFLeft320.mat');
+%mtfLeft240 = load('MTFLeft240.mat');
+mtfLeft160 = load('MTFLeft160.mat');
+mtfLeft80 = load('MTFLeft80.mat');
+
+
+vcNewGraphWin;
+plot(mtfLeft320.results.freq, mtfLeft320.results.mtf(:,1), mtfLeft160.results.freq, mtfLeft160.results.mtf(:,1) ,mtfLeft80.results.freq,  mtfLeft80.results.mtf(:,1));
+legend('320 Pixel Cells', '160 Pixel Cells','80 Pixel Cells');
+xlabel('Spatial frequency (cy/mm on sensor)');
+ylabel('Contrast reduction (SFR)');
+xlim([0 7])
+
