@@ -21,7 +21,8 @@ ieInit
 % load a lightfield as an oi object.
 % These should be available on the scarlet/validation web site.
 %in = load('benchLFHQ.mat');
-in = load('slantedBarMultLF160Diffract.mat');
+in = load('slantedBarMultLF320.mat');
+%in = load('slantedBarMultLF80720.mat');
 % in = load('metronomeLF.mat');
 
 oi = in.oi;
@@ -69,8 +70,8 @@ sensor = sensorSet(sensor,'exp time',0.0005);
 
 % pixel = sensorGet(sensor, 'pixel')
 %sensor = sensorSet(sensor, 'prnu level', .001);
-sensor = sensorSet(sensor, 'dsnu level', .001);
-
+%sensor = sensorSet(sensor, 'dsnu level', .001);
+sensor = sensorSet(sensor, 'dsnu level', .00);
 % Describe
 sensorGet(sensor,'pixel size','um')
 sensorGet(sensor,'size')
@@ -125,15 +126,20 @@ rgb = ipGet(ip,'result');
 
 % These parameters should always be part of an oi lightfield description.
 %lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
-sz = oiGet(oi,'size');
+%sz = oiGet(oi,'size');
+sz = size(rgb);
 superPixelW = sz(2)/in.numPinholesW;
 superPixelH = sz(1)/in.numPinholesH;
 
 % This is the array size of pinholes (or microlens)
 % The reason for floor() is ... well rounding or something.  Shouldn't
 % really be needed.
-numSuperPixW = floor(size(rgb, 2)/superPixelW);
-numSuperPixH = floor(size(rgb, 1)/superPixelH);
+
+%numSuperPixW = floor(size(rgb, 2)/superPixelW);
+%numSuperPixH = floor(size(rgb, 1)/superPixelH);
+numSuperPixW = in.numPinholesW;
+numSuperPixH = in.numPinholesH;
+
 
 % Allocate space
 % lightfield = zeros(numSuperPixW, numSuperPixH, superPixelW, superPixelH, 3);
@@ -207,7 +213,7 @@ imshow(tiledImage);
 slopeRange = [-5 -4];  %change this 
 slopeRange = [-1.3 -.9];  %for 160 left
 slopeRange = [0 .4]; % for 160 right
-slopeRange = [1.4 2.8];
+slopeRange = [-1.3 -.35];
 %slopeRange = [-.6 -.3]
 stepSize = .05;
 bestFocusImage = s3dLFAutofocus(lightfield, [], slopeRange, stepSize, []); 
@@ -219,7 +225,7 @@ bestFocusImage = s3dLFAutofocus(lightfield, [], slopeRange, stepSize, []);
 
 % fig = 
 
-Slope = -1.15
+Slope = -4.45
 vcNewGraphWin;
 ShiftImg = LFFiltShiftSum(lightfield, Slope );
 imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
@@ -263,6 +269,8 @@ title(sprintf('Parameter %0.2f',Slope))
 %
 
 scaleFactor = numPinholesW/80;   %depending on number of pinholes, 
+
+
 middleRect = [37 33 7 15] * scaleFactor;   
 rightRect = [60 35 5 9] * scaleFactor;
 leftRect = [15 31 8 19] * scaleFactor;
@@ -338,16 +346,23 @@ title('Spatial vs. Angular Resolution Trade-offs');
 
 diffractRes = load('MTFMiddle320.mat');
 noDiffractRes = load('MTFMiddle320NoDiffract.mat');
+% diffractRes = load('MTFRight320.mat');
+% noDiffractRes = load('MTFRight320NoDiffract.mat');    %2.81 percent vs 2.05 aliasing
+
+% diffractRes = load('MTFLeft320.mat');
+% noDiffractRes = load('MTFLeft320NoDiffract.mat');    %2.81 percent vs 2.05 aliasing
+
 
 freq = diffractRes.results.freq;
 vcNewGraphWin;
 plot(freq, diffractRes.results.mtf(:,1), 'r', freq, noDiffractRes.results.mtf(:,1), 'b');
 
-legend('Diffraction', 'No Diffraction');
+legend( 'No Diffraction', 'Diffraction');
 
-vcNewGraphWin;
-plot(freq, noDiffractRes.results.mtf(:,1));
-
+% vcNewGraphWin;
+% plot(freq, noDiffractRes.results.mtf(:,1));
+xlabel('Spatial frequency (cy/mm on sensor)');
+ylabel('Contrast reduction (SFR)');
 
 
 %% compare mtf plots for different spatial/angular tradeoffs
