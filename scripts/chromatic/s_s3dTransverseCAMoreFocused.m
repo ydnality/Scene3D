@@ -23,11 +23,11 @@ lens = lensC;
 % This breaks the MP's code.  Commenting it out lets the rest of the code
 % run coorectly.
 
-newWave = 400:20:700;
+% newWave = 400:20:700;   %uncomment for a more comprehensive sampling
 newWave = [450 655];   %use only 2 wavelengths
-apertureSamples = [301 301];
+apertureSample = [301 301];
 lens.set('wave', newWave);
-lens.set('apertureSamples', apertureSamples);
+lens.set('apertureSample', apertureSample);
 nSurfaces = lens.get('n surfaces');
 for ii=1:(nSurfaces-1)
     if lens.surfaceArray(ii).sRadius ~= 0
@@ -44,7 +44,7 @@ film = filmC ('position', position, 'size', size, 'wave', newWave);
 
 %% Make a point source
 %ps = [-5 0 -100];
-ps = [-5 0 -101.5];
+ps = [0 -5 -101.5];
 
 
 ppsfCamera = ppsfCameraC('lens',lens,'film',film,'point source',ps);
