@@ -32,16 +32,13 @@ oiFlag = true;
 
 % Render using the docker calculation
 if (isa(inputPbrt, 'pbrtObject'))
-    radianceRenderPbrt = pbrtObject;
-    radianceRenderPbrt.makeDeepCopy(inputPbrt);
+    oiPbrt = pbrtObject;
+    oiPbrt.makeDeepCopy(inputPbrt);
 else
-    radianceRenderPbrt = inputPbrt;
+    oiPbrt = inputPbrt;
 end
 
-oi = s3dRenderScene(radianceRenderPbrt, oiName, noScale, dockerFlag, oiFlag);
+oi = s3dRenderScene(oiPbrt, oiName, noScale, dockerFlag, oiFlag);
 % vcAddObject(oi); oiWindow;
-
-% Set the field of view and photon level
-% oi = s3dFixOi(oi, radianceRenderPbrt);
  
 end

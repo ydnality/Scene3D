@@ -27,4 +27,4 @@ data/generatedPbrtFiles/
 *.pbrt#
 *.brdf
 .DS*
-._.DS*
+._.DS*unamedScene.pbrt

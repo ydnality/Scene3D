@@ -56,22 +56,31 @@ oi = initDefaultSpectrum(oi);
 oi = oiSet(oi,'photons',single(photons(:,:,1:31)));
 
 % Set the optics parameters from somewhere
-oi = oiSet(oi,'optics focal length',focalLength);
-oi = oiSet(oi,'optics fnumber',focalLength/aperture);
+% oi = oiSet(oi,'optics focal length',focalLength);
+% oi = oiSet(oi,'optics fnumber',focalLength/aperture);
 % oi = oiSet(oi,'fov',fieldOfView);
 
 oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^13);  %some normalization issues
 
+
 % Calculate field of view
 if isequal(class(inputPbrt),'pbrtObject')
+    lens = inputPbrt.camera.lens;
+    
+    oi = oiSet(oi,'optics name',lens.specFile);
+    oi = oiSet(oi,'optics focal length',lens.filmDistance*1e-3);
+    oi = oiSet(oi,'optics fnumber',lens.filmDistance/lens.apertureDiameter);
+
     % Compute the horizontal field of view
-    fdiag = inputPbrt.camera.lens.filmDiag;
-    dist = inputPbrt.camera.lens.filmDistance;
-    x = inputPbrt.camera.film.xresolution;
-    y = inputPbrt.camera.film.yresolution;
-    d = sqrt(x^2+y^2);
-    fwidth = (fdiag/d)*x;
-    fov = 2*atan2(fwidth/2,dist) * 180/pi;
+    fdiag = lens.filmDiag;
+    dist  = lens.filmDistance;
+    x     = inputPbrt.camera.film.xresolution;
+    y     = inputPbrt.camera.film.yresolution;
+    d     = sqrt(x^2+y^2);  % Number of samples along the diagonal
+    fwidth= (fdiag/d)*x;    % Diagonal size by d gives us mm per step
+                            % multiplying by x gives us the horizontal mm  
+    % Calculate angle in degrees
+    fov = 2*atan2d(fwidth/2,dist);
     
 elseif ~isempty(inputPbrt) && isnumeric(inputPbrt)
     % This should never happen!  Alert the user that we are completely
@@ -86,6 +95,7 @@ else
     fprintf('Fov arbitrarily set to 10 deg.\n');
 end
 
+% Store the horizontal field of view in degrees in the oi
 oi = oiSet(oi,'fov', fov);
 
 return

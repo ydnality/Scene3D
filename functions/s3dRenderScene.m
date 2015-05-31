@@ -53,8 +53,13 @@ mkdir(generatedDir);
 
 % Make the pbrt files from the pbrtObject
 if(isa(inputPbrt, 'pbrtObject'))
-    % Strip the path off of each materialArray entry before writing the
-    % pbrt file to disk.
+    % We copy the necessary pbrt files to the data directory needed by the
+    % docker object.
+    %
+    % We then change the name of the file in the pbrt object to remove the
+    % path, leaving only the name. The docker container knows the path to
+    % be /data.
+    % Order: material, light, geometry, include, lens 
     for ii = 1:numel(inputPbrt.materialArray)
         if ischar(inputPbrt.materialArray{ii}) && exist(inputPbrt.materialArray{ii},'file')
             copyfile(inputPbrt.materialArray{ii},generatedDir)
@@ -63,6 +68,9 @@ if(isa(inputPbrt, 'pbrtObject'))
             [directory, ~, ~] = fileparts(inputPbrt.materialArray{ii});
             inputPbrt.materialArray{ii} = [fName,extension];
             
+            % Copy the relevant files.  If the material, lights and so
+            % forth are in the same directory, then we are copying them
+            % multiple times.s
             copyRelFiles(directory, generatedDir);        
         end
     end
@@ -115,7 +123,8 @@ if(isa(inputPbrt, 'pbrtObject'))
     end
     
     fullfname = fullfile(dataPath, 'generatedPbrtFiles', [name '.pbrt']);
-    inputPbrt.writeFile(fullfname);
+    [~, pbrtFile] = inputPbrt.writeFile(fullfname);
+    % disp(pbrtFile)
 elseif (ischar(inputPbrt))
     if (~exist(inputPbrt,'file'))
         error('PBRT full file name required.  File not found');

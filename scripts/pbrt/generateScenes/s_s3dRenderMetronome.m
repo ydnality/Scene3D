@@ -17,6 +17,10 @@ wideField    = true;
 sensorCurved = true;
 addLight     = true;
 
+% Governs the number of samples per pixel. A minimum is 32.
+% For the scarlet one we ran it with 4096.s
+nSamples = 4096; %512;
+
 %%
 tic
 
@@ -118,7 +122,6 @@ curPbrt.addLightSource(lightSource);
 
 % set sampler
 curPbrt.sampler.removeProperty();
-nSamples = 4096; %512;
 curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
 
 %% Render the oi

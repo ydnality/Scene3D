@@ -1,9 +1,8 @@
-
+# Array of cones used to test two flash depth algorithm
 #
 # this pbrt file is included by the scenes rendered with
 # different lenses
 #
-
 
 Texture "grid" "color" "imagemap" "string filename" ["lines.exr"]
 

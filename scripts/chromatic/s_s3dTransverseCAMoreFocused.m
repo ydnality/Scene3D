@@ -1,8 +1,9 @@
-%% s_s3dTransverseCATemp
+%% s_s3dTransverseCAMoreFocused
 %
 % Show how changing the aperture position with respect to the lens causes a
 % shift in the magnification with respect to wavelength (transverse
-% chromatic aberration). 
+% chromatic aberration).
+%
 % This is built on the notes DHB left us about 18 months ago
 %
 % We should clean this up for demo'ing and check it with the other one that

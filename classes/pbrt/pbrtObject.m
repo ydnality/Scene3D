@@ -78,7 +78,7 @@ classdef pbrtObject <  clonableHandleObject
         end
         
        
-        function returnVal = writeFile(obj, fname)
+        function [returnVal, fname] = writeFile(obj, fname)
         %writeFile(obj, fname)
         %Write a text file from a pbrt structure
             fid = fopen(fname,'w');
@@ -112,7 +112,6 @@ classdef pbrtObject <  clonableHandleObject
             
             fprintf(fid,'\n\nWorldBegin\n');
             
-
             
             %% Lightsource
             
@@ -122,15 +121,7 @@ classdef pbrtObject <  clonableHandleObject
                 %check to see if a file or directly defined
                 %if it is a filename, use an include, if not
                 
-                %we aren't using fileobjects for now.  Maybe we can
-                %implement this in the future.  
-%                 if (isa(obj.lightSourceArray{i}, 'fileObject'))
-%                     if ~strcmp(obj.lightSourceArray{i}.file , '')
-%                         fprintf(fid,'\n\nInclude "%s"\n', obj.lightSourceArray{i}.fileName);
-%                     end
-%                 else
-
-                %this is the case where the lightsource is explicitly declared
+                %% this is the lightsource 
                 if (isa(obj.lightSourceArray{i}, 'pbrtLightObject'))
                     fprintf(fid,'\n\nAttributeBegin\n');
                     obj.lightSourceArray{i}.writeFile(fid);

@@ -1,12 +1,13 @@
 %% Render the bench scene as an optical image
 %
-% Say more stuff. 
-% Rendered as a light field if ...
+% The bench scene is rendered as a light field if numPinholesW/H are not
+% empty.  If empty, then this is a standard camera rendering.
+% 
+% The microlensMode works to place a microlens over each pinhole.
 %
-% Rendered as a standard OI if ..
+% A version of this analysis is saved on scarlet in SCIEN/LIGHTFIELD/scenes
 %
 % AL Vistasoft 2015
-
 
 %%
 ieInit
@@ -31,7 +32,7 @@ pinholeExitApLoc    = [2  2 -35];
 % rendering is a standard rendering with out the LF calculation.
 numPinholesW = 80; %160;      % These 2 parameters must be even (for now)
 numPinholesH = 80; %160;
-microlensMode = false;  % Feature will arrive
+microlensMode = false;  % Feature exists
 
 % Assign pinhole position to PBRT, and figure out correct cropWindow
 lens = pbrtLensRealisticObject(filmDist, filmDiag, lensFile, apertureDiameter, ...
@@ -100,7 +101,7 @@ dockerFlag = true;
 oi = s3dRenderOIAndDepthMap(curPbrt, 'benchLF',dockerFlag);
 vcAddObject(oi); oiWindow;
 
-%% To save depends on whether light field or note
+%% To save depends on whether light field or not
 if isempty(numPinholesW) || isempty(numPinholesH)
     save('bench','oi','focalLength','curPbrt');
 else
