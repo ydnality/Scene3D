@@ -16,31 +16,17 @@
 %% Render optical images of various versions of indObj using PBRT 
     %% Render the defocused oi
     sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused.pbrt');
-    oi = s3dRenderOi(sceneName, .050, 'indObj');
+    oi = s3dRenderOI(sceneName, 'indObj');
     
     %% Render the defocused oi with 2 element lens
-    sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused2El.pbrt');
-    oi = s3dRenderOi(sceneName, .050, 'indObj');
-    
-    %% Render the pinhole scene
+%     sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDefocused2El.pbrt');
+%     oi = s3dRenderOI(sceneName, 'indObj');
+%     
+    %% Render the pinhole scene and Depth Map
 
     %the pinhole scene can be treated as the scene radiance
     sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainPinhole.pbrt');
-    oi = s3dRenderOi(sceneName, .050, 'indObj');
-
-    %% Render the depth map
-
-    %the pinhole scene can be treated as the scene radiance
-    sceneName = fullfile(s3dRootPath, 'papers', '2014-OSA', 'indestructibleObject', 'mainDepthMap.pbrt');
-    % oi = s3dRenderOi(sceneName, .050, 'indObj');
-
-    depthMap = s3dRenderDepthMap(sceneName, 1);
-    figure; imagesc(depthMap);
-    title('Depth-map For Indestructible Object (units mm)');
-    colorbar;
-    colormap('gray');
-    
-   
+    pinholeOi = s3dRenderOIAndDepthMap(sceneName, 'indObj');
 
 %% Create images for figures in paper with image slices of the previously rendered optical images
     %% create figure images for defocused oi
@@ -97,21 +83,72 @@
 %% Render the processed images using the ISET pipeline, given a saved optical image .mat file
     %% create sensor images
     readNoise = 0;
+    pinholeOi = oiSet(pinholeOi,'optics focal length',0.034);  % I set these variables by hand just to avoid the zero condition
+    pinholeOi = oiSet(pinholeOi,'optics f number', 2);    
     oi = pinholeOi;  
+    oi = oiAdjustIlluminance(oi, 10.0);
 
-    % oi = blurredOi;
-    sensor = s3dProcessSensor(oi, readNoise, [500 500],[], 'analog');    %low noise, auto exposure
-    vcAddObject(sensor); sensorWindow;
 
-    %% create processed image
-    image = s3dProcessImage(sensor);
-    image = imageSet(image, 'gamma', .6);
-    image = imageSet(image, 'internalcolorspace', 'XYZ');
-    image = vcimageCompute(image,sensor);
-    vcAddAndSelectObject(image); vcimageWindow;
+%     oi = oiSet(oi, 'meanillum', 10);
+%     % oi = blurredOi;
+%     sensor = s3dProcessSensor(oi, readNoise, [500 500],.01, 'analog');    %low noise, auto exposure
+%     vcAddObject(sensor); sensorWindow;
+% 
+%     %% create processed image
+%     image = s3dProcessImage(sensor);
+%     image = imageSet(image, 'gamma', .6);
+%     image = imageSet(image, 'internalcolorspace', 'XYZ');
+%     image = vcimageCompute(image,sensor);
+%     vcAddAndSelectObject(image); vcimageWindow;
+% 
+%     %save images
+%     finalImage = imadjust(imageGet(image, 'results'), [], [], imageGet(image, 'gamma'));
+%     figure; imshow(finalImage);
+%     imwrite(finalImage, 'processedOutput.png');
 
-    %save images
-    finalImage = imadjust(imageGet(image, 'results'), [], [], imageGet(image, 'gamma'));
-    figure; imshow(finalImage);
-    imwrite(finalImage, 'processedOutput.png');
+    
+    
+    %% process sensor and image processing data
+    %
+    % Create a sensor in which each pixel is aligned with a single sample in
+    % the OI.  Then produce the sensor data (which will include color filters)
+    %
+    ss = oiGet(oi,'sample spacing','m');
+    sensor = sensorCreate;
+    sensor = sensorSet(sensor,'pixel size same fill factor',ss(1));
+    sensor = sensorSet(sensor,'size',oiGet(oi,'size'));
+    sensor = sensorSet(sensor,'exp time',0.0001);
+    %sensor = sensorSet(sensor,'exp time',0.25386);
+    %sensor = sensorSet(sensor, 'autoexposure', 1);
 
+    % pixel = sensorGet(sensor, 'pixel')
+    %sensor = sensorSet(sensor, 'prnu level', .001);
+    sensor = sensorSet(sensor, 'dsnu level', .001);
+
+    % Describe
+    sensorGet(sensor,'pixel size','um')
+    sensorGet(sensor,'size')
+    sensorGet(sensor,'fov',[],oi)
+
+    
+    %make low dynamic range
+    pixel = sensorGet(sensor, 'pixel');
+    voltageSwing = pixelGet(pixel, 'voltage swing');
+    wellCapacity   = 1000;  % Electrons  %flash image
+    conversiongain = voltageSwing/wellCapacity;
+
+    pixel = pixelSet(pixel,'conversiongain', conversiongain);
+    sensor = sensorSet(sensor, 'pixel', pixel);
+    
+%% Compute the sensor response
+    sensor = sensorCompute(sensor,oi);
+    vcAddObject(sensor); sensorWindow('scale',1);
+
+    %% Interpolate the color filter data to produce a full sensor
+    %
+    ip = ipCreate;
+    ip = ipCompute(ip,sensor);
+    vcAddObject(ip); ipWindow;
+
+    % Show in a separate window
+    rgb = ipGet(ip,'result');

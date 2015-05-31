@@ -10,9 +10,10 @@ clear curPbrt;
 curPbrt = pbrtObject();
 
 %specify scene properties
-matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'graycard-mat.pbrt');
-%matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-mat.pbrt');
+%matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'graycard-mat.pbrt');
+matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-mat.pbrt');
 %matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'mixed-mat.pbrt');
+%matFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'whiteWallsFloor-mat.pbrt');
 
 %geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'lambertian-geom.pbrt');
 geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-geom.pbrt');
@@ -33,7 +34,7 @@ position = [from; to; 0 0 1];
 curPbrt.camera.setPosition(position);
 lens = pbrtLensPinholeObject();
 filmDistance = 140;
-filmDiag = 50.9117;
+filmDiag = 50.9117;   %36 width and height
 curPbrt.camera.setLens(pbrtLensPinholeObject(filmDistance, filmDiag));  %TODO: may want to switch to a real lens later
 curPbrt.camera.setResolution(300, 300);
 
@@ -50,9 +51,29 @@ curPbrt.sampler.removeProperty();
 curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', 256));
 
 %write file and render
-frontOi = s3dRenderOI(curPbrt, .050);
+frontOi = s3dRenderOIAndDepthMap(curPbrt); %, .050);
+%frontOi = oiSet(frontOi,'optics focal length',0.050);  % I set these variables by hand just to avoid the zero condition
+frontOi = oiSet(frontOi,'optics focal length',0.140);  % I set these variables by hand just to avoid the zero condition
+frontOi = oiSet(frontOi,'optics f number', 2);    
 
 toc
+
+%% front flash image processing
+%load oi from file (optional)
+% vcLoadObject('opticalimage', ['50mmFront.pbrt.mat']);
+% oi = vcGetObject('oi');
+
+% % sensor processing
+noiseFlag = 0;   %0 is off
+sensor = s3dProcessSensor(frontOi, 0, [400 400],0, 'analog', noiseFlag);    %low noise, auto exposure
+% sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
+vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
+
+% image processing
+vciFlash = s3dProcessImage(sensor);
+vcAddObject(vciFlash); ipWindow;
+
+
 %% render scene with PBRT using pbrtObjects (back flash)
 tic
 
@@ -77,40 +98,12 @@ curPbrt.removeLight();
 curPbrt.addLightSource(lightSource);
 
 %write file and render
-backOi = s3dRenderOI(curPbrt, .050);
+backOi = s3dRenderOI(curPbrt);
+backOi = oiSet(backOi,'optics focal length',0.140);  % I set these variables by hand just to avoid the zero condition
+backOi = oiSet(backOi,'optics f number', 2);    
 
 toc
-%% render depthMap with PBRT using pbrtObjects
-tic
 
-%change the sampler to stratified for non-noisy depth map
-samplerProp = pbrtPropertyObject();
-curPbrt.sampler.setType('stratified');
-curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
-
-%write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
-figure; imagesc(groundTruthDepthMap);
-
-toc
-%% front flash image processing
-%load oi from file (optional)
-% vcLoadObject('opticalimage', ['50mmFront.pbrt.mat']);
-% oi = vcGetObject('oi');
-
-% sensor processing
-sensor = s3dProcessSensor(frontOi, 0, [400 400],0, 'analog');    %low noise, auto exposure
-% sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
-vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
-
-% image processing
-vciFlash = s3dProcessImage(sensor);
-vcAddObject(vciFlash); ipWindow;
 
 %% back flash image processing
 %load oi from file
@@ -119,7 +112,8 @@ vcAddObject(vciFlash); ipWindow;
 
 % sensor processing
 frontFlashExpDur = sensorGet(sensor, 'expTime');
-sensor = s3dProcessSensor(backOi, 0, [400 400],frontFlashExpDur, 'analog');    %low noise
+noiseFlag = 0;
+sensor = s3dProcessSensor(backOi, 0, [400 400],frontFlashExpDur, 'analog', noiseFlag);    %low noise
 % sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
@@ -127,57 +121,31 @@ vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 vciFlashBack = s3dProcessImage(sensor);
 vcAddAndSelectObject(vciFlashBack); ipWindow;
 
-%%  generate and read and output depth map (obsolete)
-
-% % ** make sure the rendering file has a small initial aperture, and only 1
-% % sample per pixel!
 % 
-% %currently broken - works - but we need to change the sampler to
-% %"stratified" with 1 sample in each direction
+% frontFlashExpDur = sensorGet(sensor, 'expTime');
 % 
-% % chdir(fullfile(datapath, 'twoFlashDepth', 'depthTargetDepths'));
-% chdir(fullfile(datapath, 'twoFlashDepth', 'indObject', 'pbrt'));
+% ss = oiGet(backOi,'sample spacing','m');
+% sensor = sensorCreate;
+% sensor = sensorSet(sensor,'pixel size same fill factor',ss(1));
+% sensor = sensorSet(sensor,'size',oiGet(backOi,'size'));
+% sensor = sensorSet(sensor,'exp time',frontFlashExpDur);
+% %sensor = sensorSet(sensor,'exp time',0.25386);
+% %sensor = sensorSet(sensor, 'autoexposure', 1);
 % 
-% depthMap = s3dRenderDepthMap('50mmDepthMap.pbrt', 1);
-% figure; imagesc(depthMap);
-
-%%  generate and read and output depth map (obsolete)
-% ** make sure the rendering file has a small initial aperture, and only 1
-% sample per pixel!
-
-%works - but we need to change the sampler to
-%"stratified" with 1 sample in each direction
-
-% % chdir(fullfile(datapath, 'twoFlashDepth', 'depthTargetDepths'));
-% chdir(fullfile(datapath, 'twoFlashDepth', 'indObject', 'pbrt'));
+% % pixel = sensorGet(sensor, 'pixel')
+% %sensor = sensorSet(sensor, 'prnu level', .001);
+% sensor = sensorSet(sensor, 'dsnu level', .000);
 % 
-% depthMap = s3dRenderDepthMap('50mmDepthMap.pbrt', 1);
-% figure; imagesc(depthMap);
-
-%% render scene with PBRT using classic pbrt files(obsolete)
-
-% %new batch render code
-% tic
+% % Describe
+% sensorGet(sensor,'pixel size','um')
+% sensorGet(sensor,'size')
+% sensorGet(sensor,'fov',[],backOi)
 % 
-% %define template file
-% % templateFile = '2FlashDepthTemplate';  %(no extension on here)
-% templateFile = 'templateDepthTargetDepths';  %(no extension on here)
+% % Compute the sensor response
+% sensor = sensorCompute(sensor,backOi);
+% vcAddObject(sensor); sensorWindow('scale',1);
 % 
-% 
-% clear('templateFileArray');
-% templateFileArray{1} = batchFileClass(templateFile, '.pbrt');
-% % templateFileArray{2} = batchFileClass(templateFile, '-idealLens.pbrt');
-% % templateFileArray{3} = batchFileClass(templateFile, '-realisticLens.pbrt');
-% % templateFileArray{4} = batchFileClass(templateFile, '-frontFlash.pbrt');
-% % templateFileArray{5} = batchFileClass(templateFile, '-backFlash.pbrt');
-% %define conditions file
-% 
-% % conditionsFile = 'conditionsScratch.txt';
-% conditionsFile = 'conditions10mSep.txt';
-% 
-% %change into correct directory
-% %chdir(twoFlashDepthPath);
-% chdir([dataPath '/twoFlashDepth/depthTargetDepths/']);
-% renderFileArray = s3dRenderBatch(templateFileArray, conditionsFile);
-% 
-% toc
+% % Interpolate the color filter data to produce a full sensor
+% vciFlashBack = ipCreate;
+% vciFlashBack = ipCompute(vciFlashBack,sensor);
+% vcAddObject(vciFlashBack); ipWindow;

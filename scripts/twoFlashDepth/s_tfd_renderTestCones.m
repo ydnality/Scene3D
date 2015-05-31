@@ -117,7 +117,7 @@ end
 sceneName = 'frontFlash';
 focalLength = 0.05;
 dockerFlag = true;
-frontOi = s3dRenderOI(curPbrt, focalLength, sceneName, dockerFlag);
+frontOi = s3dRenderOIAndDepthMap(curPbrt, sceneName, dockerFlag);
 % vcAddObject(frontOi); oiWindow;
 
 %% Render OI when the ring light is at the back
@@ -142,7 +142,7 @@ else
 end
 
 tmpFileName = 'backFlash';
-backOi = s3dRenderOI(curPbrt, .050, tmpFileName);
+backOi = s3dRenderOI(curPbrt, tmpFileName, dockerFlag);
 % vcAddObject(backOi); oiWindow;
 
 
@@ -171,6 +171,9 @@ backOi = s3dRenderOI(curPbrt, .050, tmpFileName);
 
 % backOi = oi;
 
+frontOi = oiSet(frontOi,'optics focal length', filmDistance/ .8497 * .001);  % I set these variables by hand just to avoid the zero condition
+frontOi = oiSet(frontOi,'optics f number', 2);   
+
 % sensor processing
 sensor = s3dProcessSensor(frontOi, 0, [400 400],0, 'analog');    %low noise, auto exposure
 % sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
@@ -178,7 +181,7 @@ vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 % image processing
 vciFlash = s3dProcessImage(sensor);
-vcAddAndSelectObject(vciFlash); vcimageWindow;
+vcAddObject(vciFlash); ipWindow;
 
 %% back flash image processing
 %load oi from file
@@ -186,6 +189,10 @@ vcAddAndSelectObject(vciFlash); vcimageWindow;
 % oi = vcGetObject('oi');
 
 % sensor processing
+
+backOi = oiSet(backOi,'optics focal length', filmDistance/ .8497 *.001);  % I set these variables by hand just to avoid the zero condition
+backOi = oiSet(backOi,'optics f number', 2);   
+
 frontFlashExpDur = sensorGet(sensor, 'expTime');
 sensor = s3dProcessSensor(backOi, 0, [400 400],frontFlashExpDur, 'analog');    %low noise
 % sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
@@ -193,5 +200,5 @@ vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
 % image processing
 vciFlashBack = s3dProcessImage(sensor);
-vcAddAndSelectObject(vciFlashBack); vcimageWindow;
+vcAddObject(vciFlashBack); ipWindow;
 

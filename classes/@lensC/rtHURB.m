@@ -35,8 +35,11 @@ pointToEdgeS = curApertureRadius - ipLength;   %this is 'a' from paper  //pointT
 pointToEdgeL = sqrt((curApertureRadius* curApertureRadius) - ipLength .* ipLength);  %pointToEdgeS stands for point to edge long
 
 lambda = rays.get('wavelength')' * 1e-9;  %this converts lambda to meters
-sigmaS = atan(1./(2 * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m
-sigmaL = atan(1./(2 * pointToEdgeL * .001 * 2 * pi./lambda));
+%sigmaS = atan(1./(2 * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m
+%sigmaL = atan(1./(2 * pointToEdgeL * .001 * 2 * pi./lambda));
+
+sigmaS = atan(1./(sqrt(2) * pointToEdgeS *.001 * 2 * pi./lambda));  %the .001 converts mm to m   experimental
+sigmaL = atan(1./(sqrt(2) * pointToEdgeL * .001 * 2 * pi./lambda));
 
 %this function regenerates a 2D gaussian sample and
 %returns it randOut

@@ -29,8 +29,8 @@ pinholeExitApLoc    = [2  2 -35];
 
 % This is the microlens (pinhole) array.  If these are set to empty, the
 % rendering is a standard rendering with out the LF calculation.
-numPinholesW = 160;      % These 2 parameters must be even (for now)
-numPinholesH = 160;
+numPinholesW = 80; %160;      % These 2 parameters must be even (for now)
+numPinholesH = 80; %160;
 microlensMode = false;  % Feature will arrive
 
 % Assign pinhole position to PBRT, and figure out correct cropWindow
@@ -45,7 +45,7 @@ curPbrt.camera.setCropWindow(0, 1, 0, 1);  % Show everything
 
 % Sampler
 samples = curPbrt.sampler.removeProperty();
-samples.value = 64;   % Could be even 32 for a pinhole
+samples.value = 32; %64;   % Could be even 32 for a pinhole
 curPbrt.sampler.addProperty(samples);
 
 
@@ -94,10 +94,10 @@ tempProp.value = 64;
 sampler.addProperty(tempProp);
 curPbrt.setSampler(sampler);
 
-curPbrt.camera.setResolution(1440, 1440);
+curPbrt.camera.setResolution(720, 720);
 dockerFlag = true;
 
-oi = s3dRenderOIAndDepthMap(curPbrt, focalLength, 'benchLF',dockerFlag);
+oi = s3dRenderOIAndDepthMap(curPbrt, 'benchLF',dockerFlag);
 vcAddObject(oi); oiWindow;
 
 %% To save depends on whether light field or note

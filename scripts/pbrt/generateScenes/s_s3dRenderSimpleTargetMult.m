@@ -37,8 +37,8 @@ foregroundDepth3= -90;
 lightFront = pbrtLightSpotObject('lightFront', [], [], [], [0 0 80], [0 0 -79]);
 curPbrt.addLightSource(lightFront);
 
-% lightLeft = pbrtLightSpotObject('lightLeft', [], [], [], [10 0 -100], [9 0 -100]);
-% curPbrt.addLightSource(lightLeft);
+lightLeft = pbrtLightSpotObject('lightLeft', [], [], [], [10 0 -100], [9 0 -100]);
+curPbrt.addLightSource(lightLeft);
 % lightRight = pbrtLightSpotObject('lightRight', [], [], [], [-10 0 -100], [-9 0 -100]);
 % curPbrt.addLightSource(lightRight);
 % lightTop= pbrtLightSpotObject('lightTop', [], [], [], [0 10 -100], [0 9 -100]);
@@ -111,25 +111,5 @@ curPbrt.addGeometry(frontSquare);
 %     curPbrt.addGeometry(newGeometry);
 % end
 
-tmpFileName = ['deleteMe' '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-scene = s3dRenderScene( curPbrt, 'simpleScene');
+scene = s3dRenderOIAndDepthMap( curPbrt, 'simpleScene');
 
-%% Render Depth map
-
-%change the sampler to stratified for non-noisy depth map
-samplerProp = pbrtPropertyObject();
-curPbrt.sampler.setType('stratified');
-curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
-
-%write file and render
-tmpFileName = ['deleteMe'  '.pbrt'];
-curPbrt.writeFile(tmpFileName);
-groundTruthDepthMap = s3dRenderDepthMap(tmpFileName, 1);
-figure; imagesc(groundTruthDepthMap);
-
-scene = sceneSet(scene, 'depthmap', groundTruthDepthMap);
-vcAddObject(scene); sceneWindow;

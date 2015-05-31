@@ -1,0 +1,42 @@
+
+
+AttributeBegin
+
+Material "mirror"
+Texture "water" "float" "windy" #"float scale" [.1]
+Material "mirror" "color Kr" [.7 .7 .7] "texture bumpmap" "water"
+Translate 0 0 -.01
+Scale 1 1 1
+Shape "trianglemesh" "point P" [0 0 .01    100 0 .01  100 100 .01  0 100 .01 ]
+	"integer indices" [ 0 1 2 2 3 0 ]
+AttributeEnd
+
+#AttributeBegin
+#Scale 1 1 -1
+#Rotate -90 1 0 0 
+#Volume "exponential" "float a" .5 "float b" .9
+##Volume "exponential" "float a" .25 "float b" .3
+## good for single
+# 	"color sigma_a" [ .1 .1 .1 ]
+# 	"color sigma_s" [ .2 .2 .2 ]
+#	"color Le" [ .05 .05 .05]
+#	"point p0" [-100 -3 -100 ] "point p1" [100 100 30 ]
+#AttributeEnd
+
+
+AttributeBegin
+Rotate 320 0 0 1 
+LightSource "infinite" "integer nsamples" [4]
+	"string mapname" ["skylight-dusk.exr"  ]
+AttributeEnd
+
+AttributeBegin
+AreaLightSource "area" "color L" [900 800 720 ]
+ReverseOrientation
+Translate 400 200 800 # -500 1300 # 200 800
+Rotate 90 0 0 1
+Rotate 90 1 0 0
+#Shape "disk" "float radius" [100]
+AttributeEnd
+
+#Scale 1000 1000 1000

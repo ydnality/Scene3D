@@ -13,8 +13,8 @@
 ieInit
 
 %% Rendering parameters
-wideField    = false;
-sensorCurved = false;
+wideField    = true;
+sensorCurved = true;
 addLight     = true;
 
 %%
@@ -93,7 +93,7 @@ if wideField
     curPbrt.camera.lens.filmDistance = 15;  %90; %70; %133.33;
     curPbrt.camera.lens.filmDiag = 43.75; %; 70;
     curPbrt.camera.lens.specFile = '2ElLens13.5mm.dat';
-    curPbrt.camera.lens.apertureDiameter = 7; % in mm
+    curPbrt.camera.lens.apertureDiameter = .5; % in mm
     
     curPbrt.camera.setResolution(450, 300);  
 end
@@ -118,13 +118,13 @@ curPbrt.addLightSource(lightSource);
 
 % set sampler
 curPbrt.sampler.removeProperty();
-nSamples = 64; %512;
+nSamples = 4096; %512;
 curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
 
 %% Render the oi
 
 dockerFlag = true;
-oi = s3dRenderOIAndDepthMap(curPbrt, sceneName, dockerFlag);
+oi = s3dRenderOIAndDepthMap(curPbrt, oiName, dockerFlag);
 
 toc
 

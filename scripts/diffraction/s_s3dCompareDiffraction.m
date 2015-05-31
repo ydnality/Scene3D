@@ -31,7 +31,7 @@ point = psCreate(0,0,-1000000000);
 %lensFileName = fullfile(s3dRootPath,'data', 'lens', 'dgauss.50mm.dat');
 lensFileName = fullfile(s3dRootPath,'data', 'lens', '2ElLens.dat');
 
-nSamples = 1001; 
+nSamples = 2001; 
 apertureMiddleD = .11;  %.5;   % mm    %WORKS BRILLIANTLY
 
 lens = lensC('apertureSample', [nSamples nSamples], ...
@@ -119,7 +119,7 @@ method = 'huygens';
 rtType = 'ideal';
 camera.estimatePSF(nLines,jitter,subsection, method, rtType);
 
-oi = camera.oiCreate(); vcAddObject(oi); oiWindow;
+oiHuygens = camera.oiCreate(); vcAddObject(oiHuygens); oiWindow;
     
 
 %% Produce Theoretical results
@@ -131,16 +131,11 @@ oi = camera.oiCreate(); vcAddObject(oi); oiWindow;
 d = displayCreate('equal energy');
 scene = sceneFromFile('pointTest.png', 'rgb', [], d);
 wave = sceneGet(scene, 'wave');
+onesPhotons = ones(size(wave)) * 10^15;
+equalPhotonsEnergy = Quanta2Energy(wave, onesPhotons);
+scene = sceneAdjustIlluminant(scene, equalPhotonsEnergy);
 
-% scene = sceneAdjustIlluminant(scene, ones(size(wave)) * 10^-3, true);
-
-% pointPhotons = zeros(size(sceneGet(scene, 'photons')));
-% pointPhotons(256, 256, :) = 1;
-%scene = sceneSet(scene, 'photons', pointPhotons);
-
-%scene = sceneSet(scene, 'illuminant', )
-%scene = sceneFromFile('usairforce.png', 'rgb');
-
+%assign parameters from above
 sensorWidth = film.size(1);
 filmDistance = film.position(3);
 focalLength = 50;
@@ -148,8 +143,7 @@ apertureDiameter = apertureMiddleD;
 
 horFieldofView = 2 * atan(sensorWidth/(2 * filmDistance)) * 180/pi * .8;
 scene = sceneSet(scene,'fov',horFieldofView);
-scene = sceneSet(scene, 'distance', 100000001);
-%scene = sceneSet(scene, 'distance', 2001);
+scene = sceneSet(scene, 'distance', 100000001);   %scene = sceneSet(scene, 'distance', 2001);
 vcAddAndSelectObject(scene); sceneWindow;
 
 %create optical image
@@ -157,6 +151,7 @@ oiT = oiCreate;
 optics = oiGet(oiT,'optics'); 
 fNumber = focalLength/apertureDiameter;
 optics = opticsSet(optics,'fnumber',fNumber);
+
 % In this example we set the properties of the optics to include cos4th
 % falloff for the off axis vignetting of the imaging lens
 optics = opticsSet(optics,'offaxis','cos4th');
@@ -165,49 +160,106 @@ oiT = oiSet(oiT,'optics',optics);
 oiT = oiCompute(scene,oiT);
 vcAddAndSelectObject(oiT); oiWindow;
 
-%% plot line vs. wavelength plots (linespread)
-oiPhotons = oiGet(oi, 'photons');
-%     PSFLineSpectral = oiPhotons(round(size(oiPhotons,1)/2), :, :); 
+%% Plot mesh plots for all 3 techniques
+
+%Theoretical
+oiPhotons = oiGet(oiT, 'photons');
 PSFLineSpectral = sum(oiPhotons, 1);
-PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) 31]);
-scalingFactor = sum(PSFLineSpectral,1) * .1172/.1415;
-PSFLineSpectral = PSFLineSpectral/scalingFactor(31);
+PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)]);
+plotBound = sensorWidth/2 * 10^3;
 
-
-PSFLineSpectral = PSFLineSpectral(size(oiPhotons,1)/2-32:size(oiPhotons,1)/2+32, :);
-plotBound = 32/(size(oiPhotons,1)/2) * sensorWidth/2 * 10^3;
-
-[X Y] = meshgrid(400:10:700, linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
-figure; mesh(X, Y, PSFLineSpectral);
+[X, Y] = meshgrid(400:10:700, linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
+figure; mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
 xlabel('Wavelength (nm)')
 ylabel('Position (um)')
 zlabel('Intensity (rel.)');
-    
-%% plot both PSFs on 1 figure
-oiIlluminanceT = oiGet(oiT, 'illuminance');
+title('Theoretical Linespread');
 
-%     oiPhotonsT = oiGet(oiT, 'photons');
-%     PSFLineSpectralT = oiPhotonsT(round(size(oiPhotonsT,1)/2), :, :); 
-%     PSFLineSpectralT = reshape(PSFLineSpectralT, [640 31]);
-%     figure; mesh(PSFLineSpectralT);
 
-PSFLineT = oiIlluminanceT(size(oiIlluminanceT,1)/2, :);
-%     PSFLineTS = PSFLineT * max(PSFLine(:))/max(PSFLineT(:));
+%HURB
+oiPhotons = oiGet(oiHURB, 'photons');
+PSFLineSpectral = sum(oiPhotons, 1);
+PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)]);
+plotBound = sensorWidth/2 * 10^3;
+
+[X, Y] = meshgrid(400:10:700, linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
+figure; mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
+xlabel('Wavelength (nm)')
+ylabel('Position (um)')
+zlabel('Intensity (rel.)');
+title('HURB Linespread');
+
+%Huygens
+oiPhotons = oiGet(oiHuygens, 'photons');
+PSFLineSpectral = sum(oiPhotons, 1);
+PSFLineSpectral = reshape(PSFLineSpectral, [size(oiPhotons,1) size(oiPhotons, 3)]);
+plotBound = sensorWidth/2 * 10^3;
+
+[X, Y] = meshgrid(400:10:700, linspace(plotBound, -plotBound, size(PSFLineSpectral, 1)));
+figure; mesh(X, Y, PSFLineSpectral./max(PSFLineSpectral(:)));
+xlabel('Wavelength (nm)')
+ylabel('Position (um)')
+zlabel('Intensity (rel.)');  
+title('Huygens-Fresnel Linespread');
+
+%% plot line vs. wavelength plots (linespread) plot 3 PSFs on 1 figure
+oiPhotonsTemp = oiGet(oiT, 'photons');
+PSFLineT = sum( oiPhotonsTemp(:,:,16), 1);
 PSFLineTS = PSFLineT /max(PSFLineT(:));
-PSFLineS = PSFLine / max(PSFLine(:));
-positionT = linspace(-sensorWidth/2 *1000, sensorWidth/2 *1000, length(PSFLineT));
-figure;
-plot(position, PSFLineS, positionT, PSFLineTS);
-title(['PSF Comparison;' num2str(sampleArray{index}.focalLength) 'mm;f/' ...
-    num2str(sampleArray{index}.focalLength/(sampleArray{index}.apertureDiameter), 2) ';' ...
-    num2str(sampleArray{index}.targetDistance) 'm Target Distance' ]);
-xlabel('um');
-axis([-40 40 0 1]);  %don't show the bad part of the theoretical plot
-ylabel('Relative illuminance');
-legend Ray-tracing Theoretical
 
-%save figure as a tiff file
-fileName = ['PSFC_' num2str(sampleArray{index}.focalLength) 'mm_f' ...
-    num2str(sampleArray{index}.focalLength/(sampleArray{index}.apertureDiameter), 2) '_' ...
-    num2str(sampleArray{index}.targetDistance) 'mTargDis' ];
-hgexport(gcf, [fileName '.tif'], hgexport('factorystyle'), 'Format', 'tiff');
+oiPhotonsTemp = oiGet(oiHuygens, 'photons');
+PSFLineHuygens = sum(oiPhotonsTemp(:,:, 16) , 1);
+PSFLineHuygens = PSFLineHuygens / max(PSFLineHuygens(:));
+
+% oiPhotonsTemp = oiGet(oiHURBTuned, 'photons');
+% PSFLineHURBTuned = sum(oiPhotonsTemp(:,:,16), 1);
+% PSFLineHURBTuned = PSFLineHURBTuned / max(PSFLineHURBTuned);
+
+oiPhotonsTemp = oiGet(oiHURB, 'photons');
+PSFLineHURB = sum(oiPhotonsTemp(:,:,16), 1);
+PSFLineHURB = PSFLineHURB / max(PSFLineHURB);
+
+positionT = linspace(-sensorWidth/2 *1000, sensorWidth/2 *1000, length(PSFLineT));
+position = linspace(-sensorWidth/2 * 1000, sensorWidth/2 * 1000, length(PSFLineHURB));
+figure;
+plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHuygens);
+
+
+title(['Linespread Comparison at 550nm;' num2str(focalLength) 'mm;f/' ...
+    num2str(focalLength/apertureDiameter, 2)  ]);
+xlabel('um')
+%axis([-40 40 0 1]);  %don't show the bad part of the theoretical plot
+ylabel('Relative radiance');
+legend('Theoretical', 'HURB', 'Huygens-Fresnel');
+% 
+% 
+% %save figure as a tiff file
+% fileName = ['PSFC_' num2str(sampleArray{index}.focalLength) 'mm_f' ...
+%     num2str(focalLength/(apertureDiameter))];
+% hgexport(gcf, [fileName '.tif'], hgexport('factorystyle'), 'Format', 'tiff');
+
+%% plot line vs. wavelength plots (PSF slice) plot 3 PSFs on 1 figure
+oiPhotonsTemp = oiGet(oiT, 'illuminance');
+PSFLineT = oiPhotonsTemp((size(oiPhotonsTemp, 1))/2,:);
+PSFLineTS = PSFLineT /max(PSFLineT(:));
+
+oiPhotonsTemp = oiGet(oiHuygens, 'illuminance');
+PSFLineHuygens = oiPhotonsTemp((size(oiPhotonsTemp, 1))/2,:);
+PSFLineHuygens = PSFLineHuygens / max(PSFLineHuygens(:));
+
+oiPhotonsTemp = oiGet(oiHURB, 'illuminance');
+PSFLineHURB = oiPhotonsTemp((size(oiPhotonsTemp, 1))/2,:);
+PSFLineHURB = PSFLineHURB / max(PSFLineHURB);
+
+positionT = linspace(-sensorWidth/2 *1000, sensorWidth/2 *1000, length(PSFLineT));
+position = linspace(-sensorWidth/2 * 1000, sensorWidth/2 * 1000, length(PSFLineHURB));
+figure;
+plot( positionT, PSFLineTS, position, PSFLineHURB, position, PSFLineHuygens);
+
+
+title(['PSF Slice Comparison at 550nm;' num2str(focalLength) 'mm;f/' ...
+    num2str(focalLength/apertureDiameter, 2)  ]);
+xlabel('um')
+%axis([-40 40 0 1]);  %don't show the bad part of the theoretical plot
+ylabel('Relative radiance');
+legend('Theoretical', 'HURB', 'Huygens-Fresnel');
