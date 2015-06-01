@@ -1,8 +1,9 @@
-%% s_s3dTransverseCATemp
+%% s_s3dTransverseCAMoreFocused
 %
 % Show how changing the aperture position with respect to the lens causes a
 % shift in the magnification with respect to wavelength (transverse
-% chromatic aberration). 
+% chromatic aberration).
+%
 % This is built on the notes DHB left us about 18 months ago
 %
 % We should clean this up for demo'ing and check it with the other one that
@@ -22,19 +23,29 @@ lens = lensC;
 % Should the aperture (n = 6) have all ones?
 % This breaks the MP's code.  Commenting it out lets the rest of the code
 % run coorectly.
+
+% newWave = 400:20:700;   %uncomment for a more comprehensive sampling
+newWave = [450 550 655];   %use only 2 wavelengths
+apertureSample = [301 301];
+lens.set('wave', newWave);
+lens.set('apertureSample', apertureSample);
 nSurfaces = lens.get('n surfaces');
 for ii=1:(nSurfaces-1)
     if lens.surfaceArray(ii).sRadius ~= 0
-        lens.surfaceArray(ii).n = linspace(1.3,1.5,lens.get('nwave'));
+        lens.surfaceArray(ii).n = linspace(1.65 + .1, 1.65 - .1,lens.get('nwave'));
     end
 end
 
 %% Make the sensor surface
 
-film = filmC;
+position = [0 0 104];
+size = [15 15];
+wave = newWave;
+film = filmC ('position', position, 'size', size, 'wave', newWave);
 
 %% Make a point source
-ps = [-5 0 -100];
+%ps = [-5 0 -100];
+ps = [0 -5 -101.5];
 
 ppsfCamera = ppsfCameraC('lens',lens,'film',film,'point source',ps);
 
@@ -79,6 +90,7 @@ for ii=1:length(d)
     % Show it in ISET
     oi = ppsfCamera.oiCreate;
     oi = oiSet(oi,'name',sprintf('Pos = %.1f',p));
+    oi = oiSet(oi,'gamma',0.5);
     vcAddObject(oi); oiWindow;
     
     
