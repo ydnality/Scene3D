@@ -65,11 +65,25 @@ oi = oiSet(oi, 'photons', oiGet(oi,'photons') * 10^13);  %some normalization iss
 
 % Calculate field of view
 if isequal(class(inputPbrt),'pbrtObject')
+    
     lens = inputPbrt.camera.lens;
     
-    oi = oiSet(oi,'optics name',lens.specFile);
+    if isa(lens,'pbrtLensRealisticObject')
+        oi = oiSet(oi,'optics name',lens.specFile);
+        oi = oiSet(oi,'optics fnumber',lens.filmDistance/lens.apertureDiameter);       
+    elseif isa(lens,'pbrtLensPinholeObject')
+        % Pinholes have no real aperture size.  So, we set the f-number
+        % really big.
+        oi = oiSet(oi,'optics name','pinhole');
+        oi = oiSet(oi,'optics fnumber',999);
+    elseif isa(lens,'pbrtLensIdealObject')
+        % This case is a diffraction limited lens but with an aperture of a
+        % real size.
+        oi = oiSet(oi,'optics name','diffraction limited');
+        oi = oiSet(oi,'optics fnumber',lens.filmDistance/lens.apertureDiameter);
+    end
+    
     oi = oiSet(oi,'optics focal length',lens.filmDistance*1e-3);
-    oi = oiSet(oi,'optics fnumber',lens.filmDistance/lens.apertureDiameter);
 
     % Compute the horizontal field of view
     fdiag = lens.filmDiag;

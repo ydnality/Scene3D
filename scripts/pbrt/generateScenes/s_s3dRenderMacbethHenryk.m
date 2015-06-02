@@ -1,4 +1,11 @@
-%% Render Scene Radiance Using pbrtObjects
+%% MCC rendering under different illuminants
+%
+%  Used by HB for reflectance estimation algorithms.
+%
+% AL Vistasoft 2015
+
+%% There are 14 different illuminants
+
 for i = 1:14
     
     clear curPbrt;
@@ -35,7 +42,9 @@ for i = 1:14
     yValues = linspace(-1.5*scaleFactor, 1.5*scaleFactor, 4);
     [xOffset yOffset] = meshgrid(xValues, yValues);
     
+    % This requires HB's illuminant, really
     lightSpectrumFile = fullfile(s3dRootPath, 'papers', 'ReflectanceAndDepth', 'Illuminant.mat');
+    if ~exist(lightSpectrumFile,'file'), error('Ask HB for the Illuminant.mat file'); end
     [lights,wave,comment,fName]  = ieReadSpectra(lightSpectrumFile, 400:10:700, []);
     lights = Energy2Quanta(wave, lights); %convert to photons
     %res is returned as a 31 x 14 matrix, where it's rows: wavelength and cols:
