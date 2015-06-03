@@ -6,7 +6,7 @@ function [vci, transformMatrices ] = s3dProcessImage(sensor, wantedTransformatio
         wantedTransformationMatrices = {eye(3), eye(3), eye(3)};
     end
     
-    vci = vcimageCreate;
+    vci = ipCreate;
 
     % The routines for setting and getting image processing parameters are
     % imageGet and imageSet.

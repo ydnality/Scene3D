@@ -1,4 +1,4 @@
-function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth, noiseFlag)
+function sensor = s3dProcessSensor(oi, readNoise, size, exposureTime, bitDepth, noiseFlag, curPbrt)
 % Processes the sensor using assigned readNoise, resolution, exposureTime,
 % and bitDepth.
 %
@@ -49,7 +49,11 @@ sensor = sensorCreate('bayer (gbrg)');
 sensor = sensorSet(sensor, 'size', size);   %*make this a parameter
 
 %using desired sensor size, set pixel size accordingly
-sensorWidth = 36;  %*make this a parameter later
+if (ieNotDefined('curPbrt'))
+    sensorWidth = 36;  % get sensor width information from curPbrt.  If there is none, set to 36.  
+else
+    sensorWidth = curPbrt.camera.lens.filmDiag/sqrt(2);  %assumes square right now
+end
 % sensorHeight = 24;
 pixelSize = sensorWidth * .001/size(2);
 

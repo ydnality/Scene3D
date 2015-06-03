@@ -55,7 +55,7 @@ lightLocationBackTo = lightLocationFrom - lightLocationVector * (flashSeparation
 lightLocation = 80;
 
 %reenable light cluster later.
-lightCluster = false;
+lightCluster = true;
 numLights = 16;
 angleSample = linspace(0, 2*pi, numLights+1);  %+1 for the double count for 0 degrees
 angleSample = angleSample(1:end-1);  %so we don't double count 0 degrees
@@ -156,19 +156,19 @@ curPbrt.addGeometry(newGeometry);
 sceneName = ['frontFlash'];
 
 
-%samplerProp = pbrtPropertyObject();
-curPbrt.sampler.setType('stratified');
-% curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '32'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '32'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
+% %samplerProp = pbrtPropertyObject();
+% curPbrt.sampler.setType('stratified');
+% % curPbrt.sampler.removeProperty();
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '32'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '32'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
 
-%curPbrt.sampler.removeProperty();
-%nSamples = 1024; %512;
-%curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
+curPbrt.sampler.removeProperty();
+nSamples = 1024; %512;
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
 
 % curPbrt.writeFile(tmpFileName);
-frontOi = s3dRenderOIAndDepthMap(curPbrt, .050, sceneName);
+frontOi = s3dRenderOIAndDepthMap(curPbrt, sceneName);
 
 %% render Back Oi
 % ** for now, we need to regenerate curPbrt, because of cloning bug.  
@@ -193,37 +193,24 @@ else
     curPbrt.addLightSource(lightBack);
 end
 
-% curPbrt.sampler.removeProperty();
-% nSamples = 1024; %512;
-% curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
-%samplerProp = pbrtPropertyObject();
-curPbrt.sampler.setType('stratified');
 curPbrt.sampler.removeProperty();
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '32'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '32'));
-curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
-
-tmpFileName = ['backFlash'];
-backOi = s3dRenderOI(curPbrt, .050, tmpFileName);
-
-
-%% render depth map
-
-%change the sampler to stratified for non-noisy depth map
-% samplerProp = pbrtPropertyObject();
+nSamples = 1024;
+curPbrt.sampler.addProperty(pbrtPropertyObject('integer pixelsamples', nSamples));
+%samplerProp = pbrtPropertyObject();
 % curPbrt.sampler.setType('stratified');
 % curPbrt.sampler.removeProperty();
-% curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '1'));
-% curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '1'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer xsamples', '32'));
+% curPbrt.sampler.addProperty(pbrtPropertyObject('integer ysamples', '32'));
 % curPbrt.sampler.addProperty(pbrtPropertyObject('bool jitter', '"false"'));
 
-%write file and render
-% tmpFileName = ['deleteMe'  '.pbrt'];
-% curPbrt.writeFile(tmpFileName);
-% groundTruthDepthMap = s3dRenderDepthMap(curPbrt, 1);
+tmpFileName = ['backFlash'];
+backOi = s3dRenderOI(curPbrt, tmpFileName);
+
+
+%% get depth map
+
 groundTruthDepthMap = oiGet(frontOi, 'depthMap');
 figure; imagesc(groundTruthDepthMap);
-
 
 
 %% front flash image processing
@@ -234,7 +221,7 @@ figure; imagesc(groundTruthDepthMap);
 % backOi = oi;
 
 % sensor processing
-sensor = s3dProcessSensor(frontOi, 0, [400 400],0, 'analog');    %low noise, auto exposure
+sensor = s3dProcessSensor(frontOi, 0, [400 400],0, 'analog', [], curPbrt);    %low noise, auto exposure
 % sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 
@@ -249,7 +236,7 @@ vcAddAndSelectObject(vciFlash); ipWindow;
 
 % sensor processing
 frontFlashExpDur = sensorGet(sensor, 'expTime');
-sensor = s3dProcessSensor(backOi, 0, [400 400],frontFlashExpDur, 'analog');    %low noise
+sensor = s3dProcessSensor(backOi, 0, [400 400],frontFlashExpDur, 'analog', [], curPbrt);    %low noise
 % sensor = s3dProcessSensor(oi, .0096, [], .03);     %high noise
 vcAddAndSelectObject('sensor',sensor); sensorImageWindow;
 

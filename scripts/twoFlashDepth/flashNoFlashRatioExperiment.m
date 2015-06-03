@@ -11,37 +11,34 @@
 % first.**  Either that, or the proper images loaded in
 
 
-%% load 1st image - uncomment this section if you wish to load saved vcimages
-%fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
-%fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
-% fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
-name = 'frontFlashIp.mat';  
-
-%load([s3dRootPath '/data/' fullName],'vci');
-load([s3dRootPath '/papers/ReflectanceAndDepth/Data/03192015_depthEstimation/' name]);
-vciFlash = vci;
-vcAddObject(vciFlash);
-ipWindow;
-
-%% load 2nd flash image (flash now placed in back)
-%fullName = '2FlashDepth/indObject/idealDownBackFlashImage.mat';
-%fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
-% fullName = 'twoFlashDepth/depthTargetDepths/50mmBack10s.pbrt.image.mat';  
-name = 'backFlashIp.mat';
-
+% %% load 1st image - uncomment this section if you wish to load saved vcimages
+% %fullName = '2FlashDepth/indObject/idealDownFrontFlashImage.mat';  
+% %fullName = 'twoFlashDepth/depthTargetDepths/50mmFront.pbrt.image.mat';  
+% % fullName = 'twoFlashDepth/depthTargetDepths/50mmFront10s.pbrt.image.mat';  
+% name = 'frontFlashIp.mat';  
 % 
-% multiplicationFactor = 1;  %to account for differences in exposure
-% load([s3dRootPath '/data/' fullName],'vci');
-load([s3dRootPath '/papers/ReflectanceAndDepth/Data/03192015_depthEstimation/' name]);
-vciFlashBack = vci;
-vcAddObject(vciFlashBack);
-ipWindow;
+% %load([s3dRootPath '/data/' fullName],'vci');
+% load([s3dRootPath '/papers/ReflectanceAndDepth/Data/03192015_depthEstimation/' name]);
+% vciFlash = vci;
+% vcAddObject(vciFlash);
+% ipWindow;
+% 
+% %% load 2nd flash image (flash now placed in back)
+% %fullName = '2FlashDepth/indObject/idealDownBackFlashImage.mat';
+% %fullName = 'twoFlashDepth/depthTargetDepths/50mmBack.pbrt.image.mat';  
+% % fullName = 'twoFlashDepth/depthTargetDepths/50mmBack10s.pbrt.image.mat';  
+% name = 'backFlashIp.mat';
+% 
+% % 
+% % multiplicationFactor = 1;  %to account for differences in exposure
+% % load([s3dRootPath '/data/' fullName],'vci');
+% load([s3dRootPath '/papers/ReflectanceAndDepth/Data/03192015_depthEstimation/' name]);
+% vciFlashBack = vci;
+% vcAddObject(vciFlashBack);
+% ipWindow;
 
 %% load depth map - uncomment if you wish to load a depth map from file
-%GTDepthMap = '2FlashDepth/indObject/depthMaps/groundTruthDepthMapDown.mat';
-% GTDepthMap = 'twoFlashDepth/depthTargetDepths/GTDepthMap.mat';
-% import = load(GTDepthMap);
-% groundTruthDepthMap = import.depthMap; %ProcessedMedian;
+
 groundTruthDepthMap = oiGet(frontOi, 'depth map');
 figure; imagesc(groundTruthDepthMap);
 colorbar; title('GroundTruth Depth (mm)'); caxis([80 160]);
@@ -70,7 +67,9 @@ else
     f = norm( curPbrt.camera.position(1,:) - curPbrt.lightSourceArray{1}.from, 2); %distance between 2 flashes
 end
 
-f = 50;  %make sure to set this
+% f = 50;  %make sure to set this
+% f= 6;
+
 %f = 50;
 fieldOfView = atan(sensorWidth/2/sensorDistance) * 2 * 180/pi;  %this does not need to be changed
 
@@ -279,9 +278,9 @@ title('Calculated Normal Map');
 
 %in this case we will use a completely flat surface, with normals facing us
 %(0,0,1)
-zeroMap = zeros(size(d1Test));
-oneMap = ones(size(d1Test));
-normalMap = cat(3, zeroMap, zeroMap, oneMap);
+% zeroMap = zeros(size(d1Test));
+% oneMap = ones(size(d1Test));
+% normalMap = cat(3, zeroMap, zeroMap, oneMap);
 
 %% filter the normal map...
 % 
