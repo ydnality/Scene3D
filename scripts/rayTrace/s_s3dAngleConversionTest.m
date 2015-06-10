@@ -1,22 +1,28 @@
-%% Testing of the spherical angle conversion function in the rayC class
+%% Test the spherical angle conversion function in the rayC class
 %
-% This script renders a PSF and in the process tests the spherical angle
+% This script renders a PSF which serves as a test of the spherical angle
 % conversion function in the rayC class
 %
 % AL Vistalab 2014
 
 %% Initialize Iset
-s_initISET
+ieInit
 
 %% Declare ray-trace type
 
 rtType = 'realistic';  %ideal/realistic
 debugLines = 50;
-% (lowerLeftx,LowerLefty,uppRightx,upperRighty)
+
+% Make a separate tutorial testing the subSection calls.
+% It kind of works, but I don't understand it. (BW)
+%
+subSection = [];   % Whole disk 
+% Ask AL:  Not sure if this subsection call is working.
 % Percentage of rectangular lens, 0 is middle
-subSection = [];   % Whole thing
-% subSection = [-.25 -.25 .25 .25];   % Not working
-%subSection = [0 0 .25 .25];   
+% subSection = [1 1 -1 -1];  % This is the whole circular aperture
+% subSection = [0 0 .25 .25];  % this should be a portion
+% subSection = [0 .25 1 1];
+% (lowerLeftx,LowerLefty,uppRightx,upperRighty)
 
 %% Declare point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
@@ -51,8 +57,8 @@ resolution =  [300 300 length(wave)];
 film = filmC('position', filmPosition, 'size', filmSize, 'wave', wave, 'resolution', resolution);
 
 % Declare Lens
-diffractionEnabled = false;   %diffraction causes imaginary directions!! TODO:  INVESTIGATE THIS!!
-apertureDiameterMM = 2.2727;  %f/22 
+diffractionEnabled = false;     %diffraction causes imaginary directions!! TODO:  INVESTIGATE THIS!!
+apertureDiameterMM = 2.2727;    %f/22 
 % apertureDiameterMM = 3.1250;  %f/16
 % apertureDiameterMM = 4.5455;  %f/11
 fLength = 50;
@@ -76,9 +82,9 @@ lensFile = fullfile(s3dRootPath, 'data', 'lens', 'dgauss.50mm.mat');
 import = load(lensFile,'lens');
 multiLens = import.lens;
 
-% lens = multiLens;
 lens = multiLens;
 lens.set('wave', wave);
+
 % Matrix of n for each surface element.
 % Apertures are 0
 n = lens.get('nArray');
@@ -88,15 +94,18 @@ n = lens.get('nArray');
 curInd = 1;
 disp('-----trace source to lens-----');
 tic
-rays = lens.rtSourceToEntrance(pointSources(curInd, :), false, jitterFlag, rtType, subSection)
+rays = lens.rtSourceToEntrance(pointSources(curInd, :), false, jitterFlag, rtType, subSection);
 toc
 
-%  look at angles and analyze them
-%sphereAngles = rays.get('sphericalAngles');
+% Look at distribution of first dimension of spherical angles
+% These are azimuth (I think, BW) 
+% sphereAngles = rays.get('sphericalAngles');
+% vcNewGraphWin; hist(sphereAngles(:,1));  %should be uniform
 
-% figure; hist(sphereAngles(:,1));  %should be uniform
-%should have more at edges (more data points at perimeter) ... approximately linear
-% figure; hist(sphereAngles(:,2));  
+% Look at second dimension of spherical angles
+% These are elevation (I think)
+% Should have more at edges (more data points at perimeter) ... approximately linear
+% vcNewGraphWin; hist(sphereAngles(:,2));  
 
 %% use the projection form of angles and plot phase space
 projAngles = rays.get('projectedAngles');

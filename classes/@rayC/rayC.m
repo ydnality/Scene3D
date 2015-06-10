@@ -265,7 +265,7 @@ classdef rayC <  clonableHandleObject
         
         function obj = addDistance(obj, D)
             % D is the distance in the current ray segment
-            % This is added to the current path, stored in .distsance
+            % This is added to the current path, stored in .distance
             obj.distance = obj.distance + D;
         end
         
@@ -296,34 +296,7 @@ classdef rayC <  clonableHandleObject
             obj.origin(liveIndices, :) = intersectPosition;
         end
         
-        function obj = expandWavelengths(obj, wave, waveIndex)
-        % Replicates the ray bundle to cover a series of wavelengths
-        %
-        % The first ray trace step(from point source to the first lens element).
-        % is performed without knowledge of wavelength - to save
-        % computation and memory.  Once the ray enters the lens, then
-        % wavelength information is necessary.  So this function replicates
-        % every ray and assigns the wavelength information for each ray.  
-            if ieNotDefined('waveIndex')
-                waveIndex = 1:length(wave);
-            end
-            
-            % This is the number of rays.
-            subLength = size(obj.origin, 1);
-            
-            % Not sure why we need to repmat the origin and direction and
-            % distance
-            obj.origin = repmat(obj.origin, [length(wave) 1]);
-            obj.direction = repmat(obj.direction, [length(wave) 1]);
-            obj.distance  = repmat(obj.distance,[length(wave) 1]);
-            obj.set('wave', wave);
-            
-            
-            %assign the indices of this wavelength expansion 
-            %  TODO: maybe make this simpler and cleaner somehow ...
-            tmp = (waveIndex' * ones(1, subLength))';
-            obj.waveIndex = tmp(:);
-        end
+        
         
         function removeDead(obj, deadIndices)
             % Sets unused (dead) ray parameters to NaNs.

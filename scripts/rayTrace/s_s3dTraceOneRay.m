@@ -9,7 +9,7 @@
 % AL Vistalab 2014
 
 %% Initialize Iset
-s_initISET
+ieInit
 
 %% Declare single ray direction from point source
 
@@ -106,32 +106,34 @@ toc
 % plot phase space
 rays.plotPhaseSpace();
 
-%%  intersect with "film" and add to film
+%% Delete below here - BW
 
-disp('-----record on film-----');
-tic
-rays.recordOnFilm(film, debugLines);
-toc
-
-%% Assign to optical image
-
-oi = oiCreate;
-oi = initDefaultSpectrum(oi);
-oi = oiSet(oi, 'wave', wave);
-
-oi = oiSet(oi,'photons',film.image);
-
-% Set the optics parameters too
-optics = oiGet(oi,'optics');
-optics = opticsSet(optics,'focal length',lens.focalLength/1000);
-optics = opticsSet(optics,'fnumber', lens.focalLength/(apertureDiameterMM));
-oi = oiSet(oi,'optics',optics);
-
-% Opposite over adjacent is the tan of half the angle ...
-% Everything is mm
-% hfov = rad2deg(2*atan2(apertureRadiusMM,lens.focalLength));
-hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
-oi = oiSet(oi,'hfov', hfov);
-
-vcAddObject(oi); oiWindow;
-% set(gca,'xlim',[-15 15]); set(gca,'xtick',[-15:5:15])
+% %%  intersect with "film" and add to film
+% 
+% disp('-----record on film-----');
+% tic
+% rays.recordOnFilm(film, debugLines);
+% toc
+% 
+% %% Assign to optical image
+% 
+% oi = oiCreate;
+% oi = initDefaultSpectrum(oi);
+% oi = oiSet(oi, 'wave', wave);
+% 
+% oi = oiSet(oi,'photons',film.image);
+% 
+% % Set the optics parameters too
+% optics = oiGet(oi,'optics');
+% optics = opticsSet(optics,'focal length',lens.focalLength/1000);
+% optics = opticsSet(optics,'fnumber', lens.focalLength/(apertureDiameterMM));
+% oi = oiSet(oi,'optics',optics);
+% 
+% % Opposite over adjacent is the tan of half the angle ...
+% % Everything is mm
+% % hfov = rad2deg(2*atan2(apertureRadiusMM,lens.focalLength));
+% hfov = rad2deg(2*atan2(film.size(1)/2,lens.focalLength));
+% oi = oiSet(oi,'hfov', hfov);
+% 
+% vcAddObject(oi); oiWindow;
+% % set(gca,'xlim',[-15 15]); set(gca,'xtick',[-15:5:15])
