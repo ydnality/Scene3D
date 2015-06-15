@@ -2,10 +2,12 @@
 % RayTracing Method + simulated diffraction(Andy's method) and 
 % Wavefront estimation through paraxial approx (Michael's method)
 
+% MISSING THE TELEPHOTO LENS BELOW.  Not sure where it went.  Ask MP.
+
 %% INITIALIZATION
 clear all
 close all
-s_initISET
+ieInit
 
 %% EVALUATION CONDITION
  

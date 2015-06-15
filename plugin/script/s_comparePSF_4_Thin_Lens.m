@@ -1,41 +1,37 @@
 % s_comparePSF_4_Thin_Lens.m
-
-%% COMPARE THE POINT SPREAD FUNCTION for a THIN LENS  with the POINT SOURCE 
-% At INFINITy
-%computed by  RayTracing Method + simulated diffraction(Andy's method) and 
-% Wavefront estimation through paraxial approx (Michael's method)
+%
+%  Check the diffraction limited calculation for a thin lens and a point
+%  source based on MP's black box methods
+%
+% MP, Vistasoft Team, 2015
 
 %% INITIALIZATION
 clear all
 close all
-s_initISET
-
-
+ieInit
 
 %% SET
-wave=[400:50:600]'*1e-6; %mm
-nw=size(wave,1);
-unit='mm';
-
+wave = (400:50:600)'*1e-6; %mm
+nWave   = size(wave,1);
+unit = 'mm';
 
 %Refractive index object space
-n_ob=ones(nw,1);
-n_im=ones(nw,1);
-
+n_ob=ones(nWave,1);
+n_im=ones(nWave,1);
 
 %THIN LENS PARAMETER 
 %
-thinLens.z_pos=0; % the thin lens is in the reference position
-thinLens.diam=3; %diameter of thin lens (which play as diaphragh 
+thinLens.z_pos = 0; % the thin lens is in the reference position
+thinLens.diam  = 3; %diameter of thin lens (which play as diaphragh 
 
-efl0=17.1; %mm effective focal length
-thinLens.efl=repmat(efl0,size(wave,1),1); %ASSUMED NO DISPERSION
+efl0 = 17.1;       % mm effective focal length (like human eye)
+thinLens.efl = repmat(efl0,size(wave,1),1); %ASSUMED NO DISPERSION
 
 % F-number (adequate for diffraction in paraxial approximation)
 thinLens.effFnum=thinLens.efl./thinLens.diam; %effective F-number
 
 %NA: numerical aperture (more useful in general case of diffraction)
-[thinLens.NA]=paraxNumAperture(thinLens.diam,thinLens.efl,n_im);
+[thinLens.NA] = paraxNumAperture(thinLens.diam,thinLens.efl,n_im);
 
 % Diffraction limit (More accurate if computed with NUMERICAL APERTURE
 thinLens.diffLimit_Radius=1.22*(wave./(2*thinLens.NA));
@@ -112,14 +108,14 @@ ymax=1;y=1;
     %% STEP 3: Add a DEFOCUS TERM
 
 
-if size(film_z,1)==nw
+if size(film_z,1)==nWave
     defocusZ(:,1)=film_z;defocusZ(:,2)=thinLens.efl;    
 else 
-    defocusZ(:,1)=repmat(film_z,nw,1);
+    defocusZ(:,1)=repmat(film_z,nWave,1);
     defocusZ(:,2)=thinLens.efl;    
 end
 %Compute Wavefron term for defocus
-for li=1:nw
+for li=1:nWave
     PhaseDefocus(:,:,li)=paDefocus4thWaveAber(defocusZ(li,1),defocusZ(li,2),thinLens.NA (li,:),ro,'high');
 end
    
@@ -131,7 +127,7 @@ end
 
 
 
-for li=1:nw
+for li=1:nWave
     %Phase scaling
     Kwave=-i*2*pi/wave(li);
     PhW0=Apod.*exp(Kwave.*(PhaseW(:,:,li)+PhaseDefocus(:,:,li)));
@@ -147,9 +143,8 @@ end
 
 %Select witch wavelength plot
 wave0=550*1e-6; %550 nm
-
-limit1=2*[thinLens.diam,thinLens.diam]
-h1=figure(1)
+limit1 = 2*[thinLens.diam,thinLens.diam];
+h1 = vcNewGraphWin;
 out1=psfPLOT(PSF,xIM,xIM,limit1,'surf',wave,wave0,h1);
 
 
@@ -166,7 +161,7 @@ v=xIM(inW0,:)*(thinLens.NA(inW0))/wave0;
 Psf1D_DiffLim=abs(somb(2*v)).^2;
 %  Psf1D_DiffLim=airy(xIM(inW0,:));
 
-figure(2)
+vcNewGraphWin; 
 plot(vettX,Psf1D./max(Psf1D),'LineWidth',2)
 hold all
 plot(vettX,Psf1D_DiffLim./max(Psf1D_DiffLim),'--r','LineWidth',2)
