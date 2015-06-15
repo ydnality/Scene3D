@@ -240,7 +240,10 @@ else
         xCoordVector = real(xCoordVector(:));
         yCoordVector = real(yCoordVector(:));
         
-        figure(rays.plotHandle);
+        if ~isempty(obj.fHdl), figure(obj.fHdl);
+        else obj.fHdl = vcNewGraphWin; 
+        end
+        
         pause(0.05);
         line(xCoordVector,  yCoordVector ,'Color',lColor,'LineWidth',lWidth,'LineStyle',lStyle);
     end

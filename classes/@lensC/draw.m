@@ -1,20 +1,23 @@
-function obj =  draw(obj, figureHandle)
+function obj =  draw(obj, fHdl)
 % Draw the the multi-element lens surfaces in a graph window
 %
 %   lens.draw
 %
+% fHdl:  A figure handle to use.  If not passed, then vcNewGraphWin is
+%        called and that figure handle is set in the lens object field fHdl
+%
 % See also:  psfCamera.draw
-%  That calls this lens draw and also draws the rays for the point spread,
+%            That calls this lens draw and also draws the rays for the
+%            point spread. 
 %
 % AL/BW Vistasoft Team, Copyright 2014
 
 %% Create the figure and set the parameters
 
-if(ieNotDefined('figureHandle'))
-    figureHandle = vcNewGraphWin; axis equal;
-else
-    figure(figureHandle);
+if ieNotDefined('figureHandle'), fHdl = vcNewGraphWin; axis equal;
+else                             figure(fHdl);
 end
+obj.fHdl = fHdl;
 
 lWidth = 2; lColor = 'k';  % Drawing parameters
 xlabel('mm'); ylabel('mm');

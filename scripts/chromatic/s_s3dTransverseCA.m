@@ -1,12 +1,15 @@
 %% s_s3dTransverseCA
 %
-% Demonstrate that changing the aperture position with respect to the lens
-% causes a shift in the magnification with respect to wavelength
-% (transverse chromatic aberration).
+% Changing the aperture position with respect to the lens causes a shift in
+% the magnification with respect to wavelength (transverse chromatic
+% aberration).  When the aperture is in the middle of the lens, there is no
+% significant magnification.  When the aperture is well in front of the
+% lens, there is a substantial amount of transverse chromatic aberration
+% (magnification).
 %
-% Demonstrates the notes DHB left us.
+% This demonstration is based on notes from DHB. 
 %
-% Coordinate with bbm from MP
+% TODO: Coordinate with bbm from MPieroni
 %
 % AL/BW Vistasoft Team, Copyright 2014
 
@@ -23,8 +26,8 @@ lens = lensC;
 % This breaks the MP's code.  Commenting it out lets the rest of the code
 % run coorectly.
 
-% newWave = 400:20:700;   %uncomment for a more comprehensive sampling
-newWave = [450 550 655];   %use only 2 wavelengths
+% newWave = 400:50:700;      % More wavelength samples
+newWave = [450 550 650];     % Few wavelength samples
 apertureSample = [301 301];
 lens.set('wave', newWave);
 lens.set('apertureSample', apertureSample);
@@ -51,7 +54,7 @@ ppsfCamera = ppsfCameraC('lens',lens,'film',film,'point source',ps);
 %% Compute the point spread and show the lens
 
 % The estimated PSF is added to the current camera film.
-% Note below that we clear the film before recomputing.
+% N.B. We must clear the film before recomputing, which we do below.
 nLines = 0; jitterFlag = true;
 ppsfCamera.estimatePSF(nLines,jitterFlag);
 
@@ -67,7 +70,7 @@ pOrig    = s.get('zpos');     % Original position of the aperture
 
 
 %% Show the changing magnification with aperture z position
-d =[0, -20];
+d =[0, -10, -20];
 
 for ii=1:length(d)
     aSurface = lens.get('aperture');  % The surface with the aperture
@@ -80,7 +83,7 @@ for ii=1:length(d)
     
     % Should we add to the psf or should we start fresh?  We need to be
     % clearer.
-    nLines = 0; % No debug lines
+    nLines = 0;        % No debug lines
     jitterFlag = true;
     ppsfCamera.estimatePSF(nLines,jitterFlag);
     
@@ -88,10 +91,9 @@ for ii=1:length(d)
     
     % Show it in ISET
     oi = ppsfCamera.oiCreate;
-    oi = oiSet(oi,'name',sprintf('Pos = %.1f',p));
+    oi = oiSet(oi,'name',sprintf('Aperture pos = %.1f',p));
     oi = oiSet(oi,'gamma',0.5);
     vcAddObject(oi); oiWindow;
-    
     
     % Plots
     %     x = 1; y = 100; w = 7;

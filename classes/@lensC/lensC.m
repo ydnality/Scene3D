@@ -47,6 +47,9 @@ classdef lensC <  handle
         apertureSample = [11 11];  % Number of spatial samples in the aperture.  Use odd number
         centerZ = 0;               % Theoretical center of lens (length-wise) in the z coordinate
         
+        % When we draw the lens we store the figure handle here
+        fHdl = []; 
+        
         % Black Box Model
         BBoxModel=[]; % Empty
     end
@@ -91,7 +94,8 @@ classdef lensC <  handle
                             obj.set('wave', varargin{ii+1});
                         case 'filename'
                             obj.fileRead(varargin{ii+1});
-                            
+                        case {'figure handle','fhdl'}
+                            obj.fHdl = varargin{ii+1};
                         case {'blackboxmodel';'blackbox';'bbm'} % equivalent BLACK BOX MODEL
                             obj.BBoxModel = varargin{ii+1};
                             
@@ -260,12 +264,12 @@ classdef lensC <  handle
             pName = ieParamFormat(pName);
             switch pName
                 case 'wave'
-                    % lens.set('wave',val);
-                    % The wavelength is annoying.
-                    % This could go away some day.  But for now, the wavelength set is
-                    % ridiculous because there are so many copies of wave.  So, we
-                    % should set it here rather than addressing every surface element.
-                    % (BW)
+                    % lens.set('wave',val); 
+                    % The wavelength var is annoying. This could go away
+                    % some day.  But for now, the wavelength set is
+                    % ridiculous because there are so many copies of wave.
+                    % We should set it here rather than addressing every
+                    % surface element. (BW)
                     obj.wave = val;
                     nSurfaces = obj.get('n surfaces');
                     for ii=1:nSurfaces
@@ -314,7 +318,8 @@ classdef lensC <  handle
                         'imagenodalpoint';'objectnodalpoint';'abcd';'abcdmatrix'}
                     % Build the field to append
                     obj.bbmSetField(pName,val);
-                    
+                case {'figurehandle','fhdl'}
+                    obj.fHdl = val;
                 case {'blackboxmodel';'blackbox';'bbm'}
                     % Get the parameters from the optical system structure
                     % to build an  equivalent Black Box Model of the lens.

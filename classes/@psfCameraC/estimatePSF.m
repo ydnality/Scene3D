@@ -6,12 +6,12 @@ function estimatePSF(obj,nLines, jitterFlag, subsection, diffractionMethod, rtTy
 % The camera has a point source, lens, and film.  This function saves the
 % estimated psf into the psf camera object.
 %
-% obj:   psfCamera
-% nLines:
-% jitterFlag:
+% obj:          psfCamera
+% nLines:       Ray trace lines (0 is none).
+% jitterFlag:   Jitter position of rays
 % subsection:
 % diffractionMethod: Two methods are implemented, Huygens and HURB
-% rtType:
+% rtType:            Realistic or ideal
 %
 % You can visualize it using the optical image derived from the psfCamera.
 % To obtain the optical image of the PSF, use the following command after
@@ -29,10 +29,12 @@ if ieNotDefined('rtType'), rtType = 'realistic'; end
 
 if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
     % Trace from the point source to the entrance aperture of the
-    % multielement lens
-    
+    % multi-element lens
+    wbar = waitbar(0,'Huygens wavelength and job');
+
     lensMode = true;  %set false if ideal lens focused at infinity
     
+    % Get up to the entrance aperture
     ppsfCFlag = false;
     obj.lens.diffractionEnabled = false;
     obj.rays = obj.lens.rtSourceToEntrance(obj.pointSource, ppsfCFlag, jitterFlag,rtType, subsection);
@@ -54,21 +56,13 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
     % Huygens ray-trace portion (PUT THIS IN A FUNCTION)
     % use a preset sensor size and pitch for now... somehow integrate this
     % with PSF camera later
-    
-    %lambda = 550;  %for now
-    
-    %binSize   = [40000 40000];   %25;                 % nm
-    binSize = [obj.film.size(1)/obj.film.resolution(1) obj.film.size(2)/obj.film.resolution(2)] .* 10^6;
-    %numPixels = [50 50];                % In the sensor
+    binSize = [obj.film.size(1)/obj.film.resolution(1) obj.film.size(2)/obj.film.resolution(2)] .* 1e6;
     numPixels = [obj.film.resolution(1) obj.film.resolution(2)];
-    %numPixelsTot = numPixels(1) * numPixels(2);
-    %imagePlaneDist     = 16*10^6; %100 * 10^6; %100mm
     imagePlaneDist = obj.film.position(3) * 10^6;
-    %lensMode = false;
    
-    %For each wavelength...
-    for wIndex = 1:length(obj.lens.wave)
-        
+    % For each wavelength...
+    nWave = length(obj.lens.wave);
+    for wIndex = 1:nWave
         %estimated that the width of the 1st zero of airy disk will be .0336
         apXGridFlat = obj.rays.origin(:,1) * 10^6; %convert to nm
         apYGridFlat = obj.rays.origin(:,2) * 10^6;
@@ -95,10 +89,7 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
         endLGridYFlat = endLGridY(:);
         endLGridZFlat = ones(size(endLGridYFlat)) * imagePlaneDist;
         
-        intensity = zeros(numPixels(1), numPixels(2), length(obj.lens.get('wave')));
-        %intensityFlat = zeros(numPixels);
-        %intensityFlat = intensityFlat(:);
-        
+        intensity = zeros(numPixels(1), numPixels(2), length(obj.lens.get('wave')));       
         
         % lensMode is set true above.  So ... this needs to be fixed.
         if (lensMode)
@@ -107,17 +98,20 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
             initialD = zeros(numApertureSamplesTot, 1);
         end
         
-        
-        tic
         intensityFlat = zeros(numPixels);
         intensityFlat = intensityFlat(:);
         jobInterval = 10000;
-        numJobs = ceil(numApertureSamplesTot/jobInterval);
+        nJobs = ceil(numApertureSamplesTot/jobInterval);
         
-        %split aperture into segments and do bsxfun on that, then combine later.
-        %This can be parallelized later
-        for job = 1:numJobs
-            disp(job/numJobs)
+        % I think AL proposes dividing the calculation into independent
+        % jobs for parallel computing.  This is preparation for that.
+        %
+        % Split aperture into segments and do bsxfun on that, then combine later.
+        % This can be parallelized later (AL)
+        for job = 1:nJobs
+            waitbar((((wIndex-1)*nJobs) + job)/(nWave*nJobs),wbar);
+
+            fprintf('job %i of %i total\n',job,nJobs)
             apXGridFlatCur = apXGridFlat((job-1) * jobInterval + 1:min(job * jobInterval, numApertureSamplesTot));
             apYGridFlatCur = apYGridFlat((job-1) * jobInterval + 1:min(job * jobInterval, numApertureSamplesTot));
             
@@ -129,32 +123,20 @@ if (isequal(diffractionMethod, 'huygens') && obj.lens.diffractionEnabled)
             initialDCur = initialD(((job-1) * jobInterval + 1:min(job * jobInterval, numApertureSamplesTot)));
             initialDMat = repmat(initialDCur', [length(endLGridXFlat), 1]);
             
-            expD = exp(2 * pi * 1i .* ((sqrt(xDiffMat.^2 + yDiffMat.^2 + zDiffMat.^2) + initialDMat * 10^6)/lambda));
+            expD = exp(2 * pi * 1i .* ((sqrt(xDiffMat.^2 + yDiffMat.^2 + zDiffMat.^2) + initialDMat * 1e6)/lambda));
             intensityFlat = sum(expD, 2) + intensityFlat;
         end
         
         intensityFlat = 1/lambda .* abs(intensityFlat).^2;
-        %intensityFlat = abs(intensityFlat);
-        
-        toc
         
         % plot results
         intensity1Wave = reshape(intensityFlat, size(intensity, 1), size(intensity, 2));
         obj.film.image(:,:,wIndex) = intensity1Wave;
         
-        %         figure; imagesc(sqrt(intensity1Wave));
-        %         colormap('gray');
-        %
-        %         if(lensMode)
-        %             lensModeText = 'Lens'
-        %         else
-        %             lensModeText = 'No Lens'
-        %         end
-        %         title([lensModeText ', ' int2str(imagePlaneDist/10^6) 'mm,' ' apDiameter: ' num2str(obj.lens.get('apertureMiddleD')) 'mm, pointSourceLocation: ' num2str(-obj.pointSource(3)) 'mm']);
-        %         xlabel([num2str(binSize(1) *numPixels(1)/10^6) 'mm']);
     end
     
     obj.lens.diffractionEnabled = true;
+    close(wbar);
     %End Huygens ray-trace
 else
     
