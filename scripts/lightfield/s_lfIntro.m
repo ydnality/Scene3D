@@ -14,11 +14,9 @@ ieInit
 %% load a lightfield as an oi object
 
 %  To retrieve some of the lightfield data use
-% urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD';
-% fname = 'indObjLFOiDirect.mat';
-
 urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes';
 fname = 'benchLF.mat';
+% fname = 'metronomeLF.mat';
 
 urlwrite(fullfile(urlBase,fname),fname)
 in = load(fname);
@@ -148,19 +146,27 @@ subplot(1,2,2), imshow(img);
 % RGB image corresponding to the mean.  This is the image at the microlens
 % itself
 tmp = squeeze(sum(sum(lightfield,2),1));
-vcNewGraphWin;
 tmp = tmp/max(tmp(:));
+
+vcNewGraphWin;
 imagescRGB(lrgb2srgb(tmp));
+title('Image at microlens plane')
 
 %% Now what would the image have been if we move the sensor forward?
 
-vcNewGraphWin
-for Slope = -0.5:0.1:0.5
-    ShiftImg = LFFiltShiftSum(lightfield, Slope );
+vcNewGraphWin([],'wide');
+
+% Use different Slopes for the benchLF and metronomeLF pictures
+if strcmp(fname,'metronomeLF.mat'),     Slope = -0.5:0.2:1.0;
+elseif strcmp(fname,'benchLF.mat'),     Slope = -0.5:0.5:3.0;
+end
+
+for ii = 1:length(Slope)
+    ShiftImg = LFFiltShiftSum(lightfield, Slope(ii) );
+    subplot(1,length(Slope),ii);
     imagescRGB(lrgb2srgb(ShiftImg(:,:,1:3)));
-    axis image; truesize
-    title(sprintf('Parameter %0.2f',Slope))
-    pause(0.1)
+    axis image;
+    title(sprintf('Parameter %0.2f',Slope(ii)))
 end
 
 %% The white image
@@ -168,9 +174,9 @@ end
 % What is this fourth plane?  I think it is an overall intensity estimate.
 % We need to calculate this for our simulation.  At present, it is just
 % arbitrary.
-wImage = ShiftImg(:,:,4);
-vcNewGraphWin;
-imagesc(wImage);
+% wImage = ShiftImg(:,:,4);
+% vcNewGraphWin;
+% imagesc(wImage);
 
 %%  Interact with the lightfield using the toolbox
 
