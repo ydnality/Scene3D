@@ -1,15 +1,20 @@
-% A lens model
-%
-%  Creates a pbrtLensRealisticObject.  This object includes parameters
-%  about the lens.  It enables specification of a light field design if you
-%  set numPinholesW and numPinholesH to positive numbers.  The pinholes are
-%  counted as part of the optics, rather than part of the sensor.
-%   
-% TODO
-%   We would like to limit where the rays are being sent towards the lens
-%   and this would make the calculation much more efficient.
-%
 classdef pbrtLensRealisticObject < pbrtLensObject
+    %  Creates a pbrtLensRealisticObject.  
+    %
+    %  This object inherits the pbrtLensObject parameters. It further
+    %  enables specification of lens parameters for building a light field camera.
+    %  
+    %  There are a number of additional parameters, but the main ones are
+    %  numPinholesW and numPinholesH.  When these are set to positive
+    %  numbers, a light field camera is built. Notice that the pinholes are
+    %  counted as part of the lens (optics), rather than part of the
+    %  sensor.
+    %
+    %  We would like to limit where the rays are being sent towards the
+    %  lens and this would make the calculation much more efficient.  There
+    %  is some code based on 'subsection' set in ??? that enables this.
+    %
+    % AL/BW, Vistasoft Team, 2015
     properties
         apertureDiameter;        % in mm
         diffractionEnabled = false;
@@ -18,10 +23,11 @@ classdef pbrtLensRealisticObject < pbrtLensObject
         curveRadius = 0;
         pinholeExitApLoc = [];   % If you want a pin hole on the exit, put (x,y) value here.
         filmCenter = [0 0];      % because of a pbrt oddity, we had to put this here although it doesn't make intuitive sense
-        numPinholesW = -1;       % These 2 properties are for a pinhole array above the sensor
+        numPinholesW = -1;       % These 2 properties are for a pinhole array above the sensor, used in microlens calculations.
         numPinholesH = -1;  
         microlensMode = false;   % flag for microlenses
     end
+    
     methods
         
         %default constructor
@@ -30,66 +36,45 @@ classdef pbrtLensRealisticObject < pbrtLensObject
                 chromaticAberrationEnabled, curveRadius, pinholeExitApLoc, filmCenter, ...
                 numPinholesW, numPinholesH, microlensMode)
             
-
-            if (ieNotDefined('inFilmDistance'))
-                % Example lens
-                obj.filmDistance = 140;
-            else
-                obj.filmDistance = inFilmDistance;
+            % This should be re-written in a simpler way, say as
+            % parameter/key
+            
+            if (ieNotDefined('inFilmDistance')), obj.filmDistance = 140;
+            else                                 obj.filmDistance = inFilmDistance;
             end
-            if (ieNotDefined('inFilmDiag'))
-                % Example lens
-                obj.filmDiag = 43.267;
-            else
-                obj.filmDiag = inFilmDiag;
+            if (ieNotDefined('inFilmDiag')),   obj.filmDiag = 43.267;
+            else                               obj.filmDiag = inFilmDiag;
             end
             
             %add additional properties
-            if (ieNotDefined('specFile'))
-                obj.specFile = 'default.pbrt';
-            else
-                obj.specFile = specFile;
+            if (ieNotDefined('specFile')),  obj.specFile = 'default.pbrt';
+            else                            obj.specFile = specFile;
             end
             
-            if (ieNotDefined('apertureDiameter'))
-                obj.apertureDiameter = 1;
-            else
-                obj.apertureDiameter = apertureDiameter;
+            if (ieNotDefined('apertureDiameter')), obj.apertureDiameter = 1;
+            else                    obj.apertureDiameter = apertureDiameter;
             end
             
-            if (ieNotDefined('diffractionEnabled'))
-                obj.diffractionEnabled = false;
-            else
-                obj.diffractionEnabled = diffractionEnabled;
+            if (ieNotDefined('diffractionEnabled')), obj.diffractionEnabled = false;
+            else                    obj.diffractionEnabled = diffractionEnabled;
             end
             
-            if (ieNotDefined('chromaticAberrationEnabled'))
-                obj.chromaticAberrationEnabled = false;
-            else
-                obj.chromaticAberrationEnabled = chromaticAberrationEnabled;
+            if (ieNotDefined('chromaticAberrationEnabled')), obj.chromaticAberrationEnabled = false;
+            else                            obj.chromaticAberrationEnabled = chromaticAberrationEnabled;
             end         
             
-            if (ieNotDefined('curveRadius'))
-                obj.curveRadius = false;
-            else
-                obj.curveRadius = curveRadius;
-            end    
-            if(~ieNotDefined('pinholeExitApLoc'))
-               obj.pinholeExitApLoc  = pinholeExitApLoc;  
-            end
-            if(~ieNotDefined('filmCenter'))
-               obj.filmCenter  = filmCenter;  
-            end
-            if(~ieNotDefined('numPinholesW'))
-                obj.numPinholesW = numPinholesW;
-            end
-            if(~ieNotDefined('numPinholesH'))
-                obj.numPinholesH = numPinholesH;
+            if (ieNotDefined('curveRadius')), obj.curveRadius = false;
+            else                              obj.curveRadius = curveRadius;
             end
             
-            if(~ieNotDefined('microlensMode'))
-                obj.microlensMode = microlensMode;
-            end
+            if(~ieNotDefined('pinholeExitApLoc')), obj.pinholeExitApLoc  = pinholeExitApLoc; end
+            
+            if(~ieNotDefined('filmCenter')), obj.filmCenter  = filmCenter;  end
+           
+            if(~ieNotDefined('numPinholesW')), obj.numPinholesW = numPinholesW; end
+            if(~ieNotDefined('numPinholesH')), obj.numPinholesH = numPinholesH; end
+            
+            if(~ieNotDefined('microlensMode')), obj.microlensMode = microlensMode; end
         end
         
         

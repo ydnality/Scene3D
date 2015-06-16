@@ -1,63 +1,48 @@
 %  Experiments with light fields and ISET
 %
+
+%
 %  See also: s_s3dISETLF.m, LFToolbox0.4
 %
-%  To retrieve some of the lightfield data use
-%     urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD';
-%     fname = 'indObjLFOiDirect.mat';
-%
-%     urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes'
-%     fname = 'benchLF.mat';
-%
-%     urlwrite(fullfile(urlBase,fname),fname)
-% 
-% (AL) Vistasoft Team, 2015
+% (AL, BW) Vistasoft Team, 2015
 
 %%
 ieInit
+clx
+ieInit
 
-%% inputs
+%% load a lightfield as an oi object
 
-%load a lightfield as an oi object
-%in = load(fullfile(dataPath, 'lightfields', 'benchLFSceneDirect.mat'))
+%  To retrieve some of the lightfield data use
+% urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD';
+% fname = 'indObjLFOiDirect.mat';
 
-% Created using PBRT.
-% The way in which got created should be up included with the data
-% somewhere, perhaps on the remote data path (at scarlet).
-in = load(fullfile(dataPath, 'lightfields', 'indObjLFOiDirect.mat'));
-oi = in.opticalimage;
+urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes';
+fname = 'benchLF.mat';
 
-%% The optics should be reasonable.  We set a focal length of 3.5mm here.
-oi = oiSet(oi,'optics focal length',3.5e-3);
+urlwrite(fullfile(urlBase,fname),fname)
+in = load(fname);
+oi = in.oi;
 
-% We say the field of view is 10 deg.  This produces a reasonable sample
-% spacing, corresponding to about one pretty big pixel.
+% This should be stored in the file.  But that file isn't right, so we set
+% parameters here until the data are fixed.
 oi = oiSet(oi,'fov',20);
-
-% Set the mean illuminance in lux to 10.  Reasonably bright (bright room)
+oi = oiSet(oi,'optics focal length',3.5e-3);
 oi = oiAdjustIlluminance(oi,10);
 
-vcAddObject(oi); oiWindow;
+% This OI was created using PBRT. The way in which this file was created
+% should be up included with the data somewhere, perhaps on the remote data
+% path (at scarlet).
+% in = load(fullfile(dataPath, 'lightfields', 'indObjLFOiDirect.mat'));
+% oi = in.opticalimage;
 
-% Description - Just checking
+%% Check the oi and show it.
+
 oiGet(oi,'sample spacing','um')
 oiGet(oi,'fov')
 oiGet(oi,'mean illuminance')
 
-% These parameters should always be part of an oi lightfield description.
-%lightField(i,j, :,:, :) = photons(1:9, 1:9, :); 
-superPixelW = 9;
-superPixelH = 9;
-
-%convert to RGB (we are skipping the sensor processing step for simplicity.
-%That will come later)
-% rgb = oiGet(oi, 'rgb');
-% vcNewGraphWin;
-% imagescRGB(rgb);
-
-%
 vcAddObject(oi); oiWindow;
-oiGet(oi,'fov')
 
 %% process sensor and image processing data
 %
@@ -76,7 +61,6 @@ sensorGet(sensor,'size')
 sensorGet(sensor,'fov',[],oi)
 
 %% Compute the sensor response
-
 sensor = sensorCompute(sensor,oi);
 vcAddObject(sensor); sensorWindow('scale',1);
 
@@ -88,35 +72,36 @@ vcAddObject(ip); ipWindow;
 
 % Show in a separate window
 rgb = ipGet(ip,'result');
+size(rgb)
 
 %% Pack the samples of the rgb image into the lightfield structure
 
 % If we had a lightfield structure, lf, this could become
 %    rgb2lf(rgb,lf)
 
-% This is the array size of pinholes (or microlens)
-% The reason for floor() is ... well rounding or something.  Shouldn't
-% really be needed.
-numSuperPixW = floor(size(rgb, 2)/superPixelW);
-numSuperPixH = floor(size(rgb, 1)/superPixelH);
+superPixelH = size(rgb,1)/in.numPinholesH;
+superPixelW = size(rgb,2)/in.numPinholesW;
 
-% Allocate space
-lightfield = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
+% Allocate space I AM WORRIED ABOUT THE ORDERING OF 3 and 4.  I put in what
+% sweems right, but the original code had H and W reversed. (BW).
+lightfield = zeros(superPixelH, superPixelW, in.numPinholesH, in.numPinholesW, 3);
 
 % For numerical calculations, we would use this
-for i = 1:numSuperPixW
-    for j = 1:numSuperPixH
+for i = 1:in.numPinholesW
+    for j = 1:in.numPinholesH
         lightfield(:,:, j, i, :) = ...
             rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
             ((i-1) * superPixelW + 1):(i*superPixelW), :);
     end
 end
 
-% For visualization, thismight be a good idea - use lrgb2srgb
-LF = zeros(superPixelH, superPixelW, numSuperPixW, numSuperPixH, 3);
+% For visualization, this might be a good idea - use lrgb2srgb
+% Allocate space I AM WORRIED ABOUT THE ORDERING OF 3 and 4.  I put in what
+% sweems right, but the original code had H and W reversed. (BW).
+LF = zeros(superPixelH, superPixelW, in.numPinholesH, in.numPinholesW, 3);
 rgb = lrgb2srgb(double(rgb));
-for i = 1:numSuperPixW
-    for j = 1:numSuperPixH
+for i = 1:in.numPinholesW
+    for j = 1:in.numPinholesH
         LF(:,:, j, i, :) = ...
             rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
             ((i-1) * superPixelW + 1):(i*superPixelW), :);
@@ -128,7 +113,7 @@ end
 
 % lightField(:,:, row, col, :) gives us a view from corresponding pixels in
 % each of the pinhole (microlens array) data sets.
-
+%
 % The pixels at the edges don't really get any rays or if they do they get
 % very little late (are noisier).
 
@@ -193,7 +178,7 @@ imagesc(wImage);
 % visualizing
 LFDispMousePan(LF)
 
-%
+%% 
 LFDispVidCirc(LF)
 
 %% END

@@ -1,31 +1,37 @@
-% pbrtObject contains all the basic properties of a Scene3D pbrt scene.
-% All this information will be used to create a pbrt File.  However, note
-% that key properties such as materials and geometry are still handled by
-% importing text files, since these are very complex.
-%TODO: check types
 classdef pbrtObject <  clonableHandleObject
+    % This is a Matlab class that contains information about pbrt rendering
+    %
+    % This pbrtObject contains the basic properties needed to run pbrt and
+    % build an ISET scene. The information stored in the object describes
+    % lights, materials, geometry that is used to create a set of pbrt
+    % files that we render.
+    %
+    % However, certain key properties such as materials and geometry are
+    % still handled by importing text files, since these are very complex.
+    %
+    % AL, Vistasoft Team, 2015
     
     properties %(SetAccess = protected)  %TODO: see how to make this protected while able to clone
         name;
         scale;
-        camera; %this will contain position, file, film
+        camera;                 % this will contain position, file, film
         sampler;
         surfaceIntegrator;
-        volumeIntegrator = [];  %by default, leave this empty because it's not necessary for all scenes
+        volumeIntegrator = [];  % by default, leave this empty because it's not necessary for all scenes
         renderer;
-        lightSourceArray;   
-        geometryArray;   %can either contain a pbrtGeometryObject or a filename
-        includeArray;  %if there are miscellaneous .pbrt files that must be included, put them in this array
+        lightSourceArray;
+        geometryArray;           % can either contain a pbrtGeometryObject or a filename
+        includeArray;            % if there are miscellaneous .pbrt files that must be included, put them in this array
     end
     properties
-       materialArray; %TODO: make this more elegant later 
+        materialArray;            %TODO: make this more elegant later
     end
     methods
         
         function obj = pbrtObject()
-        % Default constructor. Creates default camera, sampler, surface
-        % integrator, light sources, materials, and geometries for the pbrt
-        % scene.
+            % Default constructor. Creates default camera, sampler, surface
+            % integrator, light sources, materials, and geometries for the pbrt
+            % scene.
             obj.name = 'default';
             
             % This is some blender to pbrt coordinate frames (AL)
@@ -33,14 +39,14 @@ classdef pbrtObject <  clonableHandleObject
             obj.camera = pbrtCameraObject(); %assign the default camera
             
             % Sampler
-            obj.sampler = pbrtSamplerObject('lowdiscrepancy', pbrtPropertyObject('integer pixelsamples', 128)); 
+            obj.sampler = pbrtSamplerObject('lowdiscrepancy', pbrtPropertyObject('integer pixelsamples', 128));
             
             % SurfaceIntegrator
             %             obj.surfaceIntegrator.type  = 'surfaceIntegrator';
             %             obj.surfaceIntegrator.surfIntType = 'directlighting';
             %             obj.surfaceIntegrator.maxdepth = 0;
-            obj.surfaceIntegrator = pbrtSurfaceIntegratorObject(); 
-
+            obj.surfaceIntegrator = pbrtSurfaceIntegratorObject();
+            
             % Renderer
             obj.renderer = 'sample';
             
@@ -49,8 +55,10 @@ classdef pbrtObject <  clonableHandleObject
             %  Attribute Begin
             %   Light source
             obj.lightSourceArray = cell(1,1);
-            %whiteLight = pbrtLightSpotObject();
-            whiteLight = pbrtLightInfiniteObject('infiniteLight', 16, [], [], []);  %this is a better default light so that we at least see something
+            
+            % This used to be whiteLight = pbrtLightSpotObject();
+            % But this is a better default light so that we at least see something
+            whiteLight = pbrtLightInfiniteObject('infiniteLight', 16, [], [], []);
             obj.lightSourceArray{1} = whiteLight;
             %  Attribute End
             
@@ -60,10 +68,10 @@ classdef pbrtObject <  clonableHandleObject
             obj.materialArray{1} = fullfile(datapath,'validate', 'pbrtObject', 'depthTargetSpheres-mat.pbrt');
             
             %example materials object
-            %             tempProperty = pbrtPropertyObject('color Kd', [0 0.374624 0]);  %TODO: the user shouldn't need to know pbrt syntax...
-            %             greenLambertian = pbrtMaterialObject('greenLambertian', 'matte', tempProperty);
-            %             obj.addMaterial(greenLambertian);
-             
+            %   tempProperty = pbrtPropertyObject('color Kd', [0 0.374624 0]);  %TODO: the user shouldn't need to know pbrt syntax...
+            %   greenLambertian = pbrtMaterialObject('greenLambertian', 'matte', tempProperty);
+            %   obj.addMaterial(greenLambertian);
+            
             % Geometry file
             obj.geometryArray = cell(1,1);
             obj.geometryArray{1} = fullfile(datapath,'validate', 'pbrtObject', 'depthTargetSpheres-geom.pbrt');
@@ -71,16 +79,16 @@ classdef pbrtObject <  clonableHandleObject
             %             obj.addGeometry = examplePlane;
             
             % Shapes
-%             obj.shapeArray = cell(1,1);
-%             obj.shapeArray{1}.shape = pbrtShapeObject();
-%             obj.shapeArray{1}.transform = pbrtTransformObject('translate', [4 0 3]);
+            %             obj.shapeArray = cell(1,1);
+            %             obj.shapeArray{1}.shape = pbrtShapeObject();
+            %             obj.shapeArray{1}.transform = pbrtTransformObject('translate', [4 0 3]);
             % WorldEnd
         end
         
-       
+        
         function [returnVal, fname] = writeFile(obj, fname)
-        %writeFile(obj, fname)
-        %Write a text file from a pbrt structure
+            %writeFile(obj, fname)
+            %Write a text file from a pbrt structure
             fid = fopen(fname,'w');
             fprintf(fid,'# PBRT v2.0 Blender Scene file (written from Scene3D)\n#\n\n');
             
@@ -92,13 +100,13 @@ classdef pbrtObject <  clonableHandleObject
             
             %% Camera position & Lens & Image resolution
             obj.camera.writeFile(fid);
-
+            
             %% Sampler
             obj.sampler.writeFile(fid);
             
             %% SurfaceIntegrator
             obj.surfaceIntegrator.writeFile(fid);
-
+            
             %% VolumeIntegrator
             %only write if volume integrator is not empty
             if(~isempty(obj.volumeIntegrator))
@@ -121,7 +129,7 @@ classdef pbrtObject <  clonableHandleObject
                 %check to see if a file or directly defined
                 %if it is a filename, use an include, if not
                 
-                %% this is the lightsource 
+                %% this is the lightsource
                 if (isa(obj.lightSourceArray{i}, 'pbrtLightObject'))
                     fprintf(fid,'\n\nAttributeBegin\n');
                     obj.lightSourceArray{i}.writeFile(fid);
@@ -133,11 +141,11 @@ classdef pbrtObject <  clonableHandleObject
                 end
                 %end
             end
-
+            
             
             %% Include File
             for i = 1:length(obj.includeArray)
-                curInclude =obj.includeArray{i}; 
+                curInclude =obj.includeArray{i};
                 if (ischar(curInclude))
                     if(exist(curInclude, 'file'))
                         fprintf(fid,'\n\nInclude "%s"\n', curInclude);
@@ -152,7 +160,7 @@ classdef pbrtObject <  clonableHandleObject
             
             %% Materials File
             for i = 1:length(obj.materialArray)
-                if (isa(obj.materialArray{i},'pbrtMaterialObject')); 
+                if (isa(obj.materialArray{i},'pbrtMaterialObject'));
                     obj.materialArray{i}.writeFile(fid);
                     %                     if (strcmp(obj.materialArray{i}.matType, 'matte'))
                     %                         fprintf(fid,'\t"%s" [', obj.materialArray{i}.kd.kdType);
@@ -165,14 +173,14 @@ classdef pbrtObject <  clonableHandleObject
             end
             %% Geometry File
             for i = 1:length(obj.geometryArray)
-                curGeometry =obj.geometryArray{i}; 
-                if (isa(curGeometry,'pbrtGeometryObject')); 
+                curGeometry =obj.geometryArray{i};
+                if (isa(curGeometry,'pbrtGeometryObject'));
                     curGeometry.writeFile(fid);
                 else
                     fprintf(fid,'\n\nInclude "%s"\n', curGeometry);
                 end
             end
-
+            
             %% World End
             fprintf(fid,'\n\nWorldEnd\n');
             
@@ -181,104 +189,85 @@ classdef pbrtObject <  clonableHandleObject
             
             returnVal = 1; %1 for success, 0 for failure
         end
-
+        
         function addLightSource(obj,newLightSource)
-        %addLightSource(obj,newLightSource)
-        %
-        %adds a light source to the light source array
-        %
-        %newLightSource: must be of type pbrtLightObject 
-        %TODO: error checking
-            obj.lightSourceArray{end+1} = newLightSource; 
+            %addLightSource(obj,newLightSource)
+            %
+            %adds a light source to the light source array
+            %
+            %newLightSource: must be of type pbrtLightObject
+            %TODO: error checking
+            obj.lightSourceArray{end+1} = newLightSource;
         end
-
+        
         function addMaterial(obj, newMaterial)
-        %addMaterial(obj, newMaterial)
-        %
-        %adds a material to the material array
-        %
-        %newMateria: must be of type pbrtMaterialObject
-        %TODO: error checking
+            %addMaterial(obj, newMaterial)
+            %
+            %adds a material to the material array
+            %
+            %newMateria: must be of type pbrtMaterialObject
+            %TODO: error checking
             obj.materialArray{end+1} = newMaterial;
         end
-            
+        
         function addGeometry(obj, newGeometry)
-        %addGeometry(obj, newGeometry)
-        %
-        %%adds geoemtery to the geometry array
-        %
-        %newGeometry: must be of type pbrtGeometryObject
-        %TODO: error checking     
+            %addGeometry(obj, newGeometry)
+            %
+            %%adds geoemtery to the geometry array
+            %
+            %newGeometry: must be of type pbrtGeometryObject
+            %TODO: error checking
             obj.geometryArray{end+1} = newGeometry;
-        end        
-
+        end
+        
         function addInclude(obj, newInclude)
-        %addInclude(obj, newInclude)
-        %
-        %%adds include file to the include array
-        %
-        %newGeometry: must be of type char
-        %TODO: error checking     
-        if (ischar(newInclude))
-            if(exist(newInclude, 'file'))
-                obj.includeArray{end+1} = newInclude;
+            %addInclude(obj, newInclude)
+            %
+            % adds include file to the include array
+            if (ischar(newInclude))
+                if(exist(newInclude, 'file'))
+                    obj.includeArray{end+1} = newInclude;
+                else
+                    error('Include file %s does not exist!',newInclude);
+                end
             else
-                error('Include file %s does not exist!',newInclude);
+                error('Include files must be character arrays');
             end
-        else
-            error('Include files must be character arrays');
             
         end
-
-        end        
         
         function setVolumeIntegrator(obj, volumeIntegratorIn)
-           %setVolumeIntegrator(obj, samplerIn)
-           %
-           %sets the volume integrator of the pbrtObject
-           validateattributes(volumeIntegratorIn, {'pbrtVolumeIntegratorObject'}, {'nonempty'});
-           obj.volumeIntegrator = volumeIntegratorIn;            
+            %setVolumeIntegrator(obj, samplerIn)
+            %
+            %sets the volume integrator of the pbrtObject
+            validateattributes(volumeIntegratorIn, {'pbrtVolumeIntegratorObject'}, {'nonempty'});
+            obj.volumeIntegrator = volumeIntegratorIn;
         end
         
         function setSampler(obj, samplerIn)
-           %setSampler(obj, samplerIn)
-           %
-           %sets the sampler of the pbrtObject
-           validateattributes(samplerIn, {'pbrtSamplerObject'}, {'nonempty'});
-           obj.sampler = samplerIn;
+            %setSampler(obj, samplerIn)
+            %
+            %sets the sampler of the pbrtObject
+            validateattributes(samplerIn, {'pbrtSamplerObject'}, {'nonempty'});
+            obj.sampler = samplerIn;
         end
-                
-%         function addShape(obj, newShape, newTransform)
-%         %addShape(obj, newShape, newTransform)
-%         %
-%         %%adds shape to the shape array
-%         %
-%         %newShape: must be of type pbrtGeometryObject
-%         %newTransform: must be of type pbrtTransformObject
-%         %TODO: error checking     
-%             obj.shapeArray{end+1} = newShape;
-%             obj.shapeArray{end+1} = newTransform;
-%         end    
         
         function removeGeometry(obj, deleteIndex)
-        %removeGeometry(obj, deleteIndex)
-        %
-        %removes the geometry corresponding to the specified index
-        %if deleteIndex is undefined, remove from the end
-        %TODO: error checking
-            if (ieNotDefined('deleteIndex'))
-                obj.geometryArray(end) = [];
-            else
-                obj.geometryArray(deleteIndex) = [];
+            %removeGeometry(obj, deleteIndex)
+            %
+            %removes the geometry corresponding to the specified index
+            %if deleteIndex is undefined, remove from the end
+            if (ieNotDefined('deleteIndex')), obj.geometryArray(end) = [];
+            else                              obj.geometryArray(deleteIndex) = [];
             end
         end
-
+        
         function returnVal = removeLight(obj, deleteIndex)
-        %removeLight(obj, deleteIndex)
-        %
-        %removes the light source corresponding to the specified index
-        %if deleteIndex is undefined, remove from the end
-        %returns the deleted value
+            %removeLight(obj, deleteIndex)
+            %
+            %removes the light source corresponding to the specified index
+            %if deleteIndex is undefined, remove from the end
+            %returns the deleted value
             if (ieNotDefined('deleteIndex'))
                 returnVal = obj.lightSourceArray(end);
                 obj.lightSourceArray(end) = [];
@@ -289,11 +278,11 @@ classdef pbrtObject <  clonableHandleObject
         end
         
         function returnVal = removeMaterial(obj, deleteIndex)
-        %removeMaterial(obj, deleteIndex)
-        %
-        %removes the light source corresponding to the specified index
-        %if deleteIndex is undefined, remove from the end
-        %returns the deleted value
+            %removeMaterial(obj, deleteIndex)
+            %
+            %removes the light source corresponding to the specified index
+            %if deleteIndex is undefined, remove from the end
+            %returns the deleted value
             if (ieNotDefined('deleteIndex'))
                 returnVal = obj.materialArray(end);
                 obj.materialArray(end) = [];
@@ -301,14 +290,14 @@ classdef pbrtObject <  clonableHandleObject
                 returnVal = obj.materialArray(deleteIndex);
                 obj.materialArray(deleteIndex) = [];
             end
-        end        
+        end
         
         function returnVal = removeInclude(obj, deleteIndex)
-        %removeInclude(obj, deleteIndex)
-        %
-        %removes the include file corresponding to the specified index
-        %if deleteIndex is undefined, remove from the end
-        %returns the deleted value
+            %removeInclude(obj, deleteIndex)
+            %
+            %removes the include file corresponding to the specified index
+            %if deleteIndex is undefined, remove from the end
+            %returns the deleted value
             if (ieNotDefined('deleteIndex'))
                 returnVal = obj.includeArray(end);
                 obj.includeArray(end) = [];
@@ -316,7 +305,8 @@ classdef pbrtObject <  clonableHandleObject
                 returnVal = obj.includeArray(deleteIndex);
                 obj.includeArray(deleteIndex) = [];
             end
-        end                
+        end
+        
         %example code
         %     function obj = batchFileClass(inStem, inPostfix)
         %         obj.inputStem = inStem;
@@ -348,30 +338,30 @@ classdef pbrtObject <  clonableHandleObject
         
         
         %% TODO: make a better makeDeepCopy method
-%         function obj = makeDeepCopy(obj, oldObj)
-%             %clones the oldObj and makes a copy as the current object
-%             
-%              
-% 
-%             %only look at the current object for properties - this deals
-%             %with inheritance cases
-%             props = properties(obj);
-%             for i = 1:length(props)
-%                 % Use Dynamic Expressions to copy the required property.
-%                 % For more info on usage of Dynamic Expressions, refer to
-%                 % the section "Creating Field Names Dynamically" in:
-%                 % web([docroot '/techdoc/matlab_prog/br04bw6-38.html#br1v5a9-1'])
-% %                 if isa(oldObj.(props{i}), 'clonableHandleObject')
-% %                     obj.(props{i}) = clonableHandleObject();
-% %                     obj.(props{i}).makeDeepCopy(oldObj.(props{i}));
-% %                 else
-%                     obj.(props{i}) = oldObj.(props{i});
-% %                 end
-%             end
-% %             newObj = class(newObj, class(obj));   %TODO: FIX - want a
-% %             real copy that's automated
-%         end
-%         
+        %         function obj = makeDeepCopy(obj, oldObj)
+        %             %clones the oldObj and makes a copy as the current object
+        %
+        %
+        %
+        %             %only look at the current object for properties - this deals
+        %             %with inheritance cases
+        %             props = properties(obj);
+        %             for i = 1:length(props)
+        %                 % Use Dynamic Expressions to copy the required property.
+        %                 % For more info on usage of Dynamic Expressions, refer to
+        %                 % the section "Creating Field Names Dynamically" in:
+        %                 % web([docroot '/techdoc/matlab_prog/br04bw6-38.html#br1v5a9-1'])
+        % %                 if isa(oldObj.(props{i}), 'clonableHandleObject')
+        % %                     obj.(props{i}) = clonableHandleObject();
+        % %                     obj.(props{i}).makeDeepCopy(oldObj.(props{i}));
+        % %                 else
+        %                     obj.(props{i}) = oldObj.(props{i});
+        % %                 end
+        %             end
+        % %             newObj = class(newObj, class(obj));   %TODO: FIX - want a
+        % %             real copy that's automated
+        %         end
+        %
     end
 end
 
