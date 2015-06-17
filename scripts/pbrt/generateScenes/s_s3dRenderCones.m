@@ -1,4 +1,4 @@
-% Runs PBRT and imports it in ISET for the cones scene. 
+% Runs PBRT and imports the result into an ISET oi for the 'cone' scene. 
 %
 % Creates the light field OI used to illustrate transverse chromatic
 % aberration in AL's dissertation.  The image has a black line at the
@@ -34,9 +34,9 @@ curPbrt.camera.addTransform(pbrtTransformObject('Rotate', [52 0 1 0]));
 curPbrt.camera.addTransform(pbrtTransformObject('Translate', [-2.3 -.05 .5]));
 
 %% Make a lens and add to pbrt object
-quick    = true; 
+quick    = false; 
 if quick, nSamples = 2048;             % This is too few, but it gives the idea
-else      nSamples = 2048*6;
+else      nSamples = 2048*10;
 end
 
 filmDist = 40;           % This brings the front part of the image into reasonable focus

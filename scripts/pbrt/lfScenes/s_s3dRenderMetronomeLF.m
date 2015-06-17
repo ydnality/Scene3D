@@ -12,7 +12,7 @@ ieInit
 %% render scene with PBRT using pbrtObjects (front flash)
 tic
 
-%initialization
+%pbrt object initialization
 clear curPbrt;
 curPbrt = pbrtObject();
 
@@ -22,8 +22,8 @@ geoFile = fullfile(dataPath, 'twoFlashDepth', 'indObject', 'pbrt', 'default-geom
 
 % light properties
 spectrum = pbrtSpectrumObject('rgb I', [1000 1000 1000]);
-lightFrom = [  -56.914787 -105.385544 35.0148];  % Position of source
-lightTo =   [-56.487434 -104.481461 34.8  ];       % Direction of principal ray
+lightFrom = [ -56.914787 -105.385544 35.0148];  % Position of source
+lightTo =   [-56.487434  -104.481461 34.8  ];   % Direction of principal ray
 coneAngle      = 180;    % Angle of rays from light source
 coneDeltaAngle = 180;    % Drop off of illumination???
 lightSource = pbrtLightSpotObject('light', spectrum, coneAngle, coneDeltaAngle, lightFrom, lightTo);  
@@ -35,12 +35,6 @@ from = [ -56.914787 -105.385544 35.0148];
 to = [-56.487434 -104.481461 34.8 ];
 position = [from; to; 0 0 1];
 curPbrt.camera.setPosition(position);
-
-%lens = pbrtLensPinholeObject();
-%filmDistance = 140;
-%filmDiag = 50.9117;
-%curPbrt.camera.setLens(pbrtLensPinholeObject(filmDistance, filmDiag));  %TODO: may want to switch to a real lens later
-%curPbrt.camera.setResolution(300, 300);
 
 %% add old parts, put in new ones
 % Candidate for a function
@@ -79,6 +73,16 @@ lens = pbrtLensRealisticObject(filmDist, filmDiag, ...
 curPbrt.camera.setLens(lens);
 
 curPbrt.camera.setResolution(rows, cols);
+
+%% To use a pinhole, without the microlens array set the lens this way
+%  The script s_s3dRenderMetronome.m also has examples
+
+%lens         = pbrtLensPinholeObject();
+%filmDistance = 140;
+%filmDiag     = 50.9117;
+%TODO: may want to switch to a real lens later
+%curPbrt.camera.setLens(pbrtLensPinholeObject(filmDistance, filmDiag)); 
+%curPbrt.camera.setResolution(300, 300);
 
 %% write file and render
 focalLength = 0.050;   % In meters

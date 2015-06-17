@@ -23,19 +23,20 @@ fID = fopen(fname,'r','l');
 %load size information
 [A, cnt] = fscanf(fID,'%d %d %d\n',[3 1]); %#ok<NASGU>
 
+% The FOV and lens information now comes from elsewhere.
 %load lens and field of view and information
-[FOV, cnt2] = fscanf(fID,'%f %f %f\n',[3 1]); %#ok<NASGU>
+[FOV, cnt2] = fscanf(fID,'%f %f %f\n',[3 1]); %#ok<ASGLU,NASGU>
 
 % We don't think these numbers are right yet.
 % Making them right could involve PBRT hacking, or using the lens
 % information that is part of the pbrtObject in Matlab.
-if (~isempty(FOV))
-    focalLength = FOV(1)*1e-3;   %do something with this information in the future
-    aperture    = FOV(2)*1e-3;
-    % fieldOfView = FOV(3);
-else
-    disp('no lens information!!')
-end
+% if (~isempty(FOV))
+%     % focalLength = FOV(1)*1e-3;   %do something with this information in the future
+%     % aperture    = FOV(2)*1e-3;
+%     % fieldOfView = FOV(3);
+% else
+%     disp('no lens information!!')
+% end
 
 %Load the stored photons produced by AL's pbrt code
 photons = fread(fID,prod(A),'double');
