@@ -3,8 +3,7 @@
 % this scripts renders a pbrt scene straight up(using a .pbrt file), using
 % a docker container 
 %
-% It is also possible to simply use pbrt if it is installed on the system
-% and be on the system path. 
+% AL/BW Vistasoft, 2014
 
 %% s3dRenderScene
 
@@ -27,5 +26,8 @@ scene = s3dRenderSceneAndDepthMap(inputPbrtFile, 'bench', dockerFlag, noScale);
 
 vcAddObject(scene);
 sceneWindow;
+
+%%
+save('benchHDRScene','scene','inputPbrtFile');
 
 %%

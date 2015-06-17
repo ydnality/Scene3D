@@ -1,8 +1,10 @@
-% Runs PBRT and imports the result into an ISET oi for the 'cone' scene. 
+%% s_s3dRenderCones
 %
-% Creates the light field OI used to illustrate transverse chromatic
-% aberration in AL's dissertation.  The image has a black line at the
-% bottom that can be zoomed to show the different wavelength dispersion.
+% Runs PBRT and imports the result into an ISET oi for the 'cone' scene.
+%
+% Creates the OI used to illustrate transverse chromatic aberration in AL's
+% dissertation.  The image has a black line at the bottom that can be
+% zoomed to show the different wavelength dispersion.
 %
 % NOTES: 
 % The number of samples needs to be large to make a reasonable image.  The
@@ -18,7 +20,10 @@
 %%
 ieInit;
 
+quick    = false; % Sets number of samples for quick look or not
+
 %% Call a PBRT wrapper to make the scene cones.pbrt
+
 
 %initialization
 clear curPbrt;
@@ -34,9 +39,8 @@ curPbrt.camera.addTransform(pbrtTransformObject('Rotate', [52 0 1 0]));
 curPbrt.camera.addTransform(pbrtTransformObject('Translate', [-2.3 -.05 .5]));
 
 %% Make a lens and add to pbrt object
-quick    = false; 
 if quick, nSamples = 2048;             % This is too few, but it gives the idea
-else      nSamples = 2048*10;
+else      nSamples = 2048*12;
 end
 
 filmDist = 40;           % This brings the front part of the image into reasonable focus
@@ -81,9 +85,11 @@ curPbrt.removeGeometry();
 
 oiName     = 'coneArray';
 dockerFlag = true;
-frontOi    = s3dRenderOIAndDepthMap(curPbrt, oiName, dockerFlag);
+oi    = s3dRenderOIAndDepthMap(curPbrt, oiName, dockerFlag);
 
 % Visualize it
-vcAddObject(frontOi); oiWindow;
+vcAddObject(oi); oiWindow;
 
+%%
+save(oiName,'oi','curPbrt');
 %% END
