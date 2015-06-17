@@ -48,8 +48,8 @@ if (ieNotDefined('noScale')),   noScale = false;  end
 if (ieNotDefined('oiFlag')),    oiFlag = false;   end
 
 %% Make a tempPBRT directory where the output files will go
-generatedDir = tempname;
-mkdir(generatedDir);
+generatedDir = fullfile(getenv('HOME'),'dmount'); % tempname;
+if ~exist(generatedDir,'dir'), mkdir(generatedDir); end
 
 % Make the pbrt files from the pbrtObject
 if(isa(inputPbrt, 'pbrtObject'))
