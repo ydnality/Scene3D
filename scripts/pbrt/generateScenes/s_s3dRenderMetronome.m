@@ -20,7 +20,8 @@ param.pinhole      = false;
 
 % Governs the number of samples per pixel. A minimum is 32.
 % For the scarlet one we ran it with 12*2048.
-nSamples = 2*2048;
+% ap of 3 and film distance of 70 is a pretty good combination for DOF
+nSamples = 8*2048;
 
 %%
 tic
@@ -72,13 +73,13 @@ curPbrt.camera.setPosition(position);
     
 if param.pinhole
     lens         = pbrtLensPinholeObject();
-    filmDistance = 140;
-    filmDiag     = 50.9117;
+    filmDistance = 140;   % Why so far?  Couldn't 70 be OK here, too?
+    filmDiag     = 50.9117;s
     curPbrt.camera.setLens(pbrtLensPinholeObject(filmDistance, filmDiag));
     % curPbrt.camera.setResolution(300, 300);
 else
     curPbrt.camera.setLens(pbrtLensRealisticObject());
-    curPbrt.camera.lens.filmDistance = 90; % 90 70;  % 133.33;
+    curPbrt.camera.lens.filmDistance = 70; % 90 70;  % 133.33;
     curPbrt.camera.lens.filmDiag     = 70;  % 70
     % curPbrt.camera.lens.specFile = '2ElLens.dat';
     curPbrt.camera.lens.specFile      = 'dgauss.50mm.dat';
