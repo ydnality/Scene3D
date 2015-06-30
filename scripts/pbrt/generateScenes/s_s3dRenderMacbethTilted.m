@@ -1,4 +1,4 @@
-%% Render the macbeth color chiecker as a 3D object, tilted
+%% Render the macbeth color checker as a 3D object, tilted squares
 %
 % AL Vistasoft, 2015
 
