@@ -21,7 +21,7 @@ param.pinhole      = false;
 % Governs the number of samples per pixel. A minimum is 32.
 % For the scarlet one we ran it with 12*2048.
 % ap of 3 and film distance of 70 is a pretty good combination for DOF
-nSamples = 8*2048;
+nSamples = 1024; % 8*2048;
 
 %%
 tic
@@ -86,7 +86,7 @@ else
     curPbrt.camera.lens.apertureDiameter = 3;  % 16 for narrow DOF, 1 for deep (mm)
     curPbrt.camera.lens.curveRadius = 0;       % Experimental
 end
-curPbrt.camera.setResolution(450, 300);
+curPbrt.camera.setResolution(256,256); %(450, 300);
 
 
 %% Wide field camera properties
