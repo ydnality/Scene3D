@@ -20,8 +20,8 @@
 %
 % AL Vistalab 2014
 
-%% 
-s_initISET
+%
+ieInit
 
 %% point sources
 % declare point sources in world space.  The camera is usually at [0 0 0],
@@ -36,6 +36,7 @@ pointSources = [XGrid(:) YGrid(:) ones(size(XGrid(:))) * -20000];
 % pointSources = [0 0 -20000];
 wave = 400:10:700;
 rtType = 'ideal';  %ray tracing using the ideal lens model  
+% rtType = 'realistic';
 
 %% camera and film properties 
 
@@ -56,9 +57,6 @@ lens = lensC('apertureMiddleD', apertureMiddleD,  ...
 
 
 %% loop through all point sources
-vcNewGraphWin;  %vcNewGraphWin causes a matlab seg fault, so using figure
-% for now
-% figure;
 
 for curInd = 1:size(pointSources, 1);
     
