@@ -49,7 +49,8 @@ classdef ppsfCameraC <  psfCameraC
              %Use the psfCameraC constructor
              obj = obj@psfCameraC('lens', lens,...
                  'film', film, ...
-                 'pointSource', pointSource);
+                 'pointSource', pointSource, ...
+                 'clearfilm', 0);  %we don't want to clear the film.  WE NEED IT!
              
              % Should we clear out rays on return and only keep ppsfRays?
              % What is the plan here?

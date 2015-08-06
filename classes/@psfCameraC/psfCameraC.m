@@ -35,6 +35,7 @@ classdef psfCameraC <  handle
         function obj = psfCameraC(varargin)
             % psfCameraC('lens',lens,'film',film,'point source',point);
             
+            clearFilm = true;
             for ii=1:2:length(varargin)
                 % Eliminates spaces and forces lower case
                 p = ieParamFormat(varargin{ii});
@@ -49,13 +50,17 @@ classdef psfCameraC <  handle
                        obj.BBoxModel = varargin{ii+1};
                     case {'fftpsf'}
                         obj.lens = varargin{ii+1};
+                    case 'clearfilm'
+                        clearFilm = varargin{ii+1};
                     otherwise
                         error('Unknown parameter %s\n',varargin{ii});
                 end
             end
             
             % Always clear the film on a create
-            obj.film.clear;
+            if(clearFilm)
+                obj.film.clear;  %AL: This is causing problems for VoLT!!!! 
+            end
         end
         
         function [val] = get(obj,param,varargin)

@@ -82,8 +82,10 @@ wantedPSLocation = [0 15.8 -103];
 
 %% new PS format: use spherical coordinates to specify point (this is more efficient)
 
-pSDepth = 60:1:110;  %this is the same as before - except we use positive coordinates to be more intuitie
-pSPhi = .1:1:16;  %phi will be the azimuth angle, where phi is the counter clockwise angle from the x axis
+%pSDepth = 60:1:110;  %this is the same as before - except we use positive coordinates to be more intuitie
+pSDepth = [79 110];  %this is the same as before - except we use positive coordinates to be more intuitie
+%pSPhi = .1:1:16;  %phi will be the azimuth angle, where phi is the counter clockwise angle from the x axis
+pSPhi = [7 16];  %phi will be the azimuth angle, where phi is the counter clockwise angle from the x axis
 pSPhi = [0 pSPhi]; 
 
 wantedPSLocation = [0 7 -103];  %in [degrees depth(mm)] format
@@ -265,7 +267,7 @@ VoLTCameraObject = VoLTCameraC('film', film, ...
                                'lens', lens);
 
 tic
-VoLTCameraObject.blurScene([2 2]);
+VoLTCameraObject.blurScene([2 2]);  %TODO: right now - broken... wavelengths 400 - 550 are NaN for some reason.  
 toc
 %% Old blurring experimental code
 % tic

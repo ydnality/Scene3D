@@ -1,5 +1,6 @@
 classdef VoLTC < clonableHandleObject
-    %VOLTC Summary of this class goes here
+    %VOLTC
+    %   The Volume of Linear Transforms (see Andy's thesis for complete explanation). 
     %   Detailed explanation goes here
     
     properties (Access = private)
@@ -24,7 +25,7 @@ classdef VoLTC < clonableHandleObject
         A2ndCollection;
     end
     
-    methods (Access = private)
+    methods (Access = public)
         function pSLocations = getPSLocations(obj, depthIndex)
             %Returns a collection of point source locations (n x 3, where n
             %is the number of point sources) at a specific depth, specified

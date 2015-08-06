@@ -43,7 +43,10 @@ wave = obj.film.wave;
 
 % originally 3580 sec
 % with parfor: 376 sec
-if exist('matlabpool','builtin')
+
+
+
+if exist('matlabpool')   %,'builtin')
     % Close the pool if it is open
     if (matlabpool('size') > 0),  matlabpool close; end
     
@@ -54,7 +57,7 @@ else
 end
 
 
-parfor i = 1:oiSize(2)
+for i = 1:oiSize(2)
     i
     film = filmC('position', [0 0 filmPosition ], ...
     'size', [40 40], 'resolution', filmResolution,  ...
