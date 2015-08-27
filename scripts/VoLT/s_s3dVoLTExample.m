@@ -206,12 +206,16 @@ vcAddObject(oiI); oiWindow;
 uI = plotOI(oiI,'illuminance hline',[1 135]);
 title(sprintf(oiGet(oiI,'name')));
 
+%plot PSF slice
 vcNewGraphWin;
-plot(uI.pos,uI.data,'r-',uG.pos,uG.data,'b--');
-grid on; xlabel('position'); ylabel('Illuminance')
+plot(uI.pos,uI.data./max(uI.data(:)),'r-',uG.pos,uG.data./max(uG.data(:)),'b--');
+grid on; xlabel('Position(um)'); ylabel('Relative Illuminance');
+legend('VoLT', 'Snell''s Law')
+xlim([-1000 1000]);
 
 vcNewGraphWin; plot(uI.data(:)/max(uI.data(:)),uG.data(:)/max(uG.data(:)),'o')
 grid on; identityLine;
+xlabel('VoLT PSF Slice Relative Illuminance'); ylabel('Snell''s Law PSF Slice Relative Illuminance'); 
 
 
 %% Scrap
