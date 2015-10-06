@@ -1,4 +1,4 @@
-function oi = oiCombineDepthsNew(oiD, dMap, depthEdges, depthCenters, alphaMask)
+function oi = oiCombineDepths(oiD, dMap, depthEdges, depthCenters, alphaMask)
 % Combine defocused OI from multiple depths.  Always ordered back to front
 %
 %   oi = oiCombineDepths(oiD)

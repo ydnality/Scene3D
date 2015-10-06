@@ -1,4 +1,4 @@
-function [oi, oiD, D] = s3dRenderDepthDefocusNew(scene, oi, imgPlaneDist, depthEdges, cAberration)
+function [oi, oiD, D] = s3dRenderDepthDefocus(scene, oi, imgPlaneDist, depthEdges, cAberration)
 % Computes the blurred optical image given a scene, optics,a nd  image plane distance
 %
 % OBSOLETE , but we still use this in oiDepthCompute (AL)

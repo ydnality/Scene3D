@@ -41,13 +41,12 @@ oiD = cell(1,length(depthEdges));
 % Loop and show in the OI window.
 for ii=1:length(depthEdges)
     scene = sceneSet(scene,'depth map',dMap*depthEdges(ii));
-    [oiD{ii},tmp,D] = s3dRenderDepthDefocusNew(scene,oi,imageDist,[],cAberration);
-%??
-   % [oiD{ii},tmp,D] = s3dRenderDepthDefocusNew(scene,oi,imageDist,[depthEdges(ii) depthEdges(ii+1)],cAberration);    
-    
+    [oiD{ii},~,D] = s3dRenderDepthDefocus(scene,oi,imageDist,[],cAberration);    
     oiD{ii} = oiSet(oiD{ii},'name',sprintf('Defocus %.2f',D));
+    
     if displayFlag
-        vcAddAndSelectObject(oiD{ii});  oiWindow
+        ieAddObject(oiD{ii});
+        oiWindow;
     end
 end
 

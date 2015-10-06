@@ -1,51 +1,42 @@
-%  Experiments with light fields and ISET
+% s_lfIntro
+% 
+% Introduction to light field camera simulation using ISET
 %
-
-%
-%  See also: s_s3dISETLF.m, LFToolbox0.4
+% See also: s_s3dISETLF.m, LFToolbox0.4
 %
 % (AL, BW) Vistasoft Team, 2015
 
-%%
-ieInit
-clx
+% Set up ISET
 ieInit
 
-%% load a lightfield as an oi object
+%% load a lightfield as an oi object from the remote data site
 
-%  To retrieve some of the lightfield data use
-urlBase = 'http://scarlet.stanford.edu/validation/SCIEN/LIGHTFIELD/scenes';
-fname = 'benchLF.mat';
+% Another light field we calculated.
 % fname = 'metronomeLF.mat';
+fname = 'benchLF.mat';
+rd  = ieRdata('create');
+val = ieRdata('load data',rd,fname);
 
-urlwrite(fullfile(urlBase,fname),fname)
-in = load(fname);
-oi = in.oi;
+%% Unpack the data 
+oi  = val.oi;
+oi.lightfield.pinholes = [val.numPinholesH, val.numPinholesW];
+oi.lightfield.pbrt     = val.curPbrt;
 
-% This should be stored in the file.  But that file isn't right, so we set
-% parameters here until the data are fixed.
+% We set parameters here.
 oi = oiSet(oi,'fov',20);
 oi = oiSet(oi,'optics focal length',3.5e-3);
 oi = oiAdjustIlluminance(oi,10);
 
-% This OI was created using PBRT. The way in which this file was created
-% should be up included with the data somewhere, perhaps on the remote data
-% path (at scarlet).
-% in = load(fullfile(dataPath, 'lightfields', 'indObjLFOiDirect.mat'));
-% oi = in.opticalimage;
+% Show the oi as an image
+ieAddObject(oi); oiWindow;
 
-%% Check the oi and show it.
+% Show a table of the oi parameters
+iePTable(oi);
 
-oiGet(oi,'sample spacing','um')
-oiGet(oi,'fov')
-oiGet(oi,'mean illuminance')
-
-vcAddObject(oi); oiWindow;
-
-%% process sensor and image processing data
+%% Create a sensor 
 %
-% Create a sensor in which each pixel is aligned with a single sample in
-% the OI.  Then produce the sensor data (which will include color filters)
+% Each pixel is aligned with a single sample in the OI.  Then produce the
+% sensor data (which will include color filters)
 %
 ss = oiGet(oi,'sample spacing','m');
 sensor = sensorCreate;
@@ -58,11 +49,10 @@ sensorGet(sensor,'pixel size','um')
 sensorGet(sensor,'size')
 sensorGet(sensor,'fov',[],oi)
 
-%% Compute the sensor response
 sensor = sensorCompute(sensor,oi);
-vcAddObject(sensor); sensorWindow('scale',1);
+ieAddObject(sensor); sensorWindow('scale',1);
 
-%% Interpolate the color filter data to produce a full sensor
+%% Interpolate (bilinear) the color filter data to produce an image
 %
 ip = ipCreate;
 ip = ipCompute(ip,sensor);
@@ -70,36 +60,34 @@ vcAddObject(ip); ipWindow;
 
 % Show in a separate window
 rgb = ipGet(ip,'result');
-size(rgb)
 
 %% Pack the samples of the rgb image into the lightfield structure
+% This is the structure used by the light field toolbox
 
-% If we had a lightfield structure, lf, this could become
+% The calculations in this section could become
 %    rgb2lf(rgb,lf)
 
-superPixelH = size(rgb,1)/in.numPinholesH;
-superPixelW = size(rgb,2)/in.numPinholesW;
+superPixelH = size(rgb,1)/val.numPinholesH;
+superPixelW = size(rgb,2)/val.numPinholesW;
+lightfield = zeros(superPixelH, superPixelW, ...
+    val.numPinholesH, val.numPinholesW, 3);
 
-% Allocate space I AM WORRIED ABOUT THE ORDERING OF 3 and 4.  I put in what
-% sweems right, but the original code had H and W reversed. (BW).
-lightfield = zeros(superPixelH, superPixelW, in.numPinholesH, in.numPinholesW, 3);
-
-% For numerical calculations, we would use this
-for i = 1:in.numPinholesW
-    for j = 1:in.numPinholesH
+% For lightfield calculations, we use this rgb format
+for i = 1:val.numPinholesW
+    for j = 1:val.numPinholesH
         lightfield(:,:, j, i, :) = ...
             rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
             ((i-1) * superPixelW + 1):(i*superPixelW), :);
     end
 end
 
-% For visualization, this might be a good idea - use lrgb2srgb
-% Allocate space I AM WORRIED ABOUT THE ORDERING OF 3 and 4.  I put in what
-% sweems right, but the original code had H and W reversed. (BW).
-LF = zeros(superPixelH, superPixelW, in.numPinholesH, in.numPinholesW, 3);
+% For visualization we display the rgb as srgb 
+% This makes it easier to see.
+% So, LF is like lightfield but with srgb values
+LF = zeros(superPixelH, superPixelW, val.numPinholesH, val.numPinholesW, 3);
 rgb = lrgb2srgb(double(rgb));
-for i = 1:in.numPinholesW
-    for j = 1:in.numPinholesH
+for i = 1:val.numPinholesW
+    for j = 1:val.numPinholesH
         LF(:,:, j, i, :) = ...
             rgb(((j-1)*superPixelH + 1):(j*superPixelH), ...
             ((i-1) * superPixelW + 1):(i*superPixelW), :);
@@ -124,7 +112,7 @@ for rr=rList
     for cc=cList
         img = squeeze(lightfield(rr,cc,:,:,:));
         img = lrgb2srgb(img);
-        subplot(length(rList),length(cList),cnt), imshow(img);
+        subplot(length(rList),length(cList),cnt), imagescRGB(img);
         cnt = cnt + 1;
     end
 end
@@ -134,11 +122,11 @@ vcNewGraphWin([],'wide');
 
 img = squeeze(lightfield(3,2,:,:,:));
 img = lrgb2srgb(img);
-subplot(1,2,1), imshow(img);
+subplot(1,2,1), imagescRGB(img);
 
 img = squeeze(lightfield(3,8,:,:,:));
 img = lrgb2srgb(img);
-subplot(1,2,2), imshow(img);
+subplot(1,2,2), imagescRGB(img);
 
 %% render some example images
 
@@ -182,7 +170,7 @@ end
 
 % In this case, we use the srgb representation because we are just
 % visualizing
-LFDispMousePan(LF)
+% LFDispMousePan(LF)
 
 %% 
 LFDispVidCirc(LF)
