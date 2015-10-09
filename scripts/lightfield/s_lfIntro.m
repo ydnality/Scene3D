@@ -2,6 +2,10 @@
 % 
 % Introduction to light field camera simulation using ISET
 %
+%   * Download a light field optical image from the database
+%   * Create a sensor matched to the light field
+%   * Manipulate the light field for point of view and focal plane
+%
 % See also: s_s3dISETLF.m, LFToolbox0.4
 %
 % (AL, BW) Vistasoft Team, 2015
